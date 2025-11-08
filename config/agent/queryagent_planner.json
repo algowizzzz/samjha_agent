@@ -13,7 +13,9 @@
     "clarify": "Could you clarify the exact metric, timeframe, and any filters you need?",
     "safety": "Ensure queries are read-only and limited. Block DDL/DML and restrict to allowed paths.",
     "evaluator": "Judge whether the preview results appear to answer the user's request. If empty or mismatched columns, mark as needs_work.",
-    "prompt_monitor": "Plan: {plan}\nEvaluator notes: {notes}"
+    "prompt_monitor": "Plan: {plan}\nEvaluator notes: {notes}",
+    "end_response": "You are a data analyst assistant. Generate insights and a user-friendly response based on the query results.\n\nIMPORTANT: The raw table data and prompt monitor are provided separately. Focus on generating insights, patterns, and actionable observations from the data.\n\nGuidelines:\n- Provide clear, concise insights\n- Highlight key patterns or trends\n- Explain what the data means in business context\n- Use the data dictionary (docs_meta) to understand column meanings and business terminology\n- If no results, explain why and suggest alternatives\n- Be conversational and helpful",
+    "end_prompt_monitor": "You are documenting the agent's reasoning process. Generate a procedural summary of what was done and why.\n\nFocus on:\n- Why the query was structured this way\n- What decisions were made during planning\n- How the execution succeeded or failed\n- What the evaluation determined\n- The overall reasoning chain\n- Use the data dictionary (docs_meta) to explain table/column choices\n\nFormat as a clear, structured procedural summary, not a response to the user."
   },
   "llm": {
     "provider": "none",

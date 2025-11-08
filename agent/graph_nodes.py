@@ -457,82 +457,294 @@ def end_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
         except:
             pass
     
-    # Build dual outputs
-    # response: concise preview
-    preview_rows = int(cfg.get_nested("duckdb", "preview_rows", default=100))
+    # Get execution results
     exec_result = state.get("execution_result") or {}
-    rows = exec_result.get("rows", [])[:preview_rows]
+    rows = exec_result.get("rows", [])
     columns = exec_result.get("columns", [])
     execution_stats = state.get("execution_stats", {})
+    user_query = state.get("user_input", "")
+    plan = state.get("plan", {})
+    plan_sql = plan.get("sql", "")
     
-    # Build response - user-friendly summary
-    response_lines = []
-    if execution_stats.get("error"):
-        response_lines.append(f"❌ Query failed: {execution_stats['error']}")
-        response_lines.append(f"\nQuery attempted: {state.get('plan', {}).get('sql', '')}")
-    else:
-        # Generate natural language summary based on the query and results
-        user_query = state.get("user_input", "")
-        row_count = exec_result.get("row_count", 0)
+    # ============================================================================
+    # OUTPUT 1: Raw Table Data
+    # ============================================================================
+    raw_table = {
+        "columns": columns,
+        "rows": rows,
+        "row_count": exec_result.get("row_count", 0),
+        "query": plan_sql
+    }
+    
+    # ============================================================================
+    # OUTPUT 2: LLM-Generated Response/Insights
+    # ============================================================================
+    llm_response = None
+    try:
+        import logging
+        logger = logging.getLogger(__name__)
         
-        if row_count == 0:
-            response_lines.append(f"No results found for: {user_query}")
-        else:
-            # Create a summary based on the data
-            response_lines.append(f"Here are the results for '{user_query}':\n")
+        from agent.llm_client import get_llm_client
+        llm_client = get_llm_client()
+        
+        # DEBUG: Check LLM availability
+        is_available = llm_client.is_available()
+        logger.info(f"[END_NODE] LLM client available: {is_available}")
+        logs.append({"node": "end", "timestamp": _now_iso(), "msg": f"LLM client available: {is_available}"})
+        
+        if is_available:
+            logs.append({"node": "end", "timestamp": _now_iso(), "msg": "generating LLM response/insights"})
             
-            # Show the data in a readable format
-            if rows and len(rows) > 0:
-                # Format as a table-like structure
-                for i, row in enumerate(rows[:10], 1):  # Show up to 10 rows
+            # Build system prompt from config
+            system_prompt = cfg.get_nested("prompts", "end_response", default="")
+            logger.info(f"[END_NODE] Config prompt length: {len(system_prompt) if system_prompt else 0}")
+            logs.append({"node": "end", "timestamp": _now_iso(), "msg": f"Config prompt loaded: {len(system_prompt) if system_prompt else 0} chars"})
+            
+            if not system_prompt:
+                system_prompt = """You are a data analyst assistant. Generate insights and a user-friendly response based on the query results.
+
+IMPORTANT: The raw table data and prompt monitor are provided separately. Focus on generating insights, patterns, and actionable observations from the data."""
+                logger.info("[END_NODE] Using default system prompt (config was empty)")
+            
+            # Build user prompt with full state (JSON serialized)
+            # Limit rows to first 50 to avoid token overflow
+            preview_rows = rows[:50] if rows else []
+            state_summary = {
+                "user_query": user_query,
+                "sql_query": plan_sql,
+                "execution_status": "success" if not execution_stats.get("error") else f"failed: {execution_stats.get('error')}",
+                "row_count": exec_result.get("row_count", 0),
+                "columns": columns,
+                "sample_rows": preview_rows,
+                "plan_quality": state.get("plan_quality", ""),
+                "plan_explanation": state.get("plan_explain", ""),
+                "evaluation_notes": state.get("evaluator_notes", ""),
+                "satisfaction": state.get("satisfaction", ""),
+                "docs_meta": state.get("docs_meta", []),  # Data dictionary
+                "table_schema": state.get("table_schema", {})
+            }
+            
+            user_prompt = f"""Generate a user-friendly response with insights from this query execution.
+
+Full State Summary:
+{json.dumps(state_summary, indent=2)}
+
+Use the data dictionary (docs_meta) to understand column meanings and business context. Focus on what the data tells us, key patterns, and actionable observations."""
+            
+            logger.info(f"[END_NODE] Calling LLM with prompt length: {len(user_prompt)} chars")
+            try:
+                llm_response = llm_client.invoke_with_prompt(
+                    system_prompt=system_prompt,
+                    user_prompt=user_prompt,
+                    temperature=0.3  # Slightly higher for more creative insights
+                )
+                logger.info(f"[END_NODE] LLM response received: {len(llm_response) if llm_response else 0} chars")
+                logs.append({"node": "end", "timestamp": _now_iso(), "msg": f"LLM response generated successfully ({len(llm_response) if llm_response else 0} chars)"})
+            except Exception as e:
+                import traceback
+                error_trace = traceback.format_exc()
+                logger.error(f"[END_NODE] LLM response generation failed: {str(e)}\n{error_trace}")
+                logs.append({"node": "end", "timestamp": _now_iso(), "msg": f"LLM response generation failed: {str(e)}", "level": "error", "traceback": error_trace})
+                llm_response = None
+        else:
+            logger.warning("[END_NODE] LLM not available, using template response")
+            logs.append({"node": "end", "timestamp": _now_iso(), "msg": "LLM not available, using template response"})
+    except Exception as e:
+        import traceback
+        import logging
+        logger = logging.getLogger(__name__)
+        error_trace = traceback.format_exc()
+        logger.error(f"[END_NODE] LLM client error: {str(e)}\n{error_trace}")
+        logs.append({"node": "end", "timestamp": _now_iso(), "msg": f"LLM client error: {str(e)}", "level": "error", "traceback": error_trace})
+        llm_response = None
+    
+    # Fallback to template if LLM failed
+    if not llm_response:
+        response_lines = []
+        if execution_stats.get("error"):
+            response_lines.append(f"❌ Query failed: {execution_stats['error']}")
+            response_lines.append(f"\nQuery attempted: {plan_sql}")
+        else:
+            row_count = exec_result.get("row_count", 0)
+            if row_count == 0:
+                response_lines.append(f"No results found for: {user_query}")
+            else:
+                response_lines.append(f"Here are the results for '{user_query}':\n")
+                preview_rows_list = rows[:10]
+                for i, row in enumerate(preview_rows_list, 1):
                     row_str = ", ".join([f"{k}: {v}" for k, v in row.items()])
                     response_lines.append(f"{i}. {row_str}")
-                
-                if row_count > len(rows[:10]):
-                    response_lines.append(f"\n... and {row_count - len(rows[:10])} more rows")
+                if row_count > 10:
+                    response_lines.append(f"\n... and {row_count - 10} more rows")
+                response_lines.append(f"\nTotal: {row_count} {'row' if row_count == 1 else 'rows'}")
+        llm_response = "\n".join(response_lines)
+    
+    # ============================================================================
+    # OUTPUT 3: LLM-Generated Prompt Monitor (Procedural Reasoning)
+    # ============================================================================
+    llm_prompt_monitor = None
+    try:
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        from agent.llm_client import get_llm_client
+        llm_client = get_llm_client()
+        
+        # DEBUG: Check LLM availability
+        is_available = llm_client.is_available()
+        logger.info(f"[END_NODE] LLM client available for prompt monitor: {is_available}")
+        logs.append({"node": "end", "timestamp": _now_iso(), "msg": f"LLM client available for prompt monitor: {is_available}"})
+        
+        if is_available:
+            logs.append({"node": "end", "timestamp": _now_iso(), "msg": "generating LLM prompt monitor/reasoning"})
             
-            response_lines.append(f"\nTotal: {row_count} {'row' if row_count == 1 else 'rows'}")
+            # Build system prompt from config
+            system_prompt = cfg.get_nested("prompts", "end_prompt_monitor", default="")
+            logger.info(f"[END_NODE] Config prompt_monitor length: {len(system_prompt) if system_prompt else 0}")
+            logs.append({"node": "end", "timestamp": _now_iso(), "msg": f"Config prompt_monitor loaded: {len(system_prompt) if system_prompt else 0} chars"})
+            
+            if not system_prompt:
+                system_prompt = """You are documenting the agent's reasoning process. Generate a procedural summary of what was done and why.
+
+Focus on:
+- Why the query was structured this way
+- What decisions were made during planning
+- How the execution succeeded or failed
+- What the evaluation determined
+- The overall reasoning chain
+
+Format as a clear, structured procedural summary, not a response to the user."""
+                logger.info("[END_NODE] Using default prompt_monitor system prompt (config was empty)")
+            
+            # Build user prompt with full state
+            state_summary = {
+                "user_query": user_query,
+                "planning": {
+                    "plan_quality": state.get("plan_quality", ""),
+                    "plan_explanation": state.get("plan_explain", ""),
+                    "sql_generated": plan_sql,
+                    "clarification_questions": state.get("clarification_questions", [])
+                },
+                "execution": {
+                    "status": "success" if not execution_stats.get("error") else f"failed: {execution_stats.get('error')}",
+                    "rows_returned": exec_result.get("row_count", 0),
+                    "execution_time_ms": execution_stats.get("execution_time_ms", 0),
+                    "columns": columns
+                },
+                "evaluation": {
+                    "satisfaction": state.get("satisfaction", ""),
+                    "evaluator_notes": state.get("evaluator_notes", ""),
+                    "issues_detected": state.get("issues_detected", [])
+                },
+                "control_flow": {
+                    "clarify_turns": metrics.get("clarify_turns", 0),
+                    "total_duration_ms": total_ms,
+                    "last_node": state.get("last_node", "unknown")
+                },
+                "docs_meta": state.get("docs_meta", []),  # Data dictionary for context
+                "table_schema": state.get("table_schema", {})
+            }
+            
+            user_prompt = f"""Document the complete reasoning process for this agent execution.
+
+Full State Summary:
+{json.dumps(state_summary, indent=2)}
+
+Generate a procedural summary explaining what was done and why at each step. Use the data dictionary (docs_meta) to explain table/column choices."""
+            
+            logger.info(f"[END_NODE] Calling LLM for prompt monitor with prompt length: {len(user_prompt)} chars")
+            try:
+                llm_prompt_monitor = llm_client.invoke_with_prompt(
+                    system_prompt=system_prompt,
+                    user_prompt=user_prompt,
+                    temperature=0.1  # Lower temperature for more factual reasoning
+                )
+                logger.info(f"[END_NODE] LLM prompt monitor received: {len(llm_prompt_monitor) if llm_prompt_monitor else 0} chars")
+                logs.append({"node": "end", "timestamp": _now_iso(), "msg": f"LLM prompt monitor generated successfully ({len(llm_prompt_monitor) if llm_prompt_monitor else 0} chars)"})
+            except Exception as e:
+                import traceback
+                error_trace = traceback.format_exc()
+                logger.error(f"[END_NODE] LLM prompt monitor generation failed: {str(e)}\n{error_trace}")
+                logs.append({"node": "end", "timestamp": _now_iso(), "msg": f"LLM prompt monitor generation failed: {str(e)}", "level": "error", "traceback": error_trace})
+                llm_prompt_monitor = None
+        else:
+            logger.warning("[END_NODE] LLM not available for prompt monitor, using template")
+            logs.append({"node": "end", "timestamp": _now_iso(), "msg": "LLM not available, using template prompt monitor"})
+    except Exception as e:
+        import traceback
+        import logging
+        logger = logging.getLogger(__name__)
+        error_trace = traceback.format_exc()
+        logger.error(f"[END_NODE] LLM client error for prompt monitor: {str(e)}\n{error_trace}")
+        logs.append({"node": "end", "timestamp": _now_iso(), "msg": f"LLM client error: {str(e)}", "level": "error", "traceback": error_trace})
+        llm_prompt_monitor = None
     
-    response = "\n".join(response_lines)
-    
-    # Build structured prompt monitor
-    prompt_monitor = {
-        "user_input": state.get("user_input", ""),
-        "plan_explanation": state.get("plan_explain", ""),
-        "execution_summary": {
-            "query": state.get("plan", {}).get("sql", ""),
-            "status": "success" if exec_result and not execution_stats.get("error") else "failed",
-            "error": execution_stats.get("error"),
-            "row_count": exec_result.get("row_count", 0),
-            "column_count": len(columns),
-            "duration_ms": execution_stats.get("execution_time_ms", 0)
-        },
-        "evaluation_notes": state.get("evaluator_notes", ""),
-        "satisfaction": state.get("satisfaction", ""),
-        "total_agent_duration_ms": total_ms,
-        "clarify_turns": metrics.get("clarify_turns", 0),
-        "full_logs": logs
-    }
+    # Fallback to structured template if LLM failed
+    if not llm_prompt_monitor:
+        prompt_monitor = {
+            "user_input": user_query,
+            "plan_explanation": state.get("plan_explain", ""),
+            "execution_summary": {
+                "query": plan_sql,
+                "status": "success" if exec_result and not execution_stats.get("error") else "failed",
+                "error": execution_stats.get("error"),
+                "row_count": exec_result.get("row_count", 0),
+                "column_count": len(columns),
+                "duration_ms": execution_stats.get("execution_time_ms", 0)
+            },
+            "evaluation_notes": state.get("evaluator_notes", ""),
+            "satisfaction": state.get("satisfaction", ""),
+            "total_agent_duration_ms": total_ms,
+            "clarify_turns": metrics.get("clarify_turns", 0),
+            "full_logs": logs
+        }
+    else:
+        # LLM-generated prompt monitor (structured)
+        prompt_monitor = {
+            "procedural_reasoning": llm_prompt_monitor,  # LLM-generated summary
+            "raw_state": {  # Keep raw state for reference
+                "user_input": user_query,
+                "plan_explanation": state.get("plan_explain", ""),
+                "execution_summary": {
+                    "query": plan_sql,
+                    "status": "success" if exec_result and not execution_stats.get("error") else "failed",
+                    "error": execution_stats.get("error"),
+                    "row_count": exec_result.get("row_count", 0),
+                    "column_count": len(columns),
+                    "duration_ms": execution_stats.get("execution_time_ms", 0)
+                },
+                "evaluation_notes": state.get("evaluator_notes", ""),
+                "satisfaction": state.get("satisfaction", ""),
+                "total_agent_duration_ms": total_ms,
+                "clarify_turns": metrics.get("clarify_turns", 0)
+            },
+            "full_logs": logs
+        }
     
     logs.append({"node": "end", "timestamp": _now_iso(), "msg": f"agent completed in {total_ms}ms"})
     
+    # ============================================================================
+    # Final Output Structure
+    # ============================================================================
     final_output = {
-        "response": response,
-        "prompt_monitor": prompt_monitor,
+        "raw_table": raw_table,           # OUTPUT 1: Raw table data
+        "response": llm_response,         # OUTPUT 2: LLM-generated insights
+        "prompt_monitor": prompt_monitor   # OUTPUT 3: LLM-generated reasoning
     }
     
     # Update conversation history (short-term memory)
     conversation_history = state.get("conversation_history", [])
     conversation_entry = {
         "timestamp": _now_iso(),
-        "query": state.get("user_input", ""),
-        "plan_sql": state.get("plan", {}).get("sql", ""),
+        "query": user_query,
+        "plan_sql": plan_sql,
         "plan_quality": state.get("plan_quality", ""),
-        "response": response,
+        "response": llm_response,
         "satisfaction": state.get("satisfaction", ""),
         "row_count": exec_result.get("row_count", 0),
         "execution_error": execution_stats.get("error"),
-        "prompt_monitor": prompt_monitor
+        "prompt_monitor": prompt_monitor,
+        "raw_table": raw_table
     }
     conversation_history.append(conversation_entry)
     
@@ -541,6 +753,7 @@ def end_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
     
     return {
         "last_node": "end",
+        "raw_table": raw_table,  # Add to state
         "final_output": final_output,
         "conversation_history": conversation_history,
         "control": "end",

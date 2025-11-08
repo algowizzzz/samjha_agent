@@ -83,6 +83,8 @@ final_output = result.get('final_output', {})
 if final_output:
     output["final_output"] = {
         "response": final_output.get("response", "N/A"),
+        "raw_table": final_output.get("raw_table", {}),
+        "prompt_monitor": final_output.get("prompt_monitor", {}),
         "satisfaction": result.get("satisfaction")
     }
 
@@ -116,14 +118,36 @@ if output.get('execution'):
 
 # Show final output
 if final_output:
-    print(f"\n📊 FINAL RESPONSE:")
+    print(f"\n📊 FINAL RESPONSE (LLM-generated):")
     print("="*80)
     response = final_output.get('response', 'N/A')
     print(response)
     print("\n" + "="*80)
     
-    # Show first few rows if available
-    if exec_result:
+    # Show raw table if available
+    raw_table = final_output.get('raw_table')
+    if raw_table:
+        print(f"\n📋 RAW TABLE:")
+        print("="*80)
+        print(f"Columns: {raw_table.get('columns', [])}")
+        print(f"Row Count: {raw_table.get('row_count', 0)}")
+        rows = raw_table.get('rows', [])[:5]
+        if rows:
+            for i, row in enumerate(rows, 1):
+                print(f"{i}. {row}")
+    
+    # Show prompt monitor if available
+    prompt_monitor = final_output.get('prompt_monitor')
+    if prompt_monitor:
+        print(f"\n🔍 PROMPT MONITOR (LLM-generated):")
+        print("="*80)
+        if isinstance(prompt_monitor, dict) and 'procedural_reasoning' in prompt_monitor:
+            print(prompt_monitor['procedural_reasoning'][:500] + "..." if len(prompt_monitor['procedural_reasoning']) > 500 else prompt_monitor['procedural_reasoning'])
+        else:
+            print("(Structured prompt monitor available)")
+    
+    # Show first few rows from execution if raw_table not shown
+    if not raw_table and exec_result:
         rows = exec_result.get('rows', [])
         if rows:
             print(f"\n📋 DATA PREVIEW (first 5 rows):")

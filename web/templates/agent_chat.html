@@ -1,6 +1,69 @@
 {% extends "base.html" %}
 {% block title %}Parquet Agent Chat{% endblock %}
 
+{% block extra_css %}
+<!-- Markdown CSS for better formatting -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.2.0/github-markdown.min.css">
+<style>
+    .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 100%;
+        margin: 0;
+        padding: 15px;
+        font-size: 14px;
+    }
+    .markdown-body pre {
+        background-color: #f6f8fa;
+        border-radius: 6px;
+        padding: 16px;
+        overflow: auto;
+    }
+    .markdown-body code {
+        background-color: rgba(175, 184, 193, 0.2);
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-size: 85%;
+    }
+    .chat-message {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        max-width: 85%;
+    }
+    .chat-message.user {
+        background-color: #e9ecef;
+        margin-left: auto;
+        text-align: right;
+    }
+    .chat-message.agent {
+        background-color: #d1ecf1;
+        margin-right: auto;
+    }
+    .table-container {
+        position: relative;
+    }
+    .table-search {
+        margin-bottom: 10px;
+    }
+    .prompt-monitor-content {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+    }
+    .prompt-monitor-content h1, .prompt-monitor-content h2, .prompt-monitor-content h3 {
+        margin-top: 20px;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+    .prompt-monitor-content code {
+        background-color: #f4f4f4;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="col-lg-8 mx-auto">
@@ -19,15 +82,23 @@
                         <i class="bi bi-send"></i> Send
                     </button>
                 </div>
-                <div class="form-text mt-2">Responses include an Answer and a Prompt Monitor summary.</div>
+                <div class="form-text mt-2">Responses include an Answer, Raw Table, and Prompt Monitor summary.</div>
             </div>
         </div>
     </div>
 {% endblock %}
 
 {% block extra_js %}
+<!-- Markdown Parser -->
+<script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+<!-- DataTables for interactive tables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 <script>
-// Agent Chat v2.1 - Fixed escapeHtml for objects - 2025-11-08
+    // Agent Chat v3.0 - Added markdown rendering, interactive tables, better formatting - 2025-11-08
 (function() {
     'use strict';
     // Ensure API token is available for /api/tools/execute
@@ -56,22 +127,175 @@
         return text.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     }
 
-    function appendMessage(role, text, secondary) {
+    function formatTable(rawTable, tableId) {
+        if (!rawTable || !rawTable.columns || !rawTable.rows) {
+            return 'No table data available';
+        }
+        
+        const maxRows = 1000; // DataTables can handle more rows
+        const displayRows = rawTable.rows.slice(0, maxRows);
+        
+        let html = '<div class="table-container">';
+        html += '<div class="table-search"><input type="text" class="form-control form-control-sm" id="search_' + tableId + '" placeholder="Search table..."></div>';
+        html += '<div class="table-responsive"><table id="table_' + tableId + '" class="table table-sm table-striped table-bordered table-hover" style="width:100%">';
+        
+        // Header
+        html += '<thead><tr>';
+        rawTable.columns.forEach(col => {
+            html += '<th>' + escapeHtml(col) + '</th>';
+        });
+        html += '</tr></thead>';
+        
+        // Rows
+        html += '<tbody>';
+        displayRows.forEach(row => {
+            html += '<tr>';
+            rawTable.columns.forEach(col => {
+                const value = row[col] !== undefined ? row[col] : '';
+                html += '<td>' + escapeHtml(String(value)) + '</td>';
+            });
+            html += '</tr>';
+        });
+        html += '</tbody>';
+        
+        html += '</table></div>';
+        
+        if (rawTable.row_count > maxRows) {
+            html += '<div class="small text-muted mt-2">Showing first ' + maxRows + ' of ' + rawTable.row_count + ' rows</div>';
+        } else {
+            html += '<div class="small text-muted mt-2">Total: ' + rawTable.row_count + ' rows</div>';
+        }
+        
+        html += '</div>';
+        
+        // Initialize DataTable after HTML is inserted
+        setTimeout(function() {
+            if ($.fn.DataTable && $('#table_' + tableId).length) {
+                try {
+                    const tableConfig = {
+                        pageLength: 25,
+                        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                        order: [],
+                        responsive: true,
+                        scrollX: true
+                    };
+                    
+                    // Add buttons if available
+                    if ($.fn.dataTable.Buttons) {
+                        tableConfig.dom = 'Bfrtip';
+                        tableConfig.buttons = ['copy', 'csv'];
+                    }
+                    
+                    const table = $('#table_' + tableId).DataTable(tableConfig);
+                    
+                    // Add search functionality
+                    $('#search_' + tableId).on('keyup', function() {
+                        table.search(this.value).draw();
+                    });
+                } catch (e) {
+                    console.error('DataTable initialization error:', e);
+                }
+            }
+        }, 200);
+        
+        return html;
+    }
+
+    let messageCounter = 0;
+    
+    function appendMessage(role, text, finalOutput) {
+        messageCounter++;
         const wrapper = document.createElement('div');
         wrapper.className = 'mb-3';
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message ' + role;
+        
         const roleBadge = role === 'user' ? '<span class="badge bg-secondary me-2">You</span>' : '<span class="badge bg-success me-2">Agent</span>';
-        let html = '<div>' + roleBadge + '<span>' + escapeHtml(text) + '</span></div>';
-        if (secondary) {
-            // If secondary is an object (full agent response), format it as JSON
-            let secondaryText = '';
-            if (typeof secondary === 'object') {
-                secondaryText = JSON.stringify(secondary, null, 2);
-            } else {
-                secondaryText = String(secondary);
+        
+        // Render markdown for agent responses, plain text for user
+        let contentHtml = '';
+        if (role === 'agent' && typeof marked !== 'undefined') {
+            try {
+                // Render markdown
+                const markdownHtml = marked.parse(text);
+                contentHtml = '<div class="markdown-body">' + markdownHtml + '</div>';
+            } catch (e) {
+                console.error('Markdown rendering error:', e);
+                contentHtml = '<div>' + escapeHtml(text) + '</div>';
             }
-            html += '<details class="mt-2"><summary class="small text-primary" style="cursor:pointer;"><i class="bi bi-lightbulb"></i> Prompt Monitor</summary><pre class="small text-muted mt-2 p-2 bg-light border rounded" style="max-height:400px;overflow-y:auto;">' + escapeHtml(secondaryText) + '</pre></details>';
+        } else {
+            contentHtml = '<div>' + escapeHtml(text) + '</div>';
         }
-        wrapper.innerHTML = html;
+        
+        messageDiv.innerHTML = roleBadge + contentHtml;
+        wrapper.appendChild(messageDiv);
+        
+        if (finalOutput && typeof finalOutput === 'object') {
+            // Extract final_output if it exists
+            const output = finalOutput.final_output || finalOutput;
+            const tableId = 'table_' + messageCounter;
+            
+            // Raw Table (collapsible, collapsed by default)
+            if (output.raw_table) {
+                const tableDetails = document.createElement('details');
+                tableDetails.className = 'mt-2';
+                tableDetails.innerHTML = '<summary class="small text-info" style="cursor:pointer;"><i class="bi bi-table"></i> Raw Table (' + (output.raw_table.row_count || 0) + ' rows)</summary>';
+                
+                const tableContent = document.createElement('div');
+                tableContent.className = 'mt-2 p-2 bg-light border rounded';
+                tableContent.style.maxHeight = '600px';
+                tableContent.style.overflowY = 'auto';
+                tableContent.innerHTML = formatTable(output.raw_table, tableId);
+                
+                tableDetails.appendChild(tableContent);
+                wrapper.appendChild(tableDetails);
+            }
+            
+            // Prompt Monitor (collapsible, collapsed by default)
+            if (output.prompt_monitor) {
+                const monitorDetails = document.createElement('details');
+                monitorDetails.className = 'mt-2';
+                
+                let monitorText = '';
+                let isMarkdown = false;
+                
+                if (typeof output.prompt_monitor === 'object') {
+                    // If it has procedural_reasoning (LLM-generated), show that
+                    if (output.prompt_monitor.procedural_reasoning) {
+                        monitorText = output.prompt_monitor.procedural_reasoning;
+                        isMarkdown = true;
+                    } else {
+                        // Otherwise show the full object as JSON
+                        monitorText = JSON.stringify(output.prompt_monitor, null, 2);
+                    }
+                } else {
+                    monitorText = String(output.prompt_monitor);
+                }
+                
+                monitorDetails.innerHTML = '<summary class="small text-primary" style="cursor:pointer;"><i class="bi bi-lightbulb"></i> Prompt Monitor' + (isMarkdown ? ' (LLM Reasoning)' : '') + '</summary>';
+                
+                const monitorContent = document.createElement('div');
+                monitorContent.className = 'mt-2 p-3 bg-light border rounded prompt-monitor-content';
+                monitorContent.style.maxHeight = '500px';
+                monitorContent.style.overflowY = 'auto';
+                
+                if (isMarkdown && typeof marked !== 'undefined') {
+                    try {
+                        monitorContent.innerHTML = marked.parse(monitorText);
+                    } catch (e) {
+                        console.error('Markdown rendering error:', e);
+                        monitorContent.innerHTML = '<pre class="small">' + escapeHtml(monitorText) + '</pre>';
+                    }
+                } else {
+                    monitorContent.innerHTML = '<pre class="small text-muted">' + escapeHtml(monitorText) + '</pre>';
+                }
+                
+                monitorDetails.appendChild(monitorContent);
+                wrapper.appendChild(monitorDetails);
+            }
+        }
+        
         historyEl.appendChild(wrapper);
         historyEl.scrollTop = historyEl.scrollHeight;
     }
@@ -125,12 +349,10 @@
                 const finalOut = (result && result.final_output) ? result.final_output : {};
                 const answer = finalOut.response || JSON.stringify(result).slice(0, 1000);
                 console.log('Answer:', answer);
+                console.log('Final Output:', finalOut);
                 
-                // Pass FULL agent response (all 20+ fields) to prompt monitor
-                const fullResponse = result;  // Complete agent state
-                console.log('Full Response for monitor:', fullResponse);
-                
-                appendMessage('agent', answer, fullResponse);
+                // Pass result (contains final_output with raw_table, response, prompt_monitor)
+                appendMessage('agent', answer, result);
                 awaitingClarification = false;
                 inputEl.placeholder = 'Ask a question or provide a follow-up...';
             }

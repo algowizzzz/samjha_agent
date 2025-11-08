@@ -50,8 +50,11 @@ class AgentState(TypedDict, total=False):
     # metrics
     metrics: Optional[Dict[str, Any]]  # node_timings, total_ms, plan_id, row_count, column_count, clarify_turns
 
+    # raw table output
+    raw_table: Optional[Dict[str, Any]]  # columns, rows, row_count, query
+
     # final outputs
-    final_output: Optional[Dict[str, Any]]  # { response: str, prompt_monitor: str }
+    final_output: Optional[Dict[str, Any]]  # { raw_table: dict, response: str, prompt_monitor: str }
 
 
 PartialState = Dict[str, Any]
