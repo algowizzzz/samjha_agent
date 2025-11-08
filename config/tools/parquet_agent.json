@@ -1,0 +1,17 @@
+{
+  "name": "parquet_agent",
+  "implementation": "agent.base_agent.LangGraphAgentTool",
+  "description": "LangGraph-style Parquet agent using DuckDB: plans, clarifies, executes, evaluates",
+  "version": "1.0.0",
+  "enabled": true,
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "query": { "type": "string", "description": "Natural language request/query" },
+      "session_id": { "type": "string", "description": "Optional session id" }
+    },
+    "required": ["query"]
+  }
+}
+
+

@@ -1,0 +1,30 @@
+{
+  "parquet_paths": ["data/duckdb"],
+  "duckdb": {
+    "preview_rows": 100,
+    "timeout_seconds": 30
+  },
+  "limits": {
+    "max_rows": 1000,
+    "max_clarify_turns": 2
+  },
+  "prompts": {
+    "planner": "You are a planner. Convert the user's request into a safe, minimal SQL query against available views.\nPrefer preview results and minimal columns required to answer.",
+    "clarify": "Could you clarify the exact metric, timeframe, and any filters you need?",
+    "safety": "Ensure queries are read-only and limited. Block DDL/DML and restrict to allowed paths.",
+    "evaluator": "Judge whether the preview results appear to answer the user's request. If empty or mismatched columns, mark as needs_work.",
+    "prompt_monitor": "Plan: {plan}\nEvaluator notes: {notes}"
+  },
+  "llm": {
+    "provider": "none",
+    "model": "none",
+    "temperature": 0
+  },
+  "safety": {
+    "allowed_tables": [],
+    "allowed_paths": ["data/duckdb"],
+    "denylist_ops": ["UPDATE", "DELETE", "INSERT", "CREATE", "ALTER", "DROP", "TRUNCATE"]
+  }
+}
+
+

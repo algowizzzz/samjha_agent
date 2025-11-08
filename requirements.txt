@@ -33,10 +33,15 @@ pytest-cov>=4.1.0
 requests>=2.31.0
 urllib3>=2.0.0
 
-#databases
+# Databases
 duckdb==1.4.1
 psycopg2==2.9.11
 PyMySQL==1.1.2
-SQLAlchemy==3.0.1
+SQLAlchemy==2.0.31
+
+# LLM Integration
+anthropic>=0.39.0
+langgraph>=0.2.0
+langchain-core>=0.3.0
 
 

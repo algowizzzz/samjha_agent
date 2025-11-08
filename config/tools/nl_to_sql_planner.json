@@ -1,0 +1,19 @@
+{
+  "name": "nl_to_sql_planner",
+  "implementation": "tools.impl.nl_to_sql_planner.NLToSQLPlannerTool",
+  "description": "Convert natural language query to SQL with confidence and explanation",
+  "version": "1.0.0",
+  "enabled": true,
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "query": { "type": "string" },
+      "table_schema": { "type": "object" },
+      "docs_meta": { "type": "array" },
+      "previous_clarifications": { "type": "array" }
+    },
+    "required": ["query"]
+  }
+}
+
+

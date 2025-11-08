@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Parquet Agent Chat{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-chat-text"></i> Parquet Agent</h5>
+                <span class="badge bg-light text-dark">DuckDB</span>
+            </div>
+            <div class="card-body" style="min-height: 420px;">
+                <div id="chatHistory" class="mb-3" style="height: 320px; overflow-y: auto; border: 1px solid #eee; padding: 12px; border-radius: 6px; background: #fafafa;">
+                    <!-- Messages will be appended here -->
+                </div>
+                <div class="input-group">
+                    <input id="chatInput" type="text" class="form-control" placeholder="Ask a question or follow up..." />
+                    <button id="sendBtn" class="btn btn-primary">
+                        <i class="bi bi-send"></i> Send
+                    </button>
+                </div>
+                <div class="form-text mt-2">Responses include an Answer and a Prompt Monitor summary.</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Agent Chat v2.1 - Fixed escapeHtml for objects - 2025-11-08
+(function() {
+    'use strict';
+    // Ensure API token is available for /api/tools/execute
+    const templateToken = "{{ session.token or '' }}";
+    if (templateToken) {
+        try {
+            sessionStorage.setItem('mcp_token', templateToken);
+            document.cookie = 'mcp_token=' + templateToken + '; path=/';
+        } catch (e) {}
+    }
+
+    let sessionId = localStorage.getItem('agent_session_id') || '';
+    if (!sessionId) {
+        sessionId = 'sess-' + Math.random().toString(36).slice(2, 10);
+        localStorage.setItem('agent_session_id', sessionId);
+    }
+
+    const historyEl = document.getElementById('chatHistory');
+    const inputEl = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        // Convert to string first (handles objects, numbers, etc)
+        const text = (typeof str === 'string') ? str : String(str);
+        return text.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    function appendMessage(role, text, secondary) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'mb-3';
+        const roleBadge = role === 'user' ? '<span class="badge bg-secondary me-2">You</span>' : '<span class="badge bg-success me-2">Agent</span>';
+        let html = '<div>' + roleBadge + '<span>' + escapeHtml(text) + '</span></div>';
+        if (secondary) {
+            // If secondary is an object (full agent response), format it as JSON
+            let secondaryText = '';
+            if (typeof secondary === 'object') {
+                secondaryText = JSON.stringify(secondary, null, 2);
+            } else {
+                secondaryText = String(secondary);
+            }
+            html += '<details class="mt-2"><summary class="small text-primary" style="cursor:pointer;"><i class="bi bi-lightbulb"></i> Prompt Monitor</summary><pre class="small text-muted mt-2 p-2 bg-light border rounded" style="max-height:400px;overflow-y:auto;">' + escapeHtml(secondaryText) + '</pre></details>';
+        }
+        wrapper.innerHTML = html;
+        historyEl.appendChild(wrapper);
+        historyEl.scrollTop = historyEl.scrollHeight;
+    }
+
+    let awaitingClarification = false;
+    let currentSessionId = sessionId;
+
+    function sendQuery() {
+        const q = inputEl.value.trim();
+        if (!q) return;
+        appendMessage('user', q);
+        inputEl.value = '';
+        $('#sendBtn').prop('disabled', true);
+
+        const requestArgs = {
+            query: q,
+            session_id: currentSessionId,
+            user_id: '{{ user.user_id | default("anonymous") }}'
+        };
+
+        // If we're responding to a clarification request, add user_clarification
+        if (awaitingClarification) {
+            requestArgs.user_clarification = q;
+            awaitingClarification = false;
+            inputEl.placeholder = 'Ask a question or provide a follow-up...';
+        }
+
+        API.post('/api/tools/execute', {
+            tool: 'parquet_agent',
+            arguments: requestArgs
+        }).done(function(resp) {
+            console.log('API Response:', resp);
+            const result = (resp && resp.result) ? resp.result : resp;
+            console.log('Result:', result);
+            
+            // Update session ID if provided
+            if (result.session_id) {
+                currentSessionId = result.session_id;
+                localStorage.setItem('agentSessionId', currentSessionId);
+            }
+            
+            // Check if agent needs clarification
+            if (result.control === 'wait_for_user' && result.clarify_prompt) {
+                // Agent is asking for clarification
+                console.log('Clarification needed:', result.clarify_prompt);
+                appendMessage('agent', result.clarify_prompt);
+                awaitingClarification = true;
+                inputEl.placeholder = 'Provide clarification...';
+            } else {
+                // Normal response
+                const finalOut = (result && result.final_output) ? result.final_output : {};
+                const answer = finalOut.response || JSON.stringify(result).slice(0, 1000);
+                console.log('Answer:', answer);
+                
+                // Pass FULL agent response (all 20+ fields) to prompt monitor
+                const fullResponse = result;  // Complete agent state
+                console.log('Full Response for monitor:', fullResponse);
+                
+                appendMessage('agent', answer, fullResponse);
+                awaitingClarification = false;
+                inputEl.placeholder = 'Ask a question or provide a follow-up...';
+            }
+        }).fail(function(xhr) {
+            const err = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : ('HTTP ' + xhr.status);
+            appendMessage('agent', 'Error: ' + err);
+            awaitingClarification = false;
+            inputEl.placeholder = 'Ask a question or provide a follow-up...';
+        }).always(function() {
+            $('#sendBtn').prop('disabled', false);
+        });
+    }
+
+    sendBtn.addEventListener('click', sendQuery);
+    inputEl.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') sendQuery();
+    });
+})();
+</script>
+{% endblock %}
+
+

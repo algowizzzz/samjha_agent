@@ -1,0 +1,60 @@
+{
+  "tables": {
+    "sample_sales_data": {
+      "description": "Sales transactions data containing order information, products sold, pricing, and regional data",
+      "business_context": "This table tracks all sales orders. Use 'price' column for sales amount/revenue. Use 'quantity' for units sold.",
+      "key_columns": {
+        "order_id": "Unique identifier for each order",
+        "customer_id": "Reference to customer who placed the order",
+        "product": "Name of the product sold",
+        "category": "Product category (e.g., Electronics, Furniture)",
+        "quantity": "Number of units sold",
+        "price": "Price per unit (use this for sales amount/revenue calculations)",
+        "order_date": "Date when the order was placed",
+        "region": "Geographic region where the sale occurred (North, South, East, West)"
+      },
+      "common_queries": [
+        "Top sales by revenue: ORDER BY price DESC",
+        "Sales by region: GROUP BY region",
+        "Sales trends: GROUP BY order_date"
+      ]
+    },
+    "sample_customer_data": {
+      "description": "Customer master data including contact information and demographics",
+      "business_context": "Contains customer profiles and contact details",
+      "key_columns": {
+        "customer_id": "Unique customer identifier",
+        "name": "Customer full name",
+        "email": "Customer email address",
+        "phone": "Customer phone number",
+        "city": "Customer city",
+        "state": "Customer state",
+        "join_date": "Date when customer registered"
+      }
+    },
+    "sample_inventory_data": {
+      "description": "Product inventory levels and stock information",
+      "business_context": "Tracks current stock levels and product details",
+      "key_columns": {
+        "product_id": "Unique product identifier",
+        "product_name": "Name of the product",
+        "category": "Product category",
+        "quantity_in_stock": "Current available inventory",
+        "reorder_level": "Minimum stock level before reordering",
+        "unit_price": "Current selling price per unit",
+        "supplier": "Supplier name"
+      }
+    }
+  },
+  "relationships": {
+    "sales_to_customers": "sample_sales_data.customer_id = sample_customer_data.customer_id",
+    "sales_to_inventory": "sample_sales_data.product = sample_inventory_data.product_name"
+  },
+  "business_glossary": {
+    "sales_amount": "Use 'price' column from sample_sales_data",
+    "revenue": "Use 'price' column from sample_sales_data",
+    "total_sales": "SUM(price) from sample_sales_data",
+    "units_sold": "Use 'quantity' column from sample_sales_data"
+  }
+}
+

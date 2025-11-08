@@ -94,6 +94,14 @@ class ToolsRoutes(BaseRoutes):
                                  config_json=config_json,
                                  literature_content=literature_content)
 
+        @app.route('/agent/chat')
+        @self.login_required
+        def agent_chat():
+            """Simple chat UI for parquet_agent showing response and prompt monitor."""
+            user_session = self.get_user_session()
+            # Ensure the agent tool exists; if not, page still renders but calls will fail gracefully
+            return render_template('agent_chat.html', user=user_session, token=user_session.get('token') if user_session else None)
+
         @app.route('/tools/<tool_name>/literature/save', methods=['POST'])
         @self.login_required
         def save_tool_literature(tool_name):
