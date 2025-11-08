@@ -104,7 +104,11 @@ class QueryResultEvaluatorTool(BaseMCPTool):
         execution_result = arguments.get("execution_result", {})
         execution_stats = arguments.get("execution_stats", {})
         
-        system_prompt = """You are a query result evaluator. Assess if the query results satisfactorily answer the user's original question.
+        # Get prompts from config if available, otherwise use defaults
+        from agent.config import QueryAgentConfig
+        cfg = QueryAgentConfig()
+        
+        system_prompt = cfg.get_nested("prompts", "evaluator_system", default="""You are a query result evaluator. Assess if the query results satisfactorily answer the user's original question.
 
 Evaluate based on:
 1. Does the result contain relevant data?
@@ -118,7 +122,7 @@ Respond with JSON:
   "evaluator_notes": "Brief explanation of your assessment",
   "issues_detected": ["issue1", "issue2"],
   "suggested_improvements": ["suggestion1", "suggestion2"]
-}"""
+}""")
 
         # Prepare result preview (limit to avoid token overflow)
         result_preview = {
@@ -127,15 +131,13 @@ Respond with JSON:
             "sample_rows": execution_result.get("rows", [])[:5],  # First 5 rows only
         }
         
-        user_prompt = f"""Original User Query: {original_query}
-
-Execution Result:
-{json.dumps(result_preview, indent=2)}
-
-Execution Stats:
-{json.dumps(execution_stats, indent=2)}
-
-Evaluate if this result satisfactorily answers the user's query."""
+        # Get user prompt template from config
+        user_template = cfg.get_nested("prompts", "evaluator_user_template", default="Original User Query: {original_query}\n\nExecution Result:\n{result_preview}\n\nExecution Stats:\n{execution_stats}\n\nEvaluate if this result satisfactorily answers the user's query.")
+        user_prompt = user_template.format(
+            original_query=original_query,
+            result_preview=json.dumps(result_preview, indent=2),
+            execution_stats=json.dumps(execution_stats, indent=2)
+        )
 
         try:
             response = self.llm_client.invoke_with_prompt(system_prompt, user_prompt, response_format="json")

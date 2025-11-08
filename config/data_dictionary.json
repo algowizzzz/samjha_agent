@@ -55,6 +55,7 @@
     "revenue": "Use 'price' column from sample_sales_data",
     "total_sales": "SUM(price) from sample_sales_data",
     "units_sold": "Use 'quantity' column from sample_sales_data"
-  }
+  },
+  "procedural_knowledge": "# Procedural Knowledge\n\nThis section contains procedural knowledge about how to query the data effectively. Add your 8k word markdown content here."
 }
 

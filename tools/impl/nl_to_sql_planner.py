@@ -149,7 +149,11 @@ class NLToSQLPlannerTool(BaseMCPTool):
 
     def _llm_plan(self, nl_query: str, table_schema: Dict[str, Any], available_tables: List[str], docs_meta: List[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Use LLM to generate SQL plan"""
-        system_prompt = """You are a DuckDB SQL query generator. Convert natural language to valid DuckDB SQL.
+        # Get prompts from config if available, otherwise use defaults
+        from agent.config import QueryAgentConfig
+        cfg = QueryAgentConfig()
+        
+        system_prompt = cfg.get_nested("prompts", "planner_system", default="""You are a DuckDB SQL query generator. Convert natural language to valid DuckDB SQL.
 
 CRITICAL RULES:
 1. Use PostgreSQL/DuckDB syntax: SELECT columns FROM table ORDER BY col LIMIT N
@@ -171,7 +175,7 @@ Respond with JSON:
   "plan_explanation": "Brief explanation",
   "clarification_questions": [],
   "target_table": "table_name"
-}"""
+}""")
 
         # Build schema summary with business context
         schema_summary = "Available tables/views:\n"
@@ -198,14 +202,28 @@ Respond with JSON:
                 elif "table" in doc:
                     business_context += f"\n{doc['table']} - {doc.get('business_context', '')}\n"
         
+        # Load procedural knowledge from data_dictionary
+        procedural_knowledge = ""
+        try:
+            import os
+            data_dict_path = "config/data_dictionary.json"
+            if os.path.exists(data_dict_path):
+                with open(data_dict_path, 'r', encoding='utf-8') as f:
+                    data_dict = json.load(f)
+                    procedural_knowledge = data_dict.get("procedural_knowledge", "")
+        except Exception:
+            pass  # Optional, graceful failure
+        
         print(f"[NLToSQLPlanner] Schema summary for LLM:\n{schema_summary}")  # Debug
 
-        user_prompt = f"""User Query: {nl_query}
-
-{schema_summary}
-{business_context}
-
-Generate a SQL plan (JSON format) to answer this query."""
+        # Get user prompt template from config
+        user_template = cfg.get_nested("prompts", "planner_user_template", default="User Query: {nl_query}\n\n{schema_summary}\n{business_context}\n\n{procedural_knowledge}\n\nGenerate a SQL plan (JSON format) to answer this query.")
+        user_prompt = user_template.format(
+            nl_query=nl_query,
+            schema_summary=schema_summary,
+            business_context=business_context,
+            procedural_knowledge=procedural_knowledge
+        )
 
         try:
             response = self.llm_client.invoke_with_prompt(system_prompt, user_prompt, response_format="json")

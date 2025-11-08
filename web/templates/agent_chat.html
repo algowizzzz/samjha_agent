@@ -5,6 +5,69 @@
 <!-- Markdown CSS for better formatting -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.2.0/github-markdown.min.css">
 <style>
+    /* Full screen layout - override all Bootstrap defaults */
+    html {
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    body {
+        overflow: hidden !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        background-color: #f8f9fa !important;
+    }
+    /* Hide footer completely */
+    footer.footer {
+        display: none !important;
+    }
+    /* Make main container fill viewport minus navbar */
+    main.container-fluid {
+        margin: 0 !important;
+        padding: 0 !important;
+        flex: 1 !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        overflow: hidden !important;
+    }
+    /* Override Bootstrap py-4 padding class */
+    main.container-fluid.py-4 {
+        padding: 0 !important;
+    }
+    /* Override any container constraints */
+    .container, .container-fluid {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    /* Remove all margins and padding from content wrapper */
+    main > div:first-child {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+    /* Remove card margins and ensure full width */
+    .card {
+        margin: 0 !important;
+        margin-bottom: 0 !important;
+        width: 100% !important;
+        border-radius: 0 !important;
+    }
+    /* Remove shadow for edge-to-edge */
+    .card.shadow-sm {
+        box-shadow: none !important;
+    }
+    
     .markdown-body {
         box-sizing: border-box;
         min-width: 200px;
@@ -12,18 +75,28 @@
         margin: 0;
         padding: 15px;
         font-size: 14px;
+        background-color: white !important;
+        color: #333 !important;
+    }
+    .markdown-body * {
+        color: #333 !important;
     }
     .markdown-body pre {
         background-color: #f6f8fa;
         border-radius: 6px;
         padding: 16px;
         overflow: auto;
+        color: #333 !important;
     }
     .markdown-body code {
         background-color: rgba(175, 184, 193, 0.2);
         padding: 2px 4px;
         border-radius: 3px;
         font-size: 85%;
+        color: #333 !important;
+    }
+    .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4, .markdown-body h5, .markdown-body h6 {
+        color: #333 !important;
     }
     .chat-message {
         padding: 12px 16px;
@@ -37,8 +110,10 @@
         text-align: right;
     }
     .chat-message.agent {
-        background-color: #d1ecf1;
+        background-color: white;
+        border: 1px solid #dee2e6;
         margin-right: auto;
+        color: #333;
     }
     .table-container {
         position: relative;
@@ -65,27 +140,26 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-lg-8 mx-auto">
-        <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-chat-text"></i> Parquet Agent</h5>
-                <span class="badge bg-light text-dark">DuckDB</span>
+<div class="p-0 m-0" style="height: 100%; width: 100%; display: flex; flex-direction: column; margin: 0 !important; padding: 0 !important;">
+    <div class="card shadow-sm h-100 d-flex flex-column m-0" style="border-radius: 0; border: none; height: 100%; margin: 0 !important; width: 100%;">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" style="flex-shrink: 0;">
+            <h5 class="mb-0"><i class="bi bi-chat-text"></i> Parquet Agent</h5>
+            <span class="badge bg-light text-dark">DuckDB</span>
+        </div>
+        <div class="card-body d-flex flex-column p-3" style="flex: 1; overflow: hidden; min-height: 0;">
+            <div id="chatHistory" class="mb-3 flex-grow-1" style="overflow-y: auto; border: 1px solid #eee; padding: 12px; border-radius: 6px; background: #fafafa; min-height: 0;">
+                <!-- Messages will be appended here -->
             </div>
-            <div class="card-body" style="min-height: 420px;">
-                <div id="chatHistory" class="mb-3" style="height: 320px; overflow-y: auto; border: 1px solid #eee; padding: 12px; border-radius: 6px; background: #fafafa;">
-                    <!-- Messages will be appended here -->
-                </div>
-                <div class="input-group">
-                    <input id="chatInput" type="text" class="form-control" placeholder="Ask a question or follow up..." />
-                    <button id="sendBtn" class="btn btn-primary">
-                        <i class="bi bi-send"></i> Send
-                    </button>
-                </div>
-                <div class="form-text mt-2">Responses include an Answer, Raw Table, and Prompt Monitor summary.</div>
+            <div class="input-group" style="flex-shrink: 0;">
+                <input id="chatInput" type="text" class="form-control" placeholder="Ask a question or follow up..." />
+                <button id="sendBtn" class="btn btn-primary">
+                    <i class="bi bi-send"></i> Send
+                </button>
             </div>
+            <div class="form-text mt-2" style="flex-shrink: 0;">Responses include an Answer, Raw Table, and Prompt Monitor summary.</div>
         </div>
     </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -98,7 +172,7 @@
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 <script>
-    // Agent Chat v3.0 - Added markdown rendering, interactive tables, better formatting - 2025-11-08
+    // Agent Chat v4.0 - Full screen layout, white agent bubbles - 2025-11-08
 (function() {
     'use strict';
     // Ensure API token is available for /api/tools/execute

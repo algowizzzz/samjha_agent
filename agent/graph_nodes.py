@@ -201,7 +201,8 @@ def clarify_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
         reasoning_text = "\n".join(f"• {reason}" for reason in clarify_reasoning) if clarify_reasoning else "• I need more information to generate an accurate query"
         questions_text = "\n".join(f"{i+1}. {q}" for i, q in enumerate(clarification_questions))
         
-        clarify_prompt = f"""I need clarification on your query: "{user_input}"
+        # Get clarify template from config
+        clarify_template = cfg.get_nested("prompts", "clarify_template", default="""I need clarification on your query: "{user_input}"
 
 **Why I'm asking:**
 {reasoning_text}
@@ -209,7 +210,13 @@ def clarify_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
 **Questions:**
 {questions_text}
 
-Please provide more details to help me generate an accurate query."""
+Please provide more details to help me generate an accurate query.""")
+        
+        clarify_prompt = clarify_template.format(
+            user_input=user_input,
+            reasoning_text=reasoning_text,
+            questions_text=questions_text
+        )
         
         # Update metrics
         metrics = state.get("metrics") or {}
@@ -496,7 +503,7 @@ def end_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
             logs.append({"node": "end", "timestamp": _now_iso(), "msg": "generating LLM response/insights"})
             
             # Build system prompt from config
-            system_prompt = cfg.get_nested("prompts", "end_response", default="")
+            system_prompt = cfg.get_nested("prompts", "end_response_system", default="")
             logger.info(f"[END_NODE] Config prompt length: {len(system_prompt) if system_prompt else 0}")
             logs.append({"node": "end", "timestamp": _now_iso(), "msg": f"Config prompt loaded: {len(system_prompt) if system_prompt else 0} chars"})
             
@@ -505,6 +512,18 @@ def end_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
 
 IMPORTANT: The raw table data and prompt monitor are provided separately. Focus on generating insights, patterns, and actionable observations from the data."""
                 logger.info("[END_NODE] Using default system prompt (config was empty)")
+            
+            # Load procedural knowledge from data_dictionary
+            procedural_knowledge = ""
+            try:
+                import os
+                data_dict_path = "config/data_dictionary.json"
+                if os.path.exists(data_dict_path):
+                    with open(data_dict_path, 'r', encoding='utf-8') as f:
+                        data_dict = json.load(f)
+                        procedural_knowledge = data_dict.get("procedural_knowledge", "")
+            except Exception:
+                pass  # Optional, graceful failure
             
             # Build user prompt with full state (JSON serialized)
             # Limit rows to first 50 to avoid token overflow
@@ -521,15 +540,21 @@ IMPORTANT: The raw table data and prompt monitor are provided separately. Focus 
                 "evaluation_notes": state.get("evaluator_notes", ""),
                 "satisfaction": state.get("satisfaction", ""),
                 "docs_meta": state.get("docs_meta", []),  # Data dictionary
-                "table_schema": state.get("table_schema", {})
+                "table_schema": state.get("table_schema", {}),
+                "procedural_knowledge": procedural_knowledge
             }
             
-            user_prompt = f"""Generate a user-friendly response with insights from this query execution.
+            # Get user prompt template from config
+            user_template = cfg.get_nested("prompts", "end_response_user_template", default="""Generate a user-friendly response with insights from this query execution.
 
 Full State Summary:
-{json.dumps(state_summary, indent=2)}
+{state_summary}
 
-Use the data dictionary (docs_meta) to understand column meanings and business context. Focus on what the data tells us, key patterns, and actionable observations."""
+Use the data dictionary (docs_meta) to understand column meanings and business context. Focus on what the data tells us, key patterns, and actionable observations.""")
+            
+            user_prompt = user_template.format(
+                state_summary=json.dumps(state_summary, indent=2)
+            )
             
             logger.info(f"[END_NODE] Calling LLM with prompt length: {len(user_prompt)} chars")
             try:
@@ -599,7 +624,7 @@ Use the data dictionary (docs_meta) to understand column meanings and business c
             logs.append({"node": "end", "timestamp": _now_iso(), "msg": "generating LLM prompt monitor/reasoning"})
             
             # Build system prompt from config
-            system_prompt = cfg.get_nested("prompts", "end_prompt_monitor", default="")
+            system_prompt = cfg.get_nested("prompts", "end_prompt_monitor_system", default="")
             logger.info(f"[END_NODE] Config prompt_monitor length: {len(system_prompt) if system_prompt else 0}")
             logs.append({"node": "end", "timestamp": _now_iso(), "msg": f"Config prompt_monitor loaded: {len(system_prompt) if system_prompt else 0} chars"})
             
@@ -642,15 +667,21 @@ Format as a clear, structured procedural summary, not a response to the user."""
                     "last_node": state.get("last_node", "unknown")
                 },
                 "docs_meta": state.get("docs_meta", []),  # Data dictionary for context
-                "table_schema": state.get("table_schema", {})
+                "table_schema": state.get("table_schema", {}),
+                "procedural_knowledge": procedural_knowledge
             }
             
-            user_prompt = f"""Document the complete reasoning process for this agent execution.
+            # Get user prompt template from config
+            user_template = cfg.get_nested("prompts", "end_prompt_monitor_user_template", default="""Document the complete reasoning process for this agent execution.
 
 Full State Summary:
-{json.dumps(state_summary, indent=2)}
+{state_summary}
 
-Generate a procedural summary explaining what was done and why at each step. Use the data dictionary (docs_meta) to explain table/column choices."""
+Generate a procedural summary explaining what was done and why at each step. Use the data dictionary (docs_meta) to explain table/column choices.""")
+            
+            user_prompt = user_template.format(
+                state_summary=json.dumps(state_summary, indent=2)
+            )
             
             logger.info(f"[END_NODE] Calling LLM for prompt monitor with prompt length: {len(user_prompt)} chars")
             try:
