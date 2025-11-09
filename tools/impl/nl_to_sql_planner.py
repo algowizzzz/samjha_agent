@@ -147,11 +147,15 @@ class NLToSQLPlannerTool(BaseMCPTool):
             "target_table": chosen,
         }
 
-    def _llm_plan(self, nl_query: str, table_schema: Dict[str, Any], available_tables: List[str], docs_meta: List[Dict[str, Any]] = None, stream_callback: Optional[Callable[[str], None]] = None) -> Dict[str, Any]:
-        """Use LLM to generate SQL plan with two-stage approach:
+    def _llm_plan(self, nl_query: str, table_schema: Dict[str, Any], available_tables: List[str], docs_meta: List[Dict[str, Any]] = None, stream_callback: Optional[Callable[[str], None]] = None, conversation_history: str = "No previous conversation history.", previous_clarifications: List[str] = None) -> Dict[str, Any]:
+        """Use LLM to generate SQL plan with three-stage approach:
         Stage 1: Classify query type (knowledge vs. data)
         Stage 2a: If knowledge, return answer from business glossary
-        Stage 2b: If data query, generate SQL
+        Stage 2b: If data query, clarification gate
+        Stage 2c: If clear, generate SQL
+        
+        Args:
+            conversation_history: Formatted conversation history for context
         """
         # Get prompts from config if available, otherwise use defaults
         from agent.config import QueryAgentConfig
@@ -223,7 +227,8 @@ class NLToSQLPlannerTool(BaseMCPTool):
         classifier_user_prompt = classifier_user_template.format(
             nl_query=nl_query,
             schema_summary=schema_summary_for_classifier,
-            business_context=business_context_for_classifier
+            business_context=business_context_for_classifier,
+            conversation_history=conversation_history
         )
         
         # Call LLM to classify
@@ -320,10 +325,27 @@ class NLToSQLPlannerTool(BaseMCPTool):
         # =========================================================================
         print(f"[NLToSQLPlanner] STAGE 2b: Checking if clarification needed")
         
-        # Build previous clarifications context (if this is a follow-up query)
+        # Build previous clarifications context
+        # Priority: Use parameter if provided (from replan_node), otherwise extract from query string
         previous_clarifications_text = ""
-        if "\n\nClarification" in nl_query:
-            # Extract clarifications from combined query
+        if previous_clarifications:
+            # Use the clarification questions that were asked (from state)
+            previous_clarifications_text = "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            previous_clarifications_text += "❓ PREVIOUS CLARIFICATION QUESTIONS ASKED:\n"
+            previous_clarifications_text += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            for i, question in enumerate(previous_clarifications, 1):
+                previous_clarifications_text += f"{i}. {question}\n"
+            previous_clarifications_text += "\n📝 USER'S RESPONSES:\n"
+            # Extract user responses from combined query
+            if "\n\nClarification" in nl_query:
+                parts = nl_query.split("\n\nClarification")
+                if len(parts) > 1:
+                    for i, part in enumerate(parts[1:], 1):
+                        user_response = part.split(":", 1)[-1].strip() if ":" in part else part.strip()
+                        previous_clarifications_text += f"{i}. {user_response}\n"
+            previous_clarifications_text += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        elif "\n\nClarification" in nl_query:
+            # Fallback: Extract clarifications from combined query string
             parts = nl_query.split("\n\nClarification")
             if len(parts) > 1:
                 previous_clarifications_text = "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
@@ -359,7 +381,8 @@ class NLToSQLPlannerTool(BaseMCPTool):
             previous_clarifications=previous_clarifications_text,
             schema_summary=schema_summary_for_classifier,
             business_context=business_context_for_classifier,
-            procedural_knowledge=procedural_knowledge_text
+            procedural_knowledge=procedural_knowledge_text,
+            conversation_history=conversation_history
         )
         
         try:
@@ -472,7 +495,8 @@ class NLToSQLPlannerTool(BaseMCPTool):
         sql_user_prompt = sql_user_template.format(
             nl_query=nl_query,
             schema_summary=schema_summary,
-            business_context=business_context
+            business_context=business_context,
+            conversation_history=conversation_history
         )
 
         try:
@@ -534,7 +558,9 @@ class NLToSQLPlannerTool(BaseMCPTool):
         # Use LLM if available, otherwise heuristics
         if self.use_llm and self.llm_client:
             print(f"[NLToSQLPlanner] Using LLM to plan query")
-            llm_result = self._llm_plan(nl_query, table_schema, available_tables, arguments.get("docs_meta"), stream_callback=stream_callback)
+            conversation_history = arguments.get("conversation_history", "No previous conversation history.")
+            previous_clarifications = arguments.get("previous_clarifications", [])
+            llm_result = self._llm_plan(nl_query, table_schema, available_tables, arguments.get("docs_meta"), stream_callback=stream_callback, conversation_history=conversation_history, previous_clarifications=previous_clarifications)
             
             # Check if clarification is needed (Stage 2b returned early)
             if llm_result.get("type") == "clarification_needed":

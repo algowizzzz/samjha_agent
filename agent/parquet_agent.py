@@ -33,6 +33,58 @@ class ParquetQueryAgent:
         base.update(updates)
         return base
     
+    def _build_conversation_history(self, session_id, user_id, num_turns=3):
+        """
+        Build conversation history from state.
+        Returns list of last N turns with query, SQL, and response.
+        """
+        try:
+            state = self.state_manager.load_session_state(session_id, user_id)
+            
+            if not state:
+                return []
+            
+            # Extract conversation history
+            history = []
+            
+            # Current turn (if exists in state)
+            if 'user_input' in state and 'final_output' in state:
+                turn = {
+                    'query': state.get('user_input', ''),
+                    'sql': state.get('plan', {}).get('sql', ''),
+                    'response': state.get('final_output', {}).get('response', '')
+                }
+                # Only include if it has meaningful content
+                if turn['query'] and (turn['sql'] or turn['response']):
+                    history.append(turn)
+            
+            logger.info(f"[ParquetAgent] Built conversation history with {len(history)} turns")
+            return history[-num_turns:]  # Last N turns
+            
+        except Exception as e:
+            logger.error(f"[ParquetAgent] Error building conversation history: {e}")
+            return []
+    
+    def _format_conversation_history(self, history):
+        """
+        Format conversation history for LLM prompts.
+        """
+        if not history:
+            return "No previous conversation history."
+        
+        formatted = "Previous Conversation:\n"
+        for i, turn in enumerate(history, 1):
+            formatted += f"\nTurn {i}:\n"
+            formatted += f"User Query: {turn['query']}\n"
+            if turn['sql'] and turn['sql'] != "-- KNOWLEDGE QUESTION":
+                formatted += f"SQL Executed: {turn['sql']}\n"
+            if turn['response']:
+                # Truncate long responses
+                response = turn['response'][:300] + "..." if len(turn['response']) > 300 else turn['response']
+                formatted += f"Agent Response: {response}\n"
+        
+        return formatted
+    
     def resume_with_clarification(self, session_id: str, user_clarification: str, user_id: Optional[str] = None) -> Dict[str, Any]:
         """Resume agent execution after user provides clarification"""
         logger.info(f"Resuming session {session_id} with user clarification: {user_clarification[:50]}...")
@@ -52,9 +104,16 @@ class ParquetQueryAgent:
                     }
                 }
             
-            # Add user clarification to state
+            # Build conversation history for resumed session
+            conversation_history = self._build_conversation_history(session_id, user_id, num_turns=3)
+            formatted_history = self._format_conversation_history(conversation_history)
+            logger.info(f"[ParquetAgent Resume] Loaded {len(conversation_history)} conversation turns")
+            
+            # Add user clarification and conversation history to state
             state["user_clarification"] = user_clarification
             state["control"] = "replan"  # Move to replan node
+            state["conversation_history"] = formatted_history
+            state["conversation_history_raw"] = conversation_history
             
             logs = state.get("logs", [])
             logs.append({"node": "resume", "timestamp": datetime.utcnow().isoformat() + "Z", 
@@ -161,6 +220,11 @@ class ParquetQueryAgent:
         sid = session_id or str(uuid.uuid4())
         logger.info(f"Starting agent query for session {sid}, user {user_id}: {query[:100]}")
         
+        # ALWAYS build conversation history (no keyword detection)
+        conversation_history = self._build_conversation_history(sid, user_id, num_turns=3)
+        formatted_history = self._format_conversation_history(conversation_history)
+        logger.info(f"[ParquetAgent] Loaded {len(conversation_history)} conversation turns")
+        
         try:
             state: AgentState = {
                 "user_input": query,
@@ -171,6 +235,8 @@ class ParquetQueryAgent:
                 "table_schema": {},
                 "logs": [],
                 "control": "plan",
+                "conversation_history": formatted_history,
+                "conversation_history_raw": conversation_history,
                 "metrics": {
                     "node_timings_ms": {},
                     "total_ms": 0.0,
@@ -267,6 +333,58 @@ class ParquetQueryAgent:
 
             # total time
             metrics = state.get("metrics") or {}
+            metrics["total_ms"] = (datetime.now() - start_all).total_seconds() * 1000.0
+            state["metrics"] = metrics
+            
+            logger.info(f"Agent query completed for session {sid}: {metrics['total_ms']}ms, {steps} steps")
+            return state
+            
+        except Exception as e:
+            logger.error(f"Fatal error in agent for session {sid}: {e}", exc_info=True)
+            # Return error state
+            return {
+                "user_input": query,
+                "session_id": sid,
+                "user_id": user_id,
+                "control": "end",
+                "final_output": {
+                    "response": f"❌ Agent error: {str(e)}",
+                    "prompt_monitor": {
+                        "error": str(e),
+                        "logs": [{"node": "agent", "timestamp": datetime.utcnow().isoformat() + "Z", "msg": f"fatal error: {str(e)}", "level": "error"}]
+                    }
+                },
+                "logs": [{"node": "agent", "timestamp": datetime.utcnow().isoformat() + "Z", "msg": f"fatal error: {str(e)}", "level": "error"}]
+            }
+
+
+
+            metrics["total_ms"] = (datetime.now() - start_all).total_seconds() * 1000.0
+            state["metrics"] = metrics
+            
+            logger.info(f"Agent query completed for session {sid}: {metrics['total_ms']}ms, {steps} steps")
+            return state
+            
+        except Exception as e:
+            logger.error(f"Fatal error in agent for session {sid}: {e}", exc_info=True)
+            # Return error state
+            return {
+                "user_input": query,
+                "session_id": sid,
+                "user_id": user_id,
+                "control": "end",
+                "final_output": {
+                    "response": f"❌ Agent error: {str(e)}",
+                    "prompt_monitor": {
+                        "error": str(e),
+                        "logs": [{"node": "agent", "timestamp": datetime.utcnow().isoformat() + "Z", "msg": f"fatal error: {str(e)}", "level": "error"}]
+                    }
+                },
+                "logs": [{"node": "agent", "timestamp": datetime.utcnow().isoformat() + "Z", "msg": f"fatal error: {str(e)}", "level": "error"}]
+            }
+
+
+
             metrics["total_ms"] = (datetime.now() - start_all).total_seconds() * 1000.0
             state["metrics"] = metrics
             

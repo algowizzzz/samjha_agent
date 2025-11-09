@@ -66,6 +66,68 @@ class StreamingAgent:
                 })
         return callback
     
+    def _build_conversation_history(self, session_id, user_id, num_turns=3):
+        """
+        Build conversation history from state.
+        Returns list of last N turns with query, SQL, and response.
+        """
+        from agent.state_manager import AgentStateManager
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        try:
+            state_manager = AgentStateManager()
+            state = state_manager.load_session_state(session_id, user_id)
+            
+            if not state:
+                return []
+            
+            # Extract conversation history
+            # State contains: user_input, plan.sql, final_output.response
+            history = []
+            
+            # Current turn (if exists in state)
+            if 'user_input' in state and 'final_output' in state:
+                turn = {
+                    'query': state.get('user_input', ''),
+                    'sql': state.get('plan', {}).get('sql', ''),
+                    'response': state.get('final_output', {}).get('response', '')
+                }
+                # Only include if it has meaningful content
+                if turn['query'] and (turn['sql'] or turn['response']):
+                    history.append(turn)
+            
+            # TODO: If state manager stores full conversation history in future,
+            # extract last N-1 additional turns here
+            # For now, we only have the most recent turn
+            
+            logger.info(f"[ConversationHistory] Built history with {len(history)} turns")
+            return history[-num_turns:]  # Last N turns
+            
+        except Exception as e:
+            logger.error(f"[ConversationHistory] Error building history: {e}")
+            return []
+    
+    def _format_conversation_history(self, history):
+        """
+        Format conversation history for LLM prompts.
+        """
+        if not history:
+            return "No previous conversation history."
+        
+        formatted = "Previous Conversation:\n"
+        for i, turn in enumerate(history, 1):
+            formatted += f"\nTurn {i}:\n"
+            formatted += f"User Query: {turn['query']}\n"
+            if turn['sql'] and turn['sql'] != "-- KNOWLEDGE QUESTION":
+                formatted += f"SQL Executed: {turn['sql']}\n"
+            if turn['response']:
+                # Truncate long responses
+                response = turn['response'][:300] + "..." if len(turn['response']) > 300 else turn['response']
+                formatted += f"Agent Response: {response}\n"
+        
+        return formatted
+    
     def run_query_streaming(
         self,
         query: str,
@@ -100,63 +162,16 @@ class StreamingAgent:
         }
         
         try:
-            # Check if this is a follow-up query by detecting reference keywords
-            follow_up_keywords = [
-                'above query', 'previous query', 'that query', 'last query',
-                'same query', 'from before', 'earlier query',
-                'dont limit', 'show all', 'remove limit', 'without limit',
-                'add', 'include', 'also show', 'exclude', 'filter by'
-            ]
-            
-            is_follow_up = any(keyword in query.lower() for keyword in follow_up_keywords)
-            
             import logging
             logger = logging.getLogger(__name__)
             logger.info(f"[StreamingAgent] Query: '{query}'")
-            logger.info(f"[StreamingAgent] Is follow-up detected: {is_follow_up}")
             logger.info(f"[StreamingAgent] Session ID: {self.session_id}")
             
-            if is_follow_up:
-                # Try to load existing session state to get previous query
-                from agent.state_manager import AgentStateManager
-                state_manager = AgentStateManager()
-                
-                try:
-                    existing_state = state_manager.load_session_state(self.session_id, user_id)
-                    logger.info(f"[StreamingAgent] Loaded state: {existing_state is not None}")
-                    if existing_state:
-                        logger.info(f"[StreamingAgent] State has user_input: {'user_input' in existing_state}")
-                        if 'user_input' in existing_state:
-                            logger.info(f"[StreamingAgent] Previous query: '{existing_state['user_input'][:100]}...'")
-                    
-                    if existing_state and 'user_input' in existing_state:
-                        original_query = existing_state['user_input']
-                        # Check if original query already has clarifications
-                        if '\n\nClarification' in original_query:
-                            # Extract just the base query
-                            original_query = original_query.split('\n\nClarification')[0]
-                        
-                        # Get accumulated clarifications if any
-                        accumulated = existing_state.get('accumulated_clarifications', [])
-                        
-                        # Combine with new follow-up query
-                        combined_query = original_query
-                        for i, clarif in enumerate(accumulated, 1):
-                            combined_query += f"\n\nClarification {i}: {clarif}"
-                        combined_query += f"\n\nClarification {len(accumulated) + 1}: {query}"
-                        
-                        logger.info(f"[StreamingAgent] Detected follow-up query, combining with previous:")
-                        logger.info(f"  Original: {original_query}")
-                        logger.info(f"  Follow-up: {query}")
-                        logger.info(f"  Combined: {combined_query}")
-                        
-                        # Use combined query and mark as clarification
-                        query = combined_query
-                        # Add to accumulated clarifications for state
-                        accumulated.append(query.split('\n\nClarification')[-1].split(':', 1)[-1].strip())
-                except Exception as e:
-                    logger.error(f"[StreamingAgent] Could not load previous query for follow-up: {e}")
-                    # Continue with original query
+            # ALWAYS build conversation history (no keyword detection)
+            conversation_history = self._build_conversation_history(self.session_id, user_id, num_turns=3)
+            formatted_history = self._format_conversation_history(conversation_history)
+            
+            logger.info(f"[StreamingAgent] Loaded {len(conversation_history)} conversation turns")
             
             self._emit('agent:node_start', {
                 'node': 'invoke',
@@ -189,6 +204,8 @@ class StreamingAgent:
                 "table_schema": {},
                 "logs": [],
                 "control": "plan",
+                "conversation_history": formatted_history,
+                "conversation_history_raw": conversation_history,
                 "metrics": {
                     "node_timings_ms": {},
                     "total_ms": 0.0,
@@ -395,9 +412,17 @@ class StreamingAgent:
             
             logger.info(f"Resuming session {sid} with clarification: {user_clarification[:50]}...")
             
-            # Add clarification to state
+            # Build conversation history for resumed session
+            conversation_history = self._build_conversation_history(sid, user_id, num_turns=3)
+            formatted_history = self._format_conversation_history(conversation_history)
+            
+            logger.info(f"[StreamingAgent Resume] Loaded {len(conversation_history)} conversation turns")
+            
+            # Add clarification and conversation history to state
             state["user_clarification"] = user_clarification
             state["control"] = "replan"
+            state["conversation_history"] = formatted_history
+            state["conversation_history_raw"] = conversation_history
             
             logs = state.get("logs", [])
             logs.append({"node": "resume", "timestamp": datetime.utcnow().isoformat() + "Z", 

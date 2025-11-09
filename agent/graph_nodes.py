@@ -124,6 +124,7 @@ def planner_node(state: AgentState, cfg: QueryAgentConfig, stream_callback: Opti
             "table_schema": state.get("table_schema", {}),
             "docs_meta": state.get("docs_meta", []),
             "previous_clarifications": [],
+            "conversation_history": state.get("conversation_history", "No previous conversation history."),
         }, stream_callback=stream_callback)
         
         # Check if clarification is needed (Stage 2b returned early)
@@ -303,12 +304,17 @@ def replan_node(state: AgentState, cfg: QueryAgentConfig, stream_callback: Optio
             "use_llm": True,
         })
         
+        # Get previous clarification questions that were asked (not user responses)
+        # These are needed so the clarification gate understands what "yes all" refers to
+        previous_clarification_questions = state.get("clarification_questions", [])
+        
         # Re-run clarification gate to verify user's answer was sufficient
         res = planner.execute({
             "query": combined,
             "table_schema": state.get("table_schema", {}),
             "docs_meta": state.get("docs_meta", []),
-            "previous_clarifications": [],  # Keep empty to re-run gate
+            "previous_clarifications": previous_clarification_questions,  # Pass the questions that were asked
+            "conversation_history": state.get("conversation_history", "No previous conversation history."),
         }, stream_callback=stream_callback)
         
         # Check if still needs clarification (user's answer wasn't sufficient)
@@ -806,9 +812,24 @@ Focus on:
 Format as a clear, structured procedural summary, not a response to the user."""
                 logger.info("[END_NODE] Using default prompt_monitor system prompt (config was empty)")
             
+            # Extract conversation history for prompt monitor
+            conversation_history_raw = state.get("conversation_history_raw", [])
+            conversation_history_formatted = []
+            if conversation_history_raw:
+                for i, turn in enumerate(conversation_history_raw, 1):
+                    conv_turn = {
+                        "turn_number": i,
+                        "user_query": turn.get("query", ""),
+                        "sql_executed": turn.get("sql", "") if turn.get("sql") and turn.get("sql") != "-- KNOWLEDGE QUESTION" else None,
+                        "response_summary": turn.get("response", "")[:200] + "..." if len(turn.get("response", "")) > 200 else turn.get("response", ""),
+                        "row_count": turn.get("row_count", 0)
+                    }
+                    conversation_history_formatted.append(conv_turn)
+            
             # Build user prompt with full state
             state_summary = {
                 "user_query": user_query,
+                "conversation_history": conversation_history_formatted,  # Previous conversation turns
                 "planning": {
                     "plan_quality": state.get("plan_quality", ""),
                     "plan_explanation": state.get("plan_explain", ""),
@@ -891,6 +912,7 @@ Generate a procedural summary explaining what was done and why at each step. Use
     if not llm_prompt_monitor:
         prompt_monitor = {
             "user_input": user_query,
+            "conversation_history": conversation_history_formatted,  # Previous conversation turns
             "plan_explanation": state.get("plan_explain", ""),
             "execution_summary": {
                 "query": plan_sql,
@@ -912,6 +934,7 @@ Generate a procedural summary explaining what was done and why at each step. Use
             "procedural_reasoning": llm_prompt_monitor,  # LLM-generated summary
             "raw_state": {  # Keep raw state for reference
                 "user_input": user_query,
+                "conversation_history": conversation_history_formatted,  # Previous conversation turns
                 "plan_explanation": state.get("plan_explain", ""),
                 "execution_summary": {
                     "query": plan_sql,
@@ -941,7 +964,90 @@ Generate a procedural summary explaining what was done and why at each step. Use
     }
     
     # Update conversation history (short-term memory)
-    conversation_history = state.get("conversation_history", [])
+    # Use conversation_history_raw (list) if available, otherwise initialize as empty list
+    conversation_history = state.get("conversation_history_raw", [])
+    if not isinstance(conversation_history, list):
+        conversation_history = []
+    conversation_entry = {
+        "timestamp": _now_iso(),
+        "query": user_query,
+        "plan_sql": plan_sql,
+        "plan_quality": state.get("plan_quality", ""),
+        "response": llm_response,
+        "satisfaction": state.get("satisfaction", ""),
+        "row_count": exec_result.get("row_count", 0),
+        "execution_error": execution_stats.get("error"),
+        "prompt_monitor": prompt_monitor,
+        "raw_table": raw_table
+    }
+    conversation_history.append(conversation_entry)
+    
+    # Keep only last 5 interactions to prevent memory bloat
+    conversation_history = conversation_history[-5:]
+    
+    return {
+        "last_node": "end",
+        "raw_table": raw_table,  # Add to state
+        "final_output": final_output,
+        "conversation_history": conversation_history,
+        "control": "end",
+        "metrics": metrics,
+        "logs": logs,
+    }
+    
+    # ============================================================================
+    # Final Output Structure
+    # ============================================================================
+    final_output = {
+        "raw_table": raw_table,           # OUTPUT 1: Raw table data
+        "response": llm_response,         # OUTPUT 2: LLM-generated insights
+        "prompt_monitor": prompt_monitor   # OUTPUT 3: LLM-generated reasoning
+    }
+    
+    # Update conversation history (short-term memory)
+    # Use conversation_history_raw (list) if available, otherwise initialize as empty list
+    conversation_history = state.get("conversation_history_raw", [])
+    if not isinstance(conversation_history, list):
+        conversation_history = []
+    conversation_entry = {
+        "timestamp": _now_iso(),
+        "query": user_query,
+        "plan_sql": plan_sql,
+        "plan_quality": state.get("plan_quality", ""),
+        "response": llm_response,
+        "satisfaction": state.get("satisfaction", ""),
+        "row_count": exec_result.get("row_count", 0),
+        "execution_error": execution_stats.get("error"),
+        "prompt_monitor": prompt_monitor,
+        "raw_table": raw_table
+    }
+    conversation_history.append(conversation_entry)
+    
+    # Keep only last 5 interactions to prevent memory bloat
+    conversation_history = conversation_history[-5:]
+    
+    return {
+        "last_node": "end",
+        "raw_table": raw_table,  # Add to state
+        "final_output": final_output,
+        "conversation_history": conversation_history,
+        "control": "end",
+        "metrics": metrics,
+        "logs": logs,
+    }
+    # Final Output Structure
+    # ============================================================================
+    final_output = {
+        "raw_table": raw_table,           # OUTPUT 1: Raw table data
+        "response": llm_response,         # OUTPUT 2: LLM-generated insights
+        "prompt_monitor": prompt_monitor   # OUTPUT 3: LLM-generated reasoning
+    }
+    
+    # Update conversation history (short-term memory)
+    # Use conversation_history_raw (list) if available, otherwise initialize as empty list
+    conversation_history = state.get("conversation_history_raw", [])
+    if not isinstance(conversation_history, list):
+        conversation_history = []
     conversation_entry = {
         "timestamp": _now_iso(),
         "query": user_query,
