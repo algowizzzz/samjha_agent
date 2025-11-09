@@ -3,7 +3,7 @@ NL to SQL Planner Tool
 Converts a natural language query and schema hints into a structured SQL plan.
 Uses LLM when available, falls back to heuristics.
 """
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional, Callable
 from datetime import datetime
 from tools.base_mcp_tool import BaseMCPTool
 import json
@@ -147,35 +147,282 @@ class NLToSQLPlannerTool(BaseMCPTool):
             "target_table": chosen,
         }
 
-    def _llm_plan(self, nl_query: str, table_schema: Dict[str, Any], available_tables: List[str], docs_meta: List[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Use LLM to generate SQL plan"""
+    def _llm_plan(self, nl_query: str, table_schema: Dict[str, Any], available_tables: List[str], docs_meta: List[Dict[str, Any]] = None, stream_callback: Optional[Callable[[str], None]] = None) -> Dict[str, Any]:
+        """Use LLM to generate SQL plan with two-stage approach:
+        Stage 1: Classify query type (knowledge vs. data)
+        Stage 2a: If knowledge, return answer from business glossary
+        Stage 2b: If data query, generate SQL
+        """
         # Get prompts from config if available, otherwise use defaults
         from agent.config import QueryAgentConfig
         cfg = QueryAgentConfig()
         
-        system_prompt = cfg.get_nested("prompts", "planner_system", default="""You are a DuckDB SQL query generator. Convert natural language to valid DuckDB SQL.
-
-CRITICAL RULES:
-1. Use PostgreSQL/DuckDB syntax: SELECT columns FROM table ORDER BY col LIMIT N
-2. NEVER use "SELECT TOP N" - that's SQL Server syntax and will cause errors
-3. Use exact table names from the schema (e.g., "sample_sales_data")
-4. Use "SELECT *" when columns are unknown
-5. Always add "LIMIT 10" at the end
-
-Example correct query:
-SELECT * FROM sample_sales_data ORDER BY amount DESC LIMIT 5
-
-Example WRONG query (do not generate):
-SELECT TOP 5 * FROM sample_sales_data
-
-Respond with JSON:
-{
-  "sql": "SELECT * FROM table_name ORDER BY column DESC LIMIT 10",
-  "plan_quality": "high|medium|low",
-  "plan_explanation": "Brief explanation",
+        # =========================================================================
+        # STAGE 1: CLASSIFY QUERY TYPE (knowledge vs. data)
+        # =========================================================================
+        print(f"[NLToSQLPlanner] STAGE 1: Classifying query type for: {nl_query}")
+        
+        # Build context for classifier (same as planner gets)
+        schema_summary_for_classifier = "Available tables/views:\n"
+        for table_name, schema_info in table_schema.items():
+            cols = schema_info.get('columns', [])
+            if cols:
+                col_str = ', '.join([f"{c['name']}" for c in cols[:15]])
+                schema_summary_for_classifier += f"\n{table_name}:\n"
+                schema_summary_for_classifier += f"  Columns: {col_str}\n"
+        
+        if not table_schema:
+            schema_summary_for_classifier = f"Available tables/views: {', '.join(available_tables)}\n"
+        
+        business_context_for_classifier = ""
+        if docs_meta:
+            for doc in docs_meta:
+                if doc.get("type") == "business_glossary":
+                    business_context_for_classifier += "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    business_context_for_classifier += "📚 BUSINESS GLOSSARY:\n"
+                    business_context_for_classifier += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    for term, definition in doc.get("glossary", {}).items():
+                        business_context_for_classifier += f"  • {term}: {definition}\n"
+                elif "table" in doc:
+                    # Include table-level business context
+                    table_name = doc.get("table", "")
+                    table_context = doc.get("business_context", "")
+                    if table_context:
+                        business_context_for_classifier += f"\n{table_name}: {table_context}\n"
+        
+        # Also load full data dictionary context for comprehensive understanding
+        try:
+            import os
+            data_dict_path = "config/data_dictionary_risk.json"
+            if not os.path.exists(data_dict_path):
+                data_dict_path = "config/data_dictionary.json"
+            
+            if os.path.exists(data_dict_path):
+                with open(data_dict_path, 'r', encoding='utf-8') as f:
+                    data_dict = json.load(f)
+                    
+                    # Add table relationships if available
+                    if "table_relationships" in data_dict:
+                        business_context_for_classifier += "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        business_context_for_classifier += "🔗 TABLE RELATIONSHIPS:\n"
+                        business_context_for_classifier += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        business_context_for_classifier += data_dict.get("table_relationships", "") + "\n"
+                    
+                    # Add business rules summary if available
+                    if "business_rules" in data_dict:
+                        business_context_for_classifier += "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        business_context_for_classifier += "📐 BUSINESS RULES:\n"
+                        business_context_for_classifier += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        business_context_for_classifier += data_dict.get("business_rules", "") + "\n"
+        except Exception as e:
+            print(f"[NLToSQLPlanner] Could not load full data dictionary context: {e}")
+        
+        # Get classifier prompts
+        classifier_system = cfg.get_nested("prompts", "classifier_system", default="Classify as knowledge or data query.")
+        classifier_user_template = cfg.get_nested("prompts", "classifier_user_template", default="User Query: {nl_query}\n\nClassify this query.")
+        classifier_user_prompt = classifier_user_template.format(
+            nl_query=nl_query,
+            schema_summary=schema_summary_for_classifier,
+            business_context=business_context_for_classifier
+        )
+        
+        # Call LLM to classify
+        try:
+            classification_response = self.llm_client.invoke_with_prompt(
+                classifier_system, 
+                classifier_user_prompt, 
+                response_format="json"
+            )
+            classification = json.loads(classification_response)
+            query_type = classification.get("type", "data").lower()
+            print(f"[NLToSQLPlanner] Classification result: {query_type} (confidence: {classification.get('confidence', 'unknown')})")
+            print(f"[NLToSQLPlanner] Reasoning: {classification.get('reasoning', 'N/A')}")
+        except Exception as e:
+            print(f"[NLToSQLPlanner] Classification failed: {e}, defaulting to 'data' query")
+            query_type = "data"
+        
+        # =========================================================================
+        # STAGE 2a: If KNOWLEDGE QUESTION, generate answer from business glossary
+        # =========================================================================
+        if query_type == "knowledge":
+            print(f"[NLToSQLPlanner] STAGE 2a: Generating knowledge answer")
+            
+            # Extract business glossary for knowledge answer
+            business_glossary_text = ""
+            if docs_meta:
+                for doc in docs_meta:
+                    if doc.get("type") == "business_glossary":
+                        for term, definition in doc.get("glossary", {}).items():
+                            business_glossary_text += f"{term}: {definition}\n"
+            
+            # Also load from data_dictionary
+            try:
+                import os
+                data_dict_path = "config/data_dictionary_risk.json"
+                if not os.path.exists(data_dict_path):
+                    data_dict_path = "config/data_dictionary.json"
+                
+                if os.path.exists(data_dict_path):
+                    with open(data_dict_path, 'r', encoding='utf-8') as f:
+                        data_dict = json.load(f)
+                        glossary = data_dict.get("business_glossary", {})
+                        for term, term_data in glossary.items():
+                            if isinstance(term_data, dict):
+                                definition = term_data.get("definition", "")
+                                usage = term_data.get("usage", "")
+                                business_glossary_text += f"{term}: {definition}\n"
+                                if usage:
+                                    business_glossary_text += f"  Usage: {usage}\n"
+            except Exception as e:
+                print(f"[NLToSQLPlanner] Error loading business glossary: {e}")
+            
+            # Get knowledge answer prompts
+            knowledge_system = cfg.get_nested("prompts", "knowledge_answer_system", default="Provide definitions from business glossary.")
+            knowledge_user_template = cfg.get_nested("prompts", "knowledge_answer_user_template", default="User Query: {nl_query}\n\nBusiness Glossary:\n{business_glossary}\n\nProvide the definition.")
+            knowledge_user_prompt = knowledge_user_template.format(
+                nl_query=nl_query,
+                business_glossary=business_glossary_text
+            )
+            
+            # Call LLM to generate knowledge answer
+            try:
+                # Use streaming if callback provided, otherwise use regular invoke
+                if stream_callback:
+                    # Stream and accumulate full response
+                    knowledge_answer = ""
+                    for chunk in self.llm_client.stream_with_prompt(
+                        knowledge_system, knowledge_user_prompt, callback=stream_callback
+                    ):
+                        knowledge_answer += chunk
+                else:
+                    knowledge_answer = self.llm_client.invoke_with_prompt(
+                        knowledge_system,
+                        knowledge_user_prompt
+                    )
+                
+                print(f"[NLToSQLPlanner] Knowledge answer generated: {knowledge_answer[:100]}...")
+                
+                # Return as a special plan type
+                return {
+                    "type": "sql_plan",
+                    "sql": "-- KNOWLEDGE QUESTION",
+                    "plan_quality": "high",
+                    "plan_explain": knowledge_answer,  # Note: use plan_explain (not plan_explanation) to match node expectations
   "clarification_questions": [],
-  "target_table": "table_name"
-}""")
+                    "target_table": "none"
+                }
+            except Exception as e:
+                print(f"[NLToSQLPlanner] Error generating knowledge answer: {e}")
+                # Fall through to data query generation
+        
+        # =========================================================================
+        # STAGE 2b: CLARIFICATION GATE - Check if query is clear enough
+        # =========================================================================
+        print(f"[NLToSQLPlanner] STAGE 2b: Checking if clarification needed")
+        
+        # Build previous clarifications context (if this is a follow-up query)
+        previous_clarifications_text = ""
+        if "\n\nClarification" in nl_query:
+            # Extract clarifications from combined query
+            parts = nl_query.split("\n\nClarification")
+            if len(parts) > 1:
+                previous_clarifications_text = "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                previous_clarifications_text += "📝 PREVIOUS CLARIFICATIONS PROVIDED:\n"
+                previous_clarifications_text += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                for i, part in enumerate(parts[1:], 1):
+                    clarif = part.split(":", 1)[-1].strip() if ":" in part else part.strip()
+                    previous_clarifications_text += f"{i}. {clarif}\n"
+                previous_clarifications_text += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        
+        # Load procedural knowledge from data dictionary
+        procedural_knowledge_text = ""
+        try:
+            import os
+            data_dict_path = "config/data_dictionary_risk.json"
+            if not os.path.exists(data_dict_path):
+                data_dict_path = "config/data_dictionary.json"
+            
+            if os.path.exists(data_dict_path):
+                with open(data_dict_path, 'r', encoding='utf-8') as f:
+                    data_dict = json.load(f)
+                    procedural_knowledge_text = data_dict.get("procedural_knowledge", "")
+                    if procedural_knowledge_text:
+                        procedural_knowledge_text = f"\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📋 PROCEDURAL KNOWLEDGE:\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n{procedural_knowledge_text}\n"
+        except Exception as e:
+            print(f"[NLToSQLPlanner] Could not load procedural knowledge: {e}")
+        
+        # Reuse the context we built for classifier
+        gate_system = cfg.get_nested("prompts", "clarification_gate_system", default="Assess if query is clear.")
+        gate_user_template = cfg.get_nested("prompts", "clarification_gate_user_template", default="User Query: {nl_query}\n\nIs this clear?")
+        gate_user_prompt = gate_user_template.format(
+            nl_query=nl_query,
+            previous_clarifications=previous_clarifications_text,
+            schema_summary=schema_summary_for_classifier,
+            business_context=business_context_for_classifier,
+            procedural_knowledge=procedural_knowledge_text
+        )
+        
+        try:
+            # Call clarification gate
+            if stream_callback:
+                gate_response = ""
+                for chunk in self.llm_client.stream_with_prompt(
+                    gate_system, gate_user_prompt, response_format="json",
+                    callback=stream_callback
+                ):
+                    gate_response += chunk
+            else:
+                gate_response = self.llm_client.invoke_with_prompt(
+                    gate_system, gate_user_prompt, response_format="json"
+                )
+            
+            gate_response = gate_response.strip()
+            if gate_response.startswith('```'):
+                lines = gate_response.split('\n')
+                gate_response = '\n'.join(lines[1:-1]) if len(lines) > 2 else gate_response
+            
+            # Clean up potential control characters before JSON parsing
+            import re
+            gate_response_clean = re.sub(r'[\x00-\x1f\x7f]', '', gate_response)
+            
+            try:
+                gate_result = json.loads(gate_response_clean)
+            except json.JSONDecodeError as json_err:
+                print(f"[NLToSQLPlanner] JSON parse error: {json_err}")
+                print(f"[NLToSQLPlanner] Response snippet: {gate_response_clean[:500]}...")
+                raise
+            needs_clarification = gate_result.get("needs_clarification", False)
+            
+            print(f"[NLToSQLPlanner] Clarification gate: needs_clarification={needs_clarification}")
+            
+            if needs_clarification:
+                questions = gate_result.get("questions", [])
+                reasoning = gate_result.get("reasoning", "Query is ambiguous")
+                
+                print(f"[NLToSQLPlanner] Clarification needed: {reasoning}")
+                print(f"[NLToSQLPlanner] Questions extracted from gate_result: {questions}")
+                print(f"[NLToSQLPlanner] Full gate_result: {gate_result}")
+                
+                # Return early - don't generate SQL yet
+                return {
+                    "type": "clarification_needed",
+                    "sql": None,  # No SQL generated yet
+                    "plan_quality": "medium",  # Indicate needs clarification
+                    "plan_explain": reasoning,
+                    "clarification_questions": questions,
+                    "target_table": None
+                }
+        except Exception as e:
+            print(f"[NLToSQLPlanner] Clarification gate failed: {e}, proceeding to SQL generation")
+            # Fall through to SQL generation on error
+        
+        # =========================================================================
+        # STAGE 2c: SQL GENERATION - Generate SQL for clear query
+        # =========================================================================
+        print(f"[NLToSQLPlanner] STAGE 2c: Generating SQL for clear data query")
+        
+        # Use simpler SQL generator prompts (not the complex planner prompts)
+        sql_system = cfg.get_nested("prompts", "sql_generator_system", default="Generate SQL for clear query.")
 
         # Build schema summary with business context
         schema_summary = "Available tables/views:\n"
@@ -206,7 +453,11 @@ Respond with JSON:
         procedural_knowledge = ""
         try:
             import os
-            data_dict_path = "config/data_dictionary.json"
+            # Try risk dictionary first, fall back to standard dictionary
+            data_dict_path = "config/data_dictionary_risk.json"
+            if not os.path.exists(data_dict_path):
+                data_dict_path = "config/data_dictionary.json"
+            
             if os.path.exists(data_dict_path):
                 with open(data_dict_path, 'r', encoding='utf-8') as f:
                     data_dict = json.load(f)
@@ -216,45 +467,60 @@ Respond with JSON:
         
         print(f"[NLToSQLPlanner] Schema summary for LLM:\n{schema_summary}")  # Debug
 
-        # Get user prompt template from config
-        user_template = cfg.get_nested("prompts", "planner_user_template", default="User Query: {nl_query}\n\n{schema_summary}\n{business_context}\n\n{procedural_knowledge}\n\nGenerate a SQL plan (JSON format) to answer this query.")
-        user_prompt = user_template.format(
+        # Get user prompt template for SQL generator (simpler than planner)
+        sql_user_template = cfg.get_nested("prompts", "sql_generator_user_template", default="User Query: {nl_query}\n\nSchema:\n{schema_summary}\n\nGenerate SQL.")
+        sql_user_prompt = sql_user_template.format(
             nl_query=nl_query,
             schema_summary=schema_summary,
-            business_context=business_context,
-            procedural_knowledge=procedural_knowledge
+            business_context=business_context
         )
 
         try:
-            response = self.llm_client.invoke_with_prompt(system_prompt, user_prompt, response_format="json")
-            # Parse JSON from response
-            # LLM might wrap in ```json or ```
-            response = response.strip()
-            if response.startswith('```'):
-                # Extract JSON from code block
-                lines = response.split('\n')
-                response = '\n'.join(lines[1:-1]) if len(lines) > 2 else response
+            # Use streaming if callback provided, otherwise use regular invoke
+            if stream_callback:
+                # Stream and accumulate full response
+                sql_response = ""
+                for chunk in self.llm_client.stream_with_prompt(
+                    sql_system, sql_user_prompt, response_format="json", callback=stream_callback
+                ):
+                    sql_response += chunk
+            else:
+                sql_response = self.llm_client.invoke_with_prompt(sql_system, sql_user_prompt, response_format="json")
             
-            result = json.loads(response)
+            # Parse JSON from response (simpler structure than before)
+            sql_response = sql_response.strip()
+            if sql_response.startswith('```'):
+                # Extract JSON from code block
+                lines = sql_response.split('\n')
+                sql_response = '\n'.join(lines[1:-1]) if len(lines) > 2 else sql_response
+            
+            sql_result = json.loads(sql_response)
             
             # Post-process SQL to fix common LLM mistakes
-            sql = result.get("sql", "")
+            sql = sql_result.get("sql", "SELECT 1")
             # Fix "SELECT TOP N" -> "SELECT" (remove TOP clause, rely on LIMIT at end)
             import re
             sql = re.sub(r'\bSELECT\s+TOP\s+\d+\s+', 'SELECT ', sql, flags=re.IGNORECASE)
-            result["sql"] = sql
             
-            return result
+            # Return with simpler structure (no quality assessment - we already passed gate)
+            return {
+                "type": "sql_plan",
+                "sql": sql,
+                "plan_quality": "high",  # Assume high since we passed clarification gate
+                "plan_explain": sql_result.get("explanation", "SQL generated for clear query"),
+                "clarification_questions": [],
+                "target_table": sql_result.get("target_table")
+            }
         except json.JSONDecodeError as e:
-            print(f"⚠ LLM returned invalid JSON: {e}")
-            print(f"  Response: {response[:200]}")
+            print(f"⚠ SQL generator returned invalid JSON: {e}")
+            print(f"  Response: {sql_response[:200]}")
             # Fall back to heuristic
             return self._simple_guess(nl_query, available_tables)
         except Exception as e:
             print(f"⚠ LLM planning failed: {e}")
             return self._simple_guess(nl_query, available_tables)
 
-    def execute(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
+    def execute(self, arguments: Dict[str, Any], stream_callback: Optional[Callable[[str], None]] = None) -> Dict[str, Any]:
         nl_query: str = arguments["query"]
         table_schema: Dict[str, Any] = arguments.get("table_schema", {})
         
@@ -268,15 +534,30 @@ Respond with JSON:
         # Use LLM if available, otherwise heuristics
         if self.use_llm and self.llm_client:
             print(f"[NLToSQLPlanner] Using LLM to plan query")
-            llm_result = self._llm_plan(nl_query, table_schema, available_tables, arguments.get("docs_meta"))
+            llm_result = self._llm_plan(nl_query, table_schema, available_tables, arguments.get("docs_meta"), stream_callback=stream_callback)
+            
+            # Check if clarification is needed (Stage 2b returned early)
+            if llm_result.get("type") == "clarification_needed":
+                # Pass through clarification request directly
+                return {
+                    "type": llm_result.get("type"),
+                    "plan": {"sql": None},  # No SQL yet
+                    "plan_quality": llm_result.get("plan_quality", "medium"),
+                    "plan_explain": llm_result.get("plan_explain", ""),
+                    "clarification_questions": llm_result.get("clarification_questions", []),
+                    "timestamp": datetime.utcnow().isoformat() + "Z",
+                }
+            
+            # Otherwise, SQL was generated successfully
             plan = {
                 "type": "sql_plan",
                 "sql": llm_result.get("sql", "SELECT 1"),
                 "limits": {"preview_rows": self.preview_rows},
                 "target_table": llm_result.get("target_table"),
             }
-            plan_quality = llm_result.get("plan_quality", "medium")
-            plan_explain = llm_result.get("plan_explanation", "LLM-generated SQL plan")
+            plan_quality = llm_result.get("plan_quality", "high")  # Default to high if gate passed
+            # Check both plan_explain and plan_explanation for backward compatibility
+            plan_explain = llm_result.get("plan_explain") or llm_result.get("plan_explanation", "SQL generated")
             clarify = llm_result.get("clarification_questions", [])
         else:
             print(f"[NLToSQLPlanner] Using heuristics to plan query")

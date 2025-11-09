@@ -3,7 +3,7 @@ import os
 import glob
 import time
 from datetime import datetime
-from typing import Dict, Any
+from typing import Dict, Any, Optional, Callable
 
 from agent.schemas import AgentState, PartialState
 from agent.config import QueryAgentConfig
@@ -43,7 +43,11 @@ def invoke_node(state: AgentState, cfg: QueryAgentConfig, sm: AgentStateManager)
         import json
         
         # Load data dictionary for business context
-        data_dict_path = "config/data_dictionary.json"
+        # Try risk dictionary first, fall back to standard dictionary
+        data_dict_path = "config/data_dictionary_risk.json"
+        if not os.path.exists(data_dict_path):
+            data_dict_path = "config/data_dictionary.json"
+        
         data_dictionary = {}
         if os.path.exists(data_dict_path):
             try:
@@ -105,7 +109,7 @@ def invoke_node(state: AgentState, cfg: QueryAgentConfig, sm: AgentStateManager)
     }
 
 
-def planner_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
+def planner_node(state: AgentState, cfg: QueryAgentConfig, stream_callback: Optional[Callable[[str], None]] = None) -> PartialState:
     logs = state.get("logs", [])
     logs.append({"node": "planner", "timestamp": _now_iso(), "msg": "planning query"})
     
@@ -120,12 +124,41 @@ def planner_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
             "table_schema": state.get("table_schema", {}),
             "docs_meta": state.get("docs_meta", []),
             "previous_clarifications": [],
-        })
+        }, stream_callback=stream_callback)
+        
+        # Check if clarification is needed (Stage 2b returned early)
+        if res.get("type") == "clarification_needed":
+            plan = res.get("plan", {"sql": None})
+            plan_quality = res.get("plan_quality", "medium")
+            plan_explain = res.get("plan_explain", "")
+            clarification_questions = res.get("clarification_questions", [])
+            control = "clarify"  # Go to clarify node
+            
+            # compute plan_id (use query only since no SQL yet)
+            plan_hash = hashlib.sha256(state.get("user_input", "").encode("utf-8")).hexdigest()[:16]
+            metrics = state.get("metrics") or {}
+            metrics["plan_id"] = plan_hash
+            
+            logs.append({"node": "planner", "timestamp": _now_iso(), 
+                        "msg": f"clarification needed: {len(clarification_questions)} questions"})
+            
+            return {
+                "last_node": "planner",
+                "plan": plan,
+                "plan_quality": plan_quality,
+                "plan_explain": plan_explain,
+                "clarification_questions": clarification_questions,
+                "control": control,
+                "metrics": metrics,
+                "logs": logs,
+            }
+        
+        # Otherwise, SQL was generated successfully (passed clarification gate)
         plan = res["plan"]
-        plan_quality = res.get("plan_quality", "low")
+        plan_quality = res.get("plan_quality", "high")
         plan_explain = res.get("plan_explain", "")
         clarification_questions = res.get("clarification_questions", [])
-        control = "execute" if plan_quality == "high" else "clarify"
+        control = "execute"  # Go directly to execute
         
         # compute plan_id
         plan_sql = (plan or {}).get("sql", "")
@@ -243,32 +276,64 @@ Please provide more details to help me generate an accurate query.""")
         }
 
 
-def replan_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
+def replan_node(state: AgentState, cfg: QueryAgentConfig, stream_callback: Optional[Callable[[str], None]] = None) -> PartialState:
     logs = state.get("logs", [])
     logs.append({"node": "replan", "timestamp": _now_iso(), "msg": "replanning with user clarification"})
     
     try:
-        # Combine original query with user clarification
+        # Accumulate all clarifications
         original_query = state["user_input"]
         user_clarification = state.get("user_clarification") or ""
-        combined = f"{original_query}\n\nAdditional context: {user_clarification}"
+        
+        # Get accumulated clarifications from state, or initialize empty list
+        all_clarifications = state.get("accumulated_clarifications", [])
+        all_clarifications.append(user_clarification)
+        
+        # Combine original query with ALL accumulated clarifications
+        combined = original_query
+        for i, clarif in enumerate(all_clarifications, 1):
+            combined += f"\n\nClarification {i}: {clarif}"
         
         logs.append({"node": "replan", "timestamp": _now_iso(), 
-                    "msg": f"replanning with clarification: {user_clarification[:50]}..."})
+                    "msg": f"replanning with {len(all_clarifications)} accumulated clarifications"})
         
         planner = NLToSQLPlannerTool({
             "preview_rows": cfg.get_nested("duckdb", "preview_rows", default=100),
             "data_directory": state.get("parquet_location", "data/duckdb"),
             "use_llm": True,
         })
+        
+        # Re-run clarification gate to verify user's answer was sufficient
         res = planner.execute({
             "query": combined,
             "table_schema": state.get("table_schema", {}),
             "docs_meta": state.get("docs_meta", []),
-            "previous_clarifications": [user_clarification],
-        })
+            "previous_clarifications": [],  # Keep empty to re-run gate
+        }, stream_callback=stream_callback)
+        
+        # Check if still needs clarification (user's answer wasn't sufficient)
+        if res.get("type") == "clarification_needed":
+            plan = res.get("plan", {"sql": None})
+            plan_quality = res.get("plan_quality", "medium")
+            clarification_questions = res.get("clarification_questions", [])
+            
+            logs.append({"node": "replan", "timestamp": _now_iso(), 
+                        "msg": f"still needs clarification: {len(clarification_questions)} follow-up questions"})
+            
+            return {
+                "last_node": "replan",
+                "plan": plan,
+                "plan_quality": plan_quality,
+                "plan_explain": res.get("plan_explain", ""),
+                "clarification_questions": clarification_questions,
+                "accumulated_clarifications": all_clarifications,  # Save accumulated list
+                "control": "clarify",  # Ask follow-up questions
+                "logs": logs,
+            }
+        
+        # Otherwise, clarification was sufficient and SQL was generated
         plan = res["plan"]
-        plan_quality = res.get("plan_quality", "low")
+        plan_quality = res.get("plan_quality", "high")
         clarification_questions = res.get("clarification_questions", [])
         
         logs.append({"node": "replan", "timestamp": _now_iso(), 
@@ -280,7 +345,8 @@ def replan_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
             "plan_quality": plan_quality,
             "plan_explain": res.get("plan_explain", ""),
             "clarification_questions": clarification_questions,
-            "control": "execute" if plan_quality == "high" else "clarify",
+            "accumulated_clarifications": all_clarifications,  # Save accumulated list
+            "control": "execute",  # Proceed to execution
             "logs": logs,
         }
     except Exception as e:
@@ -296,6 +362,33 @@ def replan_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
 def execute_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
     logs = state.get("logs", [])
     logs.append({"node": "execute", "timestamp": _now_iso(), "msg": "executing query"})
+    
+    # Check if this is a knowledge question (no SQL execution needed)
+    plan_sql = (state.get("plan") or {}).get("sql", "SELECT 1")
+    if plan_sql.startswith("-- KNOWLEDGE QUESTION"):
+        logs.append({"node": "execute", "timestamp": _now_iso(), "msg": "knowledge question detected, skipping SQL execution"})
+        # Return the explanation as the result
+        explanation = state.get("plan_explain", "")
+        if not explanation:
+            explanation = "I detected this as a knowledge question, but no explanation was provided in the plan. Please check the business glossary or data dictionary."
+        logs.append({"node": "execute", "timestamp": _now_iso(), "msg": f"knowledge response: {explanation[:100]}..."})
+        return {
+            "last_node": "execute",
+            "execution_result": {
+                "columns": [],
+                "rows": [],
+                "row_count": 0,
+                "query": plan_sql
+            },
+            "execution_stats": {
+                "execution_time_ms": 0,
+                "error": None,
+                "limited": False,
+                "knowledge_response": explanation
+            },
+            "control": "end",  # Skip evaluate, go straight to end
+            "logs": logs,
+        }
     
     if duckdb is None:
         logs.append({"node": "execute", "timestamp": _now_iso(), "msg": "DuckDB not installed", "level": "error"})
@@ -313,7 +406,6 @@ def execute_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
             "safety": cfg.get("safety") or {},
         })
         preview_rows = int(cfg.get_nested("duckdb", "preview_rows", default=100))
-        plan_sql = (state.get("plan") or {}).get("sql", "SELECT 1")
         
         logs.append({"node": "execute", "timestamp": _now_iso(), "msg": f"validating query: {plan_sql[:50]}..."})
         
@@ -358,11 +450,22 @@ def execute_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
         
         execution_time_ms = (time.time() - start_time) * 1000
         
-        # Format result
+        # Format result and convert dates to strings for JSON serialization
+        def convert_value(val):
+            """Convert date/datetime objects to ISO format strings"""
+            if hasattr(val, 'isoformat'):
+                return val.isoformat()
+            return val
+        
+        rows_with_converted_dates = [
+            {col: convert_value(val) for col, val in zip(columns, row)}
+            for row in result
+        ]
+        
         result_payload = {
             "query": sql,
             "columns": columns,
-            "rows": [dict(zip(columns, row)) for row in result],
+            "rows": rows_with_converted_dates,
             "row_count": len(result),
             "execution_time_ms": execution_time_ms,
             "limited": len(result) >= preview_rows
@@ -399,7 +502,7 @@ def execute_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
         }
 
 
-def evaluate_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
+def evaluate_node(state: AgentState, cfg: QueryAgentConfig, stream_callback: Optional[Callable[[str], None]] = None) -> PartialState:
     logs = state.get("logs", [])
     logs.append({"node": "evaluate", "timestamp": _now_iso(), "msg": "evaluating query results"})
     
@@ -422,7 +525,7 @@ def evaluate_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
             "execution_result": state.get("execution_result", {}),
             "execution_stats": execution_stats,
             "table_schema": state.get("table_schema", {}),
-        })
+        }, stream_callback=stream_callback)
         satisfaction = res.get("satisfaction", "needs_work")
         control = "end" if satisfaction == "satisfied" else "replan"
         
@@ -446,7 +549,7 @@ def evaluate_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
         }
 
 
-def end_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
+def end_node(state: AgentState, cfg: QueryAgentConfig, stream_callback_response: Optional[Callable[[str], None]] = None, stream_callback_prompt_monitor: Optional[Callable[[str], None]] = None) -> PartialState:
     logs = state.get("logs", [])
     logs.append({"node": "end", "timestamp": _now_iso(), "msg": "finalizing agent response"})
     
@@ -472,6 +575,34 @@ def end_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
     user_query = state.get("user_input", "")
     plan = state.get("plan", {})
     plan_sql = plan.get("sql", "")
+    
+    # Check if this is a knowledge question response
+    knowledge_response = execution_stats.get("knowledge_response")
+    if knowledge_response:
+        logs.append({"node": "end", "timestamp": _now_iso(), "msg": "returning knowledge response (no LLM generation needed)"})
+        return {
+            "last_node": "end",
+            "control": "end",
+            "final_output": {
+                "raw_table": {
+                    "columns": [],
+                    "rows": [],
+                    "row_count": 0,
+                    "query": plan_sql
+                },
+                "response": knowledge_response,
+                "prompt_monitor": {
+                    "procedural_reasoning": "Knowledge question answered from business glossary - no data query executed.",
+                    "raw_state": {
+                        "user_input": user_query,
+                        "plan_explanation": knowledge_response,
+                        "type": "knowledge_response"
+                    }
+                }
+            },
+            "metrics": metrics,
+            "logs": logs,
+        }
     
     # ============================================================================
     # OUTPUT 1: Raw Table Data
@@ -517,7 +648,11 @@ IMPORTANT: The raw table data and prompt monitor are provided separately. Focus 
             procedural_knowledge = ""
             try:
                 import os
-                data_dict_path = "config/data_dictionary.json"
+                # Try risk dictionary first, fall back to standard dictionary
+                data_dict_path = "config/data_dictionary_risk.json"
+                if not os.path.exists(data_dict_path):
+                    data_dict_path = "config/data_dictionary.json"
+                
                 if os.path.exists(data_dict_path):
                     with open(data_dict_path, 'r', encoding='utf-8') as f:
                         data_dict = json.load(f)
@@ -552,17 +687,41 @@ Full State Summary:
 
 Use the data dictionary (docs_meta) to understand column meanings and business context. Focus on what the data tells us, key patterns, and actionable observations.""")
             
+            # Format results summary
+            results_summary = {
+                "row_count": exec_result.get("row_count", 0),
+                "columns": columns,
+                "sample_rows": preview_rows,
+                "execution_status": "success" if not execution_stats.get("error") else f"failed: {execution_stats.get('error')}",
+                "execution_time_ms": execution_stats.get("execution_time_ms", 0)
+            }
+            
             user_prompt = user_template.format(
-                state_summary=json.dumps(state_summary, indent=2)
+                user_query=user_query,
+                sql_query=plan_sql,
+                results_summary=json.dumps(results_summary, indent=2),
+                state_summary=json.dumps(state_summary, indent=2)  # Keep for backward compatibility
             )
             
             logger.info(f"[END_NODE] Calling LLM with prompt length: {len(user_prompt)} chars")
             try:
-                llm_response = llm_client.invoke_with_prompt(
-                    system_prompt=system_prompt,
-                    user_prompt=user_prompt,
-                    temperature=0.3  # Slightly higher for more creative insights
-                )
+                # Use streaming if callback provided, otherwise use regular invoke
+                if stream_callback_response:
+                    full_response = ""
+                    for chunk in llm_client.stream_with_prompt(
+                        system_prompt=system_prompt,
+                        user_prompt=user_prompt,
+                        temperature=0.3,  # Slightly higher for more creative insights
+                        callback=stream_callback_response
+                    ):
+                        full_response += chunk
+                    llm_response = full_response
+                else:
+                    llm_response = llm_client.invoke_with_prompt(
+                        system_prompt=system_prompt,
+                        user_prompt=user_prompt,
+                        temperature=0.3  # Slightly higher for more creative insights
+                    )
                 logger.info(f"[END_NODE] LLM response received: {len(llm_response) if llm_response else 0} chars")
                 logs.append({"node": "end", "timestamp": _now_iso(), "msg": f"LLM response generated successfully ({len(llm_response) if llm_response else 0} chars)"})
             except Exception as e:
@@ -685,11 +844,23 @@ Generate a procedural summary explaining what was done and why at each step. Use
             
             logger.info(f"[END_NODE] Calling LLM for prompt monitor with prompt length: {len(user_prompt)} chars")
             try:
-                llm_prompt_monitor = llm_client.invoke_with_prompt(
-                    system_prompt=system_prompt,
-                    user_prompt=user_prompt,
-                    temperature=0.1  # Lower temperature for more factual reasoning
-                )
+                # Use streaming if callback provided, otherwise use regular invoke
+                if stream_callback_prompt_monitor:
+                    full_response = ""
+                    for chunk in llm_client.stream_with_prompt(
+                        system_prompt=system_prompt,
+                        user_prompt=user_prompt,
+                        temperature=0.1,  # Lower temperature for more factual reasoning
+                        callback=stream_callback_prompt_monitor
+                    ):
+                        full_response += chunk
+                    llm_prompt_monitor = full_response
+                else:
+                    llm_prompt_monitor = llm_client.invoke_with_prompt(
+                        system_prompt=system_prompt,
+                        user_prompt=user_prompt,
+                        temperature=0.1  # Lower temperature for more factual reasoning
+                    )
                 logger.info(f"[END_NODE] LLM prompt monitor received: {len(llm_prompt_monitor) if llm_prompt_monitor else 0} chars")
                 logs.append({"node": "end", "timestamp": _now_iso(), "msg": f"LLM prompt monitor generated successfully ({len(llm_prompt_monitor) if llm_prompt_monitor else 0} chars)"})
             except Exception as e:

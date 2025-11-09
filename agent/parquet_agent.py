@@ -108,7 +108,22 @@ class ParquetQueryAgent:
                 except Exception as e:
                     logger.error(f"Failed to save state for session {session_id}: {e}")
 
-            if state.get("control") != "end":
+            # Build clarification dict if waiting for user
+            if state.get("control") == "wait_for_user":
+                clarification_questions = state.get("clarification_questions", [])
+                clarify_reasoning = state.get("clarify_reasoning", [])
+                clarify_prompt = state.get("clarify_prompt", "")
+                
+                state["clarification"] = {
+                    "questions": clarification_questions,
+                    "reasoning": clarify_reasoning,
+                    "prompt": clarify_prompt
+                }
+                try:
+                    self.state_manager.save_session_state(session_id, user_id, state)
+                except Exception as e:
+                    logger.error(f"Failed to save state while waiting for clarification: {e}")
+            elif state.get("control") != "end":
                 # finalize gracefully
                 try:
                     state = self._merge(state, end_node(state, self.cfg))
@@ -226,7 +241,18 @@ class ParquetQueryAgent:
 
             # Always call end_node unless waiting for user
             if state.get("control") == "wait_for_user":
-                # Save state as-is when waiting for user clarification
+                # Build clarification dict for UI compatibility
+                clarification_questions = state.get("clarification_questions", [])
+                clarify_reasoning = state.get("clarify_reasoning", [])
+                clarify_prompt = state.get("clarify_prompt", "")
+                
+                state["clarification"] = {
+                    "questions": clarification_questions,
+                    "reasoning": clarify_reasoning,
+                    "prompt": clarify_prompt
+                }
+                
+                # Save state when waiting for user clarification
                 try:
                     self.state_manager.save_session_state(sid, user_id, state)
                 except Exception as e:
