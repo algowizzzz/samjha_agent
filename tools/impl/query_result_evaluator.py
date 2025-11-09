@@ -3,7 +3,7 @@ Query Result Evaluator Tool
 LLM-assisted evaluation of execution results
 to determine satisfaction and notes for re-planning or clarification.
 """
-from typing import Dict, Any
+from typing import Dict, Any, Optional, Callable
 from tools.base_mcp_tool import BaseMCPTool
 import json
 
@@ -98,7 +98,7 @@ class QueryResultEvaluatorTool(BaseMCPTool):
             "suggested_improvements": suggestions,
         }
 
-    def _llm_evaluate(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
+    def _llm_evaluate(self, arguments: Dict[str, Any], stream_callback: Optional[Callable[[str], None]] = None) -> Dict[str, Any]:
         """LLM-based evaluation"""
         original_query = arguments.get("original_query", "")
         execution_result = arguments.get("execution_result", {})
@@ -140,7 +140,18 @@ Respond with JSON:
         )
 
         try:
-            response = self.llm_client.invoke_with_prompt(system_prompt, user_prompt, response_format="json")
+            # Use streaming if callback provided, otherwise use regular invoke
+            if stream_callback:
+                # Stream and accumulate full response
+                full_response = ""
+                for chunk in self.llm_client.stream_with_prompt(
+                    system_prompt, user_prompt, response_format="json", callback=stream_callback
+                ):
+                    full_response += chunk
+                response = full_response
+            else:
+                response = self.llm_client.invoke_with_prompt(system_prompt, user_prompt, response_format="json")
+            
             # Parse JSON
             response = response.strip()
             if response.startswith('```'):
@@ -156,10 +167,10 @@ Respond with JSON:
             print(f"⚠ LLM evaluation failed: {e}")
             return self._heuristic_evaluate(arguments)
 
-    def execute(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
+    def execute(self, arguments: Dict[str, Any], stream_callback: Optional[Callable[[str], None]] = None) -> Dict[str, Any]:
         if self.use_llm and self.llm_client:
             print(f"[QueryResultEvaluator] Using LLM to evaluate results")
-            return self._llm_evaluate(arguments)
+            return self._llm_evaluate(arguments, stream_callback=stream_callback)
         else:
             print(f"[QueryResultEvaluator] Using heuristics to evaluate results")
             return self._heuristic_evaluate(arguments)

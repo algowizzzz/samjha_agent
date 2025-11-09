@@ -123,18 +123,215 @@
     }
     .prompt-monitor-content {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        line-height: 1.6;
+        line-height: 1.4;
+        font-size: 13px;
     }
+    /* Make headers small and compact - no large headers in prompt monitor */
     .prompt-monitor-content h1, .prompt-monitor-content h2, .prompt-monitor-content h3 {
-        margin-top: 20px;
-        margin-bottom: 10px;
+        margin-top: 8px;
+        margin-bottom: 4px;
         font-weight: 600;
+        font-size: 14px; /* Same size as body text */
+    }
+    .prompt-monitor-content h1 {
+        font-size: 14px; /* h1 same as body */
+    }
+    .prompt-monitor-content h2 {
+        font-size: 13px; /* h2 slightly smaller */
+    }
+    .prompt-monitor-content ul, .prompt-monitor-content ol {
+        margin-top: 4px;
+        margin-bottom: 4px;
+        padding-left: 20px;
+    }
+    .prompt-monitor-content li {
+        margin-bottom: 3px;
+    }
+    .prompt-monitor-content p {
+        margin-top: 4px;
+        margin-bottom: 4px;
     }
     .prompt-monitor-content code {
         background-color: #f4f4f4;
         padding: 2px 6px;
         border-radius: 3px;
         font-family: 'Courier New', monospace;
+        font-size: 12px;
+    }
+    .prompt-monitor-content strong {
+        font-weight: 600;
+    }
+    
+    /* Loading states and animations */
+    .loading-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        color: #6c757d;
+        font-size: 14px;
+        animation: fadeIn 0.2s ease-in;
+    }
+    
+    .typing-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+        color: #6c757d;
+        font-size: 13px;
+        font-style: italic;
+    }
+    
+    .typing-dots {
+        display: inline-flex;
+        gap: 3px;
+    }
+    
+    .typing-dots span {
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background-color: #6c757d;
+        animation: typingPulse 1.4s infinite;
+    }
+    
+    .typing-dots span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    
+    .typing-dots span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    
+    /* Status bar */
+    .status-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 15px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        font-size: 13px;
+        animation: slideInDown 0.3s ease-out;
+    }
+    
+    .status-step {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #6c757d;
+        flex: 1;
+        position: relative;
+    }
+    
+    .status-step:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        right: -10px;
+        width: 20px;
+        height: 2px;
+        background-color: #dee2e6;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    
+    .status-step.active {
+        color: #0d6efd;
+        font-weight: 500;
+    }
+    
+    .status-step.completed {
+        color: #198754;
+    }
+    
+    .status-step.error {
+        color: #dc3545;
+    }
+    
+    .status-bar.status-waiting {
+        background-color: #fff3cd;
+        border-color: #ffc107;
+        color: #856404;
+    }
+    
+    .status-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+        }
+    }
+    
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes typingPulse {
+        0%, 60%, 100% {
+            opacity: 0.3;
+            transform: scale(0.8);
+        }
+        30% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    .message-fade-in {
+        animation: fadeIn 0.3s ease-in;
+    }
+    
+    .content-smooth {
+        transition: all 0.2s ease;
+    }
+    
+    /* Error state styling */
+    .error-message {
+        background-color: #f8d7da;
+        border-color: #f5c2c7;
+        color: #842029;
+    }
+    
+    /* Mobile responsive status bar */
+    @media (max-width: 768px) {
+        .status-bar {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .status-step:not(:last-child)::after {
+            display: none;
+        }
     }
 </style>
 {% endblock %}
@@ -165,6 +362,17 @@
 {% block extra_js %}
 <!-- Markdown Parser -->
 <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+<script>
+    // Configure marked.js for GitHub Flavored Markdown (tables, etc.)
+    if (typeof marked !== 'undefined') {
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            headerIds: true,
+            mangle: false
+        });
+    }
+</script>
 <!-- DataTables for interactive tables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
@@ -172,7 +380,7 @@
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 <script>
-    // Agent Chat v4.0 - Full screen layout, white agent bubbles - 2025-11-08
+    // Agent Chat v5.2 - Fixed: typing indicator text bleeding into response - 2025-11-09 20:20
 (function() {
     'use strict';
     // Ensure API token is available for /api/tools/execute
@@ -193,6 +401,467 @@
     const historyEl = document.getElementById('chatHistory');
     const inputEl = document.getElementById('chatInput');
     const sendBtn = document.getElementById('sendBtn');
+
+    // SocketIO connection for streaming
+    let socket = null;
+    let currentStreamingNode = null;
+    let currentResponseId = null;
+    let currentPromptMonitorId = null;
+    let currentStatusBarId = null;
+    let currentLoadingId = null;
+    let isUserScrolling = false;
+    let accumulatedText = {
+        planner: '',
+        evaluator: '',
+        end_response: '',
+        end_prompt_monitor: ''
+    };
+    
+    // ====================================================================================
+    // PHASE 1: Loading States
+    // ====================================================================================
+    
+    function showLoadingState(message, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return null;
+        
+        const loadingId = 'loading-' + Date.now();
+        const loadingDiv = document.createElement('div');
+        loadingDiv.id = loadingId;
+        loadingDiv.className = 'loading-indicator';
+        loadingDiv.innerHTML = `
+            <div class="spinner-border spinner-border-sm" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <span class="loading-text">${message}</span>
+        `;
+        
+        const markdownBody = container.querySelector('.markdown-body');
+        if (markdownBody) {
+            markdownBody.appendChild(loadingDiv);
+        }
+        
+        return loadingId;
+    }
+    
+    function updateLoadingState(loadingId, newMessage) {
+        const loadingEl = document.getElementById(loadingId);
+        if (!loadingEl) return;
+        
+        const textEl = loadingEl.querySelector('.loading-text');
+        if (textEl) {
+            textEl.textContent = newMessage;
+        }
+    }
+    
+    function hideLoadingState(loadingId) {
+        const loadingEl = document.getElementById(loadingId);
+        if (!loadingEl) return;
+        
+        loadingEl.style.animation = 'fadeOut 0.2s ease-out';
+        setTimeout(() => {
+            if (loadingEl && loadingEl.parentNode) {
+                loadingEl.parentNode.removeChild(loadingEl);
+            }
+        }, 200);
+    }
+    
+    // ====================================================================================
+    // PHASE 2: Status Bar
+    // ====================================================================================
+    
+    function createStatusBar(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return null;
+        
+        const statusBarId = 'status-' + Date.now();
+        const wrapper = container.closest('.mb-3');
+        if (!wrapper) return null;
+        
+        const statusBar = document.createElement('div');
+        statusBar.id = statusBarId;
+        statusBar.className = 'status-bar';
+        statusBar.innerHTML = `
+            <div class="status-step" data-step="planning">
+                <span class="status-icon"><i class="bi bi-circle"></i></span>
+                <span>Planning</span>
+            </div>
+            <div class="status-step" data-step="executing">
+                <span class="status-icon"><i class="bi bi-circle"></i></span>
+                <span>Executing</span>
+            </div>
+            <div class="status-step" data-step="evaluating">
+                <span class="status-icon"><i class="bi bi-circle"></i></span>
+                <span>Evaluating</span>
+            </div>
+            <div class="status-step" data-step="generating">
+                <span class="status-icon"><i class="bi bi-circle"></i></span>
+                <span>Generating</span>
+            </div>
+        `;
+        
+        wrapper.insertBefore(statusBar, container);
+        return statusBarId;
+    }
+    
+    function updateStatusBar(statusBarId, node) {
+        const statusBar = document.getElementById(statusBarId);
+        if (!statusBar) return;
+        
+        // Map nodes to steps
+        const nodeToStep = {
+            'planner': 'planning',
+            'replan': 'planning',
+            'execute': 'executing',
+            'evaluate': 'evaluating',
+            'end_response': 'generating',
+            'end_prompt_monitor': 'generating'
+        };
+        
+        const step = nodeToStep[node];
+        if (!step) return;
+        
+        const steps = ['planning', 'executing', 'evaluating', 'generating'];
+        const currentIndex = steps.indexOf(step);
+        
+        // Update each step
+        steps.forEach((s, index) => {
+            const stepEl = statusBar.querySelector(`[data-step="${s}"]`);
+            if (!stepEl) return;
+            
+            const iconEl = stepEl.querySelector('.status-icon i');
+            
+            if (index < currentIndex) {
+                // Completed
+                stepEl.className = 'status-step completed';
+                iconEl.className = 'bi bi-check-circle-fill';
+            } else if (index === currentIndex) {
+                // Active
+                stepEl.className = 'status-step active';
+                iconEl.className = 'bi bi-arrow-repeat spinner-border spinner-border-sm';
+            } else {
+                // Pending
+                stepEl.className = 'status-step';
+                iconEl.className = 'bi bi-circle';
+            }
+        });
+    }
+    
+    function completeStatusBar(statusBarId) {
+        const statusBar = document.getElementById(statusBarId);
+        if (!statusBar) return;
+        
+        const steps = statusBar.querySelectorAll('.status-step');
+        steps.forEach(stepEl => {
+            stepEl.className = 'status-step completed';
+            const iconEl = stepEl.querySelector('.status-icon i');
+            if (iconEl) {
+                iconEl.className = 'bi bi-check-circle-fill';
+            }
+        });
+        
+        // Hide status bar after a delay
+        setTimeout(() => {
+            if (statusBar && statusBar.parentNode) {
+                statusBar.style.animation = 'fadeOut 0.3s ease-out';
+                setTimeout(() => {
+                    if (statusBar && statusBar.parentNode) {
+                        statusBar.parentNode.removeChild(statusBar);
+                    }
+                }, 300);
+            }
+        }, 2000);
+    }
+    
+    function errorStatusBar(statusBarId) {
+        const statusBar = document.getElementById(statusBarId);
+        if (!statusBar) return;
+        
+        const activeStep = statusBar.querySelector('.status-step.active');
+        if (activeStep) {
+            activeStep.className = 'status-step error';
+            const iconEl = activeStep.querySelector('.status-icon i');
+            if (iconEl) {
+                iconEl.className = 'bi bi-exclamation-circle-fill';
+            }
+        }
+    }
+    
+    // ====================================================================================
+    // PHASE 3: Typing Indicator
+    // ====================================================================================
+    
+    function showTypingIndicator(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return null;
+        
+        const typingId = 'typing-' + Date.now();
+        const typingDiv = document.createElement('div');
+        typingDiv.id = typingId;
+        typingDiv.className = 'typing-indicator';
+        typingDiv.innerHTML = `
+            <span>Agent is thinking</span>
+            <span class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </span>
+        `;
+        
+        const markdownBody = container.querySelector('.markdown-body');
+        if (markdownBody) {
+            markdownBody.insertBefore(typingDiv, markdownBody.firstChild);
+        }
+        
+        return typingId;
+    }
+    
+    function hideTypingIndicator(typingId) {
+        const typingEl = document.getElementById(typingId);
+        if (!typingEl) return;
+        
+        typingEl.style.animation = 'fadeOut 0.2s ease-out';
+        setTimeout(() => {
+            if (typingEl && typingEl.parentNode) {
+                typingEl.parentNode.removeChild(typingEl);
+            }
+        }, 200);
+    }
+    
+    // ====================================================================================
+    // PHASE 6: Smart Auto-Scroll
+    // ====================================================================================
+    
+    function isNearBottom() {
+        const threshold = 100;
+        return (historyEl.scrollHeight - historyEl.scrollTop - historyEl.clientHeight) <= threshold;
+    }
+    
+    function smoothScrollToBottom() {
+        if (!isUserScrolling || isNearBottom()) {
+            requestAnimationFrame(() => {
+                historyEl.scrollTo({
+                    top: historyEl.scrollHeight,
+                    behavior: 'smooth'
+                });
+            });
+        }
+    }
+    
+    // Track user scrolling
+    let scrollTimeout;
+    historyEl.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        
+        // Check if user scrolled up
+        if (!isNearBottom()) {
+            isUserScrolling = true;
+        } else {
+            isUserScrolling = false;
+        }
+        
+        // Reset after a delay
+        scrollTimeout = setTimeout(() => {
+            if (isNearBottom()) {
+                isUserScrolling = false;
+            }
+        }, 1000);
+    });
+
+    // Initialize SocketIO connection
+    function initSocketIO() {
+        if (typeof io === 'undefined') {
+            console.warn('SocketIO not available, falling back to HTTP');
+            return false;
+        }
+
+        socket = io();
+        
+        socket.on('connect', () => {
+            console.log('Connected to WebSocket');
+            // Authenticate
+            const token = templateToken || sessionStorage.getItem('mcp_token') || '';
+            if (token) {
+                socket.emit('authenticate', { token: token });
+            }
+        });
+
+        socket.on('authenticated', (data) => {
+            if (data.success) {
+                console.log('WebSocket authenticated:', data.user);
+                // Join session room
+                socket.emit('join_session', { session_id: sessionId });
+            } else {
+                console.error('WebSocket authentication failed');
+            }
+        });
+
+        socket.on('session_joined', (data) => {
+            console.log('Joined session room:', data.session_id);
+        });
+
+        socket.on('agent:node_start', (data) => {
+            console.log('Node started:', data.node);
+            currentStreamingNode = data.node;
+            
+            // Update status bar
+            if (currentStatusBarId) {
+                updateStatusBar(currentStatusBarId, data.node);
+            }
+            
+            // Update loading message based on node
+            const loadingMessages = {
+                'planner': 'Planning query...',
+                'replan': 'Replanning query...',
+                'execute': 'Executing query...',
+                'evaluate': 'Evaluating results...',
+                'end_response': 'Generating response...',
+                'end_prompt_monitor': 'Generating insights...'
+            };
+            
+            if (currentLoadingId && loadingMessages[data.node]) {
+                updateLoadingState(currentLoadingId, loadingMessages[data.node]);
+            }
+            
+            // Hide loading and show typing indicator when streaming starts
+            if (data.node === 'end_response' && currentLoadingId) {
+                hideLoadingState(currentLoadingId);
+                currentLoadingId = null;
+                // Typing indicator will show when first chunk arrives
+            }
+        });
+
+        socket.on('agent:llm_chunk', (data) => {
+            const node = data.node;
+            const chunk = data.chunk;
+            
+            // Update accumulated text
+            if (accumulatedText.hasOwnProperty(node)) {
+                accumulatedText[node] = data.accumulated;
+            }
+            
+            // Append chunk to appropriate UI element
+            if (node === 'end_response' && currentResponseId) {
+                appendStreamingChunk(currentResponseId, chunk, 'response');
+            } else if (node === 'end_prompt_monitor' && currentPromptMonitorId) {
+                appendStreamingChunk(currentPromptMonitorId, chunk, 'prompt_monitor');
+            }
+        });
+
+        socket.on('agent:node_complete', (data) => {
+            console.log('Node completed:', data.node);
+            if (data.node === currentStreamingNode) {
+                currentStreamingNode = null;
+            }
+        });
+
+        socket.on('agent:complete', (data) => {
+            console.log('=== WEBSOCKET AGENT COMPLETE ===');
+            console.log('Data:', data);
+            console.log('Has result?:', !!data.result);
+            if (data.result && data.result.final_output) {
+                console.log('final_output.response:', data.result.final_output.response);
+            }
+            console.log('===================================');
+            console.log('Agent completed');
+            const result = data.result;
+            
+            // Hide any remaining loading states
+            if (currentLoadingId) {
+                hideLoadingState(currentLoadingId);
+                currentLoadingId = null;
+            }
+            
+            // Complete status bar
+            if (currentStatusBarId) {
+                completeStatusBar(currentStatusBarId);
+            }
+            
+            // Final result received - update UI with complete data
+            if (currentResponseId) {
+                finalizeStreamingMessage(currentResponseId, result);
+            }
+            
+            $('#sendBtn').prop('disabled', false);
+        });
+
+        socket.on('agent:waiting_for_clarification', (data) => {
+            console.log('Agent waiting for clarification:', data);
+            
+            // Hide loading states
+            if (currentLoadingId) {
+                hideLoadingState(currentLoadingId);
+                currentLoadingId = null;
+            }
+            
+            // Update status bar to show waiting
+            if (currentStatusBarId) {
+                const statusBar = document.getElementById(currentStatusBarId);
+                if (statusBar) {
+                    statusBar.innerHTML = '<i class="bi bi-question-circle"></i> Needs Clarification';
+                    statusBar.className = 'status-bar status-waiting';
+                }
+            }
+            
+            // Show clarification prompt to user
+            if (currentResponseId) {
+                const msgEl = document.getElementById(currentResponseId);
+                if (msgEl) {
+                    const markdownBody = msgEl.querySelector('.markdown-body');
+                    if (markdownBody && data.clarify_prompt) {
+                        // Use marked to render the clarification prompt
+                        markdownBody.innerHTML = marked.parse(data.clarify_prompt);
+                    }
+                }
+            } else {
+                // Create new message with clarification
+                appendMessage('agent', data.clarify_prompt || 'I need clarification on your query. Please provide more details.');
+            }
+            
+            // Re-enable send button so user can respond
+            $('#sendBtn').prop('disabled', false);
+        });
+
+        socket.on('agent:error', (data) => {
+            console.error('Agent error:', data.error);
+            
+            // Hide loading states
+            if (currentLoadingId) {
+                hideLoadingState(currentLoadingId);
+                currentLoadingId = null;
+            }
+            
+            // Show error in status bar
+            if (currentStatusBarId) {
+                errorStatusBar(currentStatusBarId);
+            }
+            
+            // Show error message
+            if (currentResponseId) {
+                const msgEl = document.getElementById(currentResponseId);
+                if (msgEl) {
+                    msgEl.classList.add('error-message');
+                    const markdownBody = msgEl.querySelector('.markdown-body');
+                    if (markdownBody) {
+                        markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Error: ' + escapeHtml(data.error);
+                    }
+                }
+            } else {
+                appendMessage('agent', 'Error: ' + data.error);
+            }
+            
+            $('#sendBtn').prop('disabled', false);
+        });
+
+        socket.on('disconnect', () => {
+            console.log('WebSocket disconnected');
+        });
+
+        return true;
+    }
+
+    // Initialize SocketIO on page load
+    const socketAvailable = initSocketIO();
 
     function escapeHtml(str) {
         if (!str) return '';
@@ -350,8 +1019,8 @@
                 monitorDetails.innerHTML = '<summary class="small text-primary" style="cursor:pointer;"><i class="bi bi-lightbulb"></i> Prompt Monitor' + (isMarkdown ? ' (LLM Reasoning)' : '') + '</summary>';
                 
                 const monitorContent = document.createElement('div');
-                monitorContent.className = 'mt-2 p-3 bg-light border rounded prompt-monitor-content';
-                monitorContent.style.maxHeight = '500px';
+                monitorContent.className = 'mt-2 p-2 bg-light border rounded prompt-monitor-content';
+                monitorContent.style.maxHeight = '300px';
                 monitorContent.style.overflowY = 'auto';
                 
                 if (isMarkdown && typeof marked !== 'undefined') {
@@ -374,6 +1043,189 @@
         historyEl.scrollTop = historyEl.scrollHeight;
     }
 
+    // ====================================================================================
+    // PHASE 4: Smart Markdown Rendering with Buffering
+    // ====================================================================================
+    
+    let currentTypingId = null;
+    
+    function appendStreamingChunk(messageId, chunk, type) {
+        const messageEl = document.getElementById(messageId);
+        if (!messageEl) return;
+
+        let targetEl = null;
+        if (type === 'response') {
+            targetEl = messageEl.querySelector('.markdown-body');
+        } else if (type === 'prompt_monitor') {
+            targetEl = messageEl.querySelector('.prompt-monitor-content');
+        }
+
+        if (targetEl) {
+            // Show typing indicator on first chunk
+            if (!currentTypingId && type === 'response') {
+                currentTypingId = showTypingIndicator(messageId);
+            }
+            
+            // Store accumulated text in a data attribute to avoid reading typing indicator text
+            if (!targetEl.dataset.accumulatedText) {
+                targetEl.dataset.accumulatedText = '';
+            }
+            targetEl.dataset.accumulatedText += chunk;
+            
+            // Re-render markdown (throttle to avoid too frequent updates)
+            if (type === 'response' && typeof marked !== 'undefined') {
+                // Initialize render counter
+                if (!targetEl._renderCount) targetEl._renderCount = 0;
+                targetEl._renderCount++;
+                
+                // Get accumulated text from data attribute (excludes typing indicator)
+                const fullText = targetEl.dataset.accumulatedText || '';
+                
+                // Detect if we're in middle of a table or code block
+                const inCodeBlock = (fullText.split('```').length - 1) % 2 === 1;
+                const inTable = fullText.includes('|') && fullText.lastIndexOf('\n\n') < fullText.lastIndexOf('|');
+                
+                // Re-render every 3 chunks, or if chunk is large, or if NOT in special structure
+                const shouldRender = !inCodeBlock && !inTable && (chunk.length > 100 || targetEl._renderCount % 3 === 0);
+                
+                if (shouldRender) {
+                    requestAnimationFrame(() => {
+                        try {
+                            // Keep typing indicator, only update content after it
+                            const typingIndicator = targetEl.querySelector('.typing-indicator');
+                            const parsedHtml = marked.parse(fullText);
+                            if (typingIndicator) {
+                                targetEl.innerHTML = '';
+                                targetEl.appendChild(typingIndicator);
+                                const contentDiv = document.createElement('div');
+                                contentDiv.innerHTML = parsedHtml;
+                                targetEl.appendChild(contentDiv);
+                            } else {
+                                targetEl.innerHTML = parsedHtml;
+                            }
+                        } catch (e) {
+                            // If markdown parsing fails, keep as text
+                            console.warn('Markdown parse error during streaming:', e);
+                        }
+                    });
+                }
+            } else if (type === 'prompt_monitor' && typeof marked !== 'undefined') {
+                if (!targetEl._renderCount) targetEl._renderCount = 0;
+                targetEl._renderCount++;
+                
+                const fullText = targetEl.dataset.accumulatedText || '';
+                
+                if (chunk.length > 100 || targetEl._renderCount % 3 === 0) {
+                    requestAnimationFrame(() => {
+                        try {
+                            targetEl.innerHTML = marked.parse(fullText);
+                        } catch (e) {
+                            targetEl.innerHTML = '<pre class="small text-muted">' + escapeHtml(fullText) + '</pre>';
+                        }
+                    });
+                }
+            }
+            
+            // Smart auto-scroll
+            smoothScrollToBottom();
+        }
+    }
+
+    function finalizeStreamingMessage(messageId, result) {
+        const messageEl = document.getElementById(messageId);
+        if (!messageEl) return;
+        
+        // Hide typing indicator
+        if (currentTypingId) {
+            hideTypingIndicator(currentTypingId);
+            currentTypingId = null;
+        }
+
+        // Final markdown render - always render at the end to ensure proper formatting
+        const responseEl = messageEl.querySelector('.markdown-body');
+        if (responseEl && typeof marked !== 'undefined') {
+            try {
+                // Get the accumulated text from data attribute (excludes typing indicator text)
+                let fullText = responseEl.dataset.accumulatedText || '';
+                
+                // FALLBACK: For knowledge questions or non-streamed responses, use final_output.response
+                if (!fullText && result && result.final_output && result.final_output.response) {
+                    fullText = result.final_output.response;
+                    console.log('[finalizeStreamingMessage] No accumulated text, using final_output.response:', fullText.substring(0, 100));
+                }
+                
+                // Parse and render markdown (final pass ensures everything is correct)
+                requestAnimationFrame(() => {
+                    try {
+                        responseEl.innerHTML = marked.parse(fullText);
+                    } catch (e) {
+                        console.error('Final markdown render error:', e);
+                        responseEl.innerHTML = '<pre>' + escapeHtml(fullText) + '</pre>';
+                    }
+                    // Clear the data attribute after final render
+                    delete responseEl.dataset.accumulatedText;
+                });
+            } catch (e) {
+                console.error('Final markdown render error:', e);
+                // Fallback to escaped text if parsing fails
+                responseEl.innerHTML = '<pre>' + escapeHtml(responseEl.textContent) + '</pre>';
+            }
+        }
+
+        // Add table and prompt monitor if available
+        const finalOut = result.final_output || {};
+        if (finalOut.raw_table || finalOut.prompt_monitor) {
+            // Append table and prompt monitor (similar to appendMessage logic)
+            const wrapper = messageEl.closest('.mb-3');
+            if (wrapper) {
+                const messageCounter = parseInt(messageId.replace('msg-', '')) || 0;
+                const tableId = 'table_' + messageCounter;
+                
+                if (finalOut.raw_table) {
+                    const tableDetails = document.createElement('details');
+                    tableDetails.className = 'mt-2';
+                    tableDetails.innerHTML = '<summary class="small text-info" style="cursor:pointer;"><i class="bi bi-table"></i> Raw Table (' + (finalOut.raw_table.row_count || 0) + ' rows)</summary>';
+                    const tableContent = document.createElement('div');
+                    tableContent.className = 'mt-2 p-2 bg-light border rounded';
+                    tableContent.style.maxHeight = '600px';
+                    tableContent.style.overflowY = 'auto';
+                    tableContent.innerHTML = formatTable(finalOut.raw_table, tableId);
+                    tableDetails.appendChild(tableContent);
+                    wrapper.appendChild(tableDetails);
+                }
+
+                if (finalOut.prompt_monitor) {
+                    const monitorDetails = document.createElement('details');
+                    monitorDetails.className = 'mt-2';
+                    let monitorText = '';
+                    let isMarkdown = false;
+                    if (typeof finalOut.prompt_monitor === 'object' && finalOut.prompt_monitor.procedural_reasoning) {
+                        monitorText = finalOut.prompt_monitor.procedural_reasoning;
+                        isMarkdown = true;
+                    } else {
+                        monitorText = JSON.stringify(finalOut.prompt_monitor, null, 2);
+                    }
+                    monitorDetails.innerHTML = '<summary class="small text-primary" style="cursor:pointer;"><i class="bi bi-lightbulb"></i> Prompt Monitor' + (isMarkdown ? ' (LLM Reasoning)' : '') + '</summary>';
+                    const monitorContent = document.createElement('div');
+                    monitorContent.className = 'mt-2 p-2 bg-light border rounded prompt-monitor-content';
+                    monitorContent.style.maxHeight = '300px';
+                    monitorContent.style.overflowY = 'auto';
+                    if (isMarkdown && typeof marked !== 'undefined') {
+                        try {
+                            monitorContent.innerHTML = marked.parse(monitorText);
+                        } catch (e) {
+                            monitorContent.innerHTML = '<pre class="small">' + escapeHtml(monitorText) + '</pre>';
+                        }
+                    } else {
+                        monitorContent.innerHTML = '<pre class="small text-muted">' + escapeHtml(monitorText) + '</pre>';
+                    }
+                    monitorDetails.appendChild(monitorContent);
+                    wrapper.appendChild(monitorDetails);
+                }
+            }
+        }
+    }
+
     let awaitingClarification = false;
     let currentSessionId = sessionId;
 
@@ -384,23 +1236,73 @@
         inputEl.value = '';
         $('#sendBtn').prop('disabled', true);
 
-        const requestArgs = {
-            query: q,
-            session_id: currentSessionId,
-            user_id: '{{ user.user_id | default("anonymous") }}'
+        // Reset streaming state
+        accumulatedText = {
+            planner: '',
+            evaluator: '',
+            end_response: '',
+            end_prompt_monitor: ''
         };
+        currentStreamingNode = null;
+        currentTypingId = null;
 
-        // If we're responding to a clarification request, add user_clarification
-        if (awaitingClarification) {
-            requestArgs.user_clarification = q;
-            awaitingClarification = false;
-            inputEl.placeholder = 'Ask a question or provide a follow-up...';
-        }
+        // Create placeholder for agent response
+        messageCounter++;
+        currentResponseId = 'msg-' + messageCounter;
+        currentPromptMonitorId = 'prompt-' + messageCounter;
+        
+        const wrapper = document.createElement('div');
+        wrapper.className = 'mb-3 message-fade-in';
+        const messageDiv = document.createElement('div');
+        messageDiv.id = currentResponseId;
+        messageDiv.className = 'chat-message agent';
+        messageDiv.innerHTML = '<span class="badge bg-success me-2">Agent</span><div class="markdown-body"></div>';
+        wrapper.appendChild(messageDiv);
+        historyEl.appendChild(wrapper);
+        
+        // Initialize status bar
+        currentStatusBarId = createStatusBar(currentResponseId);
+        
+        // Show initial loading state
+        currentLoadingId = showLoadingState('Processing your query...', currentResponseId);
+        
+        // Smooth scroll to new message
+        smoothScrollToBottom();
 
-        API.post('/api/tools/execute', {
-            tool: 'parquet_agent',
-            arguments: requestArgs
-        }).done(function(resp) {
+        // Use WebSocket if available, otherwise fall back to HTTP
+        if (socketAvailable && socket && socket.connected) {
+            // Use WebSocket streaming
+            const requestData = {
+                query: q,
+                session_id: currentSessionId,
+                token: templateToken || sessionStorage.getItem('mcp_token') || ''
+            };
+
+            if (awaitingClarification) {
+                requestData.user_clarification = q;
+                awaitingClarification = false;
+                inputEl.placeholder = 'Ask a question or provide a follow-up...';
+            }
+
+            socket.emit('agent:query', requestData);
+        } else {
+            // Fall back to HTTP POST
+            const requestArgs = {
+                query: q,
+                session_id: currentSessionId,
+                user_id: '{{ user.user_id | default("anonymous") }}'
+            };
+
+            if (awaitingClarification) {
+                requestArgs.user_clarification = q;
+                awaitingClarification = false;
+                inputEl.placeholder = 'Ask a question or provide a follow-up...';
+            }
+
+            API.post('/api/tools/execute', {
+                tool: 'parquet_agent',
+                arguments: requestArgs
+            }).done(function(resp) {
             console.log('API Response:', resp);
             const result = (resp && resp.result) ? resp.result : resp;
             console.log('Result:', result);
@@ -422,22 +1324,64 @@
                 // Normal response
                 const finalOut = (result && result.final_output) ? result.final_output : {};
                 const answer = finalOut.response || JSON.stringify(result).slice(0, 1000);
-                console.log('Answer:', answer);
+                console.log('=== AGENT COMPLETE DEBUG ===');
+                console.log('Full Result:', result);
                 console.log('Final Output:', finalOut);
+                console.log('Answer extracted:', answer);
+                console.log('Answer length:', answer ? answer.length : 0);
+                console.log('===========================');
                 
-                // Pass result (contains final_output with raw_table, response, prompt_monitor)
-                appendMessage('agent', answer, result);
+                // Update the placeholder message with final result
+                if (currentResponseId) {
+                    // If we have a streaming placeholder, finalize it
+                    finalizeStreamingMessage(currentResponseId, result);
+                } else {
+                    // Otherwise use regular appendMessage (which handles markdown)
+                    appendMessage('agent', answer, result);
+                }
                 awaitingClarification = false;
                 inputEl.placeholder = 'Ask a question or provide a follow-up...';
             }
         }).fail(function(xhr) {
             const err = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : ('HTTP ' + xhr.status);
-            appendMessage('agent', 'Error: ' + err);
+            
+            // Hide loading states
+            if (currentLoadingId) {
+                hideLoadingState(currentLoadingId);
+                currentLoadingId = null;
+            }
+            
+            // Show error in status bar
+            if (currentStatusBarId) {
+                errorStatusBar(currentStatusBarId);
+            }
+            
+            // Show error message
+            if (currentResponseId) {
+                const msgEl = document.getElementById(currentResponseId);
+                if (msgEl) {
+                    msgEl.classList.add('error-message');
+                    const markdownBody = msgEl.querySelector('.markdown-body');
+                    if (markdownBody) {
+                        markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Error: ' + escapeHtml(err);
+                    }
+                }
+            } else {
+                appendMessage('agent', 'Error: ' + err);
+            }
             awaitingClarification = false;
             inputEl.placeholder = 'Ask a question or provide a follow-up...';
         }).always(function() {
             $('#sendBtn').prop('disabled', false);
+            
+            // Clean up state variables
+            currentResponseId = null;
+            currentPromptMonitorId = null;
+            currentStatusBarId = null;
+            currentLoadingId = null;
+            currentTypingId = null;
         });
+        }
     }
 
     sendBtn.addEventListener('click', sendQuery);

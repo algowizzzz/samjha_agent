@@ -14,7 +14,7 @@ from agent.parquet_agent import ParquetQueryAgent
 # ============================================================================
 # CHANGE YOUR QUERY HERE
 # ============================================================================
-QUERY = "regional revenue"
+QUERY = "what is vega"
 USER_ID = "admin"
 
 # ============================================================================
@@ -22,8 +22,8 @@ USER_ID = "admin"
 # Set RESUME_SESSION_ID to the session_id from a previous run that requested clarification
 # Set USER_CLARIFICATION to the user's response
 # ============================================================================
-RESUME_SESSION_ID = None # e.g., '74081b75-8446-46dc-b93d-e58a2371e740'
-USER_CLARIFICATION = None # e.g., 'I want the top 5 sales ordered by price column'
+RESUME_SESSION_ID = None
+USER_CLARIFICATION = None
 
 # ============================================================================
 # MAIN EXECUTION

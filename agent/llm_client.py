@@ -4,7 +4,7 @@ Provides unified interface for LLM interactions with Anthropic Claude.
 """
 import os
 import json
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Generator, Callable
 from datetime import datetime
 
 try:
@@ -104,6 +104,66 @@ class LLMClient:
         messages = [{"role": "user", "content": user_prompt}]
         return self.invoke(messages, system=system_prompt, temperature=temperature, response_format=response_format)
     
+    def stream(
+        self,
+        messages: List[Dict[str, str]],
+        system: Optional[str] = None,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+        response_format: Optional[str] = None,
+        callback: Optional[Callable[[str], None]] = None
+    ) -> Generator[str, None, None]:
+        """
+        Stream LLM response token by token.
+        
+        Args:
+            messages: List of {"role": "user"|"assistant", "content": "..."}
+            system: Optional system prompt
+            temperature: Override default temperature
+            max_tokens: Override default max tokens
+            response_format: "json" to request JSON output
+            callback: Optional callback function for each chunk
+            
+        Yields:
+            Text chunks as they arrive
+        """
+        if not self.is_available():
+            raise RuntimeError("LLM not available")
+        
+        temp = temperature if temperature is not None else self.temperature
+        max_tok = max_tokens if max_tokens is not None else self.max_tokens
+        
+        if self.provider == "anthropic":
+            for chunk in self._stream_anthropic(messages, system, temp, max_tok, response_format, callback):
+                yield chunk
+        else:
+            raise RuntimeError(f"Unknown provider: {self.provider}")
+    
+    def stream_with_prompt(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: Optional[float] = None,
+        response_format: Optional[str] = None,
+        callback: Optional[Callable[[str], None]] = None
+    ) -> Generator[str, None, None]:
+        """
+        Simplified stream with system and user prompts.
+        
+        Args:
+            system_prompt: System instructions
+            user_prompt: User query
+            temperature: Override default temperature
+            response_format: "json" to request JSON output
+            callback: Optional callback function for each chunk
+            
+        Yields:
+            Text chunks as they arrive
+        """
+        messages = [{"role": "user", "content": user_prompt}]
+        for chunk in self.stream(messages, system=system_prompt, temperature=temperature, response_format=response_format, callback=callback):
+            yield chunk
+    
     def _invoke_anthropic(
         self,
         messages: List[Dict[str, str]],
@@ -136,6 +196,44 @@ class LLMClient:
             return response.content[0].text
         except Exception as e:
             raise RuntimeError(f"Anthropic API error: {e}")
+    
+    def _stream_anthropic(
+        self,
+        messages: List[Dict[str, str]],
+        system: Optional[str],
+        temperature: float,
+        max_tokens: int,
+        response_format: Optional[str],
+        callback: Optional[Callable[[str], None]]
+    ) -> Generator[str, None, None]:
+        """Stream Anthropic Claude API response"""
+        kwargs = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens
+        }
+        
+        if system:
+            kwargs["system"] = system
+        
+        # For JSON responses, add instruction to system prompt
+        if response_format == "json":
+            json_instruction = "\n\nIMPORTANT: Respond with valid JSON only, no markdown formatting or code blocks."
+            if system:
+                kwargs["system"] = system + json_instruction
+            else:
+                kwargs["system"] = json_instruction
+        
+        try:
+            with self.client.messages.stream(**kwargs) as stream:
+                for text_block in stream.text_stream:
+                    if text_block:
+                        if callback:
+                            callback(text_block)
+                        yield text_block
+        except Exception as e:
+            raise RuntimeError(f"Anthropic API streaming error: {e}")
     
     def get_info(self) -> Dict[str, Any]:
         """Get LLM configuration info"""

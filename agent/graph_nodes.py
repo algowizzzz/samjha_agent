@@ -579,8 +579,12 @@ def end_node(state: AgentState, cfg: QueryAgentConfig, stream_callback_response:
     # Check if this is a knowledge question response
     knowledge_response = execution_stats.get("knowledge_response")
     if knowledge_response:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"[END_NODE] Knowledge response detected: '{knowledge_response[:100]}...'")
         logs.append({"node": "end", "timestamp": _now_iso(), "msg": "returning knowledge response (no LLM generation needed)"})
-        return {
+        
+        result = {
             "last_node": "end",
             "control": "end",
             "final_output": {
@@ -603,6 +607,8 @@ def end_node(state: AgentState, cfg: QueryAgentConfig, stream_callback_response:
             "metrics": metrics,
             "logs": logs,
         }
+        logger.info(f"[END_NODE] Returning knowledge result with response length: {len(knowledge_response)}")
+        return result
     
     # ============================================================================
     # OUTPUT 1: Raw Table Data

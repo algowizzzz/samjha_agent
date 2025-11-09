@@ -91,6 +91,21 @@ class DuckDbBaseTool(BaseMCPTool):
                 return f"{size_bytes:.2f} {unit}"
             size_bytes /= 1024.0
         return f"{size_bytes:.2f} PB"
+    
+    def _convert_dates_to_strings(self, df):
+        """Convert date/datetime columns to ISO format strings for JSON serialization"""
+        import pandas as pd
+        for col in df.columns:
+            if pd.api.types.is_datetime64_any_dtype(df[col]):
+                df[col] = df[col].astype(str)
+            elif df[col].dtype == 'object':
+                # Check if column contains date objects
+                try:
+                    if len(df) > 0 and hasattr(df[col].iloc[0], 'isoformat'):
+                        df[col] = df[col].apply(lambda x: x.isoformat() if x is not None else None)
+                except (AttributeError, IndexError):
+                    pass
+        return df
 
     def _scan_data_files(self, file_type: str = 'all') -> List[Dict]:
         """Scan data directory for supported file types"""
@@ -658,6 +673,9 @@ class DuckDbQueryTool(DuckDbBaseTool):
 
             # Get results as DataFrame for easier manipulation
             df = result.fetchdf()
+            
+            # Convert date/datetime columns to strings for JSON serialization
+            df = self._convert_dates_to_strings(df)
 
             execution_time = (time.time() - start_time) * 1000  # Convert to ms
 
@@ -949,6 +967,9 @@ class DuckDbAggregateTool(DuckDbBaseTool):
             conn = self._get_connection()
             result = conn.execute(query)
             df = result.fetchdf()
+            
+            # Convert date/datetime columns to strings for JSON serialization
+            df = self._convert_dates_to_strings(df)
 
             execution_time = (time.time() - start_time) * 1000
 

@@ -71,5 +71,24 @@ class QueryAgentConfig:
         """
         self._load()
         return dict(self._cache)
+    
+    def is_streaming_enabled(self) -> bool:
+        """
+        Check if streaming is enabled.
+        """
+        return self.get_nested("streaming", "enabled", default=False)
+    
+    def get_streaming_nodes(self) -> Dict[str, bool]:
+        """
+        Get streaming configuration for each node.
+        Returns dict with node names as keys and enabled status as values.
+        """
+        nodes = self.get_nested("streaming", "nodes", default={})
+        return {
+            "planner": nodes.get("planner", True),
+            "evaluator": nodes.get("evaluator", True),
+            "end_response": nodes.get("end_response", True),
+            "end_prompt_monitor": nodes.get("end_prompt_monitor", True)
+        }
 
 
