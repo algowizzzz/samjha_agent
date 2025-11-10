@@ -989,7 +989,24 @@
                 tableContent.className = 'mt-2 p-2 bg-light border rounded';
                 tableContent.style.maxHeight = '600px';
                 tableContent.style.overflowY = 'auto';
-                tableContent.innerHTML = formatTable(output.raw_table, tableId);
+                
+                // Display SQL query if available
+                if (output.raw_table && output.raw_table.query) {
+                    console.log('[DEBUG] Displaying SQL query:', output.raw_table.query);
+                    const sqlDiv = document.createElement('div');
+                    sqlDiv.className = 'mb-3 p-2 bg-dark text-light rounded';
+                    sqlDiv.style.fontFamily = 'monospace';
+                    sqlDiv.style.fontSize = '0.9em';
+                    sqlDiv.innerHTML = '<strong>SQL Query:</strong><br><pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word;">' + escapeHtml(output.raw_table.query) + '</pre>';
+                    tableContent.appendChild(sqlDiv);
+                } else {
+                    console.log('[DEBUG] SQL query not found in raw_table:', output.raw_table);
+                }
+                
+                // Add table HTML
+                const tableDiv = document.createElement('div');
+                tableDiv.innerHTML = formatTable(output.raw_table, tableId);
+                tableContent.appendChild(tableDiv);
                 
                 tableDetails.appendChild(tableContent);
                 wrapper.appendChild(tableDetails);
@@ -1189,7 +1206,24 @@
                     tableContent.className = 'mt-2 p-2 bg-light border rounded';
                     tableContent.style.maxHeight = '600px';
                     tableContent.style.overflowY = 'auto';
-                    tableContent.innerHTML = formatTable(finalOut.raw_table, tableId);
+                    
+                    // Display SQL query if available
+                    if (finalOut.raw_table && finalOut.raw_table.query) {
+                        console.log('[DEBUG] Displaying SQL query:', finalOut.raw_table.query);
+                        const sqlDiv = document.createElement('div');
+                        sqlDiv.className = 'mb-3 p-2 bg-dark text-light rounded';
+                        sqlDiv.style.fontFamily = 'monospace';
+                        sqlDiv.style.fontSize = '0.9em';
+                        sqlDiv.innerHTML = '<strong>SQL Query:</strong><br><pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word;">' + escapeHtml(finalOut.raw_table.query) + '</pre>';
+                        tableContent.appendChild(sqlDiv);
+                    } else {
+                        console.log('[DEBUG] SQL query not found in raw_table:', finalOut.raw_table);
+                    }
+                    
+                    // Add table HTML
+                    const tableDiv = document.createElement('div');
+                    tableDiv.innerHTML = formatTable(finalOut.raw_table, tableId);
+                    tableContent.appendChild(tableDiv);
                     tableDetails.appendChild(tableContent);
                     wrapper.appendChild(tableDetails);
                 }

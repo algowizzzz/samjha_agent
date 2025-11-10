@@ -69,7 +69,7 @@ class StreamingAgent:
     def _build_conversation_history(self, session_id, user_id, num_turns=3):
         """
         Build conversation history from state.
-        Returns list of last N turns with query, SQL, and response.
+        Returns list of last N turns with query, SQL, response, and raw_table.
         """
         from agent.state_manager import AgentStateManager
         import logging
@@ -82,27 +82,27 @@ class StreamingAgent:
             if not state:
                 return []
             
-            # Extract conversation history
-            # State contains: user_input, plan.sql, final_output.response
-            history = []
-            
-            # Current turn (if exists in state)
-            if 'user_input' in state and 'final_output' in state:
-                turn = {
-                    'query': state.get('user_input', ''),
-                    'sql': state.get('plan', {}).get('sql', ''),
-                    'response': state.get('final_output', {}).get('response', '')
-                }
-                # Only include if it has meaningful content
-                if turn['query'] and (turn['sql'] or turn['response']):
-                    history.append(turn)
-            
-            # TODO: If state manager stores full conversation history in future,
-            # extract last N-1 additional turns here
-            # For now, we only have the most recent turn
+            # Extract conversation history from conversation_history_raw if available
+            conversation_history_raw = state.get("conversation_history_raw", [])
+            if conversation_history_raw and isinstance(conversation_history_raw, list):
+                # Use the stored conversation history (includes raw_table)
+                history = conversation_history_raw[-num_turns:]
+            else:
+                # Fallback: Build from current state
+                history = []
+                if 'user_input' in state and 'final_output' in state:
+                    turn = {
+                        'query': state.get('user_input', ''),
+                        'sql': state.get('plan', {}).get('sql', ''),
+                        'response': state.get('final_output', {}).get('response', ''),
+                        'raw_table': state.get('raw_table') or state.get('final_output', {}).get('raw_table')
+                    }
+                    # Only include if it has meaningful content
+                    if turn['query'] and (turn['sql'] or turn['response']):
+                        history.append(turn)
             
             logger.info(f"[ConversationHistory] Built history with {len(history)} turns")
-            return history[-num_turns:]  # Last N turns
+            return history
             
         except Exception as e:
             logger.error(f"[ConversationHistory] Error building history: {e}")
@@ -110,7 +110,7 @@ class StreamingAgent:
     
     def _format_conversation_history(self, history):
         """
-        Format conversation history for LLM prompts.
+        Format conversation history for LLM prompts, including table data.
         """
         if not history:
             return "No previous conversation history."
@@ -118,12 +118,36 @@ class StreamingAgent:
         formatted = "Previous Conversation:\n"
         for i, turn in enumerate(history, 1):
             formatted += f"\nTurn {i}:\n"
-            formatted += f"User Query: {turn['query']}\n"
-            if turn['sql'] and turn['sql'] != "-- KNOWLEDGE QUESTION":
-                formatted += f"SQL Executed: {turn['sql']}\n"
-            if turn['response']:
-                # Truncate long responses
-                response = turn['response'][:300] + "..." if len(turn['response']) > 300 else turn['response']
+            formatted += f"User Query: {turn.get('query', turn.get('user_query', ''))}\n"
+            
+            sql = turn.get('sql') or turn.get('plan_sql') or turn.get('sql_executed', '')
+            if sql and sql != "-- KNOWLEDGE QUESTION":
+                formatted += f"SQL Executed: {sql}\n"
+            
+            # Include table data if available
+            raw_table = turn.get('raw_table') or turn.get('execution_result')
+            if raw_table:
+                columns = raw_table.get('columns', [])
+                rows = raw_table.get('rows', [])
+                row_count = raw_table.get('row_count', len(rows))
+                
+                if row_count > 0 and columns:
+                    formatted += f"Result Table ({row_count} row{'s' if row_count != 1 else ''}):\n"
+                    formatted += f"Columns: {', '.join(columns)}\n"
+                    
+                    # Include ALL rows (full table data, no truncation)
+                    if rows:
+                        formatted += "Data:\n"
+                        for j, row in enumerate(rows, 1):
+                            if isinstance(row, dict):
+                                row_str = " | ".join([f"{col}: {row.get(col, 'N/A')}" for col in columns])
+                            else:
+                                row_str = str(row)
+                            formatted += f"  Row {j}: {row_str}\n"
+            
+            response = turn.get('response') or turn.get('response_summary', '')
+            if response:
+                # Include full response (no truncation)
                 formatted += f"Agent Response: {response}\n"
         
         return formatted
@@ -342,6 +366,12 @@ class StreamingAgent:
                 # Don't emit 'agent:complete' - already emitted 'agent:waiting_for_clarification'
             else:
                 logger.info(f"Agent completed for session {sid}: {metrics['total_ms']}ms, {steps} steps")
+                
+                # Debug: Log what's being sent
+                final_output = state.get("final_output", {})
+                raw_table = final_output.get("raw_table", {}) if final_output else {}
+                logger.info(f"[STREAMING_AGENT] Emitting agent:complete - raw_table row_count={raw_table.get('row_count', 'MISSING')}, columns={len(raw_table.get('columns', []))}, rows={len(raw_table.get('rows', []))}")
+                
                 # Emit final result only when truly complete
                 self._emit('agent:complete', {
                     'session_id': sid,
@@ -543,6 +573,11 @@ class StreamingAgent:
             
             # Emit completion
             if state.get("control") != "wait_for_user":
+                # Debug: Log what's being sent
+                final_output = state.get("final_output", {})
+                raw_table = final_output.get("raw_table", {}) if final_output else {}
+                logger.info(f"[STREAMING_AGENT] Emitting agent:complete - raw_table row_count={raw_table.get('row_count', 'MISSING')}, columns={len(raw_table.get('columns', []))}, rows={len(raw_table.get('rows', []))}")
+                
                 self._emit('agent:complete', {
                     'session_id': sid,
                     'result': state

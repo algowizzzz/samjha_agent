@@ -36,7 +36,7 @@ class ParquetQueryAgent:
     def _build_conversation_history(self, session_id, user_id, num_turns=3):
         """
         Build conversation history from state.
-        Returns list of last N turns with query, SQL, and response.
+        Returns list of last N turns with query, SQL, response, and raw_table.
         """
         try:
             state = self.state_manager.load_session_state(session_id, user_id)
@@ -44,22 +44,27 @@ class ParquetQueryAgent:
             if not state:
                 return []
             
-            # Extract conversation history
-            history = []
-            
-            # Current turn (if exists in state)
-            if 'user_input' in state and 'final_output' in state:
-                turn = {
-                    'query': state.get('user_input', ''),
-                    'sql': state.get('plan', {}).get('sql', ''),
-                    'response': state.get('final_output', {}).get('response', '')
-                }
-                # Only include if it has meaningful content
-                if turn['query'] and (turn['sql'] or turn['response']):
-                    history.append(turn)
+            # Extract conversation history from conversation_history_raw if available
+            conversation_history_raw = state.get("conversation_history_raw", [])
+            if conversation_history_raw and isinstance(conversation_history_raw, list):
+                # Use the stored conversation history (includes raw_table)
+                history = conversation_history_raw[-num_turns:]
+            else:
+                # Fallback: Build from current state
+                history = []
+                if 'user_input' in state and 'final_output' in state:
+                    turn = {
+                        'query': state.get('user_input', ''),
+                        'sql': state.get('plan', {}).get('sql', ''),
+                        'response': state.get('final_output', {}).get('response', ''),
+                        'raw_table': state.get('raw_table') or state.get('final_output', {}).get('raw_table')
+                    }
+                    # Only include if it has meaningful content
+                    if turn['query'] and (turn['sql'] or turn['response']):
+                        history.append(turn)
             
             logger.info(f"[ParquetAgent] Built conversation history with {len(history)} turns")
-            return history[-num_turns:]  # Last N turns
+            return history
             
         except Exception as e:
             logger.error(f"[ParquetAgent] Error building conversation history: {e}")
@@ -67,7 +72,7 @@ class ParquetQueryAgent:
     
     def _format_conversation_history(self, history):
         """
-        Format conversation history for LLM prompts.
+        Format conversation history for LLM prompts, including table data.
         """
         if not history:
             return "No previous conversation history."
@@ -75,12 +80,36 @@ class ParquetQueryAgent:
         formatted = "Previous Conversation:\n"
         for i, turn in enumerate(history, 1):
             formatted += f"\nTurn {i}:\n"
-            formatted += f"User Query: {turn['query']}\n"
-            if turn['sql'] and turn['sql'] != "-- KNOWLEDGE QUESTION":
-                formatted += f"SQL Executed: {turn['sql']}\n"
-            if turn['response']:
-                # Truncate long responses
-                response = turn['response'][:300] + "..." if len(turn['response']) > 300 else turn['response']
+            formatted += f"User Query: {turn.get('query', turn.get('user_query', ''))}\n"
+            
+            sql = turn.get('sql') or turn.get('plan_sql') or turn.get('sql_executed', '')
+            if sql and sql != "-- KNOWLEDGE QUESTION":
+                formatted += f"SQL Executed: {sql}\n"
+            
+            # Include table data if available
+            raw_table = turn.get('raw_table') or turn.get('execution_result')
+            if raw_table:
+                columns = raw_table.get('columns', [])
+                rows = raw_table.get('rows', [])
+                row_count = raw_table.get('row_count', len(rows))
+                
+                if row_count > 0 and columns:
+                    formatted += f"Result Table ({row_count} row{'s' if row_count != 1 else ''}):\n"
+                    formatted += f"Columns: {', '.join(columns)}\n"
+                    
+                    # Include ALL rows (full table data, no truncation)
+                    if rows:
+                        formatted += "Data:\n"
+                        for j, row in enumerate(rows, 1):
+                            if isinstance(row, dict):
+                                row_str = " | ".join([f"{col}: {row.get(col, 'N/A')}" for col in columns])
+                            else:
+                                row_str = str(row)
+                            formatted += f"  Row {j}: {row_str}\n"
+            
+            response = turn.get('response') or turn.get('response_summary', '')
+            if response:
+                # Include full response (no truncation)
                 formatted += f"Agent Response: {response}\n"
         
         return formatted

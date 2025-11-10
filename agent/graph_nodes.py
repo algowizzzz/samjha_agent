@@ -582,6 +582,22 @@ def end_node(state: AgentState, cfg: QueryAgentConfig, stream_callback_response:
     plan = state.get("plan", {})
     plan_sql = plan.get("sql", "")
     
+    # Debug logging
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"[END_NODE] Execution result check: row_count={exec_result.get('row_count', 0)}, columns={len(columns)}, rows={len(rows)}, sql={plan_sql[:100] if plan_sql else 'N/A'}")
+    logger.info(f"[END_NODE] execution_result type: {type(exec_result)}, has 'rows' key: {'rows' in exec_result}, has 'columns' key: {'columns' in exec_result}")
+    if exec_result:
+        logger.info(f"[END_NODE] execution_result keys: {list(exec_result.keys())}")
+        logger.info(f"[END_NODE] execution_result.query: {exec_result.get('query', 'MISSING')[:100] if exec_result.get('query') else 'MISSING'}")
+    
+    # CRITICAL: Check if state already has a raw_table that might be from a previous query
+    existing_raw_table = state.get("raw_table", {})
+    if existing_raw_table:
+        logger.warning(f"[END_NODE] State has existing raw_table! Query: '{existing_raw_table.get('query', 'N/A')[:100]}', row_count: {existing_raw_table.get('row_count', 0)}")
+        if existing_raw_table.get("query") != plan_sql:
+            logger.warning(f"[END_NODE] Existing raw_table query doesn't match current plan_sql! Will be overwritten.")
+    
     # Check if this is a knowledge question response
     knowledge_response = execution_stats.get("knowledge_response")
     if knowledge_response:
@@ -625,6 +641,9 @@ def end_node(state: AgentState, cfg: QueryAgentConfig, stream_callback_response:
         "row_count": exec_result.get("row_count", 0),
         "query": plan_sql
     }
+    
+    # Debug: Log raw_table structure
+    logger.info(f"[END_NODE] Raw table created: row_count={raw_table['row_count']}, columns={len(raw_table['columns'])}, rows={len(raw_table['rows'])}, query_length={len(plan_sql) if plan_sql else 0}")
     
     # ============================================================================
     # OUTPUT 2: LLM-Generated Response/Insights
@@ -708,10 +727,90 @@ Use the data dictionary (docs_meta) to understand column meanings and business c
                 "execution_time_ms": execution_stats.get("execution_time_ms", 0)
             }
             
+            # Build conversation history formatted string
+            conversation_history_raw = state.get("conversation_history_raw", [])
+            conversation_history_formatted = "No previous conversation history."
+            if conversation_history_raw and isinstance(conversation_history_raw, list):
+                conv_lines = []
+                for i, turn in enumerate(conversation_history_raw[-3:], 1):  # Last 3 turns
+                    conv_lines.append(f"\n--- Previous Query {i} ---")
+                    conv_lines.append(f"User Query: {turn.get('query', turn.get('user_query', 'N/A'))}")
+                    
+                    sql = turn.get('plan_sql') or turn.get('sql', '')
+                    if sql and sql != "-- KNOWLEDGE QUESTION":
+                        conv_lines.append(f"SQL Executed: {sql}")
+                    
+                    raw_table_prev = turn.get('raw_table') or {}
+                    row_count = raw_table_prev.get('row_count', 0)
+                    rows_prev = raw_table_prev.get('rows', [])
+                    columns_prev = raw_table_prev.get('columns', [])
+                    
+                    if row_count > 0 and columns_prev:
+                        conv_lines.append(f"\nSQL Results ({row_count} row(s)):")
+                        conv_lines.append(f"Columns: {', '.join(columns_prev)}")
+                        conv_lines.append("Data:")
+                        # Include all rows (full SQL results)
+                        for row_idx, row in enumerate(rows_prev, 1):
+                            if isinstance(row, dict):
+                                row_str = " | ".join([f"{col}: {row.get(col, 'N/A')}" for col in columns_prev])
+                            else:
+                                row_str = str(row)
+                            conv_lines.append(f"  Row {row_idx}: {row_str}")
+                    
+                    response = turn.get('response', '')
+                    if response:
+                        # Include full response (no truncation)
+                        conv_lines.append(f"\nPrevious Response:")
+                        conv_lines.append(response)
+                
+                if conv_lines:
+                    conversation_history_formatted = "\n".join(conv_lines)
+            
+            # Build clarification history formatted string
+            accumulated_clarifications = state.get("accumulated_clarifications", [])
+            clarification_questions = state.get("clarification_questions", [])
+            clarification_history_formatted = "No clarifications were needed for this query."
+            if accumulated_clarifications or clarification_questions:
+                clarif_lines = []
+                if clarification_questions:
+                    clarif_lines.append("Clarification Questions Asked:")
+                    for i, q in enumerate(clarification_questions, 1):
+                        clarif_lines.append(f"  {i}. {q}")
+                if accumulated_clarifications:
+                    clarif_lines.append("\nUser Clarifications Provided:")
+                    for i, clarif in enumerate(accumulated_clarifications, 1):
+                        clarif_lines.append(f"  {i}. {clarif}")
+                if clarif_lines:
+                    clarification_history_formatted = "\n".join(clarif_lines)
+            
+            # Extract business glossary from docs_meta
+            business_glossary_formatted = "No business glossary available."
+            docs_meta = state.get("docs_meta", [])
+            for item in docs_meta:
+                if item.get("type") == "business_glossary":
+                    glossary = item.get("glossary", {})
+                    if glossary:
+                        gloss_lines = []
+                        for term, definition in glossary.items():
+                            if isinstance(definition, dict):
+                                desc = definition.get("definition", definition.get("description", ""))
+                                usage = definition.get("usage", definition.get("context", ""))
+                                gloss_lines.append(f"**{term}**: {desc}")
+                                if usage:
+                                    gloss_lines.append(f"  Usage: {usage}")
+                            else:
+                                gloss_lines.append(f"**{term}**: {definition}")
+                        if gloss_lines:
+                            business_glossary_formatted = "\n".join(gloss_lines)
+                    break
+            
             user_prompt = user_template.format(
                 user_query=user_query,
                 sql_query=plan_sql,
                 results_summary=json.dumps(results_summary, indent=2),
+                conversation_history=conversation_history_formatted,
+                clarification_history=clarification_history_formatted,
+                business_glossary=business_glossary_formatted,
                 state_summary=json.dumps(state_summary, indent=2)  # Keep for backward compatibility
             )
             
@@ -957,91 +1056,17 @@ Generate a procedural summary explaining what was done and why at each step. Use
     # ============================================================================
     # Final Output Structure
     # ============================================================================
+    # CRITICAL: Verify raw_table still has correct data before putting in final_output
+    logger.info(f"[END_NODE] Before final_output: raw_table row_count={raw_table.get('row_count', 'MISSING')}, columns={len(raw_table.get('columns', []))}, rows={len(raw_table.get('rows', []))}, query={raw_table.get('query', 'MISSING')[:100] if raw_table.get('query') else 'MISSING'}")
+    
     final_output = {
         "raw_table": raw_table,           # OUTPUT 1: Raw table data
         "response": llm_response,         # OUTPUT 2: LLM-generated insights
         "prompt_monitor": prompt_monitor   # OUTPUT 3: LLM-generated reasoning
     }
     
-    # Update conversation history (short-term memory)
-    # Use conversation_history_raw (list) if available, otherwise initialize as empty list
-    conversation_history = state.get("conversation_history_raw", [])
-    if not isinstance(conversation_history, list):
-        conversation_history = []
-    conversation_entry = {
-        "timestamp": _now_iso(),
-        "query": user_query,
-        "plan_sql": plan_sql,
-        "plan_quality": state.get("plan_quality", ""),
-        "response": llm_response,
-        "satisfaction": state.get("satisfaction", ""),
-        "row_count": exec_result.get("row_count", 0),
-        "execution_error": execution_stats.get("error"),
-        "prompt_monitor": prompt_monitor,
-        "raw_table": raw_table
-    }
-    conversation_history.append(conversation_entry)
-    
-    # Keep only last 5 interactions to prevent memory bloat
-    conversation_history = conversation_history[-5:]
-    
-    return {
-        "last_node": "end",
-        "raw_table": raw_table,  # Add to state
-        "final_output": final_output,
-        "conversation_history": conversation_history,
-        "control": "end",
-        "metrics": metrics,
-        "logs": logs,
-    }
-    
-    # ============================================================================
-    # Final Output Structure
-    # ============================================================================
-    final_output = {
-        "raw_table": raw_table,           # OUTPUT 1: Raw table data
-        "response": llm_response,         # OUTPUT 2: LLM-generated insights
-        "prompt_monitor": prompt_monitor   # OUTPUT 3: LLM-generated reasoning
-    }
-    
-    # Update conversation history (short-term memory)
-    # Use conversation_history_raw (list) if available, otherwise initialize as empty list
-    conversation_history = state.get("conversation_history_raw", [])
-    if not isinstance(conversation_history, list):
-        conversation_history = []
-    conversation_entry = {
-        "timestamp": _now_iso(),
-        "query": user_query,
-        "plan_sql": plan_sql,
-        "plan_quality": state.get("plan_quality", ""),
-        "response": llm_response,
-        "satisfaction": state.get("satisfaction", ""),
-        "row_count": exec_result.get("row_count", 0),
-        "execution_error": execution_stats.get("error"),
-        "prompt_monitor": prompt_monitor,
-        "raw_table": raw_table
-    }
-    conversation_history.append(conversation_entry)
-    
-    # Keep only last 5 interactions to prevent memory bloat
-    conversation_history = conversation_history[-5:]
-    
-    return {
-        "last_node": "end",
-        "raw_table": raw_table,  # Add to state
-        "final_output": final_output,
-        "conversation_history": conversation_history,
-        "control": "end",
-        "metrics": metrics,
-        "logs": logs,
-    }
-    # Final Output Structure
-    # ============================================================================
-    final_output = {
-        "raw_table": raw_table,           # OUTPUT 1: Raw table data
-        "response": llm_response,         # OUTPUT 2: LLM-generated insights
-        "prompt_monitor": prompt_monitor   # OUTPUT 3: LLM-generated reasoning
-    }
+    # Debug: Verify final_output structure
+    logger.info(f"[END_NODE] Final output raw_table: row_count={final_output['raw_table'].get('row_count', 'MISSING')}, columns={len(final_output['raw_table'].get('columns', []))}, rows={len(final_output['raw_table'].get('rows', []))}, has_query={bool(final_output['raw_table'].get('query'))}")
     
     # Update conversation history (short-term memory)
     # Use conversation_history_raw (list) if available, otherwise initialize as empty list
