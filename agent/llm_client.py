@@ -253,7 +253,8 @@ _llm_client: Optional[LLMClient] = None
 def get_llm_client() -> LLMClient:
     """Get or create singleton LLM client"""
     global _llm_client
-    if _llm_client is None:
+    # Re-initialize if not available and API key is now present
+    if _llm_client is None or (not _llm_client.is_available() and os.getenv("ANTHROPIC_API_KEY")):
         _llm_client = LLMClient()
     return _llm_client
 

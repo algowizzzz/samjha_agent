@@ -14,15 +14,10 @@ from agent.parquet_agent import ParquetQueryAgent
 # ============================================================================
 # CHANGE YOUR QUERY HERE
 # ============================================================================
-QUERY = "what is vega"
+# Test Case 2: Follow-up query - should NOT ask for clarification AND preserve WHERE clause
+QUERY = "sum of exposure for these"
 USER_ID = "admin"
-
-# ============================================================================
-# RESUME CLARIFICATION (optional)
-# Set RESUME_SESSION_ID to the session_id from a previous run that requested clarification
-# Set USER_CLARIFICATION to the user's response
-# ============================================================================
-RESUME_SESSION_ID = None
+RESUME_SESSION_ID = "8b025c87-e07d-455f-bb2e-0885c25cec0c"  # From Test 1
 USER_CLARIFICATION = None
 
 # ============================================================================
@@ -42,6 +37,10 @@ if RESUME_SESSION_ID and USER_CLARIFICATION:
         user_clarification=USER_CLARIFICATION,
         user_id=USER_ID
     )
+elif RESUME_SESSION_ID:
+    # Follow-up query (use same session_id to preserve context)
+    print(f"\n🔄 Follow-up query (session: {RESUME_SESSION_ID[:8]}...)")
+    result = agent.run_query(QUERY, session_id=RESUME_SESSION_ID, user_id=USER_ID)
 else:
     print("\n🆕 Starting new query")
     result = agent.run_query(QUERY, user_id=USER_ID)
@@ -51,11 +50,12 @@ print("RESULT (JSON)")
 print("="*80)
 
 # Prepare a simplified result for JSON output
+plan = result.get("plan") or {}
 output = {
     "session_id": result.get("session_id"),
     "control": result.get("control"),
     "plan_quality": result.get("plan_quality"),
-    "plan_sql": result.get("plan", {}).get("sql", "N/A"),
+    "plan_sql": plan.get("sql", "N/A") if plan else "N/A",
     "plan_explain": result.get("plan_explain", "N/A"),
 }
 

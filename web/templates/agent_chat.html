@@ -204,65 +204,57 @@
         animation-delay: 0.4s;
     }
     
-    /* Status bar */
-    .status-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 15px;
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 6px;
-        margin-bottom: 10px;
-        font-size: 13px;
-        animation: slideInDown 0.3s ease-out;
-    }
-    
-    .status-step {
-        display: flex;
-        align-items: center;
-        gap: 6px;
+    /* Node Progress Status */
+    .node-progress-container {
+        font-size: 12px;
         color: #6c757d;
+        padding: 8px 12px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+        background-color: #f8f9fa;
+        border-left: 3px solid #0d6efd;
+        border-radius: 4px;
+    }
+    
+    .node-progress-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 4px 0;
+        margin: 2px 0;
+    }
+    
+    .node-progress-item .node-icon {
+        margin-right: 8px;
+        margin-top: 2px;
+        flex-shrink: 0;
+    }
+    
+    .node-progress-item .node-content {
         flex: 1;
-        position: relative;
     }
     
-    .status-step:not(:last-child)::after {
-        content: '';
-        position: absolute;
-        right: -10px;
-        width: 20px;
-        height: 2px;
-        background-color: #dee2e6;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-    
-    .status-step.active {
-        color: #0d6efd;
+    .node-progress-item .node-name {
         font-weight: 500;
+        color: #495057;
+        margin-bottom: 2px;
     }
     
-    .status-step.completed {
+    .node-progress-item .node-reasoning {
+        font-size: 11px;
+        color: #6c757d;
+        font-style: italic;
+    }
+    
+    .node-progress-item.active .node-name {
+        color: #0d6efd;
+    }
+    
+    .node-progress-item.completed .node-name {
         color: #198754;
     }
     
-    .status-step.error {
+    .node-progress-item.error .node-name {
         color: #dc3545;
-    }
-    
-    .status-bar.status-waiting {
-        background-color: #fff3cd;
-        border-color: #ffc107;
-        color: #856404;
-    }
-    
-    .status-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 20px;
-        height: 20px;
     }
     
     /* Animations */
@@ -341,7 +333,12 @@
     <div class="card shadow-sm h-100 d-flex flex-column m-0" style="border-radius: 0; border: none; height: 100%; margin: 0 !important; width: 100%;">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" style="flex-shrink: 0;">
             <h5 class="mb-0"><i class="bi bi-chat-text"></i> Parquet Agent</h5>
+            <div class="d-flex align-items-center gap-2">
+                <button id="newChatBtn" class="btn btn-sm btn-light" title="Start a new chat session">
+                    <i class="bi bi-plus-circle"></i> New Chat
+                </button>
             <span class="badge bg-light text-dark">DuckDB</span>
+            </div>
         </div>
         <div class="card-body d-flex flex-column p-3" style="flex: 1; overflow: hidden; min-height: 0;">
             <div id="chatHistory" class="mb-3 flex-grow-1" style="overflow-y: auto; border: 1px solid #eee; padding: 12px; border-radius: 6px; background: #fafafa; min-height: 0;">
@@ -353,13 +350,29 @@
                     <i class="bi bi-send"></i> Send
                 </button>
             </div>
-            <div class="form-text mt-2" style="flex-shrink: 0;">Responses include an Answer, Raw Table, and Prompt Monitor summary.</div>
+            <div class="form-text mt-2" style="flex-shrink: 0;">Responses include an Answer, SQL Prompt & Results, and Prompt Monitor summary.</div>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<!-- Cache buster: Version 6 - Removed orphaned containers, fixed attachment -->
+<script>
+    (function() {
+        const VERSION = 6;
+        const BUILD_TIME = Date.now();
+        console.log('%c🚀🚀🚀 AGENT CHAT HTML LOADED 🚀🚀🚀', 'font-size: 16px; font-weight: bold; color: #0d6efd;');
+        console.log('%cVERSION ' + VERSION + ' (Clean Container Attachment)', 'font-size: 14px; font-weight: bold; color: #198754;');
+        console.log('Timestamp:', new Date().toISOString());
+        console.log('Build:', BUILD_TIME);
+        console.log('If you see VERSION 3, your browser is caching! Do a hard refresh: Cmd+Shift+R (Mac) or Ctrl+Shift+R (Windows)');
+        
+        // Store version in window for debugging
+        window.AGENT_CHAT_VERSION = VERSION;
+        window.AGENT_CHAT_BUILD = BUILD_TIME;
+    })();
+</script>
 <!-- Markdown Parser -->
 <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
 <script>
@@ -407,8 +420,6 @@
     let currentStreamingNode = null;
     let currentResponseId = null;
     let currentPromptMonitorId = null;
-    let currentStatusBarId = null;
-    let currentLoadingId = null;
     let isUserScrolling = false;
     let accumulatedText = {
         planner: '',
@@ -418,173 +429,168 @@
     };
     
     // ====================================================================================
-    // PHASE 1: Loading States
+    // PHASE 1: Node Progress Status (Bottom Status Bar)
     // ====================================================================================
     
-    function showLoadingState(message, containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return null;
-        
-        const loadingId = 'loading-' + Date.now();
-        const loadingDiv = document.createElement('div');
-        loadingDiv.id = loadingId;
-        loadingDiv.className = 'loading-indicator';
-        loadingDiv.innerHTML = `
-            <div class="spinner-border spinner-border-sm" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <span class="loading-text">${message}</span>
-        `;
-        
-        const markdownBody = container.querySelector('.markdown-body');
-        if (markdownBody) {
-            markdownBody.appendChild(loadingDiv);
-        }
-        
-        return loadingId;
-    }
+    const completedNodes = new Set();
+    let activeNode = null;
+    const nodeDataStore = {}; // Store data and reasoning for each node
     
-    function updateLoadingState(loadingId, newMessage) {
-        const loadingEl = document.getElementById(loadingId);
-        if (!loadingEl) return;
-        
-        const textEl = loadingEl.querySelector('.loading-text');
-        if (textEl) {
-            textEl.textContent = newMessage;
-        }
-    }
-    
-    function hideLoadingState(loadingId) {
-        const loadingEl = document.getElementById(loadingId);
-        if (!loadingEl) return;
-        
-        loadingEl.style.animation = 'fadeOut 0.2s ease-out';
-        setTimeout(() => {
-            if (loadingEl && loadingEl.parentNode) {
-                loadingEl.parentNode.removeChild(loadingEl);
-            }
-        }, 200);
-    }
-    
-    // ====================================================================================
-    // PHASE 2: Status Bar
-    // ====================================================================================
-    
-    function createStatusBar(containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return null;
-        
-        const statusBarId = 'status-' + Date.now();
-        const wrapper = container.closest('.mb-3');
-        if (!wrapper) return null;
-        
-        const statusBar = document.createElement('div');
-        statusBar.id = statusBarId;
-        statusBar.className = 'status-bar';
-        statusBar.innerHTML = `
-            <div class="status-step" data-step="planning">
-                <span class="status-icon"><i class="bi bi-circle"></i></span>
-                <span>Planning</span>
-            </div>
-            <div class="status-step" data-step="executing">
-                <span class="status-icon"><i class="bi bi-circle"></i></span>
-                <span>Executing</span>
-            </div>
-            <div class="status-step" data-step="evaluating">
-                <span class="status-icon"><i class="bi bi-circle"></i></span>
-                <span>Evaluating</span>
-            </div>
-            <div class="status-step" data-step="generating">
-                <span class="status-icon"><i class="bi bi-circle"></i></span>
-                <span>Generating</span>
-            </div>
-        `;
-        
-        wrapper.insertBefore(statusBar, container);
-        return statusBarId;
-    }
-    
-    function updateStatusBar(statusBarId, node) {
-        const statusBar = document.getElementById(statusBarId);
-        if (!statusBar) return;
-        
-        // Map nodes to steps
-        const nodeToStep = {
-            'planner': 'planning',
-            'replan': 'planning',
-            'execute': 'executing',
-            'evaluate': 'evaluating',
-            'end_response': 'generating',
-            'end_prompt_monitor': 'generating'
+    function formatNodeName(nodeName) {
+        // Convert node names to user-friendly format
+        const nodeNames = {
+            'invoke': 'Starting',
+            'check_followup': 'Checking context',
+            'check_data_sufficiency': 'Assessing data needs',
+            'check_structure': 'Understanding request',
+            'check_ambiguity': 'Reviewing clarity',
+            'clarify': 'Asking for clarification',
+            'process_clarification': 'Processing response',
+            'generate_sql': 'Building query',
+            'execute_sql': 'Running query',
+            'retry_sql': 'Retrying query',
+            'synthesize': 'Preparing answer',
+            'end': 'Complete'
         };
-        
-        const step = nodeToStep[node];
-        if (!step) return;
-        
-        const steps = ['planning', 'executing', 'evaluating', 'generating'];
-        const currentIndex = steps.indexOf(step);
-        
-        // Update each step
-        steps.forEach((s, index) => {
-            const stepEl = statusBar.querySelector(`[data-step="${s}"]`);
-            if (!stepEl) return;
-            
-            const iconEl = stepEl.querySelector('.status-icon i');
-            
-            if (index < currentIndex) {
-                // Completed
-                stepEl.className = 'status-step completed';
-                iconEl.className = 'bi bi-check-circle-fill';
-            } else if (index === currentIndex) {
-                // Active
-                stepEl.className = 'status-step active';
-                iconEl.className = 'bi bi-arrow-repeat spinner-border spinner-border-sm';
-            } else {
-                // Pending
-                stepEl.className = 'status-step';
-                iconEl.className = 'bi bi-circle';
-            }
-        });
+        return nodeNames[nodeName] || nodeName;
     }
     
-    function completeStatusBar(statusBarId) {
-        const statusBar = document.getElementById(statusBarId);
-        if (!statusBar) return;
-        
-        const steps = statusBar.querySelectorAll('.status-step');
-        steps.forEach(stepEl => {
-            stepEl.className = 'status-step completed';
-            const iconEl = stepEl.querySelector('.status-icon i');
-            if (iconEl) {
-                iconEl.className = 'bi bi-check-circle-fill';
-            }
-        });
-        
-        // Hide status bar after a delay
-        setTimeout(() => {
-            if (statusBar && statusBar.parentNode) {
-                statusBar.style.animation = 'fadeOut 0.3s ease-out';
-                setTimeout(() => {
-                    if (statusBar && statusBar.parentNode) {
-                        statusBar.parentNode.removeChild(statusBar);
-                    }
-                }, 300);
-            }
-        }, 2000);
-    }
-    
-    function errorStatusBar(statusBarId) {
-        const statusBar = document.getElementById(statusBarId);
-        if (!statusBar) return;
-        
-        const activeStep = statusBar.querySelector('.status-step.active');
-        if (activeStep) {
-            activeStep.className = 'status-step error';
-            const iconEl = activeStep.querySelector('.status-icon i');
-            if (iconEl) {
-                iconEl.className = 'bi bi-exclamation-circle-fill';
-            }
+    function getNodeReasoning(node, nodeData) {
+        // Get reasoning message, replacing "query" with "prompt"
+        if (nodeData && nodeData.node_reasoning) {
+            return nodeData.node_reasoning.replace(/query/gi, 'prompt').replace(/Query/gi, 'Prompt');
         }
+        
+        // Fallback: generate a simple description based on node data
+        if (!nodeData) return '';
+        
+        const parts = [];
+        if (node === 'invoke') {
+            if (nodeData.has_table_schema) parts.push('Schema loaded');
+            if (nodeData.has_conversation_history) parts.push('History loaded');
+        } else if (node === 'check_followup') {
+            parts.push(nodeData.is_followup ? 'Prompt detected as follow-up prompt' : 'Prompt detected as new prompt');
+        } else if (node === 'check_data_sufficiency') {
+            parts.push(nodeData.more_data_needed ? 'More data needed' : 'Filter only');
+        } else if (node === 'check_structure') {
+            parts.push(nodeData.is_structured ? 'Prompt classified as structured' : 'Prompt classified as knowledge');
+        } else if (node === 'check_ambiguity') {
+            if (nodeData.is_ambiguous) {
+                const qCount = (nodeData.clarification_questions || []).length;
+                parts.push(`Needs clarification (${qCount} questions)`);
+            } else {
+                parts.push('Prompt is clear');
+            }
+        } else if (node === 'generate_sql') {
+            if (nodeData.plan_quality) parts.push(`Quality: ${nodeData.plan_quality}`);
+        } else if (node === 'execute_sql' || node === 'synthesize') {
+            const rowCount = nodeData.raw_table?.row_count || 0;
+            if (rowCount > 0) parts.push(`${rowCount} rows returned`);
+        } else if (node === 'end') {
+            const rowCount = nodeData.raw_table?.row_count || 0;
+            if (rowCount > 0) parts.push(`Completed with ${rowCount} rows`);
+        }
+        
+        return parts.join(', ');
+    }
+    
+    function updateNodeProgressStatus() {
+        // First, remove any progress containers that are NOT inside user message wrappers
+        // This ensures old containers at the bottom are removed
+        const historyEl = document.getElementById('chatHistory');
+        if (historyEl) {
+            const allProgressContainers = historyEl.querySelectorAll('.node-progress-container');
+            allProgressContainers.forEach(container => {
+                const wrapper = container.closest('.mb-3');
+                const userMessage = wrapper?.querySelector('.chat-message.user');
+                if (!userMessage) {
+                    console.log('[updateNodeProgressStatus] Removing orphaned progress container');
+                    container.remove();
+                }
+            });
+        }
+        
+        // Find the last user message to attach the status to
+        if (!historyEl) {
+            console.warn('[updateNodeProgressStatus] chatHistory not found');
+            return;
+        }
+        
+        // Find the last user message wrapper
+        const userMessages = Array.from(historyEl.querySelectorAll('.chat-message.user'));
+        if (userMessages.length === 0) {
+            console.warn('[updateNodeProgressStatus] No user messages found');
+            return;
+        }
+        
+        const lastUserMessage = userMessages[userMessages.length - 1];
+        const wrapper = lastUserMessage.closest('.mb-3');
+        if (!wrapper) {
+            console.warn('[updateNodeProgressStatus] Could not find wrapper for user message');
+            return;
+        }
+        
+        // Find or create the node progress container
+        let progressContainer = wrapper.querySelector('.node-progress-container');
+        if (!progressContainer) {
+            console.log('[updateNodeProgressStatus] Creating new progress container after user message');
+            progressContainer = document.createElement('div');
+            progressContainer.className = 'node-progress-container';
+            wrapper.appendChild(progressContainer);
+        }
+        
+        // Make sure it's visible
+        progressContainer.style.display = 'block';
+        
+        // All possible nodes in order
+        const allNodes = ['invoke', 'check_followup', 'check_data_sufficiency', 'check_structure', 
+                         'check_ambiguity', 'generate_sql', 'execute_sql', 'synthesize', 'end'];
+        
+        // Only show nodes that have been started (completed or active)
+        const visibleNodes = allNodes.filter(node => completedNodes.has(node) || activeNode === node);
+        
+        if (visibleNodes.length === 0 && !activeNode) {
+            progressContainer.innerHTML = '<span class="text-muted">Waiting...</span>';
+            return;
+        }
+        
+        const statusItems = visibleNodes.map(node => {
+            const nodeData = nodeDataStore[node] || {};
+            const nodeName = formatNodeName(node);
+            const reasoning = getNodeReasoning(node, nodeData);
+            let className = 'node-progress-item';
+            let icon = '';
+            
+            if (completedNodes.has(node)) {
+                className += ' completed';
+                icon = '<i class="bi bi-check-circle-fill node-icon" style="color: #198754; font-size: 12px;"></i>';
+            } else if (activeNode === node) {
+                className += ' active';
+                icon = '<i class="bi bi-arrow-repeat spinner-border spinner-border-sm node-icon" style="width: 12px; height: 12px; color: #0d6efd;"></i>';
+            } else {
+                icon = '<i class="bi bi-circle node-icon" style="color: #dee2e6; font-size: 10px;"></i>';
+            }
+            
+            return `
+                <div class="${className}" data-node="${node}">
+                    ${icon}
+                    <div class="node-content">
+                        <div class="node-name">${nodeName}</div>
+                        ${reasoning ? `<div class="node-reasoning">${escapeHtml(reasoning)}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        progressContainer.innerHTML = statusItems;
+    }
+    
+    function resetNodeProgressStatus() {
+        completedNodes.clear();
+        activeNode = null;
+        Object.keys(nodeDataStore).forEach(key => delete nodeDataStore[key]);
+        // Remove all node progress containers
+        document.querySelectorAll('.node-progress-container').forEach(el => el.remove());
     }
     
     // ====================================================================================
@@ -703,32 +709,9 @@
         socket.on('agent:node_start', (data) => {
             console.log('Node started:', data.node);
             currentStreamingNode = data.node;
+            activeNode = data.node;
+            updateNodeProgressStatus();
             
-            // Update status bar
-            if (currentStatusBarId) {
-                updateStatusBar(currentStatusBarId, data.node);
-            }
-            
-            // Update loading message based on node
-            const loadingMessages = {
-                'planner': 'Planning query...',
-                'replan': 'Replanning query...',
-                'execute': 'Executing query...',
-                'evaluate': 'Evaluating results...',
-                'end_response': 'Generating response...',
-                'end_prompt_monitor': 'Generating insights...'
-            };
-            
-            if (currentLoadingId && loadingMessages[data.node]) {
-                updateLoadingState(currentLoadingId, loadingMessages[data.node]);
-            }
-            
-            // Hide loading and show typing indicator when streaming starts
-            if (data.node === 'end_response' && currentLoadingId) {
-                hideLoadingState(currentLoadingId);
-                currentLoadingId = null;
-                // Typing indicator will show when first chunk arrives
-            }
         });
 
         socket.on('agent:llm_chunk', (data) => {
@@ -753,6 +736,33 @@
             if (data.node === currentStreamingNode) {
                 currentStreamingNode = null;
             }
+            completedNodes.add(data.node);
+            if (activeNode === data.node) {
+                activeNode = null;
+            }
+            updateNodeProgressStatus();
+        });
+
+        socket.on('agent:node_data', (data) => {
+            console.log('🔍🔍🔍 NEW CODE VERSION - NODE DATA RECEIVED 🔍🔍🔍');
+            console.log('=== NODE DATA RECEIVED ===');
+            console.log('Node:', data.node);
+            console.log('Session ID:', data.session_id);
+            console.log('Data keys:', Object.keys(data.data || {}));
+            console.log('Has node_reasoning:', !!data.data.node_reasoning);
+            if (data.data.node_reasoning) {
+                console.log('✅✅✅ node_reasoning FOUND:', data.data.node_reasoning);
+            } else {
+                console.log('❌❌❌ NO node_reasoning in data');
+            }
+            console.log('Full data object:', JSON.stringify(data.data, null, 2));
+            console.log('==========================');
+            
+            // Store node data for progress status display
+            nodeDataStore[data.node] = data.data;
+            updateNodeProgressStatus();
+            
+            displayNodeData(data.node, data.data);
         });
 
         socket.on('agent:complete', (data) => {
@@ -766,16 +776,10 @@
             console.log('Agent completed');
             const result = data.result;
             
-            // Hide any remaining loading states
-            if (currentLoadingId) {
-                hideLoadingState(currentLoadingId);
-                currentLoadingId = null;
-            }
-            
-            // Complete status bar
-            if (currentStatusBarId) {
-                completeStatusBar(currentStatusBarId);
-            }
+            // Mark end node as completed
+            completedNodes.add('end');
+            activeNode = null;
+            updateNodeProgressStatus();
             
             // Final result received - update UI with complete data
             if (currentResponseId) {
@@ -788,20 +792,8 @@
         socket.on('agent:waiting_for_clarification', (data) => {
             console.log('Agent waiting for clarification:', data);
             
-            // Hide loading states
-            if (currentLoadingId) {
-                hideLoadingState(currentLoadingId);
-                currentLoadingId = null;
-            }
-            
-            // Update status bar to show waiting
-            if (currentStatusBarId) {
-                const statusBar = document.getElementById(currentStatusBarId);
-                if (statusBar) {
-                    statusBar.innerHTML = '<i class="bi bi-question-circle"></i> Needs Clarification';
-                    statusBar.className = 'status-bar status-waiting';
-                }
-            }
+            // Update node progress status to show waiting
+            updateNodeProgressStatus();
             
             // Show clarification prompt to user
             if (currentResponseId) {
@@ -826,15 +818,9 @@
             console.error('Agent error:', data.error);
             
             // Hide loading states
-            if (currentLoadingId) {
-                hideLoadingState(currentLoadingId);
-                currentLoadingId = null;
-            }
             
-            // Show error in status bar
-            if (currentStatusBarId) {
-                errorStatusBar(currentStatusBarId);
-            }
+            // Show error in node progress status
+            updateNodeProgressStatus();
             
             // Show error message
             if (currentResponseId) {
@@ -869,6 +855,166 @@
         const text = (typeof str === 'string') ? str : String(str);
         return text.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     }
+
+    // Track node data displays to avoid duplicates (keyed by responseId + nodeName)
+    const nodeDataDisplays = {};
+
+    function displayNodeData(nodeName, nodeData) {
+        if (!nodeData || Object.keys(nodeData).length === 0) {
+            return;
+        }
+
+        console.log(`[NODE_DATA] Displaying data for ${nodeName}:`, nodeData);
+        if (nodeData.raw_table) {
+            console.log(`[NODE_DATA] Raw table: ${nodeData.raw_table.row_count || 0} rows, ${nodeData.raw_table.columns?.length || 0} columns`);
+            if (nodeData.raw_table.query) {
+                console.log(`[NODE_DATA] SQL Query:`, nodeData.raw_table.query);
+            }
+        }
+        if (nodeData.plan) {
+            console.log(`[NODE_DATA] SQL Plan:`, nodeData.plan.sql);
+        }
+
+        // Get or create container for this node's data (reuse if exists for same response)
+        const containerKey = `${currentResponseId || 'default'}_${nodeName}`;
+        let container = nodeDataDisplays[containerKey];
+        
+        // If container doesn't exist, try to create it
+        if (!container) {
+            // Try current response first - attach BEFORE the markdown-body (above response)
+            if (currentResponseId) {
+                const responseEl = document.getElementById(currentResponseId);
+                if (responseEl) {
+                    const wrapper = responseEl.closest('.mb-3');
+                    if (wrapper) {
+                        const messageDiv = wrapper.querySelector('.chat-message.agent');
+                        if (messageDiv) {
+                            // Create container and insert BEFORE the messageDiv (above the response)
+                            container = document.createElement('div');
+                            container.className = 'node-data-container mt-2';
+                            container.setAttribute('data-node', nodeName);
+                            container.setAttribute('data-container-key', containerKey);
+                            wrapper.insertBefore(container, messageDiv);
+                            nodeDataDisplays[containerKey] = container;
+                        }
+                    }
+                }
+            }
+            
+            // If still no container, try to find the last agent message
+            if (!container) {
+                const historyEl = document.getElementById('chatHistory');
+                if (historyEl) {
+                    const agentMessages = Array.from(historyEl.querySelectorAll('.chat-message.agent'));
+                    if (agentMessages.length > 0) {
+                        const lastAgentMessage = agentMessages[agentMessages.length - 1];
+                        const wrapper = lastAgentMessage.closest('.mb-3');
+                        if (wrapper) {
+                            container = document.createElement('div');
+                            container.className = 'node-data-container mt-2';
+                            container.setAttribute('data-node', nodeName);
+                            container.setAttribute('data-container-key', containerKey);
+                            wrapper.insertBefore(container, lastAgentMessage);
+                            nodeDataDisplays[containerKey] = container;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!container) {
+            console.warn(`[NODE_DATA] Could not find container for ${nodeName}, currentResponseId: ${currentResponseId}`);
+            // Still log the data even if we can't display it
+            return;
+        }
+
+            // Display data based on node type
+            if (nodeName === 'execute_sql' && nodeData.raw_table) {
+                displayRawTable(container, nodeData.raw_table, `table_execute_${Date.now()}`);
+            } else if (nodeName === 'generate_sql' && nodeData.plan) {
+                displaySQLPlan(container, nodeData.plan);
+            } else if (nodeName === 'synthesize' && nodeData.raw_table) {
+            // Only show synthesize table if execute_sql didn't already show it (to avoid duplicates)
+            const existingExecuteTable = container.parentElement?.querySelector(`[data-container-key*="_execute_sql"] .node-raw-table`);
+            if (!existingExecuteTable) {
+                displayRawTable(container, nodeData.raw_table, `table_synthesize_${Date.now()}`);
+            }
+        } else if (nodeName === 'end' && nodeData.raw_table) {
+            displayRawTable(container, nodeData.raw_table, `table_end_${Date.now()}`);
+        }
+    }
+
+    function displayRawTable(container, rawTable, tableId) {
+        if (!rawTable || !rawTable.columns || !rawTable.rows) {
+            return;
+        }
+
+        // Remove existing table if present
+        const existingTable = container.querySelector('.node-raw-table');
+        if (existingTable) {
+            existingTable.remove();
+        }
+
+        const tableWrapper = document.createElement('div');
+        tableWrapper.className = 'node-raw-table mt-2';
+        
+        const tableDetails = document.createElement('details');
+        tableDetails.className = 'mt-2';
+        tableDetails.open = true; // Open by default for real-time updates
+            tableDetails.innerHTML = `<summary class="small text-info" style="cursor:pointer;"><i class="bi bi-table"></i> SQL Prompt & Results (${rawTable.row_count || 0} rows)</summary>`;
+        
+        const tableContent = document.createElement('div');
+        tableContent.className = 'mt-2 p-2 bg-light border rounded';
+        tableContent.style.maxHeight = '600px';
+        tableContent.style.overflowY = 'auto';
+        
+        // Display SQL query if available
+        if (rawTable.query) {
+            const sqlDiv = document.createElement('div');
+            sqlDiv.className = 'mb-3 p-3 rounded';
+            sqlDiv.style.fontFamily = 'monospace';
+            sqlDiv.style.fontSize = '0.9em';
+            sqlDiv.style.backgroundColor = '#ffffff';
+            sqlDiv.style.color = '#000000';
+            sqlDiv.style.border = '1px solid #dee2e6';
+            sqlDiv.innerHTML = '<strong style="color: #0d6efd;">SQL Query:</strong><br><pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word; color: #000000;">' + escapeHtml(rawTable.query) + '</pre>';
+            tableContent.appendChild(sqlDiv);
+        }
+        
+        // Add table HTML
+        const tableDiv = document.createElement('div');
+        tableDiv.innerHTML = formatTable(rawTable, tableId);
+        tableContent.appendChild(tableDiv);
+        
+        tableDetails.appendChild(tableContent);
+        tableWrapper.appendChild(tableDetails);
+        container.appendChild(tableWrapper);
+    }
+
+    function displaySQLPlan(container, plan) {
+        if (!plan || !plan.sql) {
+            return;
+        }
+
+        // Remove existing plan if present
+        const existingPlan = container.querySelector('.node-sql-plan');
+        if (existingPlan) {
+            existingPlan.remove();
+        }
+
+        const planDiv = document.createElement('div');
+        planDiv.className = 'node-sql-plan mt-2 p-3 rounded';
+        planDiv.style.backgroundColor = '#f8f9fa';
+        planDiv.style.border = '1px solid #dee2e6';
+        planDiv.innerHTML = `
+            <div class="small text-muted mb-2"><i class="bi bi-code-square"></i> Generated SQL Plan - ${new Date().toLocaleTimeString()}</div>
+            <div style="font-family: monospace; font-size: 0.9em; background-color: #ffffff; color: #000000; padding: 10px; border-radius: 4px; border: 1px solid #dee2e6;">
+                <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word; color: #000000;">${escapeHtml(plan.sql)}</pre>
+            </div>
+        `;
+        container.appendChild(planDiv);
+    }
+
 
     function formatTable(rawTable, tableId) {
         if (!rawTable || !rawTable.columns || !rawTable.rows) {
@@ -974,87 +1120,16 @@
         messageDiv.innerHTML = roleBadge + contentHtml;
         wrapper.appendChild(messageDiv);
         
-        if (finalOutput && typeof finalOutput === 'object') {
-            // Extract final_output if it exists
-            const output = finalOutput.final_output || finalOutput;
-            const tableId = 'table_' + messageCounter;
-            
-            // Raw Table (collapsible, collapsed by default)
-            if (output.raw_table) {
-                const tableDetails = document.createElement('details');
-                tableDetails.className = 'mt-2';
-                tableDetails.innerHTML = '<summary class="small text-info" style="cursor:pointer;"><i class="bi bi-table"></i> Raw Table (' + (output.raw_table.row_count || 0) + ' rows)</summary>';
-                
-                const tableContent = document.createElement('div');
-                tableContent.className = 'mt-2 p-2 bg-light border rounded';
-                tableContent.style.maxHeight = '600px';
-                tableContent.style.overflowY = 'auto';
-                
-                // Display SQL query if available
-                if (output.raw_table && output.raw_table.query) {
-                    console.log('[DEBUG] Displaying SQL query:', output.raw_table.query);
-                    const sqlDiv = document.createElement('div');
-                    sqlDiv.className = 'mb-3 p-2 bg-dark text-light rounded';
-                    sqlDiv.style.fontFamily = 'monospace';
-                    sqlDiv.style.fontSize = '0.9em';
-                    sqlDiv.innerHTML = '<strong>SQL Query:</strong><br><pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word;">' + escapeHtml(output.raw_table.query) + '</pre>';
-                    tableContent.appendChild(sqlDiv);
-                } else {
-                    console.log('[DEBUG] SQL query not found in raw_table:', output.raw_table);
-                }
-                
-                // Add table HTML
-                const tableDiv = document.createElement('div');
-                tableDiv.innerHTML = formatTable(output.raw_table, tableId);
-                tableContent.appendChild(tableDiv);
-                
-                tableDetails.appendChild(tableContent);
-                wrapper.appendChild(tableDetails);
-            }
-            
-            // Prompt Monitor (collapsible, collapsed by default)
-            if (output.prompt_monitor) {
-                const monitorDetails = document.createElement('details');
-                monitorDetails.className = 'mt-2';
-                
-                let monitorText = '';
-                let isMarkdown = false;
-                
-                if (typeof output.prompt_monitor === 'object') {
-                    // If it has procedural_reasoning (LLM-generated), show that
-                    if (output.prompt_monitor.procedural_reasoning) {
-                        monitorText = output.prompt_monitor.procedural_reasoning;
-                        isMarkdown = true;
-                    } else {
-                        // Otherwise show the full object as JSON
-                        monitorText = JSON.stringify(output.prompt_monitor, null, 2);
-                    }
-                } else {
-                    monitorText = String(output.prompt_monitor);
-                }
-                
-                monitorDetails.innerHTML = '<summary class="small text-primary" style="cursor:pointer;"><i class="bi bi-lightbulb"></i> Prompt Monitor' + (isMarkdown ? ' (LLM Reasoning)' : '') + '</summary>';
-                
-                const monitorContent = document.createElement('div');
-                monitorContent.className = 'mt-2 p-2 bg-light border rounded prompt-monitor-content';
-                monitorContent.style.maxHeight = '300px';
-                monitorContent.style.overflowY = 'auto';
-                
-                if (isMarkdown && typeof marked !== 'undefined') {
-                    try {
-                        monitorContent.innerHTML = marked.parse(monitorText);
-                    } catch (e) {
-                        console.error('Markdown rendering error:', e);
-                        monitorContent.innerHTML = '<pre class="small">' + escapeHtml(monitorText) + '</pre>';
-                    }
-                } else {
-                    monitorContent.innerHTML = '<pre class="small text-muted">' + escapeHtml(monitorText) + '</pre>';
-                }
-                
-                monitorDetails.appendChild(monitorContent);
-                wrapper.appendChild(monitorDetails);
-            }
+        // If this is a user message, create the node progress container immediately
+        if (role === 'user') {
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'node-progress-container';
+            progressContainer.style.display = 'none'; // Hide until first node starts
+            wrapper.appendChild(progressContainer);
         }
+        
+        // Removed: Raw Table and Prompt Monitor from appendMessage
+        // These are now shown above the response via displayNodeData
         
         historyEl.appendChild(wrapper);
         historyEl.scrollTop = historyEl.scrollHeight;
@@ -1189,79 +1264,67 @@
             }
         }
 
-        // Add table and prompt monitor if available
-        const finalOut = result.final_output || {};
-        if (finalOut.raw_table || finalOut.prompt_monitor) {
-            // Append table and prompt monitor (similar to appendMessage logic)
-            const wrapper = messageEl.closest('.mb-3');
-            if (wrapper) {
-                const messageCounter = parseInt(messageId.replace('msg-', '')) || 0;
-                const tableId = 'table_' + messageCounter;
-                
-                if (finalOut.raw_table) {
-                    const tableDetails = document.createElement('details');
-                    tableDetails.className = 'mt-2';
-                    tableDetails.innerHTML = '<summary class="small text-info" style="cursor:pointer;"><i class="bi bi-table"></i> Raw Table (' + (finalOut.raw_table.row_count || 0) + ' rows)</summary>';
-                    const tableContent = document.createElement('div');
-                    tableContent.className = 'mt-2 p-2 bg-light border rounded';
-                    tableContent.style.maxHeight = '600px';
-                    tableContent.style.overflowY = 'auto';
-                    
-                    // Display SQL query if available
-                    if (finalOut.raw_table && finalOut.raw_table.query) {
-                        console.log('[DEBUG] Displaying SQL query:', finalOut.raw_table.query);
-                        const sqlDiv = document.createElement('div');
-                        sqlDiv.className = 'mb-3 p-2 bg-dark text-light rounded';
-                        sqlDiv.style.fontFamily = 'monospace';
-                        sqlDiv.style.fontSize = '0.9em';
-                        sqlDiv.innerHTML = '<strong>SQL Query:</strong><br><pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word;">' + escapeHtml(finalOut.raw_table.query) + '</pre>';
-                        tableContent.appendChild(sqlDiv);
-                    } else {
-                        console.log('[DEBUG] SQL query not found in raw_table:', finalOut.raw_table);
-                    }
-                    
-                    // Add table HTML
-                    const tableDiv = document.createElement('div');
-                    tableDiv.innerHTML = formatTable(finalOut.raw_table, tableId);
-                    tableContent.appendChild(tableDiv);
-                    tableDetails.appendChild(tableContent);
-                    wrapper.appendChild(tableDetails);
-                }
-
-                if (finalOut.prompt_monitor) {
-                    const monitorDetails = document.createElement('details');
-                    monitorDetails.className = 'mt-2';
-                    let monitorText = '';
-                    let isMarkdown = false;
-                    if (typeof finalOut.prompt_monitor === 'object' && finalOut.prompt_monitor.procedural_reasoning) {
-                        monitorText = finalOut.prompt_monitor.procedural_reasoning;
-                        isMarkdown = true;
-                    } else {
-                        monitorText = JSON.stringify(finalOut.prompt_monitor, null, 2);
-                    }
-                    monitorDetails.innerHTML = '<summary class="small text-primary" style="cursor:pointer;"><i class="bi bi-lightbulb"></i> Prompt Monitor' + (isMarkdown ? ' (LLM Reasoning)' : '') + '</summary>';
-                    const monitorContent = document.createElement('div');
-                    monitorContent.className = 'mt-2 p-2 bg-light border rounded prompt-monitor-content';
-                    monitorContent.style.maxHeight = '300px';
-                    monitorContent.style.overflowY = 'auto';
-                    if (isMarkdown && typeof marked !== 'undefined') {
-                        try {
-                            monitorContent.innerHTML = marked.parse(monitorText);
-                        } catch (e) {
-                            monitorContent.innerHTML = '<pre class="small">' + escapeHtml(monitorText) + '</pre>';
-                        }
-                    } else {
-                        monitorContent.innerHTML = '<pre class="small text-muted">' + escapeHtml(monitorText) + '</pre>';
-                    }
-                    monitorDetails.appendChild(monitorContent);
-                    wrapper.appendChild(monitorDetails);
-                }
-            }
-        }
+        // Removed: Raw Table and Prompt Monitor from finalizeStreamingMessage
+        // These are now shown above the response via displayNodeData
     }
 
     let awaitingClarification = false;
     let currentSessionId = sessionId;
+
+    // Function to start a new chat session
+    function startNewChat() {
+        // Generate new session ID
+        const newSessionId = 'sess-' + Math.random().toString(36).slice(2, 10);
+        
+        // Clear localStorage
+        localStorage.removeItem('agent_session_id');
+        localStorage.removeItem('agentSessionId');
+        
+        // Store new session ID
+        localStorage.setItem('agent_session_id', newSessionId);
+        
+        // Update session variables
+        sessionId = newSessionId;
+        currentSessionId = newSessionId;
+        
+        // Clear chat history
+        historyEl.innerHTML = '';
+        
+        // Reset streaming state
+        accumulatedText = {
+            planner: '',
+            evaluator: '',
+            end_response: '',
+            end_prompt_monitor: ''
+        };
+        currentResponseId = null;
+        currentPromptMonitorId = null;
+        resetNodeProgressStatus();
+        awaitingClarification = false;
+        
+        // Rejoin socket session if connected
+        if (socket && socket.connected) {
+            socket.emit('join_session', { session_id: newSessionId });
+            console.log('Started new chat session:', newSessionId);
+        }
+        
+        // Optionally delete old session file on server (optional cleanup)
+        // This is handled automatically when a new session ID is used
+        
+        // Show confirmation
+        const welcomeMsg = document.createElement('div');
+        welcomeMsg.className = 'alert alert-info mb-2';
+        welcomeMsg.innerHTML = '<i class="bi bi-info-circle"></i> <strong>New Chat Started</strong> - Previous conversation history cleared.';
+        historyEl.appendChild(welcomeMsg);
+        smoothScrollToBottom();
+        
+        // Remove welcome message after 3 seconds
+        setTimeout(() => {
+            if (welcomeMsg.parentNode) {
+                welcomeMsg.remove();
+            }
+        }, 3000);
+    }
 
     function sendQuery() {
         const q = inputEl.value.trim();
@@ -1294,11 +1357,12 @@
         wrapper.appendChild(messageDiv);
         historyEl.appendChild(wrapper);
         
-        // Initialize status bar
-        currentStatusBarId = createStatusBar(currentResponseId);
+        // Clear previous node data displays for this response
+        // (We'll track by responseId, so old displays won't interfere)
+        // nodeDataDisplays will be keyed by responseId_nodeName, so they're naturally scoped
         
-        // Show initial loading state
-        currentLoadingId = showLoadingState('Processing your query...', currentResponseId);
+        // Reset and initialize node progress status
+        resetNodeProgressStatus();
         
         // Smooth scroll to new message
         smoothScrollToBottom();
@@ -1380,15 +1444,9 @@
             const err = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : ('HTTP ' + xhr.status);
             
             // Hide loading states
-            if (currentLoadingId) {
-                hideLoadingState(currentLoadingId);
-                currentLoadingId = null;
-            }
             
-            // Show error in status bar
-            if (currentStatusBarId) {
-                errorStatusBar(currentStatusBarId);
-            }
+            // Show error in node progress status
+            updateNodeProgressStatus();
             
             // Show error message
             if (currentResponseId) {
@@ -1411,17 +1469,30 @@
             // Clean up state variables
             currentResponseId = null;
             currentPromptMonitorId = null;
-            currentStatusBarId = null;
-            currentLoadingId = null;
+            resetNodeProgressStatus();
             currentTypingId = null;
         });
         }
     }
 
+    // Initialize node progress status on page load
+    resetNodeProgressStatus();
+    
+    // Event listeners
     sendBtn.addEventListener('click', sendQuery);
     inputEl.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') sendQuery();
     });
+    
+    // New Chat button
+    const newChatBtn = document.getElementById('newChatBtn');
+    if (newChatBtn) {
+        newChatBtn.addEventListener('click', function() {
+            if (confirm('Start a new chat? This will clear the current conversation history.')) {
+                startNewChat();
+            }
+        });
+    }
 })();
 </script>
 {% endblock %}

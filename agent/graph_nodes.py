@@ -2,6 +2,7 @@ import json
 import os
 import glob
 import time
+import logging
 from datetime import datetime
 from typing import Dict, Any, Optional, Callable
 
@@ -13,6 +14,8 @@ from tools.impl.query_safety_validator import QuerySafetyValidatorTool
 from tools.impl.query_result_evaluator import QueryResultEvaluatorTool
 import hashlib
 
+logger = logging.getLogger(__name__)
+
 try:
     import duckdb  # type: ignore
 except ImportError:
@@ -21,6 +24,50 @@ except ImportError:
 
 def _now_iso() -> str:
     return datetime.utcnow().isoformat() + "Z"
+
+
+def _make_node_result(
+    state: AgentState,
+    node_name: str,
+    control: str,
+    reasoning: str,
+    node_output: Dict[str, Any],
+    state_updates: Optional[Dict[str, Any]] = None
+) -> PartialState:
+    """
+    Standardized node return format for consistent structure across all nodes.
+    
+    Args:
+        state: Current agent state
+        node_name: Name of the current node
+        control: Next control signal
+        reasoning: Human-readable explanation of the decision
+        node_output: Node-specific output data
+        state_updates: Additional state fields to update
+    
+    Returns:
+        Partial state dict with standardized structure
+    """
+    logs = state.get("logs", [])
+    logs.append({
+        "node": node_name,
+        "timestamp": _now_iso(),
+        "msg": reasoning,
+        "control": control
+    })
+    
+    result = {
+        "last_node": node_name,
+                    "control": control,
+        "node_reasoning": reasoning,
+        "node_output": node_output,
+        "logs": logs,
+    }
+    
+    if state_updates:
+        result.update(state_updates)
+    
+    return result
 
 
 def invoke_node(state: AgentState, cfg: QueryAgentConfig, sm: AgentStateManager) -> PartialState:
@@ -97,99 +144,453 @@ def invoke_node(state: AgentState, cfg: QueryAgentConfig, sm: AgentStateManager)
         logs.append({"node": "invoke", "timestamp": _now_iso(), "msg": f"error loading table schema: {str(e)}", "level": "error"})
         print(f"[invoke_node] Could not load table schema: {e}")
     
+    # Create human-friendly reasoning message
+    if table_schema and len(table_schema) > 0:
+        reasoning = "Data and chat history loaded"
+    else:
+        reasoning = "Initializing"
+    
     return {
         "last_node": "invoke",
-        "control": "plan",
+        "control": "check_followup",  # Check if this is a follow-up query before structure check
+        "node_reasoning": reasoning,
         "parquet_location": parquet_location,
         "conversation_history": conversation_history,
         "table_schema": table_schema,
         "docs_meta": docs_meta,
         "logs": logs,
         "timestamp": _now_iso(),
+        "clarification_count": 0,
+        "sql_attempt_count": 0,
     }
 
 
-def planner_node(state: AgentState, cfg: QueryAgentConfig, stream_callback: Optional[Callable[[str], None]] = None) -> PartialState:
-    logs = state.get("logs", [])
-    logs.append({"node": "planner", "timestamp": _now_iso(), "msg": "planning query"})
+def check_followup_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
+    """
+    Check if the current query is a follow-up to a previous conversation.
+    If conversation_history is not empty, this is a follow-up query.
+    """
+    conversation_history = state.get("conversation_history", [])
+    conversation_history_raw = state.get("conversation_history_raw", [])
     
+    # Check if either conversation history field has content
+    is_followup = False
+    if isinstance(conversation_history, list) and len(conversation_history) > 0:
+        is_followup = True
+    elif isinstance(conversation_history_raw, list) and len(conversation_history_raw) > 0:
+        is_followup = True
+    elif isinstance(conversation_history, str) and conversation_history != "No previous conversation history.":
+        is_followup = True
+    
+    # Enhanced logging to show all conversation history sources
+    conv_history_len = len(conversation_history) if isinstance(conversation_history, list) else 0
+    conv_history_raw_len = len(conversation_history_raw) if isinstance(conversation_history_raw, list) else 0
+    conv_history_str_len = len(conversation_history) if isinstance(conversation_history, str) else 0
+    logger.info(f"[CHECK_FOLLOWUP] is_followup={is_followup}, conv_history(list)={conv_history_len}, conv_history_raw(list)={conv_history_raw_len}, conv_history(str)={conv_history_str_len}")
+    
+    # Route based on is_followup flag
+    next_control = "check_data_sufficiency" if is_followup else "check_structure"
+    
+    # Human-friendly reasoning
+    if is_followup:
+        reasoning = "This appears to be a follow-up query in our ongoing conversation"
+    else:
+        reasoning = "Starting a new conversation"
+    
+    return _make_node_result(
+        state=state,
+        node_name="check_followup",
+        control=next_control,
+        reasoning=reasoning,
+        node_output={
+            "is_followup": is_followup,
+            "conversation_history_length": len(conversation_history) if isinstance(conversation_history, list) else (len(conversation_history_raw) if isinstance(conversation_history_raw, list) else 0)
+        },
+        state_updates={
+            "is_followup": is_followup,
+            "more_data_needed": False if not is_followup else None  # Default to False for new queries
+        }
+    )
+
+
+def check_data_sufficiency_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
+    """
+    For follow-up queries, check if existing conversation history data is sufficient
+    to answer the query, or if more data needs to be fetched.
+    
+    This node only runs when is_followup=True.
+    """
     try:
+        from agent.llm_client import get_llm_client
+        llm_client = get_llm_client()
+        
+        if not llm_client.is_available():
+            logger.warning("[CHECK_DATA_SUFFICIENCY] LLM not available, assuming more data needed")
+            return _make_node_result(
+                state=state,
+                node_name="check_data_sufficiency",
+                control="check_structure",
+                reasoning="LLM not available, defaulting to more_data_needed=True",
+                node_output={"more_data_needed": True},
+                state_updates={"more_data_needed": True}
+            )
+        
+        query = state.get("query", "")
+        conversation_history = state.get("conversation_history", "No previous conversation history.")
+        
+        # Build prompt to assess data sufficiency
+        system_prompt = """You are a data sufficiency analyzer. Your job is to determine if the PREVIOUS QUERY RESULTS contain enough data to answer the NEW FOLLOW-UP QUERY, or if a NEW database query is needed.
+
+DECISION RULES:
+1. If the new query asks to FILTER, COUNT, AGGREGATE, or ANALYZE data that was ALREADY RETURNED in previous results → more_data_needed=FALSE
+2. If the new query asks for DIFFERENT data, DIFFERENT columns, or data NOT in previous results → more_data_needed=TRUE
+
+Examples:
+- Previous: "top 10 limits", New: "how many of these are in Americas?" → FALSE (data already there, just filter)
+- Previous: "show Asia limits", New: "what are the specific IDs?" → FALSE (IDs already in previous results)
+- Previous: "count by region", New: "show me the actual limit details" → TRUE (need detailed rows, not just counts)
+- Previous: "top limits", New: "show me limits in breach" → TRUE (different filter criteria, need new query)
+
+Respond in JSON format: {"more_data_needed": true/false, "reasoning": "explanation"}"""
+
+        user_prompt = f"""Previous Conversation History:
+{conversation_history}
+
+New Follow-Up Query: {query}
+
+Can this follow-up query be answered using ONLY the data from the previous query results, or do we need to fetch more/different data from the database?"""
+
+        logger.info(f"[CHECK_DATA_SUFFICIENCY] Analyzing query: {query}")
+        
+        response = llm_client.invoke_with_prompt(system_prompt, user_prompt, response_format="json")
+        response = response.strip()
+        
+        # Clean up JSON markers
+        if response.startswith('```'):
+            lines = response.split('\n')
+            response = '\n'.join(lines[1:-1]) if len(lines) > 2 else response
+        
+        import json
+        result = json.loads(response)
+        more_data_needed = result.get("more_data_needed", True)
+        reasoning = result.get("reasoning", "")
+        
+        logger.info(f"[CHECK_DATA_SUFFICIENCY] more_data_needed={more_data_needed}, reasoning={reasoning}")
+        
+        # Make reasoning more human-friendly
+        if more_data_needed:
+            friendly_reasoning = "This follow-up query requires different data than what we retrieved before - I'll fetch new data from the database"
+        else:
+            friendly_reasoning = "I can answer this using the data from our previous conversation"
+        
+        return _make_node_result(
+            state=state,
+            node_name="check_data_sufficiency",
+            control="check_structure",
+            reasoning=friendly_reasoning,
+            node_output={
+                "more_data_needed": more_data_needed,
+                "data_sufficiency_reasoning": reasoning
+            },
+            state_updates={"more_data_needed": more_data_needed}
+        )
+        
+    except Exception as e:
+        logger.error(f"[CHECK_DATA_SUFFICIENCY] Error: {e}, defaulting to more_data_needed=True")
+        return _make_node_result(
+            state=state,
+            node_name="check_data_sufficiency",
+            control="check_structure",
+            reasoning="I'll fetch new data to be safe",
+            node_output={"more_data_needed": True},
+            state_updates={"more_data_needed": True}
+        )
+
+
+def check_structure_node(state: AgentState, cfg: QueryAgentConfig, stream_callback: Optional[Callable[[str], None]] = None) -> PartialState:
+    """
+    Check if query is structured (data retrieval) or unstructured (knowledge question).
+    Uses LLM to classify query intent.
+    """
+    try:
+        from agent.llm_client import get_llm_client
+        llm_client = get_llm_client()
+        
+        if not llm_client.is_available():
+            # Default to structured if LLM unavailable
+            return _make_node_result(
+                state=state,
+                node_name="check_structure",
+                control="check_ambiguity",
+                reasoning="LLM unavailable, assuming structured query",
+                node_output={"is_structured": True, "confidence": "low"},
+                state_updates={"is_structured": True}
+            )
+        
+        # Build prompt for structure classification
+        system_prompt = cfg.get_nested("prompts", "check_structure_system", default="""
+You are a query classifier. Determine if the user's query is:
+- STRUCTURED: Asking for data retrieval from database (show me, get, list, top N, etc.)
+- UNSTRUCTURED: Asking for knowledge/definitions (what is, define, explain, what does mean, etc.)
+
+Respond with JSON:
+{
+  "is_structured": true/false,
+  "confidence": "high|medium|low",
+  "reasoning": "Brief explanation"
+}
+""")
+        
+        # Format schema summary
+        table_schema = state.get("table_schema", {})
+        schema_lines = []
+        for table, schema_info in table_schema.items():
+            cols = schema_info.get("columns", [])
+            col_names = [c.get("name", "") for c in cols if isinstance(c, dict)]
+            if col_names:
+                schema_lines.append(f"- {table}: {', '.join(col_names[:5])}")
+        schema_summary = "\n".join(schema_lines) if schema_lines else "No tables available"
+        
+        # Format business context
+        docs_meta = state.get("docs_meta", [])
+        business_lines = []
+        for item in docs_meta:
+            if item.get("type") == "business_glossary":
+                glossary = item.get("glossary", {})
+                business_lines.append("Business Terms: " + ", ".join(list(glossary.keys())[:10]))
+        business_context = "\n".join(business_lines) if business_lines else ""
+        
+        user_prompt = f"""User Query: {state.get('user_input', '')}
+
+Available Tables:
+{schema_summary}
+
+{business_context}
+
+Classify if this is a STRUCTURED data query or UNSTRUCTURED knowledge question."""
+        
+        # Call LLM
+        response = llm_client.invoke_with_prompt(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            temperature=0.1
+        )
+        
+        # Parse response
+        import json
+        try:
+            result = json.loads(response.strip())
+            is_structured = result.get("is_structured", True)
+            confidence = result.get("confidence", "medium")
+            reasoning = result.get("reasoning", "Classification completed")
+        except:
+            # Fallback: assume structured
+            is_structured = True
+            confidence = "low"
+            reasoning = "Failed to parse LLM response, defaulting to structured"
+        
+        # Determine next control
+        if is_structured:
+            next_control = "check_ambiguity"
+        else:
+            next_control = "end"  # Knowledge questions go to end_node for glossary lookup
+        
+        # Human-friendly reasoning
+        if is_structured:
+            friendly_reasoning = "This looks like a data query - I'll search the database"
+        else:
+            friendly_reasoning = "This looks like a knowledge question - I'll check the documentation"
+        
+        return _make_node_result(
+            state=state,
+            node_name="check_structure",
+            control=next_control,
+            reasoning=friendly_reasoning,
+            node_output={
+                "is_structured": is_structured,
+                "confidence": confidence,
+                "classification_reasoning": reasoning
+            },
+            state_updates={"is_structured": is_structured}
+        )
+        
+    except Exception as e:
+        # On error, default to structured and continue
+        return _make_node_result(
+            state=state,
+            node_name="check_structure",
+            control="check_ambiguity",
+            reasoning="I'll search the database for this",
+            node_output={"is_structured": True, "error": str(e)},
+            state_updates={"is_structured": True}
+        )
+
+
+def check_ambiguity_node(state: AgentState, cfg: QueryAgentConfig, stream_callback: Optional[Callable[[str], None]] = None) -> PartialState:
+    """
+    Check if query has clear intent and sufficient details.
+    Uses clarification gate logic to determine if questions are needed.
+    """
+    try:
+        # Check clarification count for retry limit
+        clarification_count = state.get("clarification_count", 0)
+        max_clarify_turns = cfg.get_nested("limits", "max_clarify_turns", default=3)
+        
+        if clarification_count >= max_clarify_turns:
+            # Hit max retries, proceed anyway
+            return _make_node_result(
+                state=state,
+                node_name="check_ambiguity",
+                control="generate_sql",
+                reasoning=f"Max clarification attempts ({max_clarify_turns}) reached, proceeding with best effort",
+                node_output={"is_ambiguous": False, "forced": True},
+                state_updates={"is_ambiguous": False}
+            )
+        
+        # Use NLToSQLPlannerTool's clarification gate
         planner = NLToSQLPlannerTool({
             "preview_rows": cfg.get_nested("duckdb", "preview_rows", default=100),
             "data_directory": state.get("parquet_location", "data/duckdb"),
-            "use_llm": True,  # Enable LLM for planning
+            "use_llm": True,
         })
+        
+        # Build query context (include accumulated clarifications if any)
+        # If clarification is a complete query (starts with query verbs), use it as primary query
+        accumulated_clarifications = state.get("accumulated_clarifications", [])
+        original_query = state.get("user_input", "")
+        
+        # Check if latest clarification is a complete query
+        if accumulated_clarifications:
+            latest_clarification = accumulated_clarifications[-1].strip()
+            # Detect if clarification is a complete query (not just an answer)
+            query_verbs = ["show", "get", "list", "find", "select", "count", "sum", "display", "return"]
+            is_complete_query = any(latest_clarification.lower().startswith(verb) for verb in query_verbs)
+            
+            if is_complete_query:
+                # Use clarification as primary query, original as context
+                query = latest_clarification
+                if len(accumulated_clarifications) > 1:
+                    # Include previous clarifications as context
+                    query += f"\n\nOriginal query: {original_query}"
+                    for i, clarif in enumerate(accumulated_clarifications[:-1], 1):
+                        query += f"\n\nPrevious clarification {i}: {clarif}"
+            else:
+                # Clarification is just an answer, append to original query
+                query = original_query
+                for i, clarif in enumerate(accumulated_clarifications, 1):
+                    query += f"\n\nClarification {i}: {clarif}"
+        else:
+            query = original_query
+        
+        # Get previous clarification questions (for context)
+        previous_clarifications = state.get("clarification_questions", [])
+        
+        # Get follow-up flags
+        is_followup = state.get("is_followup", False)
+        more_data_needed = state.get("more_data_needed", False)
+        logger.info(f"[CHECK_AMBIGUITY] is_followup={is_followup}, more_data_needed={more_data_needed}, passing to planner")
+        
+        # Execute planner (includes clarification gate)
         res = planner.execute({
-            "query": state["user_input"],
+            "query": query,
             "table_schema": state.get("table_schema", {}),
             "docs_meta": state.get("docs_meta", []),
-            "previous_clarifications": [],
+            "previous_clarifications": previous_clarifications,
             "conversation_history": state.get("conversation_history", "No previous conversation history."),
+            "is_followup": is_followup,
+            "more_data_needed": more_data_needed,
         }, stream_callback=stream_callback)
         
-        # Check if clarification is needed (Stage 2b returned early)
+        # Check if clarification is needed
         if res.get("type") == "clarification_needed":
-            plan = res.get("plan", {"sql": None})
-            plan_quality = res.get("plan_quality", "medium")
-            plan_explain = res.get("plan_explain", "")
             clarification_questions = res.get("clarification_questions", [])
-            control = "clarify"  # Go to clarify node
+            plan_explain = res.get("plan_explain", "")
             
-            # compute plan_id (use query only since no SQL yet)
-            plan_hash = hashlib.sha256(state.get("user_input", "").encode("utf-8")).hexdigest()[:16]
-            metrics = state.get("metrics") or {}
-            metrics["plan_id"] = plan_hash
-            
-            logs.append({"node": "planner", "timestamp": _now_iso(), 
-                        "msg": f"clarification needed: {len(clarification_questions)} questions"})
-            
-            return {
-                "last_node": "planner",
-                "plan": plan,
-                "plan_quality": plan_quality,
-                "plan_explain": plan_explain,
+            return _make_node_result(
+                state=state,
+                node_name="check_ambiguity",
+                control="clarify",
+                reasoning=f"Query is ambiguous, need clarification ({len(clarification_questions)} questions)",
+                node_output={
+                    "is_ambiguous": True,
                 "clarification_questions": clarification_questions,
-                "control": control,
-                "metrics": metrics,
-                "logs": logs,
-            }
-        
-        # Otherwise, SQL was generated successfully (passed clarification gate)
-        plan = res["plan"]
+                    "plan_explain": plan_explain
+                },
+                state_updates={
+                    "is_ambiguous": True,
+                    "clarification_questions": clarification_questions,
+                    "plan_explain": plan_explain,
+                    "ambiguity_reasons": [plan_explain]
+                }
+            )
+        else:
+            # Query is clear, proceed to SQL generation
+            plan = res.get("plan", {})
         plan_quality = res.get("plan_quality", "high")
         plan_explain = res.get("plan_explain", "")
-        clarification_questions = res.get("clarification_questions", [])
-        control = "execute"  # Go directly to execute
         
-        # compute plan_id
-        plan_sql = (plan or {}).get("sql", "")
-        plan_hash = hashlib.sha256((state.get("user_input", "") + "|" + plan_sql).encode("utf-8")).hexdigest()[:16]
-        metrics = state.get("metrics") or {}
-        metrics["plan_id"] = plan_hash
+        # Human-friendly reasoning
+        friendly_reasoning = "Your question is clear - I'll generate the SQL query now"
         
-        logs.append({"node": "planner", "timestamp": _now_iso(), 
-                    "msg": f"plan generated: quality={plan_quality}, control={control}, clarifications={len(clarification_questions)}"})
-        
-        return {
-            "last_node": "planner",
+        return _make_node_result(
+            state=state,
+            node_name="check_ambiguity",
+                control="generate_sql",
+                reasoning=friendly_reasoning,
+                node_output={
+                    "is_ambiguous": False,
             "plan": plan,
             "plan_quality": plan_quality,
-            "plan_explain": plan_explain,
-            "clarification_questions": clarification_questions,
-            "control": control,
-            "metrics": metrics,
-            "logs": logs,
-        }
+                    "plan_explain": plan_explain
+                },
+                state_updates={
+                    "is_ambiguous": False,
+                    "plan": plan,
+                    "plan_quality": plan_quality,
+                    "plan_explain": plan_explain
+                }
+            )
+    
     except Exception as e:
-        logs.append({"node": "planner", "timestamp": _now_iso(), "msg": f"planning failed: {str(e)}", "level": "error"})
-        return {
-            "last_node": "planner",
-            "plan": None,
-            "plan_quality": "error",
-            "plan_explain": f"Planning error: {str(e)}",
-            "control": "end",
-            "logs": logs,
+        # On error, assume not ambiguous and continue
+        return _make_node_result(
+            state=state,
+            node_name="check_ambiguity",
+            control="generate_sql",
+            reasoning=f"Ambiguity check failed: {str(e)}, proceeding with SQL generation",
+            node_output={"is_ambiguous": False, "error": str(e)},
+            state_updates={"is_ambiguous": False}
+        )
+
+
+def process_clarification_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
+    """
+    Process user's clarification response and prepare for re-check.
+    Merges clarification with original query context.
+    """
+    user_clarification = state.get("user_clarification", "")
+    clarification_count = state.get("clarification_count", 0) + 1
+    
+    # Accumulate clarifications
+    accumulated_clarifications = state.get("accumulated_clarifications", [])
+    accumulated_clarifications.append(user_clarification)
+    
+    reasoning = f"Processed clarification #{clarification_count}: {user_clarification[:50]}..."
+    
+    return _make_node_result(
+        state=state,
+        node_name="process_clarification",
+        control="check_ambiguity",  # Re-check ambiguity with new info
+        reasoning=reasoning,
+        node_output={
+            "clarification_processed": user_clarification,
+            "total_clarifications": clarification_count
+        },
+        state_updates={
+            "clarification_count": clarification_count,
+            "accumulated_clarifications": accumulated_clarifications
         }
+    )
 
 
 def clarify_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
@@ -277,109 +678,153 @@ Please provide more details to help me generate an accurate query.""")
         }
 
 
-def replan_node(state: AgentState, cfg: QueryAgentConfig, stream_callback: Optional[Callable[[str], None]] = None) -> PartialState:
-    logs = state.get("logs", [])
-    logs.append({"node": "replan", "timestamp": _now_iso(), "msg": "replanning with user clarification"})
-    
+def generate_sql_node(state: AgentState, cfg: QueryAgentConfig, stream_callback: Optional[Callable[[str], None]] = None) -> PartialState:
+    """
+    Generate SQL query using NLToSQLPlannerTool.
+    This node is called after ambiguity check confirms query is clear.
+    """
     try:
-        # Accumulate all clarifications
-        original_query = state["user_input"]
-        user_clarification = state.get("user_clarification") or ""
+        # Check if plan already exists from check_ambiguity_node
+        plan = state.get("plan")
+        if plan and plan.get("sql"):
+            # Plan already generated, just proceed
+            sql_attempt_count = state.get("sql_attempt_count", 0) + 1
+            return _make_node_result(
+                state=state,
+                node_name="generate_sql",
+                control="execute_sql",
+                reasoning=f"Using pre-generated SQL from ambiguity check (attempt #{sql_attempt_count})",
+                node_output={
+                    "sql": plan.get("sql"),
+                    "plan_quality": state.get("plan_quality", "high"),
+                    "plan_explain": state.get("plan_explain", "")
+                },
+                state_updates={"sql_attempt_count": sql_attempt_count}
+            )
         
-        # Get accumulated clarifications from state, or initialize empty list
-        all_clarifications = state.get("accumulated_clarifications", [])
-        all_clarifications.append(user_clarification)
-        
-        # Combine original query with ALL accumulated clarifications
-        combined = original_query
-        for i, clarif in enumerate(all_clarifications, 1):
-            combined += f"\n\nClarification {i}: {clarif}"
-        
-        logs.append({"node": "replan", "timestamp": _now_iso(), 
-                    "msg": f"replanning with {len(all_clarifications)} accumulated clarifications"})
-        
+        # Otherwise, generate SQL fresh
         planner = NLToSQLPlannerTool({
             "preview_rows": cfg.get_nested("duckdb", "preview_rows", default=100),
             "data_directory": state.get("parquet_location", "data/duckdb"),
             "use_llm": True,
         })
         
-        # Get previous clarification questions that were asked (not user responses)
-        # These are needed so the clarification gate understands what "yes all" refers to
-        previous_clarification_questions = state.get("clarification_questions", [])
+        # Build query context (same logic as check_ambiguity_node)
+        accumulated_clarifications = state.get("accumulated_clarifications", [])
+        original_query = state.get("user_input", "")
         
-        # Re-run clarification gate to verify user's answer was sufficient
+        # Check if latest clarification is a complete query
+        if accumulated_clarifications:
+            latest_clarification = accumulated_clarifications[-1].strip()
+            query_verbs = ["show", "get", "list", "find", "select", "count", "sum", "display", "return"]
+            is_complete_query = any(latest_clarification.lower().startswith(verb) for verb in query_verbs)
+            
+            if is_complete_query:
+                query = latest_clarification
+                if len(accumulated_clarifications) > 1:
+                    query += f"\n\nOriginal query: {original_query}"
+                    for i, clarif in enumerate(accumulated_clarifications[:-1], 1):
+                        query += f"\n\nPrevious clarification {i}: {clarif}"
+        else:
+                query = original_query
+                for i, clarif in enumerate(accumulated_clarifications, 1):
+                    query += f"\n\nClarification {i}: {clarif}"
+        else:
+            query = original_query
+        
+        # Add error context if this is a retry
+        execution_error = state.get("execution_stats", {}).get("error")
+        if execution_error:
+            query += f"\n\nPrevious SQL failed with error: {execution_error}"
+            query += "\nPlease generate corrected SQL."
+        
+        # Get follow-up flags
+        is_followup = state.get("is_followup", False)
+        more_data_needed = state.get("more_data_needed", False)
+        logger.info(f"[GENERATE_SQL] is_followup={is_followup}, more_data_needed={more_data_needed}, passing to planner")
+        
+        # Execute planner
         res = planner.execute({
-            "query": combined,
+            "query": query,
             "table_schema": state.get("table_schema", {}),
             "docs_meta": state.get("docs_meta", []),
-            "previous_clarifications": previous_clarification_questions,  # Pass the questions that were asked
+            "previous_clarifications": state.get("clarification_questions", []),
             "conversation_history": state.get("conversation_history", "No previous conversation history."),
+            "is_followup": is_followup,
+            "more_data_needed": more_data_needed,
         }, stream_callback=stream_callback)
         
-        # Check if still needs clarification (user's answer wasn't sufficient)
-        if res.get("type") == "clarification_needed":
-            plan = res.get("plan", {"sql": None})
+        plan = res.get("plan", {})
             plan_quality = res.get("plan_quality", "medium")
-            clarification_questions = res.get("clarification_questions", [])
-            
-            logs.append({"node": "replan", "timestamp": _now_iso(), 
-                        "msg": f"still needs clarification: {len(clarification_questions)} follow-up questions"})
-            
-            return {
-                "last_node": "replan",
-                "plan": plan,
+        plan_explain = res.get("plan_explain", "")
+        sql_attempt_count = state.get("sql_attempt_count", 0) + 1
+        
+        # Log the SQL that was generated by the planner
+        generated_sql = plan.get("sql", "")
+        logger.info(f"[GENERATE_SQL] Planner generated SQL: {generated_sql[:200] if generated_sql else 'EMPTY'}...")
+        logger.info(f"[GENERATE_SQL] Full SQL length: {len(generated_sql)} chars")
+        logger.info(f"[GENERATE_SQL] Full SQL: {generated_sql}")
+        logger.info(f"[GENERATE_SQL] Plan object keys: {list(plan.keys())}")
+        logger.info(f"[GENERATE_SQL] Plan object: {plan}")
+        
+        # Human-friendly reasoning
+        friendly_reasoning = "SQL query generated successfully"
+        
+        return _make_node_result(
+            state=state,
+            node_name="generate_sql",
+            control="execute_sql",
+            reasoning=friendly_reasoning,
+            node_output={
+                "sql": plan.get("sql", ""),
                 "plan_quality": plan_quality,
-                "plan_explain": res.get("plan_explain", ""),
-                "clarification_questions": clarification_questions,
-                "accumulated_clarifications": all_clarifications,  # Save accumulated list
-                "control": "clarify",  # Ask follow-up questions
-                "logs": logs,
-            }
-        
-        # Otherwise, clarification was sufficient and SQL was generated
-        plan = res["plan"]
-        plan_quality = res.get("plan_quality", "high")
-        clarification_questions = res.get("clarification_questions", [])
-        
-        logs.append({"node": "replan", "timestamp": _now_iso(), 
-                    "msg": f"replan complete: quality={plan_quality}"})
-        
-        return {
-            "last_node": "replan",
+                "plan_explain": plan_explain
+            },
+            state_updates={
             "plan": plan,
             "plan_quality": plan_quality,
-            "plan_explain": res.get("plan_explain", ""),
-            "clarification_questions": clarification_questions,
-            "accumulated_clarifications": all_clarifications,  # Save accumulated list
-            "control": "execute",  # Proceed to execution
-            "logs": logs,
-        }
+                "plan_explain": plan_explain,
+                "sql_attempt_count": sql_attempt_count
+            }
+        )
+    
     except Exception as e:
-        logs.append({"node": "replan", "timestamp": _now_iso(), 
-                    "msg": f"replan failed: {str(e)}", "level": "error"})
-        return {
-            "last_node": "replan",
-            "control": "end",
-            "logs": logs,
-        }
+        return _make_node_result(
+            state=state,
+            node_name="generate_sql",
+            control="end",
+            reasoning="I had trouble generating the SQL query",
+            node_output={"error": str(e)},
+            state_updates={"plan": None, "plan_quality": "error", "plan_explain": f"Error: {str(e)}"}
+        )
 
 
-def execute_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
+def execute_sql_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
+    """
+    Execute SQL query using DuckDB.
+    Routes to retry_sql on error or synthesize on success.
+    """
     logs = state.get("logs", [])
-    logs.append({"node": "execute", "timestamp": _now_iso(), "msg": "executing query"})
+    logs.append({"node": "execute_sql", "timestamp": _now_iso(), "msg": "executing query"})
     
     # Check if this is a knowledge question (no SQL execution needed)
     plan_sql = (state.get("plan") or {}).get("sql", "SELECT 1")
+    logger.info(f"[EXECUTE_SQL] Retrieved plan_sql from state: {plan_sql[:200] if plan_sql else 'EMPTY'}...")
+    logger.info(f"[EXECUTE_SQL] Full plan_sql length: {len(plan_sql)} chars")
+    logger.info(f"[EXECUTE_SQL] Full plan_sql: {plan_sql}")
     if plan_sql.startswith("-- KNOWLEDGE QUESTION"):
-        logs.append({"node": "execute", "timestamp": _now_iso(), "msg": "knowledge question detected, skipping SQL execution"})
+        logs.append({"node": "execute_sql", "timestamp": _now_iso(), "msg": "knowledge question detected, skipping SQL execution"})
         # Return the explanation as the result
         explanation = state.get("plan_explain", "")
         if not explanation:
             explanation = "I detected this as a knowledge question, but no explanation was provided in the plan. Please check the business glossary or data dictionary."
-        logs.append({"node": "execute", "timestamp": _now_iso(), "msg": f"knowledge response: {explanation[:100]}..."})
-        return {
-            "last_node": "execute",
+        logs.append({"node": "execute_sql", "timestamp": _now_iso(), "msg": f"knowledge response: {explanation[:100]}..."})
+        return _make_node_result(
+            state=state,
+            node_name="execute_sql",
+            control="synthesize",  # Go to synthesize for knowledge response
+            reasoning="This is a knowledge question - checking documentation instead",
+            node_output={
             "execution_result": {
                 "columns": [],
                 "rows": [],
@@ -391,20 +836,37 @@ def execute_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
                 "error": None,
                 "limited": False,
                 "knowledge_response": explanation
+                }
             },
-            "control": "end",  # Skip evaluate, go straight to end
-            "logs": logs,
-        }
+            state_updates={
+                "execution_result": {
+                    "columns": [],
+                    "rows": [],
+                    "row_count": 0,
+                    "query": plan_sql
+                },
+                "execution_stats": {
+                    "execution_time_ms": 0,
+                    "error": None,
+                    "limited": False,
+                    "knowledge_response": explanation
+                }
+            }
+        )
     
     if duckdb is None:
-        logs.append({"node": "execute", "timestamp": _now_iso(), "msg": "DuckDB not installed", "level": "error"})
-        return {
-            "last_node": "execute",
+        logs.append({"node": "execute_sql", "timestamp": _now_iso(), "msg": "DuckDB not installed", "level": "error"})
+        return _make_node_result(
+            state=state,
+            node_name="execute_sql",
+            control="end",
+            reasoning="DuckDB not installed, cannot execute query",
+            node_output={"error": "DuckDB not installed"},
+            state_updates={
             "execution_result": None,
-            "execution_stats": {"error": "DuckDB not installed", "execution_time_ms": 0},
-            "control": "end",
-            "logs": logs,
+                "execution_stats": {"error": "DuckDB not installed", "execution_time_ms": 0}
         }
+        )
     
     try:
         safety = QuerySafetyValidatorTool({
@@ -413,31 +875,55 @@ def execute_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
         })
         preview_rows = int(cfg.get_nested("duckdb", "preview_rows", default=100))
         
-        logs.append({"node": "execute", "timestamp": _now_iso(), "msg": f"validating query: {plan_sql[:50]}..."})
+        logs.append({"node": "execute_sql", "timestamp": _now_iso(), "msg": f"validating query: {plan_sql[:50]}..."})
+        logger.info(f"[EXECUTE_SQL] Plan SQL before safety validation: {plan_sql[:200] if plan_sql else 'EMPTY'}...")
         
         safe = safety.execute({
             "query": plan_sql,
             "enforce_limit": True,
             "default_limit": preview_rows,
         })
+        sanitized_sql = safe.get("sanitized_query", plan_sql)
+        logger.info(f"[EXECUTE_SQL] Safety tool sanitized SQL: {sanitized_sql[:200] if sanitized_sql else 'EMPTY'}...")
+        logger.info(f"[EXECUTE_SQL] SQL changed by safety tool: {plan_sql != sanitized_sql}")
         if not safe.get("is_safe", False):
             error_msg = safe.get("reason", "unsafe query")
-            logs.append({"node": "execute", "timestamp": _now_iso(), "msg": f"query validation failed: {error_msg}", "level": "error"})
-            return {
-                "last_node": "execute",
+            logs.append({"node": "execute_sql", "timestamp": _now_iso(), "msg": f"query validation failed: {error_msg}", "level": "error"})
+            
+            # Check if we can retry
+            sql_attempt_count = state.get("sql_attempt_count", 0)
+            max_sql_attempts = cfg.get_nested("limits", "max_sql_attempts", default=2)
+            
+            if sql_attempt_count < max_sql_attempts:
+                next_control = "retry_sql"
+                reasoning = f"Query validation failed: {error_msg}, will retry ({sql_attempt_count}/{max_sql_attempts})"
+            else:
+                next_control = "end"
+                reasoning = f"Query validation failed: {error_msg}, max attempts reached"
+            
+            return _make_node_result(
+                state=state,
+                node_name="execute_sql",
+                control=next_control,
+                reasoning=reasoning,
+                node_output={"error": error_msg, "validation_failed": True},
+                state_updates={
                 "execution_result": None,
-                "execution_stats": {"error": error_msg, "execution_time_ms": 0, "limited": False},
-                "control": "end",
-                "logs": logs,
+                    "execution_stats": {"error": error_msg, "execution_time_ms": 0, "limited": False}
             }
+            )
         sql = safe.get("sanitized_query", plan_sql)
         
-        logs.append({"node": "execute", "timestamp": _now_iso(), "msg": "query validated, executing..."})
+        logger.info(f"[EXECUTE_SQL] Final SQL to execute: {sql[:200] if sql else 'EMPTY'}...")
+        logs.append({"node": "execute_sql", "timestamp": _now_iso(), "msg": "query validated, executing..."})
         
         # Execute query directly with DuckDB (standalone mode)
-        data_dir = state.get('parquet_location', 'data/duckdb')
+        # Get data directory from config or env
+        import os
+        data_dir = state.get('parquet_location', os.getenv('DUCKDB_DATA_DIR', 'data/duckdb'))
         
         start_time = time.time()
+        # Use in-memory connection (DuckDB loads files directly)
         conn = duckdb.connect(':memory:', read_only=False)
         
         # Load CSV/Parquet files as views
@@ -486,76 +972,97 @@ def execute_node(state: AgentState, cfg: QueryAgentConfig) -> PartialState:
         metrics["row_count"] = result_payload["row_count"]
         metrics["column_count"] = len(result_payload["columns"])
         
-        logs.append({"node": "execute", "timestamp": _now_iso(), "msg": f"query executed successfully: {result_payload['row_count']} rows returned"})
+        logs.append({"node": "execute_sql", "timestamp": _now_iso(), "msg": f"query executed successfully: {result_payload['row_count']} rows returned"})
         
-        return {
-            "last_node": "execute",
+        # Human-friendly reasoning
+        row_count = result_payload['row_count']
+        if row_count == 0:
+            friendly_reasoning = "Query executed - no results found"
+        elif row_count == 1:
+            friendly_reasoning = "Query executed - found 1 result"
+        else:
+            friendly_reasoning = f"Query executed - found {row_count} results"
+        
+        return _make_node_result(
+            state=state,
+            node_name="execute_sql",
+            control="synthesize",  # Skip evaluation, go straight to response synthesis
+            reasoning=friendly_reasoning,
+            node_output={
+                "execution_result": result_payload,
+                "execution_stats": stats
+            },
+            state_updates={
             "execution_result": result_payload,
             "execution_stats": stats,
-            "control": "evaluate",
-            "metrics": metrics,
-            "logs": logs,
+                "metrics": metrics
         }
+        )
     except Exception as e:
         error_msg = str(e)
-        logs.append({"node": "execute", "timestamp": _now_iso(), "msg": f"query execution failed: {error_msg}", "level": "error"})
-        return {
-            "last_node": "execute",
+        logs.append({"node": "execute_sql", "timestamp": _now_iso(), "msg": f"query execution failed: {error_msg}", "level": "error"})
+        
+        # Check if we can retry
+        sql_attempt_count = state.get("sql_attempt_count", 0)
+        max_sql_attempts = cfg.get_nested("limits", "max_sql_attempts", default=2)
+        
+        if sql_attempt_count < max_sql_attempts:
+            next_control = "retry_sql"
+            reasoning = f"Query execution failed: {error_msg}, will retry ({sql_attempt_count}/{max_sql_attempts})"
+        else:
+            next_control = "end"
+            reasoning = f"Query execution failed: {error_msg}, max attempts reached"
+        
+        return _make_node_result(
+            state=state,
+            node_name="execute_sql",
+            control=next_control,
+            reasoning=reasoning,
+            node_output={"error": error_msg, "execution_failed": True},
+            state_updates={
             "execution_result": None,
-            "execution_stats": {"error": error_msg, "execution_time_ms": 0, "limited": False},
-            "control": "end",
-            "logs": logs,
-        }
-
-
-def evaluate_node(state: AgentState, cfg: QueryAgentConfig, stream_callback: Optional[Callable[[str], None]] = None) -> PartialState:
-    logs = state.get("logs", [])
-    logs.append({"node": "evaluate", "timestamp": _now_iso(), "msg": "evaluating query results"})
-    
-    try:
-        # Check if execution failed
-        execution_stats = state.get("execution_stats", {})
-        if execution_stats.get("error"):
-            logs.append({"node": "evaluate", "timestamp": _now_iso(), "msg": f"skipping evaluation due to execution error: {execution_stats['error']}", "level": "warning"})
-            return {
-                "last_node": "evaluate",
-                "satisfaction": "failed",
-                "evaluator_notes": f"Query execution failed: {execution_stats['error']}",
-                "control": "end",
-                "logs": logs,
+                "execution_stats": {"error": error_msg, "execution_time_ms": 0, "limited": False}
             }
-        
-        evaluator = QueryResultEvaluatorTool({"use_llm": True})  # Enable LLM for evaluation
-        res = evaluator.execute({
-            "original_query": state["user_input"],
-            "execution_result": state.get("execution_result", {}),
-            "execution_stats": execution_stats,
-            "table_schema": state.get("table_schema", {}),
-        }, stream_callback=stream_callback)
-        satisfaction = res.get("satisfaction", "needs_work")
-        control = "end" if satisfaction == "satisfied" else "replan"
-        
-        logs.append({"node": "evaluate", "timestamp": _now_iso(), "msg": f"evaluation complete: satisfaction={satisfaction}, control={control}"})
-        
-        return {
-            "last_node": "evaluate",
-            "satisfaction": satisfaction,
-            "evaluator_notes": res.get("evaluator_notes", ""),
-            "control": control,
-            "logs": logs,
+        )
+
+
+def retry_sql_node(state: AgentState, cfg: QueryAgentConfig, stream_callback: Optional[Callable[[str], None]] = None) -> PartialState:
+    """
+    Retry SQL generation after execution error.
+    Passes error context to SQL generator for correction.
+    """
+    sql_attempt_count = state.get("sql_attempt_count", 0)
+    max_sql_attempts = cfg.get_nested("limits", "max_sql_attempts", default=2)
+    
+    if sql_attempt_count >= max_sql_attempts:
+        # Max attempts reached, give up
+        return _make_node_result(
+            state=state,
+            node_name="retry_sql",
+            control="end",
+            reasoning=f"Max SQL attempts ({max_sql_attempts}) reached, giving up",
+            node_output={"max_attempts_reached": True},
+            state_updates={}
+        )
+    
+    # Reset plan so generate_sql_node will regenerate
+    return _make_node_result(
+        state=state,
+        node_name="retry_sql",
+        control="generate_sql",  # Go back to SQL generation with error context
+        reasoning=f"Retrying SQL generation (attempt {sql_attempt_count + 1}/{max_sql_attempts})",
+        node_output={"retry_triggered": True, "attempt": sql_attempt_count + 1},
+        state_updates={
+            "plan": None  # Clear plan to force regeneration
         }
-    except Exception as e:
-        logs.append({"node": "evaluate", "timestamp": _now_iso(), "msg": f"evaluation failed: {str(e)}", "level": "error"})
-        return {
-            "last_node": "evaluate",
-            "satisfaction": "failed",
-            "evaluator_notes": f"Evaluation error: {str(e)}",
-            "control": "end",
-            "logs": logs,
-        }
+    )
 
 
 def end_node(state: AgentState, cfg: QueryAgentConfig, stream_callback_response: Optional[Callable[[str], None]] = None, stream_callback_prompt_monitor: Optional[Callable[[str], None]] = None) -> PartialState:
+    """
+    Finalize agent response and generate insights.
+    NOTE: In new workflow, this serves as the synthesize_response_node.
+    """
     logs = state.get("logs", [])
     logs.append({"node": "end", "timestamp": _now_iso(), "msg": "finalizing agent response"})
     
@@ -579,8 +1086,8 @@ def end_node(state: AgentState, cfg: QueryAgentConfig, stream_callback_response:
     columns = exec_result.get("columns", [])
     execution_stats = state.get("execution_stats", {})
     user_query = state.get("user_input", "")
-    plan = state.get("plan", {})
-    plan_sql = plan.get("sql", "")
+    plan = state.get("plan") or {}
+    plan_sql = plan.get("sql", "") if plan else ""
     
     # Debug logging
     import logging
@@ -635,11 +1142,17 @@ def end_node(state: AgentState, cfg: QueryAgentConfig, stream_callback_response:
     # ============================================================================
     # OUTPUT 1: Raw Table Data
     # ============================================================================
+    # CRITICAL: For conversation history, use plan_sql (the original LLM-generated SQL)
+    # because follow-up queries need to filter based on the original query structure.
+    # The sanitized_query from exec_result might be simplified/modified by the safety tool.
+    # However, for raw_table display, we can show the executed SQL.
+    executed_sql = exec_result.get("query", plan_sql)  # The SQL that was actually executed (may be sanitized)
+    actual_sql = plan_sql  # Use original planned SQL for conversation history (what LLM generated)
     raw_table = {
         "columns": columns,
         "rows": rows,
         "row_count": exec_result.get("row_count", 0),
-        "query": plan_sql
+        "query": executed_sql  # Show executed SQL in raw_table (for debugging/display)
     }
     
     # Debug: Log raw_table structure
@@ -693,14 +1206,15 @@ IMPORTANT: The raw table data and prompt monitor are provided separately. Focus 
             
             # Build user prompt with full state (JSON serialized)
             # Limit rows to first 50 to avoid token overflow
-            preview_rows = rows[:50] if rows else []
+            # Send ALL rows to LLM for comprehensive analysis (not just sample)
+            all_rows = rows if rows else []
             state_summary = {
                 "user_query": user_query,
                 "sql_query": plan_sql,
                 "execution_status": "success" if not execution_stats.get("error") else f"failed: {execution_stats.get('error')}",
                 "row_count": exec_result.get("row_count", 0),
                 "columns": columns,
-                "sample_rows": preview_rows,
+                "all_rows": all_rows,  # Changed from sample_rows to all_rows
                 "plan_quality": state.get("plan_quality", ""),
                 "plan_explanation": state.get("plan_explain", ""),
                 "evaluation_notes": state.get("evaluator_notes", ""),
@@ -718,53 +1232,17 @@ Full State Summary:
 
 Use the data dictionary (docs_meta) to understand column meanings and business context. Focus on what the data tells us, key patterns, and actionable observations.""")
             
-            # Format results summary
+            # Format results summary - include ALL rows for comprehensive analysis
             results_summary = {
                 "row_count": exec_result.get("row_count", 0),
                 "columns": columns,
-                "sample_rows": preview_rows,
+                "all_rows": all_rows,  # Changed from sample_rows to all_rows - send all data for analysis
                 "execution_status": "success" if not execution_stats.get("error") else f"failed: {execution_stats.get('error')}",
                 "execution_time_ms": execution_stats.get("execution_time_ms", 0)
             }
             
-            # Build conversation history formatted string
-            conversation_history_raw = state.get("conversation_history_raw", [])
-            conversation_history_formatted = "No previous conversation history."
-            if conversation_history_raw and isinstance(conversation_history_raw, list):
-                conv_lines = []
-                for i, turn in enumerate(conversation_history_raw[-3:], 1):  # Last 3 turns
-                    conv_lines.append(f"\n--- Previous Query {i} ---")
-                    conv_lines.append(f"User Query: {turn.get('query', turn.get('user_query', 'N/A'))}")
-                    
-                    sql = turn.get('plan_sql') or turn.get('sql', '')
-                    if sql and sql != "-- KNOWLEDGE QUESTION":
-                        conv_lines.append(f"SQL Executed: {sql}")
-                    
-                    raw_table_prev = turn.get('raw_table') or {}
-                    row_count = raw_table_prev.get('row_count', 0)
-                    rows_prev = raw_table_prev.get('rows', [])
-                    columns_prev = raw_table_prev.get('columns', [])
-                    
-                    if row_count > 0 and columns_prev:
-                        conv_lines.append(f"\nSQL Results ({row_count} row(s)):")
-                        conv_lines.append(f"Columns: {', '.join(columns_prev)}")
-                        conv_lines.append("Data:")
-                        # Include all rows (full SQL results)
-                        for row_idx, row in enumerate(rows_prev, 1):
-                            if isinstance(row, dict):
-                                row_str = " | ".join([f"{col}: {row.get(col, 'N/A')}" for col in columns_prev])
-                            else:
-                                row_str = str(row)
-                            conv_lines.append(f"  Row {row_idx}: {row_str}")
-                    
-                    response = turn.get('response', '')
-                    if response:
-                        # Include full response (no truncation)
-                        conv_lines.append(f"\nPrevious Response:")
-                        conv_lines.append(response)
-                
-                if conv_lines:
-                    conversation_history_formatted = "\n".join(conv_lines)
+            # Use standard formatted conversation history (same format as check_ambiguity_node and generate_sql_node)
+            conversation_history_formatted = state.get("conversation_history", "No previous conversation history.")
             
             # Build clarification history formatted string
             accumulated_clarifications = state.get("accumulated_clarifications", [])
@@ -923,6 +1401,15 @@ Format as a clear, structured procedural summary, not a response to the user."""
                         "response_summary": turn.get("response", "")[:200] + "..." if len(turn.get("response", "")) > 200 else turn.get("response", ""),
                         "row_count": turn.get("row_count", 0)
                     }
+                    # Include prompt monitor if available
+                    prompt_monitor = turn.get('prompt_monitor')
+                    if prompt_monitor:
+                        if isinstance(prompt_monitor, dict):
+                            reasoning = prompt_monitor.get('procedural_reasoning', '') or prompt_monitor.get('reasoning', '')
+                            if reasoning:
+                                conv_turn["prompt_monitor_reasoning"] = reasoning
+                        elif isinstance(prompt_monitor, str) and prompt_monitor.strip():
+                            conv_turn["prompt_monitor_reasoning"] = prompt_monitor
                     conversation_history_formatted.append(conv_turn)
             
             # Build user prompt with full state
@@ -1009,9 +1496,32 @@ Generate a procedural summary explaining what was done and why at each step. Use
     
     # Fallback to structured template if LLM failed
     if not llm_prompt_monitor:
+        # Re-extract conversation history for fallback (list format)
+        conversation_history_raw_fallback = state.get("conversation_history_raw", [])
+        conversation_history_list = []
+        if conversation_history_raw_fallback:
+            for i, turn in enumerate(conversation_history_raw_fallback, 1):
+                conv_entry = {
+                    "turn_number": i,
+                    "user_query": turn.get("query", ""),
+                    "sql_executed": turn.get("sql", "") if turn.get("sql") and turn.get("sql") != "-- KNOWLEDGE QUESTION" else None,
+                    "response_summary": turn.get("response", "")[:200] + "..." if len(turn.get("response", "")) > 200 else turn.get("response", ""),
+                    "row_count": turn.get("row_count", 0)
+                }
+                # Include prompt monitor if available
+                prompt_monitor = turn.get('prompt_monitor')
+                if prompt_monitor:
+                    if isinstance(prompt_monitor, dict):
+                        reasoning = prompt_monitor.get('procedural_reasoning', '') or prompt_monitor.get('reasoning', '')
+                        if reasoning:
+                            conv_entry["prompt_monitor_reasoning"] = reasoning
+                    elif isinstance(prompt_monitor, str) and prompt_monitor.strip():
+                        conv_entry["prompt_monitor_reasoning"] = prompt_monitor
+                conversation_history_list.append(conv_entry)
+        
         prompt_monitor = {
             "user_input": user_query,
-            "conversation_history": conversation_history_formatted,  # Previous conversation turns
+            "conversation_history": conversation_history_list,  # Previous conversation turns
             "plan_explanation": state.get("plan_explain", ""),
             "execution_summary": {
                 "query": plan_sql,
@@ -1073,10 +1583,15 @@ Generate a procedural summary explaining what was done and why at each step. Use
     conversation_history = state.get("conversation_history_raw", [])
     if not isinstance(conversation_history, list):
         conversation_history = []
+    # CRITICAL: Store the ORIGINAL planned SQL (plan_sql) for conversation history
+    # This is the SQL the LLM generated, which follow-up queries need to filter.
+    # The executed SQL might be sanitized/modified by the safety tool.
+    logger.info(f"[END_NODE] Storing SQL in conversation history: plan_sql={plan_sql[:100] if plan_sql else 'N/A'}...")
+    logger.info(f"[END_NODE] Executed SQL (may differ): {executed_sql[:100] if executed_sql else 'N/A'}...")
     conversation_entry = {
         "timestamp": _now_iso(),
         "query": user_query,
-        "plan_sql": plan_sql,
+        "sql": actual_sql,  # Use original planned SQL (plan_sql) for follow-up filtering
         "plan_quality": state.get("plan_quality", ""),
         "response": llm_response,
         "satisfaction": state.get("satisfaction", ""),
@@ -1085,19 +1600,56 @@ Generate a procedural summary explaining what was done and why at each step. Use
         "prompt_monitor": prompt_monitor,
         "raw_table": raw_table
     }
-    conversation_history.append(conversation_entry)
+        conversation_history.append(conversation_entry)
     
     # Keep only last 5 interactions to prevent memory bloat
     conversation_history = conversation_history[-5:]
     
+    # Human-friendly reasoning for end node
+    if knowledge_response:
+        friendly_reasoning = "Answered from documentation"
+    elif exec_result and exec_result.get("row_count", 0) > 0:
+        friendly_reasoning = "Preparing your answer"
+    else:
+        friendly_reasoning = "Finalizing response"
+    
     return {
         "last_node": "end",
+        "node_reasoning": friendly_reasoning,
         "raw_table": raw_table,  # Add to state
         "final_output": final_output,
-        "conversation_history": conversation_history,
+        "conversation_history": conversation_history,  # This is actually the raw list (confusing naming, but kept for backward compatibility)
+        "conversation_history_raw": conversation_history,  # CRITICAL: Also return as conversation_history_raw so next query can access it
         "control": "end",
         "metrics": metrics,
         "logs": logs,
     }
+
+
+# Alias for new workflow
+def synthesize_response_node(state: AgentState, cfg: QueryAgentConfig, stream_callback_response: Optional[Callable[[str], None]] = None, stream_callback_prompt_monitor: Optional[Callable[[str], None]] = None) -> PartialState:
+    """
+    Synthesize final response with insights (alias to end_node for new workflow).
+    """
+    # Add reasoning for synthesize step before calling end_node
+    result = end_node(state, cfg, stream_callback_response, stream_callback_prompt_monitor)
+    
+    # Override reasoning for synthesize step (more specific than end)
+    exec_result = state.get("execution_result") or {}
+    knowledge_response = state.get("execution_stats", {}).get("knowledge_response")
+    
+    if knowledge_response:
+        synthesize_reasoning = "Preparing answer from documentation"
+    elif exec_result and exec_result.get("row_count", 0) > 0:
+        synthesize_reasoning = "Analyzing results and preparing your answer"
+    else:
+        synthesize_reasoning = "Preparing response"
+    
+    # Update the result to include synthesize reasoning
+    if isinstance(result, dict):
+        result["node_reasoning"] = synthesize_reasoning
+        result["last_node"] = "synthesize"  # Mark as synthesize for UI display
+    
+    return result
 
 

@@ -7,6 +7,9 @@ from typing import Dict, Any, List, Optional, Callable
 from datetime import datetime
 from tools.base_mcp_tool import BaseMCPTool
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 try:
     import duckdb  # type: ignore
@@ -90,64 +93,7 @@ class NLToSQLPlannerTool(BaseMCPTool):
             print(f"[NLToSQLPlanner] Error listing tables: {e}")  # Debug
             return []
 
-    def _simple_guess(self, nl_query: str, available_tables: List[str]) -> Dict[str, Any]:
-        """
-        Improved heuristic with better keyword matching
-        """
-        text = nl_query.lower()
-        chosen = None
-        
-        # Keyword matching for common queries
-        if "sales" in text or "revenue" in text or "sold" in text:
-            for t in available_tables:
-                if "sales" in t.lower():
-                    chosen = t
-                    break
-        elif "customer" in text or "client" in text:
-            for t in available_tables:
-                if "customer" in t.lower():
-                    chosen = t
-                    break
-        elif "inventory" in text or "stock" in text or "product" in text:
-            for t in available_tables:
-                if "inventory" in t.lower():
-                    chosen = t
-                    break
-        
-        # Fallback: check if table name is mentioned
-        if not chosen:
-            for t in available_tables:
-                if t.lower() in text:
-                    chosen = t
-                    break
-        
-        # Last resort: use first available table
-        if not chosen and available_tables:
-            chosen = available_tables[0]
-        
-        # Build SQL with LIMIT
-        if chosen:
-            if "top" in text or "limit" in text:
-                # Extract number if mentioned
-                import re
-                numbers = re.findall(r'\d+', text)
-                limit = int(numbers[0]) if numbers else 10
-                sql = f"SELECT * FROM {chosen} LIMIT {limit}"
-            elif "total" in text or "sum" in text:
-                sql = f"SELECT SUM(*) as total FROM {chosen} LIMIT 1"
-            else:
-                sql = f"SELECT * FROM {chosen} LIMIT {min(self.preview_rows, 10)}"
-        else:
-            sql = "SELECT 1"
-        
-        return {
-            "type": "sql_plan",
-            "sql": sql,
-            "limits": {"preview_rows": self.preview_rows},
-            "target_table": chosen,
-        }
-
-    def _llm_plan(self, nl_query: str, table_schema: Dict[str, Any], available_tables: List[str], docs_meta: List[Dict[str, Any]] = None, stream_callback: Optional[Callable[[str], None]] = None, conversation_history: str = "No previous conversation history.", previous_clarifications: List[str] = None) -> Dict[str, Any]:
+    def _llm_plan(self, nl_query: str, table_schema: Dict[str, Any], available_tables: List[str], docs_meta: List[Dict[str, Any]] = None, stream_callback: Optional[Callable[[str], None]] = None, conversation_history: str = "No previous conversation history.", previous_clarifications: List[str] = None, is_followup: bool = False, more_data_needed: bool = False) -> Dict[str, Any]:
         """Use LLM to generate SQL plan with three-stage approach:
         Stage 1: Classify query type (knowledge vs. data)
         Stage 2a: If knowledge, return answer from business glossary
@@ -373,8 +319,47 @@ class NLToSQLPlannerTool(BaseMCPTool):
         except Exception as e:
             print(f"[NLToSQLPlanner] Could not load procedural knowledge: {e}")
         
+        # Enhance prompt for follow-up queries
+        followup_context = ""
+        if is_followup:
+            followup_context = """
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️⚠️⚠️ CRITICAL FOLLOW-UP QUERY INSTRUCTIONS ⚠️⚠️⚠️
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+THIS IS A FOLLOW-UP QUESTION TO A PREVIOUS CONVERSATION.
+
+The conversation_history contains:
+1. PREVIOUS USER QUERY
+2. SQL THAT WAS EXECUTED
+3. ACTUAL RESULTS/DATA that was returned
+4. PROMPT MONITOR (LLM reasoning about the query)
+
+MANDATORY REQUIREMENTS:
+✓ You MUST treat this as a continuation of the previous conversation
+✓ You MUST reference and use the PREVIOUS RESULTS as the primary data source
+✓ When user asks "the Asia: 3 limits" or similar, they are referring to SPECIFIC ITEMS from the previous results
+✓ DO NOT generate a new generic query - BUILD upon the previous results
+✓ The new query should FILTER, REFINE, or DRILL INTO the previous results
+✓ Consider the previous SQL, results, and prompt monitor context as GROUND TRUTH
+
+EXAMPLES:
+❌ BAD: "SELECT * FROM limits_data LIMIT 3" (ignores previous context)
+✅ GOOD: Filter previous results where region='ASIA' and return those 3 specific rows
+
+YOUR TASK: Generate SQL that builds on the previous query's results and context.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"""
+            print(f"[NLToSQLPlanner] FOLLOWUP DETECTED - Adding strict followup context to clarification gate prompt")
+        
         # Reuse the context we built for classifier
         gate_system = cfg.get_nested("prompts", "clarification_gate_system", default="Assess if query is clear.")
+        
+        # Enhance gate_system for follow-up queries
+        if is_followup:
+            gate_system = gate_system + "\n\nIMPORTANT: This is a FOLLOW-UP query. The conversation_history contains the previous query, SQL, results, and prompt monitor. Consider this context when assessing clarity. Follow-up queries that reference previous results should be considered CLEAR if the previous results provide sufficient context."
+        
         gate_user_template = cfg.get_nested("prompts", "clarification_gate_user_template", default="User Query: {nl_query}\n\nIs this clear?")
         gate_user_prompt = gate_user_template.format(
             nl_query=nl_query,
@@ -383,7 +368,7 @@ class NLToSQLPlannerTool(BaseMCPTool):
             business_context=business_context_for_classifier,
             procedural_knowledge=procedural_knowledge_text,
             conversation_history=conversation_history
-        )
+        ) + followup_context
         
         try:
             # Call clarification gate
@@ -446,6 +431,150 @@ class NLToSQLPlannerTool(BaseMCPTool):
         
         # Use simpler SQL generator prompts (not the complex planner prompts)
         sql_system = cfg.get_nested("prompts", "sql_generator_system", default="Generate SQL for clear query.")
+        
+        # Enhance SQL system prompt based on follow-up flags
+        if is_followup and not more_data_needed:
+            # =========================================================================
+            # CRITICAL: Extract previous SQL from conversation history
+            # =========================================================================
+            logger.info(f"\n{'='*80}")
+            logger.info(f"[NLToSQLPlanner] 🔍 EXTRACTING PREVIOUS SQL (FILTER-ONLY MODE)")
+            logger.info(f"{'='*80}")
+            
+            prev_sql = "NOT FOUND"
+            extraction_method = "NONE"
+            
+            if isinstance(conversation_history, str):
+                logger.info(f"✓ Conversation history is string, length: {len(conversation_history)}")
+                
+                # Method 1: Try with code blocks ```sql``` - find the LAST occurrence (most recent)
+                if "```sql" in conversation_history:
+                    logger.info(f"✓ Found '```sql' marker in conversation history")
+                    import re
+                    # Find ALL matches and take the LAST one (most recent)
+                    all_matches = list(re.finditer(r'```sql\s+(.*?)\s+```', conversation_history, re.DOTALL))
+                    if all_matches:
+                        # Get the last match (most recent SQL)
+                        last_match = all_matches[-1]
+                        prev_sql = last_match.group(1).strip()
+                        extraction_method = "CODE_BLOCK_WITH_MARKERS_LAST"
+                        logger.info(f"✓ Found {len(all_matches)} SQL code blocks, using LAST (most recent)")
+                        logger.info(f"✓ SUCCESSFULLY extracted SQL using code block regex")
+                        logger.info(f"  Extracted SQL (first 300 chars): {prev_sql[:300]}...")
+                        logger.info(f"  Full SQL length: {len(prev_sql)} characters")
+                    else:
+                        logger.info(f"✗ Found '```sql' but regex didn't match")
+                        logger.info(f"  Trying alternative extraction...")
+                        
+                # Method 2: Try without code blocks - find the LAST occurrence
+                if prev_sql == "NOT FOUND":
+                    logger.info(f"Attempting extraction without code blocks...")
+                    import re
+                    # Find ALL SELECT statements - capture full query including ORDER BY, LIMIT, etc.
+                    # Pattern: SELECT ... FROM ... [WHERE ...] [ORDER BY ...] [LIMIT ...]
+                    all_matches = list(re.finditer(r'(SELECT\s+.*?\s+FROM\s+.*?(?:\s+WHERE\s+.*?)?(?:\s+ORDER\s+BY\s+.*?)?(?:\s+LIMIT\s+\d+)?)', conversation_history, re.IGNORECASE | re.DOTALL))
+                    if all_matches:
+                        # Get the last match (most recent SQL)
+                        last_match = all_matches[-1]
+                        prev_sql = last_match.group(1).strip()
+                        extraction_method = "DIRECT_SELECT_PATTERN_LAST"
+                        logger.info(f"✓ Found {len(all_matches)} SELECT statements, using LAST (most recent)")
+                        logger.info(f"✓ SUCCESSFULLY extracted SQL using SELECT pattern")
+                        logger.info(f"  Extracted SQL (first 300 chars): {prev_sql[:300]}...")
+                        logger.info(f"  Full SQL length: {len(prev_sql)} characters")
+                    else:
+                        logger.info(f"✗ SELECT pattern didn't match either")
+                        
+            else:
+                logger.info(f"✗ Conversation history is not a string, type: {type(conversation_history)}")
+            
+            # Final status
+            if prev_sql == "NOT FOUND":
+                logger.info(f"\n❌ FAILED TO EXTRACT PREVIOUS SQL!")
+                logger.info(f"   This means FILTER-ONLY mode will NOT work correctly")
+                logger.info(f"   The LLM will not have the previous query to build upon")
+            else:
+                logger.info(f"\n✅ EXTRACTION SUCCESSFUL!")
+                logger.info(f"   Method: {extraction_method}")
+                logger.info(f"   SQL Length: {len(prev_sql)} characters")
+                logger.info(f"   Full SQL (first 500 chars): {prev_sql[:500]}")
+                if len(prev_sql) > 500:
+                    logger.info(f"   ... ({len(prev_sql) - 500} more characters)")
+                logger.info(f"   Full SQL (complete): {prev_sql}")
+            logger.info(f"{'='*80}\n")
+            
+            # Follow-up with sufficient data - ONLY FILTER previous results
+            followup_sql_instruction = f"""
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️⚠️⚠️ FILTER-ONLY MODE: BUILD ON PREVIOUS QUERY ⚠️⚠️⚠️
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+THIS IS CRITICAL: The user is asking about data that ALREADY EXISTS in previous results!
+
+PREVIOUS SQL QUERY WAS:
+{prev_sql}
+
+YOUR TASK: 
+1. START with the EXACT same table and WHERE conditions from above
+2. ADD new filters/aggregations based on the new question
+3. Preserve ALL existing WHERE conditions
+
+MANDATORY PROCESS:
+Step 1: Copy base structure from previous SQL
+Step 2: Keep ALL existing WHERE/JOIN conditions
+Step 3: Add ONLY the new filter/aggregation
+
+EXAMPLE:
+Previous: SELECT * FROM limits_data WHERE id2 LIKE '%PRIMARY%' ORDER BY utilization DESC LIMIT 10
+New Question: "count of americas"
+✅ CORRECT: SELECT COUNT(*) FROM limits_data WHERE id2 LIKE '%PRIMARY%' AND region_cd='AMERICAS'
+❌ WRONG: SELECT COUNT(*) FROM limits_data WHERE region_cd='AMERICAS'
+
+YOU MUST PRESERVE THE PREVIOUS QUERY'S FILTERS ({prev_sql})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"""
+            sql_system = sql_system + followup_sql_instruction
+            print(f"\n[NLToSQLPlanner] 📤 SENDING TO LLM (FILTER-ONLY MODE):")
+            print(f"  Previous SQL extracted: {prev_sql[:150]}...")
+            print(f"  System prompt length: {len(sql_system)} chars")
+            print(f"  Follow-up instruction added: {len(followup_sql_instruction)} chars")
+            
+        elif is_followup and more_data_needed:
+            # Follow-up but needs more data - create NEW query considering context
+            print(f"\n[NLToSQLPlanner] 🟡 NEW QUERY MODE WITH CONTEXT")
+            print(f"  User needs DIFFERENT data from previous query")
+            print(f"  Will generate new SQL with awareness of conversation context")
+            
+            followup_sql_instruction = """
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️⚠️⚠️ NEW QUERY MODE WITH CONTEXT ⚠️⚠️⚠️
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This is a FOLLOW-UP query that needs DIFFERENT/MORE data than what was previously retrieved.
+
+The conversation_history contains context about what the user was exploring.
+
+YOUR TASK: Generate a NEW SQL query, but consider the conversation context.
+
+RULES:
+1. The new query asks for different data than previous results
+2. Consider the user's exploration path (what they've looked at so far)
+3. Generate SQL that fetches the NEW data needed
+4. Maintain consistency with column names, filters used before (if relevant)
+
+EXAMPLE:
+- Previous Query: "count by region" (returned aggregated counts)
+- New Query: "show me the actual limit details" (needs detailed rows, not counts)
+- ✅ CORRECT: Generate a SELECT * query to fetch detailed rows
+
+You have permission to create a NEW query, but stay contextually aligned with the conversation.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"""
+            sql_system = sql_system + followup_sql_instruction
+            print(f"  System prompt length: {len(sql_system)} chars")
+            print(f"  Follow-up instruction added: {len(followup_sql_instruction)} chars")
 
         # Build schema summary with business context
         schema_summary = "Available tables/views:\n"
@@ -496,35 +625,60 @@ class NLToSQLPlannerTool(BaseMCPTool):
             nl_query=nl_query,
             schema_summary=schema_summary,
             business_context=business_context,
-            conversation_history=conversation_history
+            conversation_history=conversation_history,
+            procedural_knowledge=procedural_knowledge if procedural_knowledge else ""
         )
 
         try:
+            logger.info(f"[SQL_GENERATOR] 🔵 Calling LLM for SQL generation")
+            logger.info(f"[SQL_GENERATOR] Query: {nl_query}")
+            logger.info(f"[SQL_GENERATOR] System prompt length: {len(sql_system)} chars")
+            logger.info(f"[SQL_GENERATOR] User prompt length: {len(sql_user_prompt)} chars")
+            logger.info(f"[SQL_GENERATOR] Using streaming: {stream_callback is not None}")
+            
             # Use streaming if callback provided, otherwise use regular invoke
             if stream_callback:
                 # Stream and accumulate full response
                 sql_response = ""
+                logger.info(f"[SQL_GENERATOR] Starting streaming response...")
                 for chunk in self.llm_client.stream_with_prompt(
                     sql_system, sql_user_prompt, response_format="json", callback=stream_callback
                 ):
                     sql_response += chunk
+                logger.info(f"[SQL_GENERATOR] Streaming complete. Response length: {len(sql_response)} chars")
             else:
+                logger.info(f"[SQL_GENERATOR] Calling LLM with invoke_with_prompt...")
                 sql_response = self.llm_client.invoke_with_prompt(sql_system, sql_user_prompt, response_format="json")
+                logger.info(f"[SQL_GENERATOR] LLM response received. Length: {len(sql_response)} chars")
+            
+            # Log raw response (first 500 chars)
+            logger.info(f"[SQL_GENERATOR] Raw LLM response (first 500 chars): {sql_response[:500]}")
             
             # Parse JSON from response (simpler structure than before)
             sql_response = sql_response.strip()
             if sql_response.startswith('```'):
+                logger.info(f"[SQL_GENERATOR] Response starts with code block marker, extracting JSON...")
                 # Extract JSON from code block
                 lines = sql_response.split('\n')
                 sql_response = '\n'.join(lines[1:-1]) if len(lines) > 2 else sql_response
+                logger.info(f"[SQL_GENERATOR] Extracted JSON length: {len(sql_response)} chars")
             
+            logger.info(f"[SQL_GENERATOR] Attempting to parse JSON...")
             sql_result = json.loads(sql_response)
+            logger.info(f"[SQL_GENERATOR] ✅ JSON parsed successfully. Keys: {list(sql_result.keys())}")
             
             # Post-process SQL to fix common LLM mistakes
             sql = sql_result.get("sql", "SELECT 1")
+            logger.info(f"[SQL_GENERATOR] Extracted SQL from JSON: {sql[:200]}...")
+            
             # Fix "SELECT TOP N" -> "SELECT" (remove TOP clause, rely on LIMIT at end)
             import re
+            sql_before = sql
             sql = re.sub(r'\bSELECT\s+TOP\s+\d+\s+', 'SELECT ', sql, flags=re.IGNORECASE)
+            if sql != sql_before:
+                logger.info(f"[SQL_GENERATOR] Fixed 'SELECT TOP N' -> 'SELECT'. New SQL: {sql[:200]}...")
+            
+            logger.info(f"[SQL_GENERATOR] ✅ Successfully generated SQL: {sql}")
             
             # Return with simpler structure (no quality assessment - we already passed gate)
             return {
@@ -536,13 +690,19 @@ class NLToSQLPlannerTool(BaseMCPTool):
                 "target_table": sql_result.get("target_table")
             }
         except json.JSONDecodeError as e:
-            print(f"⚠ SQL generator returned invalid JSON: {e}")
-            print(f"  Response: {sql_response[:200]}")
-            # Fall back to heuristic
-            return self._simple_guess(nl_query, available_tables)
+            logger.error(f"[SQL_GENERATOR] ❌ JSON parsing failed: {e}")
+            logger.error(f"[SQL_GENERATOR] Full response that failed to parse: {sql_response}")
+            logger.error(f"[SQL_GENERATOR] Response length: {len(sql_response)} chars")
+            logger.error(f"[SQL_GENERATOR] Response type: {type(sql_response)}")
+            error_msg = f"Failed to parse LLM response as JSON for query '{nl_query}': {str(e)}"
+            logger.error(f"[SQL_GENERATOR] ❌ {error_msg}")
+            raise RuntimeError(error_msg) from e
         except Exception as e:
-            print(f"⚠ LLM planning failed: {e}")
-            return self._simple_guess(nl_query, available_tables)
+            logger.error(f"[SQL_GENERATOR] ❌ LLM planning failed with exception: {type(e).__name__}: {e}")
+            logger.error(f"[SQL_GENERATOR] Exception traceback:", exc_info=True)
+            error_msg = f"LLM SQL generation failed for query '{nl_query}': {str(e)}"
+            logger.error(f"[SQL_GENERATOR] ❌ {error_msg}")
+            raise RuntimeError(error_msg) from e
 
     def execute(self, arguments: Dict[str, Any], stream_callback: Optional[Callable[[str], None]] = None) -> Dict[str, Any]:
         nl_query: str = arguments["query"]
@@ -560,7 +720,36 @@ class NLToSQLPlannerTool(BaseMCPTool):
             print(f"[NLToSQLPlanner] Using LLM to plan query")
             conversation_history = arguments.get("conversation_history", "No previous conversation history.")
             previous_clarifications = arguments.get("previous_clarifications", [])
-            llm_result = self._llm_plan(nl_query, table_schema, available_tables, arguments.get("docs_meta"), stream_callback=stream_callback, conversation_history=conversation_history, previous_clarifications=previous_clarifications)
+            is_followup = arguments.get("is_followup", False)
+            more_data_needed = arguments.get("more_data_needed", False)
+            
+            # =========================================================================
+            # DETAILED LOGGING FOR DEBUGGING FOLLOW-UP QUERIES
+            # =========================================================================
+            logger.info(f"\n{'='*80}")
+            logger.info(f"[NLToSQLPlanner] 🔍 FOLLOW-UP QUERY DIAGNOSTICS")
+            logger.info(f"{'='*80}")
+            logger.info(f"📊 FLAG COMBINATION:")
+            logger.info(f"  • is_followup: {is_followup}")
+            logger.info(f"  • more_data_needed: {more_data_needed}")
+            logger.info(f"  • MODE: {'🔴 FILTER-ONLY (preserve previous query filters)' if (is_followup and not more_data_needed) else ('🟡 NEW QUERY WITH CONTEXT (different data needed)' if (is_followup and more_data_needed) else '🟢 STANDARD NEW QUERY (not a follow-up)')}")
+            logger.info(f"\n📝 CONVERSATION HISTORY ANALYSIS:")
+            logger.info(f"  • Type: {type(conversation_history)}")
+            if isinstance(conversation_history, str):
+                logger.info(f"  • Length: {len(conversation_history)} characters")
+                logger.info(f"  • Has '```sql' code block marker: {'```sql' in conversation_history}")
+                logger.info(f"  • Has 'SELECT' keyword: {'SELECT' in conversation_history.upper()}")
+                logger.info(f"  • Preview (first 600 chars):")
+                preview = conversation_history[:600]
+                for i, line in enumerate(preview.split('\n')[:15]):
+                    logger.info(f"    {line}")
+                if len(conversation_history) > 600:
+                    logger.info(f"    ... ({len(conversation_history) - 600} more characters)")
+            else:
+                logger.info(f"  • Content: {conversation_history}")
+            logger.info(f"{'='*80}\n")
+            
+            llm_result = self._llm_plan(nl_query, table_schema, available_tables, arguments.get("docs_meta"), stream_callback=stream_callback, conversation_history=conversation_history, previous_clarifications=previous_clarifications, is_followup=is_followup, more_data_needed=more_data_needed)
             
             # Check if clarification is needed (Stage 2b returned early)
             if llm_result.get("type") == "clarification_needed":
@@ -586,13 +775,11 @@ class NLToSQLPlannerTool(BaseMCPTool):
             plan_explain = llm_result.get("plan_explain") or llm_result.get("plan_explanation", "SQL generated")
             clarify = llm_result.get("clarification_questions", [])
         else:
-            print(f"[NLToSQLPlanner] Using heuristics to plan query")
-            plan = self._simple_guess(nl_query, available_tables)
-            plan_quality = "low" if plan.get("target_table") is None else "medium"
-            plan_explain = "Heuristic plan based on detected table names and default preview limit."
-            clarify = []
-            if plan_quality == "low":
-                clarify.append("Which table should I use?")
+            error_msg = f"LLM is not available for SQL planning. use_llm={self.use_llm}, llm_client={self.llm_client is not None}"
+            logger.error(f"[NLToSQLPlanner] ❌ {error_msg}")
+            logger.error(f"[NLToSQLPlanner] Query: {nl_query}")
+            logger.error(f"[NLToSQLPlanner] Available tables: {available_tables}")
+            raise RuntimeError(error_msg)
         
         return {
             "plan": plan,

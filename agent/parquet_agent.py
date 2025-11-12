@@ -8,11 +8,16 @@ from agent.config import QueryAgentConfig
 from agent.state_manager import AgentStateManager
 from agent.graph_nodes import (
     invoke_node,
-    planner_node,
+    check_followup_node,
+    check_data_sufficiency_node,
+    check_structure_node,
+    check_ambiguity_node,
+    process_clarification_node,
+    generate_sql_node,
     clarify_node,
-    replan_node,
-    execute_node,
-    evaluate_node,
+    execute_sql_node,
+    retry_sql_node,
+    synthesize_response_node,
     end_node,
 )
 
@@ -84,7 +89,7 @@ class ParquetQueryAgent:
             
             sql = turn.get('sql') or turn.get('plan_sql') or turn.get('sql_executed', '')
             if sql and sql != "-- KNOWLEDGE QUESTION":
-                formatted += f"SQL Executed: {sql}\n"
+                formatted += f"SQL Executed:\n```sql\n{sql}\n```\n"
             
             # Include table data if available
             raw_table = turn.get('raw_table') or turn.get('execution_result')
@@ -111,6 +116,17 @@ class ParquetQueryAgent:
             if response:
                 # Include full response (no truncation)
                 formatted += f"Agent Response: {response}\n"
+            
+            # Include prompt monitor (reasoning) if available
+            prompt_monitor = turn.get('prompt_monitor')
+            if prompt_monitor:
+                # Handle both dict and string formats
+                if isinstance(prompt_monitor, dict):
+                    reasoning = prompt_monitor.get('procedural_reasoning', '') or prompt_monitor.get('reasoning', '')
+                    if reasoning:
+                        formatted += f"Prompt Monitor (Reasoning): {reasoning}\n"
+                elif isinstance(prompt_monitor, str) and prompt_monitor.strip():
+                    formatted += f"Prompt Monitor (Reasoning): {prompt_monitor}\n"
         
         return formatted
     
@@ -140,7 +156,7 @@ class ParquetQueryAgent:
             
             # Add user clarification and conversation history to state
             state["user_clarification"] = user_clarification
-            state["control"] = "replan"  # Move to replan node
+            state["control"] = "process_clarification"  # New workflow uses process_clarification node
             state["conversation_history"] = formatted_history
             state["conversation_history_raw"] = conversation_history
             
@@ -149,7 +165,7 @@ class ParquetQueryAgent:
                         "msg": f"resuming with clarification: {user_clarification[:50]}..."})
             state["logs"] = logs
             
-            # Continue execution from replan
+            # Continue execution with new workflow
             steps = 0
             start_all = datetime.now()
             while steps < self.max_steps:
@@ -159,12 +175,18 @@ class ParquetQueryAgent:
                 
                 node_start = datetime.now()
                 try:
-                    if control == "replan":
-                        state = self._merge(state, replan_node(state, self.cfg))
-                    elif control == "execute":
-                        state = self._merge(state, execute_node(state, self.cfg))
-                    elif control == "evaluate":
-                        state = self._merge(state, evaluate_node(state, self.cfg))
+                    if control == "process_clarification":
+                        state = self._merge(state, process_clarification_node(state, self.cfg))
+                    elif control == "check_ambiguity":
+                        state = self._merge(state, check_ambiguity_node(state, self.cfg))
+                    elif control == "generate_sql":
+                        state = self._merge(state, generate_sql_node(state, self.cfg))
+                    elif control == "execute_sql":
+                        state = self._merge(state, execute_sql_node(state, self.cfg))
+                    elif control == "retry_sql":
+                        state = self._merge(state, retry_sql_node(state, self.cfg))
+                    elif control == "synthesize":
+                        state = self._merge(state, synthesize_response_node(state, self.cfg))
                     elif control == "clarify":
                         state = self._merge(state, clarify_node(state, self.cfg))
                         # Stop again if another clarification is needed
@@ -263,9 +285,11 @@ class ParquetQueryAgent:
                 "docs_meta": [],
                 "table_schema": {},
                 "logs": [],
-                "control": "plan",
+                "control": "invoke",  # New workflow starts with invoke
                 "conversation_history": formatted_history,
                 "conversation_history_raw": conversation_history,
+                "clarification_count": 0,
+                "sql_attempt_count": 0,
                 "metrics": {
                     "node_timings_ms": {},
                     "total_ms": 0.0,
@@ -292,22 +316,33 @@ class ParquetQueryAgent:
                 
                 node_start = datetime.now()
                 try:
-                    if control == "plan":
-                        state = self._merge(state, planner_node(state, self.cfg))
+                    if control == "invoke":
+                        state = self._merge(state, invoke_node(state, self.cfg, self.state_manager))
+                    elif control == "check_followup":
+                        state = self._merge(state, check_followup_node(state, self.cfg))
+                    elif control == "check_data_sufficiency":
+                        state = self._merge(state, check_data_sufficiency_node(state, self.cfg))
+                    elif control == "check_structure":
+                        state = self._merge(state, check_structure_node(state, self.cfg))
+                    elif control == "check_ambiguity":
+                        state = self._merge(state, check_ambiguity_node(state, self.cfg))
                     elif control == "clarify":
                         state = self._merge(state, clarify_node(state, self.cfg))
-                        # For server-driven flows, the client would later provide user_clarification and resume.
-                        # Here we simulate a stop-and-return clarify prompt.
+                        # Update metrics for clarification
                         metrics = state.get("metrics") or {}
                         metrics["clarify_turns"] = int(metrics.get("clarify_turns", 0)) + 1
                         state["metrics"] = metrics
-                        break
-                    elif control == "replan":
-                        state = self._merge(state, replan_node(state, self.cfg))
-                    elif control == "execute":
-                        state = self._merge(state, execute_node(state, self.cfg))
-                    elif control == "evaluate":
-                        state = self._merge(state, evaluate_node(state, self.cfg))
+                        break  # Wait for user
+                    elif control == "process_clarification":
+                        state = self._merge(state, process_clarification_node(state, self.cfg))
+                    elif control == "generate_sql":
+                        state = self._merge(state, generate_sql_node(state, self.cfg))
+                    elif control == "execute_sql":
+                        state = self._merge(state, execute_sql_node(state, self.cfg))
+                    elif control == "retry_sql":
+                        state = self._merge(state, retry_sql_node(state, self.cfg))
+                    elif control == "synthesize":
+                        state = self._merge(state, synthesize_response_node(state, self.cfg))
                     elif control == "end":
                         break
                     else:
