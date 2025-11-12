@@ -246,7 +246,7 @@ class SocketIOHandlers:
                 return
             
             # Import session manager
-            from agent.session_manager import AgentSessionManager
+            from external.agent.session_manager import AgentSessionManager
             session_manager = AgentSessionManager()
             
             # Cancel the session

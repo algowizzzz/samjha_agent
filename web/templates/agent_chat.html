@@ -1,7 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Parquet Agent Chat{% endblock %}
+{% block title %}MR Limits AI assisted analysis{% endblock %}
 
 {% block extra_css %}
+<!-- Cache prevention meta tags - VERSION 9 -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="version" content="9">
 <!-- Markdown CSS for better formatting -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.2.0/github-markdown.min.css">
 <style>
@@ -77,6 +82,37 @@
         font-size: 14px;
         background-color: white !important;
         color: #333 !important;
+    }
+    /* Compact spacing for welcome message */
+    .chat-message.agent .markdown-body h2 {
+        margin-top: 16px;
+        margin-bottom: 8px;
+        font-size: 16px;
+    }
+    .chat-message.agent .markdown-body h2:first-of-type {
+        margin-top: 8px;
+    }
+    .chat-message.agent .markdown-body h3 {
+        margin-top: 12px;
+        margin-bottom: 6px;
+        font-size: 14px;
+    }
+    .chat-message.agent .markdown-body p {
+        margin-top: 6px;
+        margin-bottom: 6px;
+    }
+    .chat-message.agent .markdown-body ul {
+        margin-top: 4px;
+        margin-bottom: 8px;
+    }
+    .chat-message.agent .markdown-body li {
+        margin-bottom: 2px;
+    }
+    .chat-message.agent .markdown-body blockquote {
+        margin-top: 6px;
+        margin-bottom: 6px;
+        padding: 6px 12px;
+        font-size: 13px;
     }
     .markdown-body * {
         color: #333 !important;
@@ -332,12 +368,65 @@
 <div class="p-0 m-0" style="height: 100%; width: 100%; display: flex; flex-direction: column; margin: 0 !important; padding: 0 !important;">
     <div class="card shadow-sm h-100 d-flex flex-column m-0" style="border-radius: 0; border: none; height: 100%; margin: 0 !important; width: 100%;">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" style="flex-shrink: 0;">
-            <h5 class="mb-0"><i class="bi bi-chat-text"></i> Parquet Agent</h5>
-            <div class="d-flex align-items-center gap-2">
+            <h5 class="mb-0"><i class="bi bi-chat-text"></i> MR Limits AI assisted analysis</h5>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
+                    <label for="dataDictSelect" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Database business instructions:</label>
+                    <select id="dataDictSelect" class="form-select form-select-sm" style="width: auto; min-width: 180px; font-size: 11px;">
+                        <option value="">Loading...</option>
+                    </select>
+                    <label for="dataDictUpload" class="btn btn-sm btn-light mb-0" style="cursor: pointer; padding: 2px 6px; font-size: 11px;" title="Upload data dictionary">
+                        <i class="bi bi-upload"></i>
+                    </label>
+                    <input type="file" id="dataDictUpload" accept=".json" style="display: none;">
+                </div>
+                <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
+                    <label for="agentPromptsSelect" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Agent Prompts:</label>
+                    <select id="agentPromptsSelect" class="form-select form-select-sm" style="width: auto; min-width: 180px; font-size: 11px;">
+                        <option value="">Loading...</option>
+                    </select>
+                    <label for="agentPromptsUpload" class="btn btn-sm btn-light mb-0" style="cursor: pointer; padding: 2px 6px; font-size: 11px;" title="Upload agent prompts">
+                        <i class="bi bi-upload"></i>
+                    </label>
+                    <input type="file" id="agentPromptsUpload" accept=".json" style="display: none;">
+                </div>
+                <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
+                    <label for="welcomeTipsSelect" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Welcome Tips:</label>
+                    <select id="welcomeTipsSelect" class="form-select form-select-sm" style="width: auto; min-width: 180px; font-size: 11px;">
+                        <option value="">Loading...</option>
+                    </select>
+                    <label for="welcomeTipsUpload" class="btn btn-sm btn-light mb-0" style="cursor: pointer; padding: 2px 6px; font-size: 11px;" title="Upload welcome tips">
+                        <i class="bi bi-upload"></i>
+                    </label>
+                    <input type="file" id="welcomeTipsUpload" accept=".json" style="display: none;">
+                </div>
+                <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
+                    <label for="agentDomain" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Domain:</label>
+                    <input type="text" id="agentDomain" class="form-control form-control-sm" style="width: auto; min-width: 120px; font-size: 11px;" placeholder="e.g., Finance">
+                </div>
+                <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
+                    <label for="agentName" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Name:</label>
+                    <input type="text" id="agentName" class="form-control form-control-sm" style="width: auto; min-width: 120px; font-size: 11px;" placeholder="e.g., Risk Analysis">
+                </div>
+                <button id="saveAgentBtn" class="btn btn-sm btn-success" title="Save agent configuration">
+                    <i class="bi bi-save"></i> Save Agent
+                </button>
                 <button id="newChatBtn" class="btn btn-sm btn-light" title="Start a new chat session">
                     <i class="bi bi-plus-circle"></i> New Chat
                 </button>
             <span class="badge bg-light text-dark">DuckDB</span>
+            </div>
+        </div>
+        <!-- Existing Agents Section -->
+        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center" style="flex-shrink: 0; padding: 8px 16px;">
+            <label for="existingAgentsSelect" class="mb-0 text-white" style="font-size: 12px; white-space: nowrap;">Existing Agents:</label>
+            <div class="d-flex align-items-center gap-2">
+                <select id="existingAgentsSelect" class="form-select form-select-sm" style="width: auto; min-width: 250px; font-size: 11px;">
+                    <option value="">Loading agents...</option>
+                </select>
+                <button id="activateAgentBtn" class="btn btn-sm btn-warning" title="Activate selected agent configuration" disabled>
+                    <i class="bi bi-play-circle"></i> Activate
+                </button>
             </div>
         </div>
         <div class="card-body d-flex flex-column p-3" style="flex: 1; overflow: hidden; min-height: 0;">
@@ -346,6 +435,9 @@
             </div>
             <div class="input-group" style="flex-shrink: 0;">
                 <input id="chatInput" type="text" class="form-control" placeholder="Ask a question or follow up..." />
+                <button id="killBtn" class="btn btn-danger" style="display: none;">
+                    <i class="bi bi-x-circle"></i> Kill
+                </button>
                 <button id="sendBtn" class="btn btn-primary">
                     <i class="bi bi-send"></i> Send
                 </button>
@@ -357,20 +449,68 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Cache buster: Version 6 - Removed orphaned containers, fixed attachment -->
+<!-- Cache buster: Version 9 - Data Analysis Agents with Domain/Name fields and Auto-activation -->
 <script>
     (function() {
-        const VERSION = 6;
+        // CHECK VERSION FIRST - before doing anything else
+        const storedVersion = localStorage.getItem('agent_chat_version');
+        if (storedVersion && storedVersion !== '9') {
+            console.error('%c🚨🚨🚨 VERSION ' + storedVersion + ' IN CACHE! FORCING RELOAD TO V9...', 'font-size: 20px; font-weight: bold; color: red; background: yellow; padding: 15px; border: 5px solid red;');
+            // Clear ALL localStorage
+            localStorage.clear();
+            // Force immediate reload with cache bypass
+            const url = window.location.href.split('?')[0] + '?v=9&t=' + Date.now() + '&_=' + Math.random() + '&nocache=' + Date.now();
+            window.location.replace(url);
+            return; // Stop execution
+        }
+        
+        // Check if old version script already ran (window.AGENT_CHAT_VERSION exists and is not 9)
+        if (window.AGENT_CHAT_VERSION && window.AGENT_CHAT_VERSION !== 9) {
+            console.error('%c🚨🚨🚨 OLD SCRIPT VERSION ' + window.AGENT_CHAT_VERSION + ' DETECTED! FORCING RELOAD...', 'font-size: 20px; font-weight: bold; color: red; background: yellow; padding: 15px; border: 5px solid red;');
+            localStorage.clear();
+            const url = window.location.href.split('?')[0] + '?v=9&t=' + Date.now() + '&_=' + Math.random() + '&nocache=' + Date.now();
+            window.location.replace(url);
+            return; // Stop execution
+        }
+        
+        const VERSION = 9;
         const BUILD_TIME = Date.now();
+        
+        // Check for service workers and unregister them
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                    console.log('Unregistered service worker:', registration.scope);
+                }
+            });
+        }
+        
         console.log('%c🚀🚀🚀 AGENT CHAT HTML LOADED 🚀🚀🚀', 'font-size: 16px; font-weight: bold; color: #0d6efd;');
-        console.log('%cVERSION ' + VERSION + ' (Clean Container Attachment)', 'font-size: 14px; font-weight: bold; color: #198754;');
+        console.log('%cVERSION ' + VERSION + ' (Data Analysis Agents - Domain/Name + Auto-activation)', 'font-size: 16px; font-weight: bold; color: #ff0000; background: #ffff00; padding: 5px;');
         console.log('Timestamp:', new Date().toISOString());
         console.log('Build:', BUILD_TIME);
-        console.log('If you see VERSION 3, your browser is caching! Do a hard refresh: Cmd+Shift+R (Mac) or Ctrl+Shift+R (Windows)');
+        console.log('%c⚠️ If you see VERSION 8 or earlier, your browser is caching!', 'font-size: 14px; font-weight: bold; color: red;');
+        console.log('Do a hard refresh: Cmd+Shift+R (Mac) or Ctrl+Shift+R (Windows)');
         
         // Store version in window for debugging
         window.AGENT_CHAT_VERSION = VERSION;
         window.AGENT_CHAT_BUILD = BUILD_TIME;
+        
+        // Set version in localStorage
+        localStorage.setItem('agent_chat_version', '9');
+        
+        // Final verification after short delay
+        setTimeout(function() {
+            if (window.AGENT_CHAT_VERSION !== 9) {
+                console.error('%c🚨🚨🚨 FINAL CHECK FAILED! Expected 9, got ' + (window.AGENT_CHAT_VERSION || 'undefined') + ' 🚨🚨🚨', 'font-size: 18px; font-weight: bold; color: red; background: yellow; padding: 15px; border: 3px solid red;');
+                localStorage.clear();
+                const url = window.location.href.split('?')[0] + '?v=9&t=' + Date.now() + '&_=' + Math.random() + '&nocache=' + Date.now();
+                window.location.replace(url);
+            } else {
+                console.log('%c✅✅✅ CORRECT VERSION 9 DETECTED! ✅✅✅', 'font-size: 14px; font-weight: bold; color: green;');
+            }
+        }, 100);
     })();
 </script>
 <!-- Markdown Parser -->
@@ -414,6 +554,42 @@
     const historyEl = document.getElementById('chatHistory');
     const inputEl = document.getElementById('chatInput');
     const sendBtn = document.getElementById('sendBtn');
+    const killBtn = document.getElementById('killBtn');
+    const dataDictSelect = document.getElementById('dataDictSelect');
+    const dataDictUpload = document.getElementById('dataDictUpload');
+    const agentPromptsSelect = document.getElementById('agentPromptsSelect');
+    const agentPromptsUpload = document.getElementById('agentPromptsUpload');
+    const welcomeTipsSelect = document.getElementById('welcomeTipsSelect');
+    const welcomeTipsUpload = document.getElementById('welcomeTipsUpload');
+    const agentDomain = document.getElementById('agentDomain');
+    const agentName = document.getElementById('agentName');
+    const saveAgentBtn = document.getElementById('saveAgentBtn');
+    const existingAgentsSelect = document.getElementById('existingAgentsSelect');
+    const activateAgentBtn = document.getElementById('activateAgentBtn');
+    let isQueryRunning = false;
+    
+    // Default config files - clear localStorage if wrong values detected
+    let storedDataDict = localStorage.getItem('selected_data_dict');
+    let storedAgentPrompts = localStorage.getItem('selected_agent_prompts');
+    let storedWelcomeTips = localStorage.getItem('selected_welcome_tips');
+    
+    // Reset if wrong file is stored (e.g., queryagent_planner.json in wrong dropdown)
+    if (storedDataDict === 'queryagent_planner.json') {
+        localStorage.removeItem('selected_data_dict');
+        storedDataDict = null;
+    }
+    if (storedAgentPrompts === 'data_dictionary_risk.json' || storedAgentPrompts === 'agent_welcome_message.json') {
+        localStorage.removeItem('selected_agent_prompts');
+        storedAgentPrompts = null;
+    }
+    if (storedWelcomeTips === 'queryagent_planner.json' || storedWelcomeTips === 'data_dictionary_risk.json') {
+        localStorage.removeItem('selected_welcome_tips');
+        storedWelcomeTips = null;
+    }
+    
+    let selectedDataDict = storedDataDict || 'data_dictionary_risk.json';
+    let selectedAgentPrompts = storedAgentPrompts || 'queryagent_planner.json';
+    let selectedWelcomeTips = storedWelcomeTips || 'agent_welcome_message.json';
 
     // SocketIO connection for streaming
     let socket = null;
@@ -787,6 +963,8 @@
             }
             
             $('#sendBtn').prop('disabled', false);
+            isQueryRunning = false;
+            killBtn.style.display = 'none';
         });
 
         socket.on('agent:waiting_for_clarification', (data) => {
@@ -812,6 +990,40 @@
             
             // Re-enable send button so user can respond
             $('#sendBtn').prop('disabled', false);
+            isQueryRunning = false;
+            killBtn.style.display = 'none';
+        });
+
+        socket.on('agent:cancelled', (data) => {
+            console.log('Agent query cancelled:', data.message);
+            
+            // Hide loading states
+            updateNodeProgressStatus();
+            
+            // Show cancellation message
+            if (currentResponseId) {
+                const msgEl = document.getElementById(currentResponseId);
+                if (msgEl) {
+                    const markdownBody = msgEl.querySelector('.markdown-body');
+                    if (markdownBody) {
+                        markdownBody.innerHTML = '<i class="bi bi-x-circle"></i> <em>Query cancelled by user. No entry saved to conversation history.</em>';
+                    }
+                }
+            }
+            
+            $('#sendBtn').prop('disabled', false);
+            isQueryRunning = false;
+            killBtn.style.display = 'none';
+        });
+
+        socket.on('agent:killed', (data) => {
+            console.log('Kill confirmed:', data.message);
+            // The agent:cancelled event will handle the UI update
+        });
+
+        socket.on('agent:kill_error', (data) => {
+            console.error('Kill error:', data.error);
+            alert('Failed to cancel query: ' + data.error);
         });
 
         socket.on('agent:error', (data) => {
@@ -837,6 +1049,8 @@
             }
             
             $('#sendBtn').prop('disabled', false);
+            isQueryRunning = false;
+            killBtn.style.display = 'none';
         });
 
         socket.on('disconnect', () => {
@@ -1280,6 +1494,11 @@
         localStorage.removeItem('agent_session_id');
         localStorage.removeItem('agentSessionId');
         
+        // Clear dropdown selections from localStorage to refresh from file system
+        localStorage.removeItem('selected_data_dict');
+        localStorage.removeItem('selected_agent_prompts');
+        localStorage.removeItem('selected_welcome_tips');
+        
         // Store new session ID
         localStorage.setItem('agent_session_id', newSessionId);
         
@@ -1287,8 +1506,16 @@
         sessionId = newSessionId;
         currentSessionId = newSessionId;
         
+        // Reset dropdown selections to null so they'll use defaults from file system
+        selectedDataDict = null;
+        selectedAgentPrompts = null;
+        selectedWelcomeTips = null;
+        
         // Clear chat history
         historyEl.innerHTML = '';
+        
+        // Clear welcome message flag so it shows again
+        sessionStorage.removeItem('welcome_message_shown');
         
         // Reset streaming state
         accumulatedText = {
@@ -1308,6 +1535,9 @@
             console.log('Started new chat session:', newSessionId);
         }
         
+        // Reload config files to refresh dropdowns from actual file system
+        loadConfigFiles();
+        
         // Optionally delete old session file on server (optional cleanup)
         // This is handled automatically when a new session ID is used
         
@@ -1324,6 +1554,11 @@
                 welcomeMsg.remove();
             }
         }, 3000);
+        
+        // Load welcome message for new chat (after dropdowns are refreshed)
+        setTimeout(() => {
+            loadWelcomeMessage();
+        }, 500);
     }
 
     function sendQuery() {
@@ -1332,6 +1567,8 @@
         appendMessage('user', q);
         inputEl.value = '';
         $('#sendBtn').prop('disabled', true);
+        isQueryRunning = true;
+        killBtn.style.display = 'inline-block';
 
         // Reset streaming state
         accumulatedText = {
@@ -1373,7 +1610,9 @@
             const requestData = {
                 query: q,
                 session_id: currentSessionId,
-                token: templateToken || sessionStorage.getItem('mcp_token') || ''
+                token: templateToken || sessionStorage.getItem('mcp_token') || '',
+                data_dict_file: selectedDataDict || null,
+                agent_prompts_file: selectedAgentPrompts || null
             };
 
             if (awaitingClarification) {
@@ -1388,7 +1627,9 @@
             const requestArgs = {
                 query: q,
                 session_id: currentSessionId,
-                user_id: '{{ user.user_id | default("anonymous") }}'
+                user_id: '{{ user.user_id | default("anonymous") }}',
+                data_dict_file: selectedDataDict || null,
+                agent_prompts_file: selectedAgentPrompts || null
             };
 
             if (awaitingClarification) {
@@ -1478,7 +1719,594 @@
     // Initialize node progress status on page load
     resetNodeProgressStatus();
     
+    // ====================================================================================
+    // PHASE: Welcome Message on Page Load
+    // ====================================================================================
+    
+    function loadWelcomeMessage() {
+        // Check if chat history is empty - if so, always show welcome message
+        const hasMessages = historyEl && historyEl.children.length > 0;
+        
+        // If there are messages, check if welcome was already shown
+        if (hasMessages) {
+            const welcomeShown = sessionStorage.getItem('welcome_message_shown');
+            if (welcomeShown === 'true') {
+                console.log('[Welcome] Chat has messages and welcome already shown, skipping');
+                return;
+            }
+        } else {
+            // Chat is empty - clear the flag to ensure welcome shows
+            sessionStorage.removeItem('welcome_message_shown');
+            console.log('[Welcome] Chat is empty, will show welcome message');
+        }
+        
+        console.log('[Welcome] Loading welcome message...');
+        
+        // Load welcome message from API with selected config file
+        const fileParam = selectedWelcomeTips ? `?file=${encodeURIComponent(selectedWelcomeTips)}` : '';
+        $.ajax({
+            url: '/api/agent/welcome-message' + fileParam,
+            method: 'GET',
+            success: function(data) {
+                console.log('[Welcome] Message loaded successfully:', data);
+                if (data && data.sections && data.sections.length > 0) {
+                    displayWelcomeMessage(data);
+                    sessionStorage.setItem('welcome_message_shown', 'true');
+                } else {
+                    console.warn('[Welcome] Message data is empty or invalid');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('[Welcome] Failed to load welcome message:', error, xhr);
+                // Continue without welcome message
+            }
+        });
+    }
+    
+    // Load config files list for each dropdown based on type
+    function loadConfigFiles() {
+        // Load data dictionary files (from config/ root)
+        $.ajax({
+            url: '/api/agent/config-files?type=data_dict',
+            method: 'GET',
+            success: function(data) {
+                if (data && data.files) {
+                    populateDropdown(dataDictSelect, data.files, selectedDataDict);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('[Config] Failed to load data dictionary files:', error);
+                dataDictSelect.innerHTML = '<option value="">Error loading files</option>';
+            }
+        });
+        
+        // Load agent prompts files (from config/agent/)
+        $.ajax({
+            url: '/api/agent/config-files?type=agent_prompts',
+            method: 'GET',
+            success: function(data) {
+                if (data && data.files) {
+                    populateDropdown(agentPromptsSelect, data.files, selectedAgentPrompts);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('[Config] Failed to load agent prompts files:', error);
+                agentPromptsSelect.innerHTML = '<option value="">Error loading files</option>';
+            }
+        });
+        
+        // Load welcome tips files (from config/ root)
+        $.ajax({
+            url: '/api/agent/config-files?type=welcome',
+            method: 'GET',
+            success: function(data) {
+                if (data && data.files) {
+                    populateDropdown(welcomeTipsSelect, data.files, selectedWelcomeTips);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('[Config] Failed to load welcome tips files:', error);
+                welcomeTipsSelect.innerHTML = '<option value="">Error loading files</option>';
+            }
+        });
+    }
+    
+    function populateDropdown(selectEl, files, selectedValue) {
+        selectEl.innerHTML = '';
+        if (files.length === 0) {
+            selectEl.innerHTML = '<option value="">No files found</option>';
+        } else {
+            let foundSelected = false;
+            files.forEach(function(file) {
+                const option = document.createElement('option');
+                option.value = file.name;
+                option.textContent = file.name;
+                if (file.name === selectedValue) {
+                    option.selected = true;
+                    foundSelected = true;
+                }
+                selectEl.appendChild(option);
+            });
+            // If selectedValue doesn't match any file, select the first one
+            if (!foundSelected && files.length > 0) {
+                selectEl.selectedIndex = 0;
+                // Update the corresponding variable based on which dropdown this is
+                if (selectEl === dataDictSelect) {
+                    selectedDataDict = files[0].name;
+                    localStorage.setItem('selected_data_dict', selectedDataDict);
+                } else if (selectEl === agentPromptsSelect) {
+                    selectedAgentPrompts = files[0].name;
+                    localStorage.setItem('selected_agent_prompts', selectedAgentPrompts);
+                } else if (selectEl === welcomeTipsSelect) {
+                    selectedWelcomeTips = files[0].name;
+                    localStorage.setItem('selected_welcome_tips', selectedWelcomeTips);
+                }
+            }
+        }
+    }
+    
+    // Handle data dictionary selection
+    dataDictSelect.addEventListener('change', function() {
+        selectedDataDict = this.value;
+        if (selectedDataDict) {
+            localStorage.setItem('selected_data_dict', selectedDataDict);
+            console.log('[Config] Data dictionary changed to:', selectedDataDict);
+            // TODO: Pass to agent on next query
+        }
+    });
+    
+    // Handle agent prompts selection
+    agentPromptsSelect.addEventListener('change', function() {
+        selectedAgentPrompts = this.value;
+        if (selectedAgentPrompts) {
+            localStorage.setItem('selected_agent_prompts', selectedAgentPrompts);
+            console.log('[Config] Agent prompts changed to:', selectedAgentPrompts);
+            // TODO: Pass to agent on next query
+        }
+    });
+    
+    // Handle welcome tips selection
+    welcomeTipsSelect.addEventListener('change', function() {
+        selectedWelcomeTips = this.value;
+        if (selectedWelcomeTips) {
+            localStorage.setItem('selected_welcome_tips', selectedWelcomeTips);
+            // Reload welcome message with new file
+            sessionStorage.removeItem('welcome_message_shown');
+            loadWelcomeMessage();
+        }
+    });
+    
+    // Handle data dictionary upload
+    dataDictUpload.addEventListener('change', function(e) {
+        handleFileUpload(e, 'data_dict', function(filename) {
+            selectedDataDict = filename;
+            localStorage.setItem('selected_data_dict', selectedDataDict);
+            dataDictSelect.value = selectedDataDict;
+            console.log('[Config] Data dictionary uploaded:', filename);
+        });
+    });
+    
+    // Handle agent prompts upload
+    agentPromptsUpload.addEventListener('change', function(e) {
+        handleFileUpload(e, 'agent_prompts', function(filename) {
+            selectedAgentPrompts = filename;
+            localStorage.setItem('selected_agent_prompts', selectedAgentPrompts);
+            agentPromptsSelect.value = selectedAgentPrompts;
+            console.log('[Config] Agent prompts uploaded:', filename);
+        });
+    });
+    
+    // Handle welcome tips upload
+    welcomeTipsUpload.addEventListener('change', function(e) {
+        handleFileUpload(e, 'welcome', function(filename) {
+            selectedWelcomeTips = filename;
+            localStorage.setItem('selected_welcome_tips', selectedWelcomeTips);
+            welcomeTipsSelect.value = selectedWelcomeTips;
+            // Reload welcome message
+            sessionStorage.removeItem('welcome_message_shown');
+            loadWelcomeMessage();
+        });
+    });
+    
+    // Generic file upload handler
+    function handleFileUpload(e, configType, onSuccess) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        if (!file.name.endsWith('.json')) {
+            alert('Only JSON files are allowed');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('config_type', configType);
+        
+        $.ajax({
+            url: '/api/agent/config-upload',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (data.success) {
+                    alert('File uploaded successfully: ' + data.filename);
+                    // Reload config files list
+                    loadConfigFiles();
+                    // Call success callback
+                    if (onSuccess) onSuccess(data.filename);
+                } else {
+                    alert('Upload failed: ' + (data.error || 'Unknown error'));
+                }
+            },
+            error: function(xhr, status, error) {
+                const errorMsg = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : error;
+                alert('Upload failed: ' + errorMsg);
+            }
+        });
+        
+        // Reset file input
+        e.target.value = '';
+    }
+    
+    function displayWelcomeMessage(welcomeData) {
+        if (!welcomeData || !welcomeData.sections || welcomeData.sections.length === 0) {
+            return;
+        }
+        
+        // Build markdown content from JSON structure
+        let markdownContent = '';
+        
+        // Title
+        if (welcomeData.title) {
+            markdownContent += `# ${welcomeData.title}\n\n`;
+        }
+        
+        // Subtitle
+        if (welcomeData.subtitle) {
+            markdownContent += `*${welcomeData.subtitle}*\n\n`;
+        }
+        
+        // Process sections
+        welcomeData.sections.forEach(section => {
+            // Section heading
+            const headingLevel = section.level || 'h2';
+            const headingTag = headingLevel === 'h2' ? '##' : headingLevel === 'h3' ? '###' : '#';
+            markdownContent += `${headingTag} ${section.heading}\n\n`;
+            
+            // Section content
+            if (section.content) {
+                markdownContent += `${section.content}\n\n`;
+            }
+            
+            // Subsections
+            if (section.subsections) {
+                section.subsections.forEach(subsection => {
+                    const subHeadingTag = subsection.level === 'h3' ? '###' : subsection.level === 'h2' ? '##' : '####';
+                    markdownContent += `${subHeadingTag} ${subsection.heading}\n\n`;
+                    
+                    if (subsection.content) {
+                        markdownContent += `${subsection.content}\n`;
+                    }
+                    
+                    if (subsection.items) {
+                        subsection.items.forEach(item => {
+                            markdownContent += `- ${item}\n`;
+                        });
+                    }
+                    
+                    if (subsection.note) {
+                        markdownContent += `\n> ${subsection.note}\n`;
+                    }
+                    
+                    if (subsection.tip) {
+                        markdownContent += `\n💡 **Tip**: ${subsection.tip}\n`;
+                    }
+                    
+                    markdownContent += '\n';
+                });
+            }
+            
+            // Section items
+            if (section.items) {
+                section.items.forEach(item => {
+                    markdownContent += `- ${item}\n`;
+                });
+            }
+            
+            // Section note
+            if (section.note) {
+                markdownContent += `\n> ${section.note}\n`;
+            }
+            
+            // Section tip
+            if (section.tip) {
+                markdownContent += `\n💡 **Tip**: ${section.tip}\n`;
+            }
+            
+            markdownContent += '\n';
+        });
+        
+        // Display as agent message
+        if (typeof marked !== 'undefined' && historyEl) {
+            try {
+                const htmlContent = marked.parse(markdownContent);
+                const wrapper = document.createElement('div');
+                wrapper.className = 'mb-3 message-fade-in';
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message agent';
+                messageDiv.innerHTML = '<span class="badge bg-info me-2">Welcome</span><div class="markdown-body">' + htmlContent + '</div>';
+                
+                wrapper.appendChild(messageDiv);
+                historyEl.insertBefore(wrapper, historyEl.firstChild);
+                
+                console.log('[Welcome] Message displayed successfully');
+                
+                // Smooth scroll to top to show welcome message
+                setTimeout(() => {
+                    if (historyEl) {
+                        historyEl.scrollTop = 0;
+                    }
+                }, 100);
+            } catch (e) {
+                console.error('[Welcome] Error displaying message:', e);
+            }
+        } else {
+            console.warn('[Welcome] marked.js not available or historyEl not found');
+        }
+    }
+    
+    // Load welcome message on page load - ensure jQuery and DOM are ready
+    // Since this code runs in an IIFE, we need to wait for jQuery
+    function initWelcomeMessage() {
+        if (typeof $ !== 'undefined' && typeof historyEl !== 'undefined' && historyEl) {
+            // Wait a bit more to ensure DOM is fully rendered
+            setTimeout(function() {
+                loadWelcomeMessage();
+            }, 200);
+        } else {
+            // Retry after a short delay if jQuery or historyEl not ready
+            setTimeout(initWelcomeMessage, 100);
+        }
+    }
+    
+    // Load existing agents
+    function loadExistingAgents() {
+        $.ajax({
+            url: '/api/agent/data-analysis-agents',
+            method: 'GET',
+            success: function(data) {
+                if (data && data.agents) {
+                    existingAgentsSelect.innerHTML = '';
+                    if (data.agents.length === 0) {
+                        existingAgentsSelect.innerHTML = '<option value="">No agents saved yet</option>';
+                        activateAgentBtn.disabled = true;
+                    } else {
+                        existingAgentsSelect.innerHTML = '<option value="">Select an agent...</option>';
+                        let defaultAgentId = null;
+                        data.agents.forEach(function(agent) {
+                            const option = document.createElement('option');
+                            option.value = agent.id;
+                            option.textContent = `${agent.domain} - ${agent.name}`;
+                            existingAgentsSelect.appendChild(option);
+                            
+                            // Check if this is the default MR agent
+                            if (agent.id === 'mr_limits_analysis' || 
+                                (agent.domain === 'Market Risk' && agent.name === 'Limits Analysis')) {
+                                defaultAgentId = agent.id;
+                            }
+                        });
+                        activateAgentBtn.disabled = false;
+                        
+                        // Check if there's an active agent in localStorage
+                        const activeAgentId = localStorage.getItem('active_agent_id');
+                        if (activeAgentId) {
+                            // Check if this agent still exists
+                            const agentExists = data.agents.some(a => a.id === activeAgentId);
+                            if (agentExists) {
+                                existingAgentsSelect.value = activeAgentId;
+                                activateAgentBtn.disabled = false;
+                                // Restore the agent configuration silently
+                                activateAgentSilently(activeAgentId);
+                            } else {
+                                // Agent no longer exists, clear it
+                                localStorage.removeItem('active_agent_id');
+                                // Auto-activate default MR agent
+                                if (defaultAgentId) {
+                                    existingAgentsSelect.value = defaultAgentId;
+                                    activateAgentSilently(defaultAgentId);
+                                }
+                            }
+                        } else if (defaultAgentId) {
+                            // No active agent, auto-activate default MR agent
+                            existingAgentsSelect.value = defaultAgentId;
+                            activateAgentBtn.disabled = false;
+                            activateAgentSilently(defaultAgentId);
+                        }
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('[Agents] Failed to load existing agents:', error);
+                existingAgentsSelect.innerHTML = '<option value="">Error loading agents</option>';
+            }
+        });
+    }
+    
+    // Activate agent silently (without alert) - used for default agent
+    function activateAgentSilently(agentId) {
+        $.ajax({
+            url: '/api/agent/data-analysis-agents/' + encodeURIComponent(agentId),
+            method: 'GET',
+            success: function(data) {
+                if (data && data.agent) {
+                    const agent = data.agent;
+                    
+                    // Set the three dropdowns
+                    if (agent.data_dict_file) {
+                        selectedDataDict = agent.data_dict_file;
+                        dataDictSelect.value = selectedDataDict;
+                        localStorage.setItem('selected_data_dict', selectedDataDict);
+                    }
+                    
+                    if (agent.agent_prompts_file) {
+                        selectedAgentPrompts = agent.agent_prompts_file;
+                        agentPromptsSelect.value = selectedAgentPrompts;
+                        localStorage.setItem('selected_agent_prompts', selectedAgentPrompts);
+                    }
+                    
+                    if (agent.welcome_tips_file) {
+                        selectedWelcomeTips = agent.welcome_tips_file;
+                        welcomeTipsSelect.value = selectedWelcomeTips;
+                        localStorage.setItem('selected_welcome_tips', selectedWelcomeTips);
+                        // Reload welcome message
+                        sessionStorage.removeItem('welcome_message_shown');
+                        loadWelcomeMessage();
+                    }
+                    
+                    // Set domain and name fields
+                    agentDomain.value = agent.domain || '';
+                    agentName.value = agent.name || '';
+                    
+                    // Mark as active
+                    localStorage.setItem('active_agent_id', agentId);
+                    
+                    console.log(`[Agents] Default agent "${agent.domain} - ${agent.name}" activated automatically`);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('[Agents] Failed to activate default agent:', error);
+            }
+        });
+    }
+    
+    // Save agent configuration
+    function saveAgentConfig() {
+        const domain = agentDomain.value.trim();
+        const name = agentName.value.trim();
+        const dataDict = selectedDataDict;
+        const agentPrompts = selectedAgentPrompts;
+        const welcomeTips = selectedWelcomeTips;
+        
+        if (!domain || !name) {
+            alert('Please provide both Domain and Name');
+            return;
+        }
+        
+        if (!dataDict || !agentPrompts || !welcomeTips) {
+            alert('Please select all three configuration files (Database business instructions, Agent Prompts, Welcome Tips)');
+            return;
+        }
+        
+        const agentConfig = {
+            domain: domain,
+            name: name,
+            data_dict_file: dataDict,
+            agent_prompts_file: agentPrompts,
+            welcome_tips_file: welcomeTips,
+            created_at: new Date().toISOString()
+        };
+        
+        $.ajax({
+            url: '/api/agent/data-analysis-agents',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(agentConfig),
+            success: function(data) {
+                if (data.success) {
+                    alert('Agent configuration saved successfully!');
+                    agentDomain.value = '';
+                    agentName.value = '';
+                    loadExistingAgents(); // Reload the list
+                } else {
+                    alert('Failed to save agent: ' + (data.error || 'Unknown error'));
+                }
+            },
+            error: function(xhr, status, error) {
+                const errorMsg = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : error;
+                alert('Failed to save agent: ' + errorMsg);
+            }
+        });
+    }
+    
+    // Activate agent configuration
+    function activateAgent() {
+        const agentId = existingAgentsSelect.value;
+        if (!agentId) {
+            alert('Please select an agent to activate');
+            return;
+        }
+        
+        $.ajax({
+            url: '/api/agent/data-analysis-agents/' + encodeURIComponent(agentId),
+            method: 'GET',
+            success: function(data) {
+                if (data && data.agent) {
+                    const agent = data.agent;
+                    
+                    // Set the three dropdowns
+                    if (agent.data_dict_file) {
+                        selectedDataDict = agent.data_dict_file;
+                        dataDictSelect.value = selectedDataDict;
+                        localStorage.setItem('selected_data_dict', selectedDataDict);
+                    }
+                    
+                    if (agent.agent_prompts_file) {
+                        selectedAgentPrompts = agent.agent_prompts_file;
+                        agentPromptsSelect.value = selectedAgentPrompts;
+                        localStorage.setItem('selected_agent_prompts', selectedAgentPrompts);
+                    }
+                    
+                    if (agent.welcome_tips_file) {
+                        selectedWelcomeTips = agent.welcome_tips_file;
+                        welcomeTipsSelect.value = selectedWelcomeTips;
+                        localStorage.setItem('selected_welcome_tips', selectedWelcomeTips);
+                        // Reload welcome message
+                        sessionStorage.removeItem('welcome_message_shown');
+                        loadWelcomeMessage();
+                    }
+                    
+                    // Set domain and name fields
+                    agentDomain.value = agent.domain || '';
+                    agentName.value = agent.name || '';
+                    
+                    // Mark as active
+                    localStorage.setItem('active_agent_id', existingAgentsSelect.value);
+                    
+                    alert(`Agent "${agent.domain} - ${agent.name}" activated successfully!`);
+                } else {
+                    alert('Failed to load agent configuration');
+                }
+            },
+            error: function(xhr, status, error) {
+                const errorMsg = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : error;
+                alert('Failed to activate agent: ' + errorMsg);
+            }
+        });
+    }
+    
+    // Start initialization
+    loadConfigFiles(); // Load config files list first
+    loadExistingAgents(); // Load existing agents
+    initWelcomeMessage();
+    
     // Event listeners
+    // Kill button handler
+    function killQuery() {
+        if (!isQueryRunning) return;
+        
+        if (socketAvailable && socket && socket.connected) {
+            socket.emit('agent:kill', {
+                session_id: currentSessionId,
+                token: templateToken || sessionStorage.getItem('mcp_token') || ''
+            });
+        } else {
+            alert('Cannot cancel query: WebSocket not connected');
+        }
+    }
+    
+    killBtn.addEventListener('click', killQuery);
     sendBtn.addEventListener('click', sendQuery);
     inputEl.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') sendQuery();
@@ -1491,6 +2319,23 @@
             if (confirm('Start a new chat? This will clear the current conversation history.')) {
                 startNewChat();
             }
+        });
+    }
+    
+    // Save Agent button
+    if (saveAgentBtn) {
+        saveAgentBtn.addEventListener('click', saveAgentConfig);
+    }
+    
+    // Activate Agent button
+    if (activateAgentBtn) {
+        activateAgentBtn.addEventListener('click', activateAgent);
+    }
+    
+    // Enable/disable activate button based on selection
+    if (existingAgentsSelect) {
+        existingAgentsSelect.addEventListener('change', function() {
+            activateAgentBtn.disabled = !this.value;
         });
     }
 })();
