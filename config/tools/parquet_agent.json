@@ -1,6 +1,6 @@
 {
   "name": "parquet_agent",
-  "implementation": "agent.base_agent.LangGraphAgentTool",
+  "implementation": "external.agent.base_agent.LangGraphAgentTool",
   "description": "LangGraph-style Parquet agent using DuckDB: plans, clarifies, executes, evaluates",
   "version": "1.0.0",
   "enabled": true,

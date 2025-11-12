@@ -9,7 +9,7 @@ sys.path.insert(0, '.')
 from dotenv import load_dotenv
 load_dotenv()  # Load .env file
 
-from agent.parquet_agent import ParquetQueryAgent
+from external.agent.parquet_agent import ParquetQueryAgent
 
 # ============================================================================
 # CHANGE YOUR QUERY HERE

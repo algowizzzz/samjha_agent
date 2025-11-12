@@ -1,7 +1,7 @@
 import os
 import pytest
 
-from agent.parquet_agent import ParquetQueryAgent
+from external.agent.parquet_agent import ParquetQueryAgent
 
 
 class TestParquetAgent:

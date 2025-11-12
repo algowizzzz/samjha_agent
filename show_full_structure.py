@@ -3,7 +3,7 @@ sys.path.insert(0, '.')
 from dotenv import load_dotenv
 load_dotenv()
 
-from agent.parquet_agent import ParquetQueryAgent
+from external.agent.parquet_agent import ParquetQueryAgent
 
 agent = ParquetQueryAgent()
 result = agent.run_query("regional revenue", user_id="admin")

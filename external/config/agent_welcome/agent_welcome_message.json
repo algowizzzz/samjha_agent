@@ -1,0 +1,113 @@
+{
+  "title": "MR Limits AI assisted analysis",
+  "subtitle": "Your intelligent assistant for querying market risk limits data",
+  "sections": [
+    {
+      "heading": "Getting Started",
+      "level": "h2",
+      "content": "This tool helps you efficiently query and analyze market risk limits data from the `limits_data` table. Ask questions in natural language, and the agent will translate them into SQL queries.",
+      "items": [
+        "Ask questions about limits, exposures, utilization, and breaches",
+        "Query by trading desk, risk metric, date, or any combination",
+        "Get trend analysis and historical data",
+        "Follow up on previous queries for deeper insights"
+      ]
+    },
+    {
+      "heading": "Example Queries",
+      "level": "h2",
+      "content": "Try these example queries based on common patterns:",
+      "subsections": [
+        {
+          "heading": "Common Queries",
+          "level": "h3",
+          "items": [
+            "Show me latest data",
+            "Show me breached limits (utilization >= 1.0)",
+            "Show me limits near breach (utilization >= 0.9)",
+            "Show me PV01 limits for Canadian Options",
+            "Show me limits with active extensions",
+            "Show me Primary limits only"
+          ]
+        },
+        {
+          "heading": "Trend Analysis Queries",
+          "level": "h3",
+          "items": [
+            "Show me Canadian Options PV01 limit for the past 7 days",
+            "What is the SET Management Gamma limit for the past week",
+            "Show me limit and exposure for limit id 300128 for past 7 days",
+            "Show me Primary PV01 limits for Canadian Options desk for the latest 7 days"
+          ]
+        },
+        {
+          "heading": "Complex Queries",
+          "level": "h3",
+          "items": [
+            "Show me Canadian PV01 limits over the past 2 weeks",
+            "Show me limits that breached in the last 10 days",
+            "How has exposure changed for stress limits in CAD currency over the past week",
+            "Show me average utilization by limit group over the past week",
+            "How many limits are breached?",
+            "Total exposure by desk"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Key Data Dictionary Tips",
+      "level": "h2",
+      "content": "Understanding the data structure will help you ask better questions:",
+      "subsections": [
+        {
+          "heading": "Risk Metrics (limit_group)",
+          "level": "h3",
+          "content": "When you mention risk metrics like 'PV01', 'Gamma', or 'Liquidity', the system uses the `limit_group` column:",
+          "items": [
+            "**PV01** - Interest rate sensitivity (use `limit_group = 'PV01'`)",
+            "**RR & Gamma** - Gamma and convexity risk (use `limit_group = 'RR & Gamma'`)",
+            "**Liquidity** - Liquidity risk limits (use `limit_group = 'Liquidity'`)",
+            "**Stress Limits** - Scenario-based limits (use `limit_group = 'Stress Limits'`)"
+          ],
+          "note": "⚠️ Important: When you say 'PV01 limits', the system uses `limit_group = 'PV01'`, NOT `limit_type` (which contains 'PV01 Delta')."
+        },
+        {
+          "heading": "Trading Desks (letter_nm)",
+          "level": "h3",
+          "content": "Filter by specific trading desks: Canadian Options, Oil Products NGL Trading, US Delta One, European Prime Finance, SET Management, FX HK Trading, Canadian Money Markets, and more.",
+          "tip": "You can use partial names like 'Canadian' to match multiple desks, or specify the exact desk name."
+        },
+        {
+          "heading": "Utilization & Breaches",
+          "level": "h3",
+          "content": "Monitor limit utilization: **Breached** = `utilization >= 1.0`, **Near-breach** = `utilization >= 0.9`, **High** = `utilization >= 0.9`, **Low** = `utilization < 0.7`",
+          "tip": "The system defaults to showing the latest data (MAX(date)) unless you specify a date range."
+        },
+        {
+          "heading": "Limit Classes",
+          "level": "h3",
+          "content": "Limits are categorized by governance level: **Primary** (enforced, default filter), **Secondary**, **Notice**, **Reporting**, **Decommissioned** (excluded by default)",
+          "tip": "By default, the system shows 'Primary' limits unless you specify otherwise."
+        }
+      ]
+    },
+    {
+      "heading": "Query Tips",
+      "level": "h2",
+      "content": "Best practices:",
+      "items": [
+        "**Be specific**: Include desk name, metric type, or date range when possible",
+        "**Use follow-ups**: Ask follow-up questions like 'show me more details' or 'filter by currency'",
+        "**Date queries**: Say 'latest', 'current', 'past week', or 'last 7 days' for time-based queries",
+        "**Aggregations**: Use words like 'sum', 'count', 'average', 'total' for aggregations",
+        "**Currency awareness**: Specify currency (USD, CAD, EUR) when aggregating to avoid mixing currencies"
+      ]
+    },
+    {
+      "heading": "Understanding Results",
+      "level": "h2",
+      "content": "Each response includes: **Answer** (natural language summary), **SQL Prompt & Results** (generated SQL query and data table - expandable), **Prompt Monitor** (agent's reasoning process).",
+      "tip": "You can expand the SQL results section to see the exact query used and download the data."
+    }
+  ]
+}

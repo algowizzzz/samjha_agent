@@ -17,7 +17,7 @@ except ImportError:
     duckdb = None
 
 try:
-    from agent.llm_client import get_llm_client
+    from external.agent.llm_client import get_llm_client
     LLM_AVAILABLE = True
 except ImportError:
     LLM_AVAILABLE = False
@@ -93,7 +93,7 @@ class NLToSQLPlannerTool(BaseMCPTool):
             print(f"[NLToSQLPlanner] Error listing tables: {e}")  # Debug
             return []
 
-    def _llm_plan(self, nl_query: str, table_schema: Dict[str, Any], available_tables: List[str], docs_meta: List[Dict[str, Any]] = None, stream_callback: Optional[Callable[[str], None]] = None, conversation_history: str = "No previous conversation history.", previous_clarifications: List[str] = None, is_followup: bool = False, more_data_needed: bool = False) -> Dict[str, Any]:
+    def _llm_plan(self, nl_query: str, table_schema: Dict[str, Any], available_tables: List[str], docs_meta: List[Dict[str, Any]] = None, stream_callback: Optional[Callable[[str], None]] = None, conversation_history: str = "No previous conversation history.", previous_clarifications: List[str] = None, is_followup: bool = False, more_data_needed: bool = False, data_dict_file: Optional[str] = None) -> Dict[str, Any]:
         """Use LLM to generate SQL plan with three-stage approach:
         Stage 1: Classify query type (knowledge vs. data)
         Stage 2a: If knowledge, return answer from business glossary
@@ -104,7 +104,7 @@ class NLToSQLPlannerTool(BaseMCPTool):
             conversation_history: Formatted conversation history for context
         """
         # Get prompts from config if available, otherwise use defaults
-        from agent.config import QueryAgentConfig
+        from external.agent.config import QueryAgentConfig
         cfg = QueryAgentConfig()
         
         # =========================================================================
@@ -143,11 +143,23 @@ class NLToSQLPlannerTool(BaseMCPTool):
         # Also load full data dictionary context for comprehensive understanding
         try:
             import os
-            data_dict_path = "config/data_dictionary_risk.json"
-            if not os.path.exists(data_dict_path):
-                data_dict_path = "config/data_dictionary.json"
+            # data_dict_file is now a parameter to _llm_plan
             
-            if os.path.exists(data_dict_path):
+            if data_dict_file:
+                # Build path based on file name
+                if os.path.exists(os.path.join("config", "data_dictionary", data_dict_file)):
+                    data_dict_path = os.path.join("config", "data_dictionary", data_dict_file)
+                elif os.path.exists(os.path.join("config", data_dict_file)):
+                    data_dict_path = os.path.join("config", data_dict_file)
+                else:
+                    data_dict_path = None
+            else:
+                # Default: Try risk dictionary first, fall back to standard dictionary
+                data_dict_path = "config/data_dictionary/data_dictionary_risk.json"
+                if not os.path.exists(data_dict_path):
+                    data_dict_path = "config/data_dictionary.json"
+            
+            if data_dict_path and os.path.exists(data_dict_path):
                 with open(data_dict_path, 'r', encoding='utf-8') as f:
                     data_dict = json.load(f)
                     
@@ -209,11 +221,21 @@ class NLToSQLPlannerTool(BaseMCPTool):
             # Also load from data_dictionary
             try:
                 import os
-                data_dict_path = "config/data_dictionary_risk.json"
-                if not os.path.exists(data_dict_path):
-                    data_dict_path = "config/data_dictionary.json"
+                if data_dict_file:
+                    # Build path based on file name
+                    if os.path.exists(os.path.join("config", "data_dictionary", data_dict_file)):
+                        data_dict_path = os.path.join("config", "data_dictionary", data_dict_file)
+                    elif os.path.exists(os.path.join("config", data_dict_file)):
+                        data_dict_path = os.path.join("config", data_dict_file)
+                    else:
+                        data_dict_path = None
+                else:
+                    # Default: Try risk dictionary first, fall back to standard dictionary
+                    data_dict_path = "config/data_dictionary/data_dictionary_risk.json"
+                    if not os.path.exists(data_dict_path):
+                        data_dict_path = "config/data_dictionary.json"
                 
-                if os.path.exists(data_dict_path):
+                if data_dict_path and os.path.exists(data_dict_path):
                     with open(data_dict_path, 'r', encoding='utf-8') as f:
                         data_dict = json.load(f)
                         glossary = data_dict.get("business_glossary", {})
@@ -306,11 +328,21 @@ class NLToSQLPlannerTool(BaseMCPTool):
         procedural_knowledge_text = ""
         try:
             import os
-            data_dict_path = "config/data_dictionary_risk.json"
-            if not os.path.exists(data_dict_path):
-                data_dict_path = "config/data_dictionary.json"
+            if data_dict_file:
+                # Build path based on file name
+                if os.path.exists(os.path.join("config", "data_dictionary", data_dict_file)):
+                    data_dict_path = os.path.join("config", "data_dictionary", data_dict_file)
+                elif os.path.exists(os.path.join("config", data_dict_file)):
+                    data_dict_path = os.path.join("config", data_dict_file)
+                else:
+                    data_dict_path = None
+            else:
+                # Default: Try risk dictionary first, fall back to standard dictionary
+                data_dict_path = "config/data_dictionary/data_dictionary_risk.json"
+                if not os.path.exists(data_dict_path):
+                    data_dict_path = "config/data_dictionary.json"
             
-            if os.path.exists(data_dict_path):
+            if data_dict_path and os.path.exists(data_dict_path):
                 with open(data_dict_path, 'r', encoding='utf-8') as f:
                     data_dict = json.load(f)
                     procedural_knowledge_text = data_dict.get("procedural_knowledge", "")
@@ -605,12 +637,21 @@ You have permission to create a NEW query, but stay contextually aligned with th
         procedural_knowledge = ""
         try:
             import os
-            # Try risk dictionary first, fall back to standard dictionary
-            data_dict_path = "config/data_dictionary_risk.json"
-            if not os.path.exists(data_dict_path):
-                data_dict_path = "config/data_dictionary.json"
+            if data_dict_file:
+                # Build path based on file name
+                if os.path.exists(os.path.join("config", "data_dictionary", data_dict_file)):
+                    data_dict_path = os.path.join("config", "data_dictionary", data_dict_file)
+                elif os.path.exists(os.path.join("config", data_dict_file)):
+                    data_dict_path = os.path.join("config", data_dict_file)
+                else:
+                    data_dict_path = None
+            else:
+                # Default: Try risk dictionary first, fall back to standard dictionary
+                data_dict_path = "config/data_dictionary/data_dictionary_risk.json"
+                if not os.path.exists(data_dict_path):
+                    data_dict_path = "config/data_dictionary.json"
             
-            if os.path.exists(data_dict_path):
+            if data_dict_path and os.path.exists(data_dict_path):
                 with open(data_dict_path, 'r', encoding='utf-8') as f:
                     data_dict = json.load(f)
                     procedural_knowledge = data_dict.get("procedural_knowledge", "")
@@ -749,7 +790,7 @@ You have permission to create a NEW query, but stay contextually aligned with th
                 logger.info(f"  • Content: {conversation_history}")
             logger.info(f"{'='*80}\n")
             
-            llm_result = self._llm_plan(nl_query, table_schema, available_tables, arguments.get("docs_meta"), stream_callback=stream_callback, conversation_history=conversation_history, previous_clarifications=previous_clarifications, is_followup=is_followup, more_data_needed=more_data_needed)
+            llm_result = self._llm_plan(nl_query, table_schema, available_tables, arguments.get("docs_meta"), stream_callback=stream_callback, conversation_history=conversation_history, previous_clarifications=previous_clarifications, is_followup=is_followup, more_data_needed=more_data_needed, data_dict_file=arguments.get("data_dict_file"))
             
             # Check if clarification is needed (Stage 2b returned early)
             if llm_result.get("type") == "clarification_needed":

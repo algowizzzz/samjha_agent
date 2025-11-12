@@ -1,0 +1,776 @@
+{
+  "tables": {
+    "limits_data": {
+      "description": "Single canonical table containing market risk limits, exposures, governance metadata and audit fields. Use this single table for daily monitoring, breach tracking and reporting.",
+      "business_context": "Source of truth for front-office and risk-monitoring limits. Contains limit definitions, current exposures, utilization, and lightweight audit/approval fields for breaches and temporary overrides.",
+      "key_columns": {
+        "critical_note": "⚠️ CRITICAL: When users mention 'PV01', 'Gamma', 'Liquidity', etc., they mean limit_group, NOT limit_type. Example: 'PV01 limits' → WHERE limit_group = 'PV01', NOT WHERE limit_type = 'PV01' (limit_type is 'PV01 Delta')",
+        "date": {
+          "definition": "Snapshot date (YYYY-MM-DD). Default to MAX(date) for latest data.",
+          "data_type": "DATE",
+          "usage": "WHERE date = (SELECT MAX(date) FROM limits_data) for latest, or date >= MAX(date) - INTERVAL 'N days' for trends"
+        },
+        "letter_nm": {
+          "definition": "Trading desk name (e.g., 'Canadian Options', 'Oil Products NGL Trading')",
+          "data_type": "VARCHAR",
+          "usage": "Primary filter for desk queries. Use exact match: WHERE letter_nm = 'Canadian Options'"
+        },
+        "limit_id": {
+          "definition": "Unique identifier for the limit row",
+          "data_type": "INTEGER",
+          "usage": "Use to reference specific limits. Not typically used in user queries unless referencing a known limit ID."
+        },
+        "limit_class": {
+          "definition": "Governance level: Primary (enforced), Secondary, Notice, Reporting, Decommissioned",
+          "data_type": "VARCHAR",
+          "usage": "Default to WHERE limit_class = 'Primary' unless user specifies otherwise. Exclude 'Decommissioned'."
+        },
+        "limit_group": {
+          "definition": "CRITICAL: Risk metric category (PV01, RR & Gamma, Asset, Stress Limits, Liquidity, Notional, Issuer). When user says 'PV01 limits', use limit_group = 'PV01'",
+          "data_type": "VARCHAR",
+          "usage": "WHERE limit_group = 'PV01' (NOT limit_type). This is the top-level category users refer to."
+        },
+        "limit_type": {
+          "definition": "Detailed sub-category (e.g., 'PV01 Delta', 'Gamma Vega'). Refines limit_group.",
+          "data_type": "VARCHAR",
+          "usage": "Use with limit_group for precise filtering. limit_type contains 'PV01 Delta', not just 'PV01'."
+        },
+        "limit_desc": {
+          "definition": "Human-readable description with product/geography/scenario keywords",
+          "data_type": "VARCHAR",
+          "usage": "Use text search (ILIKE) for flexible matching. Parse for product-level specifics when needed."
+        },
+        "meas_unit": {
+          "definition": "Currency/unit (USD, CAD, EUR, JPY, BBL, OZ, MT, MWH)",
+          "data_type": "VARCHAR",
+          "usage": "Filter by currency: WHERE meas_unit = 'USD'. Cannot aggregate different units without conversion."
+        },
+        "aggr_func_cd": {
+          "definition": "Aggregation method: NET (allows offsets), GROSS (sum absolute), GRID, BY TRADE, etc.",
+          "data_type": "VARCHAR",
+          "usage": "Determines if positions net or sum. Filter: WHERE aggr_func_cd LIKE '%NET%' or '%GROSS%'"
+        },
+        "rating_floor": {
+          "definition": "Highest (best) credit rating allowed",
+          "data_type": "VARCHAR",
+          "usage": "Apply rating filters for credit-limited buckets"
+        },
+        "rating_ceiling": {
+          "definition": "Lowest (worst) credit rating allowed",
+          "data_type": "VARCHAR",
+          "usage": "Filter exposures within [rating_floor, rating_ceiling] range"
+        },
+        "unofficial_flag": {
+          "definition": "0 = official/enforced, 1 = unofficial/monitoring",
+          "data_type": "INTEGER",
+          "usage": "Filter WHERE unofficial_flag = 0 for enforced limits only"
+        },
+        "exposure_amt": {
+          "definition": "Current exposure amount (numerator for utilization)",
+          "data_type": "DECIMAL",
+          "usage": "Compare to effective_limit. Used in utilization = exposure_amt / effective_limit"
+        },
+        "Original_limit": {
+          "definition": "Original approved limit value (baseline before adjustments)",
+          "data_type": "DECIMAL",
+          "usage": "Used for audit. Compare to effective_limit to track changes"
+        },
+        "effective_limit": {
+          "definition": "Active limit threshold (denominator for utilization)",
+          "data_type": "DECIMAL",
+          "usage": "Always use this (not Original_limit) for breach detection: utilization = exposure_amt / effective_limit"
+        },
+        "utilization": {
+          "definition": "Exposure / effective_limit ratio. >= 1.0 = breach, >= 0.9 = near-breach",
+          "data_type": "DECIMAL",
+          "usage": "Primary risk metric. Default sort: ORDER BY utilization DESC. Filter: WHERE utilization >= 0.9 for warnings"
+        },
+        "curr": {
+          "definition": "ISO currency code (USD, CAD, EUR, JPY)",
+          "data_type": "VARCHAR",
+          "usage": "Filter by currency for single-currency analysis. Cannot aggregate different currencies without FX conversion"
+        },
+        "sec_desc": {
+          "definition": "Security or limit description",
+          "data_type": "VARCHAR",
+          "usage": "Use for display and text search. Not suitable for precise filtering"
+        },
+        "issuer_nm": {
+          "definition": "Issuer or counterparty name",
+          "data_type": "VARCHAR",
+          "usage": "Use for reporting and display. May duplicate letter_nm for desk-level limits"
+        },
+        "industry": {
+          "definition": "Industry sector (Energy, Financials, Money Markets, Environmental)",
+          "data_type": "VARCHAR",
+          "usage": "Filter by industry for sector-specific analysis"
+        },
+        "region_cd": {
+          "definition": "Geographic region: ASIA, CANADA, EMEA, AMERICAS",
+          "data_type": "VARCHAR",
+          "usage": "WHERE region_cd = 'CANADA' for regional filtering. Can infer from letter_nm if missing"
+        },
+        "state": {
+          "definition": "Operational state: Active, Pending Upload, Extended, InBreach, Decommissioned",
+          "data_type": "VARCHAR",
+          "usage": "Default: WHERE state = 'Active'. Exclude 'Decommissioned' unless requested"
+        },
+        "extension": {
+          "definition": "1 = temporary limit override active, 0 = normal",
+          "data_type": "INTEGER",
+          "usage": "WHERE extension = 1 for limits under exception. Check end_dt for expiry date"
+        },
+        "end_dt": {
+          "definition": "Extension expiry date",
+          "data_type": "DATE",
+          "usage": "Monitor WHERE extension = 1 AND end_dt <= MAX(date) + INTERVAL '7 days' for imminent expiry"
+        }
+      },
+      "column_values": {
+        "description": "Actual values found in the data to help with exact matching",
+        "letter_nm": {
+          "common_values": ["Canadian Options", "Oil Products NGL Trading", "US Delta One", "European Prime Finance", "SET Management", "FX HK Trading", "Canadian Money Markets", "Environmental Commodities Trading", "SMR – Wealth Management", "Securitized Credit Trading", "China Fixed Income Trading", "London BMO CMI", "SLP BMO", "Canadian Prime Brokerage and Margin Lending", "Canadian Prime Finance"],
+          "pattern": "Exact match recommended. Use ILIKE '%partial%' for flexible matching.",
+          "regional_patterns": {
+            "Canadian": ["Canadian Options", "Canadian Money Markets", "Canadian Prime Finance", "SLP BMO"],
+            "US": ["US Delta One", "US Tactical & Accrual INV"],
+            "European": ["European Prime Finance", "London BMO CMI"],
+            "Asia": ["FX HK Trading", "China Fixed Income Trading"]
+          }
+        },
+        "limit_group": {
+          "values": ["PV01", "RR & Gamma", "Asset", "Stress Limits", "Liquidity", "Notional", "Issuer", "Outer RAL"],
+          "user_aliases": {
+            "PV01": ["PV01", "interest rate risk", "rate sensitivity", "DV01"],
+            "RR & Gamma": ["Gamma", "gamma limits", "convexity", "risk reversal"],
+            "Liquidity": ["liquidity risk", "liquidity limits"],
+            "Stress Limits": ["stress", "stress testing", "scenario limits"]
+          },
+          "critical_note": "When user says 'PV01', use limit_group = 'PV01', NOT limit_type"
+        },
+        "limit_type": {
+          "values": ["PV01 Delta", "Gamma Vega", "Gross Delta", "PV01 Stress limits", "CVaR / Limits", "Exotic Limits", "Liquidity Limits"],
+          "note": "These are sub-categories of limit_group. Use with limit_group for precise filtering."
+        },
+        "limit_class": {
+          "values": ["Primary", "Secondary", "Notice", "Reporting", "ex-PRIM", "ex-ZNDRY", "Decommissioned"],
+          "default": "Primary",
+          "exclude_by_default": ["Decommissioned"]
+        },
+        "meas_unit": {
+          "currency_values": ["USD", "CAD", "EUR", "JPY"],
+          "physical_values": ["BBL", "OZ", "MT", "MWH", "MMBTU", "GAL"],
+          "other_values": ["BP", "Percent"]
+        },
+        "aggr_func_cd": {
+          "values": ["NET", "GROSS", "NET SHORT BY SEC", "GROSS BY SECURITY", "BY TRADE", "GRID", "SINGLE NAME"],
+          "user_aliases": {
+            "NET": ["net", "netted", "with offsets"],
+            "GROSS": ["gross", "absolute", "no netting"]
+          }
+        },
+        "state": {
+          "values": ["Active", "Pending Upload", "Extended", "InBreach", "Decommissioned"],
+          "default": "Active",
+          "exclude_by_default": ["Decommissioned"]
+        },
+        "region_cd": {
+          "values": ["ASIA", "CANADA", "EMEA", "AMERICAS"],
+          "inference": "Can derive from letter_nm (e.g., 'Canadian Options' → CANADA)"
+        },
+        "utilization": {
+          "typical_ranges": {
+            "low": "< 0.7",
+            "moderate": "0.7 - 0.9",
+            "high": "0.9 - 1.0",
+            "breach": ">= 1.0"
+          },
+          "user_expressions": {
+            "breached": "utilization >= 1.0",
+            "near_breach": "utilization >= 0.9",
+            "high": "utilization >= 0.9",
+            "low": "utilization < 0.7"
+          }
+        }
+      },
+      "common_queries": [
+        "Latest data: WHERE date = (SELECT MAX(date) FROM limits_data)",
+        "Trend (7 days): WHERE date >= (SELECT MAX(date) - INTERVAL '7 days' FROM limits_data)",
+        "Breach: WHERE utilization >= 1.0",
+        "Near-breach: WHERE utilization >= 0.9",
+        "By desk: WHERE letter_nm = 'Desk Name'",
+        "By metric: WHERE limit_group = 'PV01' (NOT limit_type)",
+        "With extension: WHERE extension = 1",
+        "Primary only: WHERE limit_class = 'Primary'"
+      ],
+      "data_quality_rules": [
+        "utilization = exposure_amt / effective_limit",
+        "utilization >= 1.0 = breach",
+        "Use effective_limit (not Original_limit) for breach detection"
+      ]
+    }
+  },
+  "relationships": {
+    "note": "Single-table design."
+  },
+  "business_glossary": {
+    "market_risk_limits_overview": {
+      "definition": "Market risk limits control exposure to market movements (rates, prices, FX). Each limit has: (1) Risk metric (PV01, Delta, Gamma, VaR), (2) Risk measure (dollar amount), (3) Threshold (limit value). Utilization = exposure_amt / effective_limit. Breach = utilization >= 1.0.",
+      "key_metrics": {
+        "PV01": "Interest rate sensitivity (dollar value of 1bp rate change)",
+        "Delta": "Price sensitivity (change in value per $1 move in underlying)",
+        "Gamma": "Delta sensitivity (convexity risk)",
+        "Vega": "Volatility sensitivity",
+        "VaR": "Potential loss at confidence level over time horizon",
+        "Stress Limits": "Scenario-based limits measuring P&L under stress conditions"
+      },
+      "limit_hierarchy": "Trading Desk → Risk Category (limit_group) → Limit Type (limit_type) → Specific Limit",
+      "mapped_fields": ["all"],
+      "usage": "Essential context for understanding limit structure and risk metrics."
+    },
+    "business_terminology_mapping": {
+      "description": "How users express concepts vs. how they're stored in the database",
+      "desk_names": {
+        "user_says": ["Canadian Options", "Canadian desk", "Can Options", "Canada Options"],
+        "column": "letter_nm",
+        "exact_value": "Canadian Options",
+        "pattern": "letter_nm = 'Canadian Options' OR letter_nm ILIKE '%Canadian%'"
+      },
+      "risk_metrics": {
+        "user_says": ["PV01", "PV01 limits", "interest rate risk", "rate sensitivity"],
+        "column": "limit_group",
+        "exact_value": "PV01",
+        "critical_note": "When user says 'PV01', use limit_group = 'PV01' (NOT limit_type - limit_type is 'PV01 Delta')"
+      },
+      "utilization_levels": {
+        "breached": {
+          "user_says": ["breached", "over limit", "exceeded", "violation"],
+          "sql_condition": "utilization >= 1.0"
+        },
+        "high_utilization": {
+          "user_says": ["high utilization", "near breach", "close to limit", "above 90%"],
+          "sql_condition": "utilization >= 0.9"
+        },
+        "low_utilization": {
+          "user_says": ["low utilization", "well below limit"],
+          "sql_condition": "utilization < 0.7"
+        }
+      },
+      "limit_classes": {
+        "user_says": ["primary limits", "main limits", "enforced limits"],
+        "column": "limit_class",
+        "exact_value": "Primary"
+      },
+      "time_expressions": {
+        "latest": {
+          "user_says": ["latest", "current", "most recent", "today"],
+          "sql_pattern": "date = (SELECT MAX(date) FROM limits_data)"
+        },
+        "past_week": {
+          "user_says": ["past week", "last 7 days", "latest 7 days"],
+          "sql_pattern": "date >= (SELECT MAX(date) - INTERVAL '7 days' FROM limits_data)"
+        },
+        "past_month": {
+          "user_says": ["past month", "last 30 days"],
+          "sql_pattern": "date >= (SELECT MAX(date) - INTERVAL '30 days' FROM limits_data)"
+        }
+      }
+    }
+  },
+  "procedural_knowledge": {
+    "summary": "Common query patterns, minimal unique identifiers, defaults, and trending/extension analysis for market risk limits monitoring.",
+    "data_samples": {
+      "description": "Typical values and patterns found in limits_data",
+      "typical_dates": "2024-10-09 to 2024-11-08",
+      "typical_letter_nm_values": ["Oil Products NGL Trading", "US Delta One", "Canadian Options", "European Prime Finance", "Canadian Money Markets", "SET Management", "Environmental Commodities Trading", "FX HK Trading"],
+      "typical_limit_groups": ["PV01", "RR & Gamma", "Asset", "Stress Limits", "Liquidity", "Notional", "Issuer"],
+      "typical_limit_classes": ["Primary", "Secondary", "Notice", "Reporting", "ex-PRIM", "ex-ZNDRY"],
+      "typical_states": ["Active", "Pending Upload", "Extended", "InBreach"]
+    },
+    "minimal_unique_attributes": {
+      "description": "Bare minimum attributes needed to uniquely identify a limit without using ID columns",
+      "required_fields": ["letter_nm", "limit_type", "meas_unit", "limit_group", "date", "aggr_func_cd"],
+      "examples": [
+        {
+          "use_case": "Get specific PV01 limit for Canadian Options desk",
+          "query": "show me Canadian Options PV01 limit",
+          "sql_filter": "letter_nm = 'Canadian Options' AND limit_group = 'PV01' AND limit_type = 'PV01 Delta' AND date = (SELECT MAX(date) FROM limits_data)",
+          "result_count": "typically 1 row"
+        },
+        {
+          "use_case": "Get Gamma limit for SET Management",
+          "query": "what is the gamma limit for SET Management",
+          "sql_filter": "letter_nm = 'SET Management' AND limit_group = 'RR & Gamma' AND limit_type = 'Gamma Vega' AND date = (SELECT MAX(date) FROM limits_data)",
+          "result_count": "typically 1 row"
+        }
+      ]
+    },
+    "default_behaviors": {
+      "description": "Implicit defaults to apply when certain parameters are not specified by user. Apply defaults CONDITIONALLY - only when query is ambiguous or doesn't specify.",
+      "defaults": [
+        {
+          "parameter": "date",
+          "default_value": "MAX(date) - most recent date",
+          "sql_pattern": "WHERE date = (SELECT MAX(date) FROM limits_data)",
+          "apply_when": "Always (date is almost always needed)"
+        },
+        {
+          "parameter": "limit_class",
+          "default_value": "Primary",
+          "sql_pattern": "WHERE limit_class = 'Primary'",
+          "apply_when": "ONLY if query mentions 'primary' OR query is ambiguous (e.g., 'show me limits' without desk/metric). DO NOT apply if query is specific (e.g., 'show me Canadian Options PV01 Delta limits in CAD')",
+          "conditional_logic": "If query specifies desk + metric + unit, skip this default. If query is vague or mentions 'primary', apply it."
+        },
+        {
+          "parameter": "sort_order",
+          "default_value": "ORDER BY utilization DESC",
+          "sql_pattern": "ORDER BY utilization DESC LIMIT N",
+          "apply_when": "When query mentions 'top', 'highest', or ranking concepts"
+        },
+        {
+          "parameter": "state",
+          "default_value": "Active (exclude Decommissioned)",
+          "sql_pattern": "WHERE state != 'Decommissioned'",
+          "apply_when": "Always (exclude decommissioned unless user asks for all)"
+        },
+        {
+          "parameter": "top_n",
+          "default_value": "NO LIMIT - return all results",
+          "sql_pattern": "Do NOT add LIMIT unless user explicitly specifies a number (e.g., 'top 5', 'top 10')",
+          "apply_when": "Only if user explicitly says 'top N' with a number. For 'top' without number, return all results sorted appropriately"
+        }
+      ],
+      "important_note": "If query is specific (desk + metric + unit specified), don't add unnecessary defaults. Only apply defaults when query is ambiguous or missing critical information."
+    },
+    "common_query_patterns": {
+      "description": "Typical query patterns and how to translate them to SQL",
+      "patterns": [
+        {
+          "pattern_name": "View limits by desk/letter_nm",
+          "description": "Users often want to see all limits for a specific trading desk or business unit they own/manage",
+          "user_query_examples": ["show me limits for Canadian Options", "what are the Canadian Money Markets limits", "Oil Products NGL Trading limits"],
+          "sql_template": "SELECT * FROM limits_data WHERE letter_nm = '{desk_name}' AND date = (SELECT MAX(date) FROM limits_data) ORDER BY utilization DESC"
+        },
+        {
+          "pattern_name": "View limits by limit_group (risk metric type)",
+          "description": "Users want to see all limits of a specific risk type across all desks",
+          "user_query_examples": ["show me all PV01 limits", "what are the Gamma limits", "show liquidity limits"],
+          "sql_template": "SELECT * FROM limits_data WHERE limit_group = '{risk_metric}' AND limit_class = 'Primary' AND date = (SELECT MAX(date) FROM limits_data) ORDER BY utilization DESC LIMIT 10",
+          "critical_note": "Use limit_group (NOT limit_type) when user mentions metric name"
+        },
+        {
+          "pattern_name": "Top N limits",
+          "description": "Users want to see the highest utilized limits. If metric specified, filter by limit_group. Default N=10, sort by utilization DESC",
+          "user_query_examples": ["top 10 limits", "top PV01 limits", "top 5 gamma limits", "highest utilized limits"],
+          "sql_template": "SELECT * FROM limits_data WHERE {metric_filter} limit_class = 'Primary' AND date = (SELECT MAX(date) FROM limits_data) ORDER BY utilization DESC LIMIT {N}",
+          "note": "If metric specified: add WHERE limit_group = '{metric}' AND. Use limit_group (NOT limit_type)"
+        },
+        {
+          "pattern_name": "Limits above threshold",
+          "description": "Filter by utilization threshold to find breaches or near-breaches",
+          "user_query_examples": ["limits above 90%", "show breached limits", "limits with utilization > 0.95"],
+          "sql_template": "SELECT * FROM limits_data WHERE utilization >= {threshold} AND date = (SELECT MAX(date) FROM limits_data) ORDER BY utilization DESC"
+        },
+        {
+          "pattern_name": "Regional/geographic filtering",
+          "description": "Filter limits by region code or derive from letter_nm",
+          "user_query_examples": ["show Canadian limits", "EMEA limits", "Asia trading limits"],
+          "sql_template": "SELECT * FROM limits_data WHERE region_cd = '{region}' AND date = (SELECT MAX(date) FROM limits_data) ORDER BY utilization DESC LIMIT 10"
+        }
+      ]
+    },
+    "critical_field_mapping": {
+      "description": "CRITICAL: When users mention 'PV01', 'Gamma', 'Liquidity', etc., they refer to limit_group, NOT limit_type",
+      "rule": "User query 'PV01 limits' → WHERE limit_group = 'PV01' (NOT limit_type LIKE '%PV01%')",
+      "examples": [
+        {
+          "user_query": "show me Primary PV01 limits",
+          "correct": "WHERE limit_group = 'PV01' AND limit_class = 'Primary'",
+          "incorrect": "WHERE limit_type = 'PV01' (limit_type is 'PV01 Delta', not 'PV01')"
+        },
+        {
+          "user_query": "show me Primary PV01 limits for Canadian Options desk for the latest 7 days",
+          "correct": "WHERE letter_nm = 'Canadian Options' AND limit_group = 'PV01' AND limit_class = 'Primary' AND date >= MAX(date) - INTERVAL '7 days'",
+          "incorrect": "WHERE limit_type = 'PV01' (will return 0 rows - limit_type is 'PV01 Delta')"
+        }
+      ]
+    },
+    "trend_analysis": {
+      "description": "For well-defined single limit queries, provide historical trend (past 3-7 days)",
+      "trigger": "Query uniquely identifies a single limit using minimal unique attributes",
+      "default_period": "past 5 days",
+      "sql_pattern": "SELECT date, exposure_amt, effective_limit, utilization FROM limits_data WHERE {unique_filters} AND date >= CURRENT_DATE - INTERVAL '5 days' ORDER BY date ASC",
+      "examples": [
+        {
+          "query": "limit and exposure for limit id 300128 for past 7 days from 10 nov",
+          "sql": "SELECT date, limit_id, exposure_amt, Original_limit, effective_limit, utilization FROM limits_data WHERE limit_id = 300128 AND date >= DATE '2024-11-04' AND date <= DATE '2024-11-10' ORDER BY date DESC",
+          "key_learning": "Filter by limit_id for single limit. Date range: past 7 days from Nov 10 = Nov 4-10"
+        },
+        {
+          "query": "show me Canadian Options PV01 limit",
+          "sql": "SELECT date, letter_nm, limit_type, exposure_amt, effective_limit, utilization FROM limits_data WHERE letter_nm = 'Canadian Options' AND limit_group = 'PV01' AND limit_type = 'PV01 Delta' AND date >= (SELECT MAX(date) - INTERVAL '5 days' FROM limits_data) ORDER BY date ASC",
+          "key_learning": "Use limit_group = 'PV01' (not limit_type) when filtering by PV01"
+        },
+        {
+          "query": "show me Primary PV01 limits for Canadian Options desk for the latest 7 days",
+          "sql": "SELECT date, letter_nm, limit_type, limit_group, exposure_amt, effective_limit, utilization FROM limits_data WHERE letter_nm = 'Canadian Options' AND limit_group = 'PV01' AND limit_class = 'Primary' AND date >= (SELECT MAX(date) - INTERVAL '7 days' FROM limits_data) ORDER BY date ASC",
+          "key_learning": "Use limit_group = 'PV01' (not limit_type). Returns 7 rows showing daily progression"
+        },
+        {
+          "query": "what is the SET Management Gamma limit for the past week",
+          "sql": "SELECT date, letter_nm, limit_type, exposure_amt, effective_limit, utilization FROM limits_data WHERE letter_nm = 'SET Management' AND limit_group = 'RR & Gamma' AND date >= (SELECT MAX(date) - INTERVAL '7 days' FROM limits_data) ORDER BY date ASC"
+        }
+      ]
+    },
+    "extension_handling": {
+      "description": "Extensions are temporary limit overrides/increases; Active extensions and those expiring soon require special attention",
+      "importance": "Limits with extension=1 have been approved for temporary increase; end_dt shows when extension expires",
+      "monitoring_queries": [
+        {
+          "use_case": "Find all active extensions",
+          "query": "show me limits with active extensions",
+          "sql": "SELECT * FROM limits_data WHERE extension = 1 AND state = 'Active' AND date = (SELECT MAX(date) FROM limits_data) ORDER BY end_dt ASC"
+        },
+        {
+          "use_case": "Find extensions expiring soon (within 7 days)",
+          "query": "show me extensions expiring soon",
+          "sql": "SELECT * FROM limits_data WHERE extension = 1 AND state = 'Active' AND end_dt <= (SELECT MAX(date) + INTERVAL '7 days' FROM limits_data) AND date = (SELECT MAX(date) FROM limits_data) ORDER BY end_dt ASC"
+        }
+      ]
+    },
+    "clarification_rules": {
+      "description": "Rules for when to ask for clarification vs. proceeding with defaults or best-effort interpretation",
+      "when_to_clarify": [
+        {
+          "scenario": "Ambiguous threshold without numeric hint",
+          "example": "'high utilization', 'large limits', 'significant breaches'",
+          "clarification_question": "By 'high utilization', do you mean above 90%, 95%, or breached (100%)?",
+          "decision": "CLARIFY if no numeric hint (e.g., '>0.9', 'above 90%'). PROCEED if numeric hint present."
+        },
+        {
+          "scenario": "Partial desk name that could match multiple",
+          "example": "'Canadian' could match 'Canadian Options', 'Canadian Money Markets', 'Canadian Prime Finance'",
+          "clarification_question": "Which Canadian desk? (Canadian Options, Canadian Money Markets, Canadian Prime Finance, or all Canadian desks?)",
+          "decision": "CLARIFY if partial name matches 3+ desks. PROCEED if matches 1-2 desks or user says 'all'."
+        },
+        {
+          "scenario": "Multiple currencies with aggregation",
+          "example": "'sum of exposure' when data has USD, CAD, EUR",
+          "clarification_question": "Which currency? (USD, CAD, EUR, or sum all currencies?)",
+          "decision": "CLARIFY if aggregation requested and multiple currencies present. PROCEED if single currency or user specifies."
+        },
+        {
+          "scenario": "Limit ID missing + query would return multiple rows",
+          "example": "'show me PV01 limit' without desk/letter_nm",
+          "clarification_question": "Which desk or limit? (This would return many limits)",
+          "decision": "CLARIFY if query is too broad. PROCEED if query is specific enough."
+        }
+      ],
+      "when_not_to_clarify": [
+        {
+          "scenario": "Date not specified",
+          "action": "Use MAX(date) - proceed without asking"
+        },
+        {
+          "scenario": "Aggregation keywords present",
+          "example": "'sum', 'count', 'total', 'how many', 'average'",
+          "action": "PROCEED - aggregation intent is clear"
+        },
+        {
+          "scenario": "Follow-up query with pronouns",
+          "example": "'these', 'those', 'them' referring to previous results",
+          "action": "PROCEED - use conversation history to resolve pronouns"
+        },
+        {
+          "scenario": "Query is specific (desk + metric + unit)",
+          "example": "'show me Canadian Options PV01 Delta limits in CAD'",
+          "action": "PROCEED - no clarification needed"
+        }
+      ],
+      "specific_clarifying_questions": [
+        "By 'high utilization', do you mean above 90%, 95%, or breached (100%)?",
+        "Which desk? (Canadian Options, Canadian Money Markets, or all Canadian desks?)",
+        "Which currency? (USD, CAD, EUR, or sum all currencies?)",
+        "Which date or date range? (latest snapshot, last 7 days, specific date?)",
+        "Should I filter for breach status only, or include all high utilization?",
+        "Group results by desk, limit type, or show individual limits?"
+      ]
+    },
+    "follow_up_query_patterns": {
+      "description": "Patterns for handling follow-up queries that reference previous results or context",
+      "pronoun_mapping": {
+        "these": "Refers to results from most recent query",
+        "those": "Refers to results from most recent query",
+        "them": "Refers to results from most recent query",
+        "it": "Refers to single result from most recent query",
+        "ones": "Refers to results from most recent query",
+        "above": "Refers to previous query in conversation",
+        "previous": "Refers to previous query in conversation"
+      },
+      "extraction_rules": {
+        "from_previous_sql": "Extract WHERE clause from previous SQL query and apply to new query",
+        "from_previous_results": "Use column values from previous results as filters for new query",
+        "example": "Previous: 'show me US limits' (WHERE region_cd = 'AMERICAS'). Follow-up: 'how many of these are gross' → WHERE region_cd = 'AMERICAS' AND aggr_func_cd LIKE '%GROSS%'"
+      },
+      "common_patterns": [
+        {
+          "pattern": "Aggregation on previous results",
+          "example": "Previous: 'show me top 10 limits'. Follow-up: 'sum of exposure for these'",
+          "sql_approach": "Extract WHERE clause from previous SQL, add SUM(exposure_amt) GROUP BY if needed"
+        },
+        {
+          "pattern": "Filter refinement",
+          "example": "Previous: 'show me PV01 limits'. Follow-up: 'only for Canadian desks'",
+          "sql_approach": "Combine previous WHERE clause with new filter: WHERE limit_group = 'PV01' AND region_cd = 'CANADA'"
+        },
+        {
+          "pattern": "Removing filters",
+          "example": "Previous: 'show me top 10 limits'. Follow-up: 'show all from above query'",
+          "sql_approach": "Use previous WHERE clause, remove LIMIT clause"
+        },
+        {
+          "pattern": "Adding filters",
+          "example": "Previous: 'show me limits'. Follow-up: 'with utilization > 0.9'",
+          "sql_approach": "Combine previous WHERE with new condition"
+        }
+      ],
+      "context_preservation": {
+        "rule": "When processing follow-up queries, preserve WHERE clauses, date filters, and desk filters from previous queries unless explicitly overridden",
+        "example": "Previous query filtered by date=2024-10-09 and letter_nm='Canadian Options'. Follow-up query should maintain these filters unless user specifies different date or desk."
+      }
+    },
+    "aggregation_patterns": {
+      "description": "Keyword mapping and rules for handling aggregation queries",
+      "keyword_mapping": {
+        "sum": "SUM(column)",
+        "total": "SUM(column)",
+        "count": "COUNT(*) or COUNT(DISTINCT column)",
+        "how many": "COUNT(*) or COUNT(DISTINCT column)",
+        "number of": "COUNT(*) or COUNT(DISTINCT column)",
+        "average": "AVG(column)",
+        "avg": "AVG(column)",
+        "mean": "AVG(column)",
+        "maximum": "MAX(column)",
+        "max": "MAX(column)",
+        "minimum": "MIN(column)",
+        "min": "MIN(column)"
+      },
+      "column_mapping": {
+        "exposure": "exposure_amt",
+        "exposures": "exposure_amt",
+        "limit": "effective_limit",
+        "limits": "effective_limit",
+        "utilization": "utilization",
+        "utilizations": "utilization"
+      },
+      "currency_handling": {
+        "rule": "Cannot aggregate different currencies without conversion. If aggregation requested and multiple currencies present, either filter by currency or clarify with user.",
+        "example": "'sum of exposure' when data has USD, CAD, EUR → either filter WHERE meas_unit = 'USD' or ask user which currency"
+      },
+      "grouping_rules": {
+        "by_desk": "GROUP BY letter_nm",
+        "by_metric": "GROUP BY limit_group",
+        "by_type": "GROUP BY limit_type",
+        "by_region": "GROUP BY region_cd",
+        "by_industry": "GROUP BY industry",
+        "by_currency": "GROUP BY meas_unit"
+      },
+      "examples": [
+        {
+          "query": "sum of exposure",
+          "sql": "SELECT SUM(exposure_amt) AS total_exposure FROM limits_data WHERE date = (SELECT MAX(date) FROM limits_data)",
+          "note": "If multiple currencies, filter by currency or clarify"
+        },
+        {
+          "query": "how many limits are breached",
+          "sql": "SELECT COUNT(*) AS breached_count FROM limits_data WHERE utilization >= 1.0 AND date = (SELECT MAX(date) FROM limits_data)"
+        },
+        {
+          "query": "total exposure by desk",
+          "sql": "SELECT letter_nm, SUM(exposure_amt) AS total_exposure FROM limits_data WHERE date = (SELECT MAX(date) FROM limits_data) GROUP BY letter_nm ORDER BY total_exposure DESC"
+        },
+        {
+          "query": "average utilization by limit group",
+          "sql": "SELECT limit_group, AVG(utilization) AS avg_utilization FROM limits_data WHERE date = (SELECT MAX(date) FROM limits_data) GROUP BY limit_group ORDER BY avg_utilization DESC"
+        }
+      ]
+    },
+    "complex_query_examples": {
+      "description": "Complex SQL queries requiring multiple filters, date ranges, aggregations, and advanced SQL features",
+      "examples": [
+        {
+          "query": "show me Canadian PV01 limits over the past 2 weeks",
+          "sql": "SELECT date, limit_id, letter_nm, limit_type, limit_group, meas_unit, exposure_amt, effective_limit, utilization FROM limits_data WHERE letter_nm LIKE '%Canadian%' AND limit_group = 'PV01' AND date >= (SELECT MAX(date) FROM limits_data) - INTERVAL '13 days' AND date <= (SELECT MAX(date) FROM limits_data) ORDER BY date DESC, utilization DESC",
+          "key_learning": "Use limit_group = 'PV01' (NOT limit_type LIKE '%PV01%')"
+        },
+        {
+          "query": "show me limits that breached (utilization >= 1.0) in the last 10 days",
+          "sql": "SELECT date, limit_id, letter_nm, limit_type, limit_group, exposure_amt, effective_limit, utilization, extension FROM limits_data WHERE utilization >= 1.0 AND date >= (SELECT MAX(date) FROM limits_data) - INTERVAL '9 days' AND date <= (SELECT MAX(date) FROM limits_data) ORDER BY date DESC, utilization DESC"
+        },
+        {
+          "query": "how has exposure changed for stress limits in CAD currency over the past week",
+          "sql": "SELECT date, limit_id, letter_nm, limit_type, meas_unit, exposure_amt, effective_limit, utilization, (exposure_amt - LAG(exposure_amt) OVER (PARTITION BY limit_id ORDER BY date)) AS exposure_change FROM limits_data WHERE limit_group = 'Stress Limits' AND meas_unit = 'CAD' AND date >= (SELECT MAX(date) FROM limits_data) - INTERVAL '6 days' AND date <= (SELECT MAX(date) FROM limits_data) ORDER BY date DESC, limit_id",
+          "key_learning": "Use limit_group = 'Stress Limits' (NOT limit_type LIKE '%Stress%'). Window functions for day-over-day comparisons"
+        },
+        {
+          "query": "show me average utilization by limit group over the past week",
+          "sql": "SELECT limit_group, COUNT(DISTINCT limit_id) AS num_limits, AVG(utilization) AS avg_utilization, MAX(utilization) AS max_utilization, MIN(utilization) AS min_utilization FROM limits_data WHERE date >= (SELECT MAX(date) FROM limits_data) - INTERVAL '6 days' AND date <= (SELECT MAX(date) FROM limits_data) GROUP BY limit_group ORDER BY avg_utilization DESC",
+          "key_learning": "Use GROUP BY with COUNT, AVG, MAX, MIN for summary statistics"
+        }
+      ]
+    },
+    "query_reference": {
+      "description": "Comprehensive SQL query reference guide with 16 common queries plus utility queries. Each query includes SQL and a concise explanation for senior data analysts.",
+      "data_source": "limits_data.csv",
+      "date_range": "2024-10-09 to 2024-11-08",
+      "common_queries": [
+        {
+          "id": "Q1",
+          "title": "Show me latest data",
+          "user_query": "Show me latest data",
+          "sql": "SELECT * FROM limits_data WHERE date = (SELECT MAX(date) FROM limits_data) ORDER BY limit_id, date DESC;",
+          "explanation": "Retrieves all records for the most recent date in the dataset by using a subquery to find the maximum date, then filtering and ordering by limit_id and date."
+        },
+        {
+          "id": "Q2",
+          "title": "Show me breached limits (utilization >= 1.0)",
+          "user_query": "Show me breached limits (utilization >= 1.0)",
+          "sql": "SELECT date, letter_nm, limit_id, limit_desc, exposure_amt, effective_limit, utilization, curr, state FROM limits_data WHERE utilization >= 1.0 ORDER BY utilization DESC, date DESC;",
+          "explanation": "Filters records where utilization is greater than or equal to 1.0 (100%), indicating the limit has been breached, and orders by utilization severity and date."
+        },
+        {
+          "id": "Q3",
+          "title": "Show me limits near breach (utilization >= 0.9)",
+          "user_query": "Show me limits near breach (utilization >= 0.9)",
+          "sql": "SELECT date, letter_nm, limit_id, limit_desc, exposure_amt, effective_limit, utilization, curr, state FROM limits_data WHERE utilization >= 0.9 AND utilization < 1.0 ORDER BY utilization DESC, date DESC;",
+          "explanation": "Identifies limits at risk of breach by filtering utilization between 0.9 (90%) and 1.0, excluding already breached limits, sorted by proximity to breach threshold."
+        },
+        {
+          "id": "Q4",
+          "title": "Show me PV01 limits for Canadian Options",
+          "user_query": "Show me PV01 limits for Canadian Options",
+          "sql": "SELECT date, limit_id, limit_desc, exposure_amt, effective_limit, utilization, curr, state FROM limits_data WHERE letter_nm = 'Canadian Options' AND limit_type = 'PV01 Delta' ORDER BY date DESC, limit_id;",
+          "explanation": "Filters by desk name 'Canadian Options' and limit type 'PV01 Delta' to retrieve all PV01-related limits for this specific desk, ordered chronologically."
+        },
+        {
+          "id": "Q5",
+          "title": "Show me limits with active extensions",
+          "user_query": "Show me limits with active extensions",
+          "sql": "SELECT date, letter_nm, limit_id, limit_desc, exposure_amt, effective_limit, utilization, extension, st_dt, end_dt, state FROM limits_data WHERE extension = 1 ORDER BY date DESC, limit_id;",
+          "explanation": "Returns all limits where the extension flag equals 1, indicating an active extension is in place, including extension start and end dates for reference."
+        },
+        {
+          "id": "Q6",
+          "title": "Show me Primary limits only",
+          "user_query": "Show me Primary limits only",
+          "sql": "SELECT date, letter_nm, limit_id, id2, limit_desc, exposure_amt, effective_limit, utilization, state FROM limits_data WHERE id2 LIKE '%-PRIMARY' ORDER BY date DESC, limit_id;",
+          "explanation": "Filters records where the id2 column contains '-PRIMARY' suffix, identifying primary limits (as opposed to secondary limits), using LIKE pattern matching for flexibility."
+        }
+      ],
+      "trend_analysis_queries": [
+        {
+          "id": "Q7",
+          "title": "Show me Canadian Options PV01 limit for the past 7 days",
+          "user_query": "Show me Canadian Options PV01 limit for the past 7 days",
+          "sql": "SELECT date, limit_id, limit_desc, exposure_amt, effective_limit, utilization, curr FROM limits_data WHERE letter_nm = 'Canadian Options' AND limit_type = 'PV01 Delta' AND date >= (SELECT MAX(date) FROM limits_data) - INTERVAL '7 days' ORDER BY date DESC, limit_id;",
+          "explanation": "Retrieves PV01 Delta limits for Canadian Options desk over the last 7 days using date arithmetic relative to the maximum date in the dataset, providing a week-over-week trend view of limit utilization."
+        },
+        {
+          "id": "Q8",
+          "title": "What is the SET Management Gamma limit for the past week",
+          "user_query": "What is the SET Management Gamma limit for the past week",
+          "sql": "SELECT date, limit_id, limit_desc, exposure_amt, effective_limit, utilization, curr FROM limits_data WHERE letter_nm = 'SET Management' AND limit_type = 'Gamma Vega' AND date >= (SELECT MAX(date) FROM limits_data) - INTERVAL '7 days' ORDER BY date DESC;",
+          "explanation": "Filters for SET Management desk's Gamma Vega limits over the past 7 days relative to the latest date in the dataset, showing daily exposure and utilization trends for gamma risk limits."
+        },
+        {
+          "id": "Q9",
+          "title": "Show me limit and exposure for limit id 300128 for past 7 days",
+          "user_query": "Show me limit and exposure for limit id 300128 for past 7 days",
+          "sql": "SELECT date, letter_nm, limit_id, limit_desc, exposure_amt, Original_limit, effective_limit, utilization, curr, state FROM limits_data WHERE limit_id = 300128 AND date >= (SELECT MAX(date) FROM limits_data) - INTERVAL '7 days' ORDER BY date DESC;",
+          "explanation": "Provides a historical view of a specific limit (300128) showing both original and effective limits alongside actual exposure over the past week relative to the latest date, for trend analysis."
+        },
+        {
+          "id": "Q10",
+          "title": "Show me Primary PV01 limits for Canadian Options desk for the latest 7 days",
+          "user_query": "Show me Primary PV01 limits for Canadian Options desk for the latest 7 days",
+          "sql": "SELECT date, limit_id, id2, limit_desc, exposure_amt, effective_limit, utilization, curr FROM limits_data WHERE letter_nm = 'Canadian Options' AND limit_type = 'PV01 Delta' AND id2 LIKE '%-PRIMARY' AND date >= (SELECT MAX(date) FROM limits_data) - INTERVAL '7 days' ORDER BY date DESC, limit_id;",
+          "explanation": "Combines multiple filters (desk, limit type, primary status, and date range) to show only primary PV01 limits for Canadian Options over the past week relative to the latest date, excluding secondary limits."
+        }
+      ],
+      "complex_queries": [
+        {
+          "id": "Q11",
+          "title": "Show me Canadian PV01 limits over the past 2 weeks",
+          "user_query": "Show me Canadian PV01 limits over the past 2 weeks",
+          "sql": "SELECT date, letter_nm, limit_id, limit_desc, exposure_amt, effective_limit, utilization, curr FROM limits_data WHERE letter_nm LIKE '%Canadian%' AND limit_type = 'PV01 Delta' AND date >= (SELECT MAX(date) FROM limits_data) - INTERVAL '14 days' ORDER BY letter_nm, date DESC, limit_id;",
+          "explanation": "Uses LIKE pattern matching to capture all Canadian desks (e.g., Canadian Options, Canadian Prime Finance) and filters PV01 Delta limits over 14 days relative to the latest date, grouped by desk for comparison."
+        },
+        {
+          "id": "Q12",
+          "title": "Show me limits that breached in the last 10 days",
+          "user_query": "Show me limits that breached in the last 10 days",
+          "sql": "SELECT date, letter_nm, limit_id, limit_desc, exposure_amt, effective_limit, utilization, curr, state FROM limits_data WHERE utilization >= 1.0 AND date >= (SELECT MAX(date) FROM limits_data) - INTERVAL '10 days' ORDER BY date DESC, utilization DESC;",
+          "explanation": "Identifies all breached limits (utilization >= 1.0) within the last 10 days relative to the latest date, ordered by date and severity, to track recent limit violations for risk management review."
+        },
+        {
+          "id": "Q13",
+          "title": "How has exposure changed for stress limits in CAD currency over the past week",
+          "user_query": "How has exposure changed for stress limits in CAD currency over the past week",
+          "sql": "SELECT date, letter_nm, limit_id, limit_desc, exposure_amt, effective_limit, utilization, LAG(exposure_amt) OVER (PARTITION BY limit_id ORDER BY date) AS previous_exposure, exposure_amt - LAG(exposure_amt) OVER (PARTITION BY limit_id ORDER BY date) AS exposure_change FROM limits_data WHERE limit_group = 'Stress Limits' AND curr = 'CAD' AND date >= (SELECT MAX(date) FROM limits_data) - INTERVAL '7 days' ORDER BY limit_id, date;",
+          "explanation": "Uses window functions (LAG) to calculate day-over-day exposure changes for stress limits in CAD, showing both current exposure and the delta from the previous day for trend analysis over the past week."
+        },
+        {
+          "id": "Q14",
+          "title": "Show me average utilization by limit group over the past week",
+          "user_query": "Show me average utilization by limit group over the past week",
+          "sql": "SELECT limit_group, COUNT(DISTINCT limit_id) AS unique_limits, AVG(utilization) AS avg_utilization, MAX(utilization) AS max_utilization, MIN(utilization) AS min_utilization FROM limits_data WHERE date >= (SELECT MAX(date) FROM limits_data) - INTERVAL '7 days' GROUP BY limit_group ORDER BY avg_utilization DESC;",
+          "explanation": "Aggregates utilization metrics by limit_group using GROUP BY, calculating average, max, and min utilization along with count of unique limits to identify which limit groups are most utilized over the past week."
+        },
+        {
+          "id": "Q15",
+          "title": "How many limits are breached?",
+          "user_query": "How many limits are breached?",
+          "sql": "SELECT COUNT(DISTINCT limit_id) AS breached_limit_count, COUNT(*) AS total_breach_records FROM limits_data WHERE utilization >= 1.0 AND date = (SELECT MAX(date) FROM limits_data);",
+          "explanation": "Counts distinct breached limits and total breach records for the latest date, providing both unique limit count and total breach instances (accounting for multiple dates per limit)."
+        },
+        {
+          "id": "Q16",
+          "title": "Total exposure by desk",
+          "user_query": "Total exposure by desk",
+          "sql": "SELECT letter_nm, COUNT(DISTINCT limit_id) AS limit_count, SUM(exposure_amt) AS total_exposure, AVG(utilization) AS avg_utilization, MAX(utilization) AS max_utilization FROM limits_data WHERE date = (SELECT MAX(date) FROM limits_data) GROUP BY letter_nm ORDER BY total_exposure DESC;",
+          "explanation": "Aggregates exposure metrics by desk for the latest date, showing total exposure, limit count, and utilization statistics to identify desks with highest exposure and risk concentration."
+        }
+      ],
+      "utility_queries": [
+        {
+          "id": "U1",
+          "title": "Get all unique desks",
+          "sql": "SELECT DISTINCT letter_nm FROM limits_data ORDER BY letter_nm;",
+          "explanation": "Returns a list of all unique desk names in the dataset for reference when building desk-specific queries."
+        },
+        {
+          "id": "U2",
+          "title": "Get all limit types",
+          "sql": "SELECT DISTINCT limit_type FROM limits_data ORDER BY limit_type;",
+          "explanation": "Lists all distinct limit types available in the dataset (e.g., PV01 Delta, Gamma Vega, Stress Limits) for query construction reference."
+        },
+        {
+          "id": "U3",
+          "title": "Date range in dataset",
+          "sql": "SELECT MIN(date) AS earliest_date, MAX(date) AS latest_date, COUNT(DISTINCT date) AS total_days FROM limits_data;",
+          "explanation": "Provides the date range and total number of distinct dates in the dataset, useful for validating date filters in trend queries."
+        }
+      ],
+      "notes": {
+        "date_handling": "The queries use (SELECT MAX(date) FROM limits_data) - INTERVAL 'N days' syntax which is DuckDB compatible and works relative to the actual data in the table, not the current system date. This ensures queries work correctly even with historical datasets.",
+        "table_name": "When loading the CSV into DuckDB, the table name will be limits_data (derived from filename). If using a different name, update all queries accordingly.",
+        "utilization_calculation": "Utilization is already calculated in the dataset as exposure_amt / effective_limit. The queries filter on this pre-calculated value.",
+        "primary_vs_secondary": "The id2 column contains values like '300001-PRIMARY' or '300002-SECONDARY'. Use pattern matching with LIKE to filter.",
+        "extension_flag": "The extension column is binary (0 or 1), where 1 indicates an active extension.",
+        "performance": "For large datasets, consider adding indexes on frequently filtered columns (date, limit_id, letter_nm, limit_type) if your database supports them.",
+        "column_names": "All column names match exactly as they appear in the CSV header. Note that Original_limit has a capital 'O' and effective_limit is lowercase.",
+        "date_range": "The current dataset spans from 2024-10-09 to 2024-11-08. Queries using relative date intervals (e.g., 'past 7 days') will work correctly as long as there is sufficient historical data in the table."
+      }
+    }
+  }
+}
