@@ -8,7 +8,7 @@ from tools.base_mcp_tool import BaseMCPTool
 import json
 
 try:
-    from agent.llm_client import get_llm_client
+    from external.agent.llm_client import get_llm_client
     LLM_AVAILABLE = True
 except ImportError:
     LLM_AVAILABLE = False
@@ -105,7 +105,7 @@ class QueryResultEvaluatorTool(BaseMCPTool):
         execution_stats = arguments.get("execution_stats", {})
         
         # Get prompts from config if available, otherwise use defaults
-        from agent.config import QueryAgentConfig
+        from external.agent.config import QueryAgentConfig
         cfg = QueryAgentConfig()
         
         system_prompt = cfg.get_nested("prompts", "evaluator_system", default="""You are a query result evaluator. Assess if the query results satisfactorily answer the user's original question.

@@ -1,0 +1,8 @@
+{
+  "domain": "Dummy",
+  "name": "One",
+  "data_dict_file": "data_dictionary.json",
+  "agent_prompts_file": "queryagent_planner.json",
+  "welcome_tips_file": "agent_welcome_message.json",
+  "created_at": "2025-11-12T04:46:38.906Z"
+}
