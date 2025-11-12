@@ -1,6 +1,6 @@
 {
   "name": "query_safety_validator",
-  "implementation": "tools.impl.query_safety_validator.QuerySafetyValidatorTool",
+  "implementation": "external.tools.query_safety_validator.QuerySafetyValidatorTool",
   "description": "Validate SQL queries for safety and enforce limits",
   "version": "1.0.0",
   "enabled": true,

@@ -9,9 +9,9 @@ from typing import Dict, Any, Optional, Callable
 from external.agent.schemas import AgentState, PartialState
 from external.agent.config import QueryAgentConfig
 from external.agent.state_manager import AgentStateManager
-from tools.impl.nl_to_sql_planner import NLToSQLPlannerTool
-from tools.impl.query_safety_validator import QuerySafetyValidatorTool
-from tools.impl.query_result_evaluator import QueryResultEvaluatorTool
+from external.tools.nl_to_sql_planner import NLToSQLPlannerTool
+from external.tools.query_safety_validator import QuerySafetyValidatorTool
+from external.tools.query_result_evaluator import QueryResultEvaluatorTool
 import hashlib
 
 logger = logging.getLogger(__name__)

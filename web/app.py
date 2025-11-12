@@ -25,6 +25,17 @@ from routes import (
     SocketIOHandlers
 )
 
+# Import external agent routes (optional)
+try:
+    from external.routes.agent_routes import AgentRoutes
+    from external.routes.agent_socketio_handlers import AgentSocketIOHandlers
+    AGENT_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Agent routes not available: {e}. Server will run without agent features.")
+    AgentRoutes = None
+    AgentSocketIOHandlers = None
+    AGENT_AVAILABLE = False
+
 # Global instances
 app = None
 socketio = None
@@ -90,6 +101,19 @@ def register_all_routes(app, socketio):
     
     # Register SocketIO handlers
     socketio_handlers.register_handlers()
+    
+    # Initialize and register external agent routes (if available)
+    if AGENT_AVAILABLE and AgentRoutes is not None and AgentSocketIOHandlers is not None:
+        try:
+            agent_routes = AgentRoutes(auth_manager, tools_registry)
+            agent_socketio_handlers = AgentSocketIOHandlers(socketio, auth_manager, tools_registry)
+            agent_routes.register_routes(app)
+            agent_socketio_handlers.register_handlers()
+            logging.info("Agent routes registered successfully")
+        except Exception as e:
+            logging.error(f"Failed to register agent routes: {e}")
+    else:
+        logging.info("Agent features not available - server running in base mode")
     
     logging.info("All routes registered successfully")
 

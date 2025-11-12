@@ -1,6 +1,6 @@
 {
   "name": "query_result_evaluator",
-  "implementation": "tools.impl.query_result_evaluator.QueryResultEvaluatorTool",
+  "implementation": "external.tools.query_result_evaluator.QueryResultEvaluatorTool",
   "description": "Evaluate query results against original intent (LLM or heuristics)",
   "version": "1.0.0",
   "enabled": true,

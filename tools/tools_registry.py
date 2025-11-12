@@ -75,7 +75,7 @@ class ToolsRegistry:
         # Create directory if it doesn't exist
         os.makedirs(self.tools_config_dir, exist_ok=True)
         
-        # Scan for JSON configuration files
+        # Scan for JSON configuration files in main config directory
         config_path = Path(self.tools_config_dir)
         for config_file in config_path.glob('*.json'):
             try:
@@ -83,6 +83,17 @@ class ToolsRegistry:
             except Exception as e:
                 self.logger.error(f"Error loading tool from {config_file}: {e}")
                 self.tool_errors[config_file.stem] = str(e)
+        
+        # Also scan external/config/tools/ for agent-specific tools
+        external_tools_dir = Path('external') / 'config' / 'tools'
+        if external_tools_dir.exists():
+            self.logger.info(f"Loading agent tools from {external_tools_dir}")
+            for config_file in external_tools_dir.glob('*.json'):
+                try:
+                    self.load_tool_from_config(config_file)
+                except Exception as e:
+                    self.logger.error(f"Error loading agent tool from {config_file}: {e}")
+                    self.tool_errors[config_file.stem] = str(e)
     
     def load_tool_from_config(self, config_file: Path):
         """
@@ -307,53 +318,62 @@ class ToolsRegistry:
         """Monitor configuration files for changes"""
         while not self._stop_monitor.wait(5):  # Check every 5 seconds
             try:
+                # Monitor main config directory
                 config_path = Path(self.tools_config_dir)
+                self._monitor_directory(config_path)
                 
-                # Check for new or modified files
-                for config_file in config_path.glob('*.json'):
-                    file_path = str(config_file)
-                    current_mtime = config_file.stat().st_mtime
-                    
-                    if file_path not in self._file_timestamps:
-                        # New file
-                        self.logger.info(f"New tool configuration detected: {config_file.name}")
-                        self.load_tool_from_config(config_file)
-                    elif self._file_timestamps[file_path] < current_mtime:
-                        # Modified file
-                        self.logger.info(f"Tool configuration changed: {config_file.name}")
-                        tool_name = config_file.stem
-                        
-                        # Unload existing tool
-                        if tool_name in self.tools:
-                            self.unregister_tool(tool_name)
-                        
-                        # Reload tool
-                        self.load_tool_from_config(config_file)
-                
-                # Check for deleted files
-                tracked_files = set(self._file_timestamps.keys())
-                existing_files = {str(f) for f in config_path.glob('*.json')}
-                
-                for deleted_file in tracked_files - existing_files:
-                    self.logger.info(f"Tool configuration deleted: {Path(deleted_file).name}")
-                    tool_name = Path(deleted_file).stem
-                    
-                    # Unregister tool
-                    if tool_name in self.tools:
-                        self.unregister_tool(tool_name)
-                    
-                    # Remove from tracking
-                    del self._file_timestamps[deleted_file]
-                    
-                    # Remove from configs
-                    if tool_name in self.tool_configs:
-                        del self.tool_configs[tool_name]
-                    
-                    # Mark as error
-                    self.tool_errors[tool_name] = "Configuration file deleted"
+                # Also monitor external/config/tools/ for agent-specific tools
+                external_tools_dir = Path('external') / 'config' / 'tools'
+                if external_tools_dir.exists():
+                    self._monitor_directory(external_tools_dir)
                     
             except Exception as e:
                 self.logger.error(f"Error in file monitoring: {e}")
+    
+    def _monitor_directory(self, config_path: Path):
+        """Monitor a specific directory for tool configuration changes"""
+        # Check for new or modified files
+        for config_file in config_path.glob('*.json'):
+            file_path = str(config_file)
+            current_mtime = config_file.stat().st_mtime
+            
+            if file_path not in self._file_timestamps:
+                # New file
+                self.logger.info(f"New tool configuration detected: {config_file.name}")
+                self.load_tool_from_config(config_file)
+            elif self._file_timestamps[file_path] < current_mtime:
+                # Modified file
+                self.logger.info(f"Tool configuration changed: {config_file.name}")
+                tool_name = config_file.stem
+                
+                # Unload existing tool
+                if tool_name in self.tools:
+                    self.unregister_tool(tool_name)
+                
+                # Reload tool
+                self.load_tool_from_config(config_file)
+        
+        # Check for deleted files in this directory
+        tracked_files = {k for k in self._file_timestamps.keys() if k.startswith(str(config_path))}
+        existing_files = {str(f) for f in config_path.glob('*.json')}
+        
+        for deleted_file in tracked_files - existing_files:
+            self.logger.info(f"Tool configuration deleted: {Path(deleted_file).name}")
+            tool_name = Path(deleted_file).stem
+            
+            # Unregister tool
+            if tool_name in self.tools:
+                self.unregister_tool(tool_name)
+            
+            # Remove from tracking
+            del self._file_timestamps[deleted_file]
+            
+            # Remove from configs
+            if tool_name in self.tool_configs:
+                del self.tool_configs[tool_name]
+            
+            # Mark as error
+            self.tool_errors[tool_name] = "Configuration file deleted"
     
     def reload_all_tools(self):
         """Reload all tools from configuration"""
