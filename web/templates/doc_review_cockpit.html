@@ -1,0 +1,1194 @@
+{% extends "base.html" %}
+
+{% block title %}Document Review Cockpit{% endblock %}
+
+{% block extra_css %}
+<style>
+    .doc-sidebar {
+        max-height: calc(100vh - 240px);
+        overflow-y: auto;
+    }
+    .doc-markdown-editor {
+        height: 420px;
+        background-color: #0f172a;
+        color: #e2e8f0;
+        font-family: "Source Code Pro", monospace;
+        font-size: 0.9rem;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid #1e293b;
+        resize: vertical;
+    }
+    .doc-markdown-editor:focus {
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.35);
+    }
+    .doc-chat-history {
+        height: 260px;
+        overflow-y: auto;
+    }
+    .status-pill {
+        display: inline-block;
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        text-transform: capitalize;
+    }
+    .status-completed { background-color: #d1fae5; color: #047857; }
+    .status-running { background-color: #bfdbfe; color: #1d4ed8; }
+    .status-error { background-color: #fee2e2; color: #b91c1c; }
+    .status-new { background-color: #f3e8ff; color: #6b21a8; }
+    .status-ready { background-color: #fef3c7; color: #92400e; }
+    .toc-preview {
+        max-height: 220px;
+        overflow-y: auto;
+        font-size: 0.85rem;
+        background-color: #f8fafc;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        border: 1px solid #e2e8f0;
+    }
+    .annotation-legend span {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.4rem;
+        margin-right: 0.5rem;
+        font-size: 0.75rem;
+    }
+    .legend-original { background-color: #cbd5f5; }
+    .legend-ai-title { background-color: #fde68a; }
+    .legend-ai-comment { background-color: #fca5a5; }
+    .nav-doc-review .nav-link {
+        border-radius: 999px;
+        margin-right: 0.5rem;
+        font-weight: 500;
+    }
+    .nav-doc-review .nav-link.disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+    .chunk-preview-list {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+    .chunk-preview-list li {
+        padding: 0.35rem 0.5rem;
+        border-radius: 0.35rem;
+        border: 1px solid #e5e7eb;
+        background-color: #f8fafc;
+        margin-bottom: 0.4rem;
+        font-size: 0.85rem;
+    }
+    .chunk-preview-list li:last-child {
+        margin-bottom: 0;
+    }
+    .chunk-pill {
+        font-size: 0.75rem;
+        background-color: #e0f2fe;
+        color: #0369a1;
+        border-radius: 999px;
+        padding: 0.1rem 0.4rem;
+        margin-left: 0.35rem;
+    }
+    .tab-helper {
+        font-size: 0.85rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3 align-items-center">
+        <div class="col-md-8">
+            <h1 class="h3 mb-0"><i class="bi bi-diagram-3"></i> Document Review Cockpit</h1>
+            <p class="text-muted mb-0">Run the predefined ingestion → chunking → mapping workflow and iterate with AI-assisted refinements.</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <button id="btn-refresh" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Current Document Overview</h5>
+                    <span class="small text-muted tab-helper">Select a document in Tab 1 to unlock the remaining workflow steps.</span>
+                </div>
+                <div class="card-body" id="overviewPanel">
+                    <p class="text-muted mb-0">No document selected yet. Start in Tab 1 to upload or pick a document.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ul class="nav nav-pills nav-doc-review mt-4" id="docReviewTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tabButtonUpload" data-bs-toggle="tab" data-bs-target="#tab-upload" type="button" role="tab" aria-controls="tab-upload" aria-selected="true">
+                1. Upload &amp; Select
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link disabled" id="tabButtonChunking" data-bs-toggle="tab" data-bs-target="#tab-chunking" type="button" role="tab" aria-controls="tab-chunking" aria-selected="false" disabled>
+                2. Chunking &amp; Preview
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link disabled" id="tabButtonAnalysis" data-bs-toggle="tab" data-bs-target="#tab-analysis" type="button" role="tab" aria-controls="tab-analysis" aria-selected="false" disabled>
+                3. Analysis Run
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link disabled" id="tabButtonReview" data-bs-toggle="tab" data-bs-target="#tab-review" type="button" role="tab" aria-controls="tab-review" aria-selected="false" disabled>
+                4. Review &amp; Chat
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3" id="docReviewTabContent">
+        <div class="tab-pane fade show active" id="tab-upload" role="tabpanel" aria-labelledby="tabButtonUpload">
+            <div class="row g-3">
+                <div class="col-lg-5">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-cloud-arrow-up"></i> Ingest a Document</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="small text-muted">Use a server-accessible path or upload a local file. The ingestion pipeline will normalise the document to Markdown using the deterministic MCP tools from the architecture outline.</p>
+                            <form id="upload-form" class="mb-3">
+                                <label for="inputSourcePath" class="form-label">Source file path</label>
+                                <input type="text" id="inputSourcePath" class="form-control" placeholder="/absolute/path/to/document.pdf" required>
+                                <div class="input-group mt-2">
+                                    <input type="text" id="inputFileId" class="form-control" placeholder="Optional file_id">
+                                    <button class="btn btn-success" type="submit">
+                                        <i class="bi bi-upload"></i> Ingest
+                                    </button>
+                                </div>
+                                <div class="form-text">Provide a path the server can reach. The pipeline runs `detect_file_type → convert_to_markdown → extract_images → compute_file_stats → analyze_heading_structure → build_file_metadata`.</div>
+                            </form>
+                            <div class="border-top pt-3">
+                                <label class="form-label" for="fileUploadInput">Upload from local machine</label>
+                                <input type="file" id="fileUploadInput" class="form-control" accept=".pdf,.docx,.pptx,.md,.markdown,.txt">
+                                <button type="button" class="btn btn-outline-primary mt-2 w-100" id="btnUploadLocal">
+                                    <i class="bi bi-folder-plus"></i> Upload &amp; Fill Path
+                                </button>
+                                <div class="form-text mt-2" id="uploadStatus">Uploaded files are stored server-side and the saved path is auto-populated above.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="bi bi-files"></i> Documents &amp; Runs</h5>
+                            <span class="small text-muted">Selecting a document unlocks Tabs 2–4.</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="doc-sidebar list-group list-group-flush" id="documentsList">
+                                <div class="list-group-item text-muted small text-center">No documents ingested yet.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-chunking" role="tabpanel" aria-labelledby="tabButtonChunking">
+            <div class="row g-3">
+                <div class="col-lg-7">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-0">Chunking Controls</h5>
+                                <small class="text-muted">Adjust thresholds and strategies, then apply to regenerate chunks via deterministic MCP tools.</small>
+                            </div>
+                            <button id="btn-save-config" class="btn btn-sm btn-primary" disabled>
+                                <i class="bi bi-arrow-repeat"></i> Apply Chunking
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <form id="config-form">
+                                <fieldset id="chunking-fieldset" disabled>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="toggleForceChunk">
+                                        <label class="form-check-label" for="toggleForceChunk">Force chunk regardless of page count</label>
+                                    </div>
+                                    <div class="row g-3 align-items-end">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Page threshold</label>
+                                            <input type="number" min="1" id="inputPageThreshold" class="form-control" value="50">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Default strategy</label>
+                                            <select id="selectStrategy" class="form-select">
+                                                <option value="by_h1">By H1</option>
+                                                <option value="by_h2" selected>By H2</option>
+                                                <option value="by_h3">By H3</option>
+                                                <option value="none">No chunking</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Context aware level</label>
+                                            <select id="selectContextLevel" class="form-select">
+                                                <option value="h1">H1</option>
+                                                <option value="h2" selected>H2</option>
+                                                <option value="h3">H3</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 align-items-end mt-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Max tokens per chunk</label>
+                                            <input type="number" min="200" step="100" id="inputMaxTokens" class="form-control" value="1800">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Estimated chunk count</label>
+                                            <input type="text" id="inputEstimatedChunks" class="form-control" placeholder="Apply config to refresh" disabled>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Chunk Preview</h5>
+                            <span class="small text-muted">Summaries from `build_index` output.</span>
+                        </div>
+                        <div class="card-body" id="chunkPreviewPanel">
+                            <p class="text-muted mb-0">Apply chunking to see section counts, headings, and token estimates.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-analysis" role="tabpanel" aria-labelledby="tabButtonAnalysis">
+            <div class="row g-3">
+                <div class="col-lg-7">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Template &amp; AI Controls</h5>
+                        </div>
+                        <div class="card-body">
+                            <fieldset id="template-fieldset" disabled>
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-8">
+                                        <label class="form-label">Template</label>
+                                        <select id="selectTemplate" class="form-select"></select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">TOC level</label>
+                                        <select id="selectTocLevel" class="form-select">
+                                            <option value="h1">H1</option>
+                                            <option value="h2" selected>H2</option>
+                                            <option value="h3">H3</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-check mt-3">
+                                    <input class="form-check-input" type="checkbox" id="toggleLateAppend" checked>
+                                    <label class="form-check-label" for="toggleLateAppend">Attempt late mapping for relevant unmapped sections</label>
+                                </div>
+                            </fieldset>
+                            <div class="mt-3 small border rounded p-2 bg-light" id="templatePreview">
+                                Select a template to preview its outline here.
+                            </div>
+                            <hr>
+                            <fieldset id="llm-fieldset" disabled>
+                                <div class="row g-3">
+                                    <div class="col-md-8">
+                                        <label class="form-label">LLM model</label>
+                                        <input type="text" id="inputLlmModel" class="form-control" placeholder="claude-3-opus-20240229">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Temperature</label>
+                                        <input type="number" id="inputLlmTemperature" class="form-control" min="0" max="1" step="0.05" value="0.2">
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <hr>
+                            <fieldset id="ui-fieldset" disabled>
+                                <div class="row g-3">
+                                    <div class="col-md-8">
+                                        <label class="form-label">Heading for appended sections</label>
+                                        <input type="text" id="inputUiAppendHeading" class="form-control" placeholder="Additional Sections">
+                                    </div>
+                                    <div class="col-md-4 d-flex align-items-end">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="toggleUiTitleHighlight" checked>
+                                            <label class="form-check-label" for="toggleUiTitleHighlight">Highlight AI titles</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" id="toggleUiComments" checked>
+                                    <label class="form-check-label" for="toggleUiComments">Show AI comments panel</label>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Workflow Execution</h5>
+                            <button id="btn-run" class="btn btn-sm btn-warning" disabled>
+                                <i class="bi bi-play-fill"></i> Run Analysis
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <p class="small text-muted">This run executes the LangGraph nodes (heading mapping, title improvements, relevancy scoring, second-pass mapping) then calls deterministic MCP tools for TOC generation, document assembly, and UI annotations.</p>
+                            <div id="logsPanel" class="small text-muted border rounded p-2" style="max-height:220px; overflow-y:auto;">
+                                <em>No logs yet</em>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-review" role="tabpanel" aria-labelledby="tabButtonReview">
+            <div class="row g-3">
+                <div class="col-lg-7">
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <h5 class="mb-0">Improved Markdown</h5>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="annotation-legend small text-muted">
+                                    <span class="legend-original">Original</span>
+                                    <span class="legend-ai-title">AI title</span>
+                                    <span class="legend-ai-comment">Comment</span>
+                                </div>
+                                <button id="btn-save-markdown" class="btn btn-sm btn-success" disabled>
+                                    <i class="bi bi-save"></i> Save Markdown
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <textarea class="form-control doc-markdown-editor" id="markdownEditor" placeholder="Run the workflow to populate improved markdown for editing." disabled></textarea>
+                            <div class="toc-preview mt-3" id="tocPreview"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Chat with Review Agent</h5>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="doc-chat-history border rounded p-2 mb-3 flex-grow-1" id="chatHistory"></div>
+                            <form id="chat-form" class="d-flex gap-2">
+                                <input type="text" id="inputChat" class="form-control" placeholder="Ask about the document..." required>
+                                <button class="btn btn-outline-primary" type="submit">
+                                    <i class="bi bi-send"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+console.info('[DocReview][inline-version]', '2025-11-13T21:15:00Z');
+const documentsListEl = document.getElementById('documentsList');
+const overviewPanel = document.getElementById('overviewPanel');
+const logsPanel = document.getElementById('logsPanel');
+const markdownEditor = document.getElementById('markdownEditor');
+const saveMarkdownButton = document.getElementById('btn-save-markdown');
+const tocPreview = document.getElementById('tocPreview');
+const templatesSelect = document.getElementById('selectTemplate');
+const chatHistory = document.getElementById('chatHistory');
+const templatePreview = document.getElementById('templatePreview');
+const fileUploadInput = document.getElementById('fileUploadInput');
+const uploadStatus = document.getElementById('uploadStatus');
+const uploadButton = document.getElementById('btnUploadLocal');
+const chunkPreviewPanel = document.getElementById('chunkPreviewPanel');
+const estimatedChunksInput = document.getElementById('inputEstimatedChunks');
+const tabControls = {
+    chunking: document.getElementById('tabButtonChunking'),
+    analysis: document.getElementById('tabButtonAnalysis'),
+    review: document.getElementById('tabButtonReview')
+};
+
+let activeDocumentId = null;
+let activeDocument = null;
+let markdownDirty = false;
+const templateCache = {};
+let liveLogs = [];
+let currentLogRoom = null;
+let pendingLogRoom = null;
+
+function setWorkflowTabsEnabled(enabled) {
+    Object.values(tabControls).forEach(btn => {
+        if (!btn) return;
+        btn.disabled = !enabled;
+        btn.classList.toggle('disabled', !enabled);
+    });
+}
+
+function showTab(targetId) {
+    const trigger = document.querySelector(`[data-bs-target="${targetId}"]`);
+    if (!trigger || typeof bootstrap === 'undefined' || !bootstrap.Tab) return;
+    bootstrap.Tab.getOrCreateInstance(trigger).show();
+}
+
+function toggleConfigFieldsets(enabled) {
+    ['chunking-fieldset', 'template-fieldset', 'llm-fieldset', 'ui-fieldset'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = !enabled;
+    });
+    const runBtn = document.getElementById('btn-run');
+    const applyBtn = document.getElementById('btn-save-config');
+    if (runBtn) runBtn.disabled = !enabled;
+    if (applyBtn) applyBtn.disabled = !enabled;
+}
+
+function highlightActiveDocument() {
+    if (!documentsListEl) return;
+    Array.from(documentsListEl.querySelectorAll('.list-group-item')).forEach(item => {
+        if (!item.dataset.fileId) return;
+        item.classList.toggle('active', item.dataset.fileId === activeDocumentId);
+    });
+}
+
+async function ensureSocketToken() {
+    let token = typeof getSessionToken === 'function' ? getSessionToken() : null;
+    if (token) {
+        if (typeof socket !== 'undefined' && socket) {
+            try {
+                socket.emit('authenticate', { token });
+            } catch (err) {
+                console.warn('Failed to re-authenticate existing socket', err);
+            }
+        }
+        return token;
+    }
+    try {
+        const res = await fetch('/api/doc_review/token');
+        if (!res.ok) {
+            return null;
+        }
+        const data = await res.json();
+        if (data.token) {
+            if (typeof sessionStorage !== 'undefined') {
+                sessionStorage.setItem('mcp_token', data.token);
+            }
+            document.cookie = `mcp_token=${data.token}; path=/`;
+            if (typeof socket !== 'undefined' && socket) {
+                try {
+                    socket.emit('authenticate', { token: data.token });
+                    if (socket.disconnected) {
+                        socket.connect();
+                    }
+                } catch (err) {
+                    console.warn('Failed to authenticate socket with fetched token', err);
+                }
+            }
+            return data.token;
+        }
+    } catch (err) {
+        console.error('Failed to fetch doc review token', err);
+    }
+    return null;
+}
+
+function statusPill(status) {
+    const normalized = (status || 'new').toLowerCase();
+    const classMap = {
+        completed: 'status-completed',
+        running: 'status-running',
+        error: 'status-error',
+        new: 'status-new',
+        ready: 'status-ready'
+    };
+    return `<span class="status-pill ${classMap[normalized] || 'status-new'}">${normalized}</span>`;
+}
+
+async function loadTemplates() {
+    try {
+        const res = await fetch('/api/doc_review/templates');
+        const data = await res.json();
+        templatesSelect.innerHTML = '';
+        data.templates.forEach(t => {
+            const option = document.createElement('option');
+            option.value = t.template_id;
+            option.textContent = `${t.template_id} (${Math.round(t.size/1024)} KB)`;
+            templatesSelect.appendChild(option);
+            templateCache[t.template_id] = { summary: t };
+        });
+    } catch (err) {
+        console.error('Failed to load templates', err);
+    }
+}
+
+async function loadDocuments() {
+    try {
+        const res = await fetch('/api/doc_review/documents');
+        const data = await res.json();
+        documentsListEl.innerHTML = '';
+        if (!Array.isArray(data.documents) || !data.documents.length) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'list-group-item text-muted small text-center';
+            placeholder.textContent = 'No documents ingested yet.';
+            documentsListEl.appendChild(placeholder);
+            if (!activeDocumentId) {
+                setWorkflowTabsEnabled(false);
+                toggleConfigFieldsets(false);
+            }
+            return;
+        }
+        let hasActive = false;
+        data.documents.forEach(doc => {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+            item.dataset.fileId = doc.file_id;
+            if (doc.file_id === activeDocumentId) {
+                item.classList.add('active');
+                hasActive = true;
+            }
+            item.innerHTML = `<div>
+                <div class="fw-semibold">${doc.file_id}</div>
+                <div class="small text-muted">${doc.file_metadata?.page_count || 0} pages • ${doc.file_metadata?.word_count || 0} words</div>
+            </div>
+            ${statusPill(doc.status)}`;
+            item.addEventListener('click', () => selectDocument(doc.file_id));
+            documentsListEl.appendChild(item);
+        });
+        if (!hasActive) {
+            activeDocumentId = null;
+            activeDocument = null;
+            setWorkflowTabsEnabled(false);
+            toggleConfigFieldsets(false);
+            overviewPanel.innerHTML = '<p class="text-muted mb-0">No document selected yet. Start in Tab 1 to upload or pick a document.</p>';
+            markdownEditor.value = 'Run the workflow to populate improved markdown for editing.';
+            markdownEditor.disabled = true;
+            saveMarkdownButton.disabled = true;
+            tocPreview.textContent = '';
+            chunkPreviewPanel.innerHTML = '<p class="text-muted mb-0">Apply chunking to see section counts, headings, and token estimates.</p>';
+        } else {
+            highlightActiveDocument();
+        }
+    } catch (err) {
+        console.error('Failed to load documents', err);
+    }
+}
+
+function renderOverview(state) {
+    const metadata = state.state?.file_metadata || {};
+    const chunking = metadata.chunking || {};
+    const headingLevels = metadata.heading_levels || [];
+    overviewPanel.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0">${state.file_id}</h6>
+            ${statusPill(state.status)}
+        </div>
+        <dl class="row small">
+            <dt class="col-5">Source path</dt>
+            <dd class="col-7 text-truncate" title="${state.source_path}">${state.source_path}</dd>
+            <dt class="col-5">File type</dt>
+            <dd class="col-7">${metadata.file_type || state.state?.file_type || 'unknown'}</dd>
+            <dt class="col-5">Pages / Words</dt>
+            <dd class="col-7">${metadata.page_count || 0} / ${metadata.word_count || 0}</dd>
+            <dt class="col-5">Heading levels</dt>
+            <dd class="col-7">${headingLevels.join(', ') || 'n/a'}</dd>
+            <dt class="col-5">Chunking</dt>
+            <dd class="col-7">${chunking.strategy || 'none'} • should_chunk=${chunking.should_chunk}</dd>
+            <dt class="col-5">Updated</dt>
+            <dd class="col-7">${state.updated_at || 'n/a'}</dd>
+        </dl>
+    `;
+}
+
+function renderMarkdown(state) {
+    const markdown = state.state?.improved_markdown;
+    if (markdown) {
+        markdownEditor.value = markdown;
+        markdownEditor.disabled = false;
+        markdownDirty = false;
+        saveMarkdownButton.disabled = true;
+    } else {
+        markdownEditor.value = 'Run the workflow to populate improved markdown for editing.';
+        markdownEditor.disabled = true;
+        markdownDirty = false;
+        saveMarkdownButton.disabled = true;
+    }
+    const tocEntries = state.state?.index?.toc || [];
+    if (tocEntries.length) {
+        tocPreview.innerHTML = tocEntries.map(entry => `
+            <div>${(entry.order ?? 0) + 1}. ${entry.heading}</div>
+        `).join('');
+    } else {
+        tocPreview.textContent = 'Table of contents will appear after a successful run.';
+    }
+}
+
+function renderChunkPreview(state) {
+    if (!chunkPreviewPanel) return;
+    const chunks = Array.isArray(state.state?.chunks) ? state.state.chunks : [];
+    const chunking = state.state?.file_metadata?.chunking || state.state?.chunking_decision || {};
+    if (estimatedChunksInput) {
+        estimatedChunksInput.value = chunks.length ? String(chunks.length) : '';
+    }
+    if (!chunks.length) {
+        chunkPreviewPanel.innerHTML = `
+            <p class="text-muted mb-2">No chunk data available. Apply chunking on this tab to generate preview from the latest deterministic pass.</p>
+            <div class="alert alert-info py-2 px-3 mb-0 small">Chunk summaries will list section headings, hierarchy, and estimated tokens.</div>
+        `;
+        return;
+    }
+    const total = chunks.length;
+    const tokenCounts = chunks.map(c => c.token_count).filter(v => typeof v === 'number');
+    const avgTokens = tokenCounts.length ? Math.round(tokenCounts.reduce((sum, val) => sum + val, 0) / tokenCounts.length) : 'n/a';
+    const maxTokens = tokenCounts.length ? Math.max(...tokenCounts) : 'n/a';
+    const strategy = chunking.strategy || 'unknown';
+    const shouldChunk = chunking.should_chunk ?? true;
+    const previewItems = chunks.slice(0, 6).map(chunk => {
+        const heading = chunk.heading_path?.length ? chunk.heading_path.join(' › ') : (chunk.heading_text_original || `Chunk ${chunk.order ?? 0}`);
+        const order = (chunk.order ?? 0) + 1;
+        const tokens = typeof chunk.token_count === 'number' ? `${chunk.token_count} tokens` : 'tokens n/a';
+        return `<li>
+            <strong>#${order}</strong> ${heading}
+            <span class="chunk-pill">${tokens}</span>
+        </li>`;
+    }).join('');
+    const extraNote = total > 6 ? `<p class="small text-muted mb-0">Showing first 6 of ${total} chunks.</p>` : '';
+    chunkPreviewPanel.innerHTML = `
+        <div class="mb-2">
+            <span class="badge bg-primary-subtle text-primary-emphasis me-2">Strategy: ${strategy}</span>
+            <span class="badge bg-secondary-subtle text-secondary-emphasis me-2">should_chunk=${shouldChunk}</span>
+            <span class="badge bg-info-subtle text-info-emphasis">Avg tokens: ${avgTokens} • Max: ${maxTokens}</span>
+        </div>
+        <ul class="chunk-preview-list">${previewItems}</ul>
+        ${extraNote}
+    `;
+}
+
+function normaliseLogEntry(entry) {
+    if (!entry) {
+        return { node: 'workflow', message: '', level: 'info', timestamp: null };
+    }
+    if (typeof entry === 'string') {
+        const parts = entry.split(':');
+        const node = parts.length > 1 ? parts.shift() : 'workflow';
+        const message = parts.join(':').trim() || entry;
+        const level = entry.toLowerCase().includes('error') ? 'error' : 'info';
+        return { node, message, level, timestamp: null };
+    }
+    return {
+        node: entry.node || 'workflow',
+        message: entry.message || '',
+        level: entry.level || 'info',
+        timestamp: entry.timestamp || null,
+    };
+}
+
+function updateLogsPanel() {
+    if (!liveLogs.length) {
+        logsPanel.innerHTML = '<em>No logs yet</em>';
+        return;
+    }
+    logsPanel.innerHTML = liveLogs
+        .map(entry => {
+            const time = entry.timestamp ? new Date(entry.timestamp).toLocaleTimeString() : '';
+            const levelClass =
+                entry.level === 'error'
+                    ? 'text-danger'
+                    : entry.level === 'warning'
+                    ? 'text-warning'
+                    : 'text-muted';
+            const nodeLabel = entry.node ? `<strong>${entry.node}</strong>` : '';
+            return `<div class="small ${levelClass}">${time ? `[${time}] ` : ''}${nodeLabel}${nodeLabel ? ': ' : ''}${entry.message}</div>`;
+        })
+        .join('');
+    logsPanel.scrollTop = logsPanel.scrollHeight;
+}
+
+function renderLogs(state) {
+    const logs = state.state?.logs || [];
+    liveLogs = logs.map(normaliseLogEntry);
+    updateLogsPanel();
+}
+
+function subscribeToLogs(fileId) {
+    if (!fileId) return;
+    pendingLogRoom = fileId;
+    if (typeof socket !== 'undefined' && socket && isAuthenticated) {
+        joinDocLogRoom(fileId);
+    }
+}
+
+async function joinDocLogRoom(fileId) {
+    if (!socket || !isAuthenticated || !fileId) return;
+    const token = await ensureSocketToken();
+    if (!token) return;
+    if (currentLogRoom && currentLogRoom !== fileId) {
+        socket.emit('doc_review:leave', { token, file_id: currentLogRoom });
+    }
+    socket.emit('doc_review:join', { token, file_id: fileId });
+    currentLogRoom = fileId;
+    pendingLogRoom = null;
+}
+
+async function leaveDocLogRoom() {
+    if (!socket || !isAuthenticated || !currentLogRoom) return;
+    const token = await ensureSocketToken();
+    if (!token) return;
+    socket.emit('doc_review:leave', { token, file_id: currentLogRoom });
+    currentLogRoom = null;
+}
+
+function handleDocReviewLog(data) {
+    if (!data || data.file_id !== activeDocumentId) return;
+    const entry = normaliseLogEntry(data);
+    liveLogs.push(entry);
+    if (liveLogs.length > 200) {
+        liveLogs = liveLogs.slice(-200);
+    }
+    updateLogsPanel();
+}
+
+function handleDocReviewStatus(data) {
+    if (!data || data.file_id !== activeDocumentId) return;
+    if (data.status && activeDocument) {
+        activeDocument.status = data.status;
+        renderOverview(activeDocument);
+    }
+    if (data.message) {
+        liveLogs.push(
+            normaliseLogEntry({
+                node: data.status || 'status',
+                message: data.message,
+                level: data.status === 'error' ? 'error' : 'info',
+                timestamp: data.timestamp,
+            })
+        );
+        if (liveLogs.length > 200) {
+            liveLogs = liveLogs.slice(-200);
+        }
+        updateLogsPanel();
+    }
+}
+
+function renderTemplatePreview(templateData) {
+    if (!templateData) {
+        templatePreview.textContent = 'Select a template to preview its outline here.';
+        return;
+    }
+    const sections = templateData.sections || [];
+    if (!sections.length) {
+        templatePreview.textContent = 'Template has no defined sections.';
+        return;
+    }
+    const lines = [];
+    const walk = (items, depth = 0) => {
+        items.forEach(item => {
+            const indent = '&nbsp;'.repeat(depth * 4);
+            const title = item.title || item.id;
+            lines.push(`${indent}• ${title} (${item.level})`);
+            if (Array.isArray(item.children) && item.children.length) {
+                walk(item.children, depth + 1);
+            }
+        });
+    };
+    walk(sections);
+    templatePreview.innerHTML = lines.join('<br>');
+}
+
+async function refreshTemplatePreview(templateId) {
+    if (!templateId) {
+        renderTemplatePreview(null);
+        return;
+    }
+    if (templateCache[templateId]?.content) {
+        renderTemplatePreview(templateCache[templateId].content);
+        return;
+    }
+    try {
+        const res = await fetch(`/api/doc_review/templates/${templateId}`);
+        if (!res.ok) throw new Error(`Template fetch failed: ${res.status}`);
+        const data = await res.json();
+        templateCache[templateId] = { ...(templateCache[templateId] || {}), content: data.content };
+        renderTemplatePreview(data.content);
+    } catch (err) {
+        console.error('Failed to load template detail', err);
+        templatePreview.textContent = 'Unable to load template preview.';
+    }
+}
+
+function renderChatHistory(entries) {
+    chatHistory.innerHTML = '';
+    const list = Array.isArray(entries) ? entries : [];
+    if (!list.length) {
+        chatHistory.innerHTML = '<em>No interactions yet.</em>';
+        return;
+    }
+    list.forEach(entry => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'mb-2';
+        const humanTimestamp = entry.timestamp ? new Date(entry.timestamp).toLocaleString() : 'Just now';
+        const userLine = document.createElement('div');
+        userLine.className = 'fw-semibold';
+        userLine.textContent = `You (${humanTimestamp}):`;
+        const userMsg = document.createElement('div');
+        userMsg.className = 'mb-1';
+        userMsg.textContent = entry.message || '';
+        wrapper.appendChild(userLine);
+        wrapper.appendChild(userMsg);
+        if (entry.selection) {
+            const selectionBlock = document.createElement('div');
+            selectionBlock.className = 'small text-muted fst-italic mb-1';
+            selectionBlock.textContent = `Selection: ${entry.selection}`;
+            wrapper.appendChild(selectionBlock);
+        }
+        const agentLine = document.createElement('div');
+        agentLine.className = 'fw-semibold';
+        agentLine.textContent = 'Agent:';
+        const agentMsg = document.createElement('div');
+        agentMsg.textContent = entry.response || '';
+        wrapper.appendChild(agentLine);
+        wrapper.appendChild(agentMsg);
+        chatHistory.appendChild(wrapper);
+    });
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+}
+
+function populateConfigForm(state) {
+    const cfg = state.state?.config || {};
+    const chunking = cfg.chunking || {};
+    const templateCfg = cfg.template || {};
+    document.getElementById('toggleForceChunk').checked = Boolean(chunking.force_chunk);
+    document.getElementById('inputPageThreshold').value = chunking.page_threshold || 50;
+    document.getElementById('selectStrategy').value = chunking.default_strategy || 'by_h2';
+    document.getElementById('selectContextLevel').value = chunking.context_aware_level || 'h2';
+    document.getElementById('inputMaxTokens').value = chunking.max_chunk_tokens || 1800;
+    const templateId = templateCfg.template_id || '';
+    if (templateId) {
+        templatesSelect.value = templateId;
+    }
+    refreshTemplatePreview(templateId);
+    document.getElementById('selectTocLevel').value = templateCfg.toc_level || 'h2';
+    document.getElementById('toggleLateAppend').checked = (templateCfg.late_append_relevancy_threshold ?? 0.45) >= 0;
+    const llmCfg = cfg.llm || {};
+    document.getElementById('inputLlmModel').value = llmCfg.model || 'claude-3-opus-20240229';
+    document.getElementById('inputLlmTemperature').value = llmCfg.temperature ?? 0.2;
+    const uiCfg = cfg.ui || {};
+    document.getElementById('inputUiAppendHeading').value = uiCfg.append_unmapped_heading || 'Additional Sections';
+    document.getElementById('toggleUiTitleHighlight').checked = uiCfg.show_ai_title_highlight !== false;
+    document.getElementById('toggleUiComments').checked = uiCfg.show_ai_comments !== false;
+    toggleConfigFieldsets(true);
+    renderChunkPreview(state);
+}
+
+async function selectDocument(fileId) {
+    const res = await fetch(`/api/doc_review/documents/${fileId}`);
+    const data = await res.json();
+    if (!data.document) return;
+    activeDocumentId = fileId;
+    activeDocument = data.document;
+    renderOverview(activeDocument);
+    renderMarkdown(activeDocument);
+    renderLogs(activeDocument);
+    renderChunkPreview(activeDocument);
+    renderChatHistory(activeDocument.state?.chat_history || []);
+    populateConfigForm(activeDocument);
+    highlightActiveDocument();
+    setWorkflowTabsEnabled(true);
+    subscribeToLogs(fileId);
+    showTab('#tab-chunking');
+}
+
+function collectConfigOverrides() {
+    return {
+        chunking: {
+            force_chunk: document.getElementById('toggleForceChunk').checked || null,
+            page_threshold: Number(document.getElementById('inputPageThreshold').value || 50),
+            default_strategy: document.getElementById('selectStrategy').value,
+            context_aware_level: document.getElementById('selectContextLevel').value,
+            max_chunk_tokens: Number(document.getElementById('inputMaxTokens').value || 1800),
+        },
+        template: {
+            template_id: templatesSelect.value || null,
+            toc_level: document.getElementById('selectTocLevel').value,
+            late_append_relevancy_threshold: document.getElementById('toggleLateAppend').checked ? 0.45 : -1,
+        },
+        llm: {
+            model: document.getElementById('inputLlmModel').value || null,
+            temperature: Number(document.getElementById('inputLlmTemperature').value || 0.2),
+        },
+        ui: {
+            append_unmapped_heading: document.getElementById('inputUiAppendHeading').value || null,
+            show_ai_title_highlight: document.getElementById('toggleUiTitleHighlight').checked,
+            show_ai_comments: document.getElementById('toggleUiComments').checked,
+        },
+    };
+}
+
+async function patchConfig() {
+    if (!activeDocumentId) return;
+    const overrides = collectConfigOverrides();
+    subscribeToLogs(activeDocumentId);
+    try {
+        const res = await fetch(`/api/doc_review/documents/${activeDocumentId}/config`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(overrides)
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || res.statusText);
+        }
+        const data = await res.json();
+        activeDocument = data.document;
+        renderOverview(activeDocument);
+        renderMarkdown(activeDocument);
+        renderLogs(activeDocument);
+        renderChunkPreview(activeDocument);
+        await loadDocuments();
+        showTab('#tab-chunking');
+    } catch (err) {
+        alert(`Failed to apply config: ${err.message}`);
+    }
+}
+
+async function runWorkflow() {
+    if (!activeDocumentId) return;
+    subscribeToLogs(activeDocumentId);
+    markdownEditor.disabled = true;
+    saveMarkdownButton.disabled = true;
+    markdownDirty = false;
+    showTab('#tab-analysis');
+    const overrides = collectConfigOverrides();
+    try {
+        const res = await fetch(`/api/doc_review/documents/${activeDocumentId}/run`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ config: overrides })
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || res.statusText);
+        }
+        const data = await res.json();
+        activeDocument = data.document;
+        renderOverview(activeDocument);
+        renderMarkdown(activeDocument);
+        renderLogs(activeDocument);
+        renderChunkPreview(activeDocument);
+        await loadDocuments();
+        setWorkflowTabsEnabled(true);
+        showTab('#tab-review');
+        markdownEditor.disabled = !activeDocument.state?.improved_markdown;
+    } catch (err) {
+        alert(`Workflow failed: ${err.message}`);
+    }
+}
+
+async function saveMarkdown() {
+    if (!activeDocumentId) return;
+    const markdown = markdownEditor.value;
+    try {
+        const res = await fetch(`/api/doc_review/documents/${activeDocumentId}/markdown`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ markdown })
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || res.statusText);
+        }
+        const data = await res.json();
+        activeDocument = data.document;
+        renderMarkdown(activeDocument);
+        renderLogs(activeDocument);
+        await loadDocuments();
+        showTab('#tab-review');
+    } catch (err) {
+        alert(`Failed to save markdown: ${err.message}`);
+    }
+}
+
+async function ingestDocument(evt) {
+    evt.preventDefault();
+    const sourcePath = document.getElementById('inputSourcePath').value.trim();
+    const fileId = document.getElementById('inputFileId').value.trim();
+    if (!sourcePath) {
+        alert('Provide a source path');
+        return;
+    }
+    const payload = { source_path: sourcePath };
+    if (fileId) payload.file_id = fileId;
+    try {
+        const res = await fetch('/api/doc_review/documents', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || res.statusText);
+        }
+        const data = await res.json();
+        document.getElementById('upload-form').reset();
+        await loadDocuments();
+        if (data.document) {
+            activeDocumentId = data.document.file_id;
+            activeDocument = data.document;
+            renderOverview(activeDocument);
+            renderMarkdown(activeDocument);
+            renderLogs(activeDocument);
+            renderChunkPreview(activeDocument);
+            renderChatHistory(activeDocument.state?.chat_history || []);
+            populateConfigForm(activeDocument);
+            subscribeToLogs(activeDocumentId);
+            setWorkflowTabsEnabled(true);
+            showTab('#tab-chunking');
+            highlightActiveDocument();
+        }
+    } catch (err) {
+        alert(`Ingestion failed: ${err.message}`);
+    }
+}
+
+async function uploadLocalFile() {
+    if (!fileUploadInput.files || !fileUploadInput.files.length) {
+        alert('Select a file to upload.');
+        return;
+    }
+    const file = fileUploadInput.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    uploadButton.disabled = true;
+    uploadStatus.textContent = 'Uploading...';
+    try {
+        const res = await fetch('/api/doc_review/upload', {
+            method: 'POST',
+            body: formData,
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || res.statusText);
+        }
+        const data = await res.json();
+        document.getElementById('inputSourcePath').value = data.saved_path || '';
+        if (!document.getElementById('inputFileId').value) {
+            document.getElementById('inputFileId').value = data.file_id || '';
+        }
+        uploadStatus.textContent = `Uploaded ${data.original_filename || file.name} to ${data.saved_path}`;
+    } catch (err) {
+        console.error('Upload failed', err);
+        uploadStatus.textContent = `Upload failed: ${err.message}`;
+        alert(err.message || 'Upload failed');
+    } finally {
+        uploadButton.disabled = false;
+        fileUploadInput.value = '';
+    }
+}
+
+async function submitChat(evt) {
+    evt.preventDefault();
+    if (!activeDocumentId) {
+        alert('Select a document first.');
+        return;
+    }
+    const message = document.getElementById('inputChat').value.trim();
+    if (!message) return;
+    let selectedText = '';
+    if (!markdownEditor.disabled && typeof markdownEditor.selectionStart === 'number') {
+        const start = markdownEditor.selectionStart;
+        const end = markdownEditor.selectionEnd;
+        if (end > start) {
+            selectedText = markdownEditor.value.slice(start, end);
+        }
+    }
+    const payload = { message };
+    if (selectedText.trim()) {
+        payload.selected_text = selectedText;
+    }
+    try {
+        const res = await fetch(`/api/doc_review/chat/${activeDocumentId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || res.statusText);
+        }
+        const data = await res.json();
+        if (!activeDocument.state) activeDocument.state = {};
+        activeDocument.state.chat_history = data.chat_history || [];
+        renderChatHistory(activeDocument.state.chat_history);
+        document.getElementById('chat-form').reset();
+    } catch (err) {
+        alert(err.message || 'Chat service unavailable for this document.');
+    }
+}
+
+// Event bindings
+document.getElementById('btn-refresh').addEventListener('click', loadDocuments);
+document.getElementById('upload-form').addEventListener('submit', ingestDocument);
+document.getElementById('btn-save-config').addEventListener('click', patchConfig);
+document.getElementById('btn-run').addEventListener('click', runWorkflow);
+document.getElementById('config-form').addEventListener('submit', evt => evt.preventDefault());
+document.getElementById('chat-form').addEventListener('submit', submitChat);
+templatesSelect.addEventListener('change', evt => refreshTemplatePreview(evt.target.value));
+uploadButton.addEventListener('click', uploadLocalFile);
+markdownEditor.addEventListener('input', () => {
+    if (markdownEditor.disabled) return;
+    markdownDirty = true;
+    saveMarkdownButton.disabled = markdownEditor.value.trim().length === 0;
+});
+saveMarkdownButton.addEventListener('click', saveMarkdown);
+renderChatHistory([]);
+setWorkflowTabsEnabled(false);
+toggleConfigFieldsets(false);
+
+if (typeof socket !== 'undefined' && socket) {
+    socket.on('authenticated', data => {
+        if (data && data.success && pendingLogRoom) {
+            joinDocLogRoom(pendingLogRoom);
+        }
+    });
+    socket.on('connect', () => {
+        ensureSocketToken().then(() => {
+            if (isAuthenticated && currentLogRoom) {
+                joinDocLogRoom(currentLogRoom);
+            } else if (isAuthenticated && pendingLogRoom) {
+                joinDocLogRoom(pendingLogRoom);
+            }
+        });
+    });
+    socket.on('doc_review:log', handleDocReviewLog);
+    socket.on('doc_review:status', handleDocReviewStatus);
+    socket.on('doc_review:error', data => {
+        if (!data) return;
+        liveLogs.push(
+            normaliseLogEntry({
+                node: 'socket',
+                message: data.error || 'WebSocket error',
+                level: 'error',
+                timestamp: data.timestamp,
+            })
+        );
+        updateLogsPanel();
+    });
+}
+
+// Initial load
+ensureSocketToken().finally(() => {
+    loadTemplates().then(loadDocuments);
+});
+</script>
+{% endblock %}
