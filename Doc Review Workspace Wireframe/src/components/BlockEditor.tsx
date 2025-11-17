@@ -101,7 +101,14 @@ function parseMarkdownWithMetadata(
   // Use semantic blocks from backend
   blockMetadata.forEach((meta) => {
     const blockId = meta.id;
-    const blockType = (meta.type as BlockType) || 'paragraph';
+    
+    // Map heading type with level to specific heading type
+    let blockType: BlockType;
+    if (meta.type === 'heading' && meta.level) {
+      blockType = `heading${meta.level}` as BlockType; // heading1, heading2, heading3
+    } else {
+      blockType = (meta.type as BlockType) || 'paragraph';
+    }
     
     // Check if this block has a suggestion
     const suggestion = suggestions.find(s => s.block_id === blockId);

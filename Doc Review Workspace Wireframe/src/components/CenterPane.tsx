@@ -6,6 +6,7 @@ import { BlockEditor } from './BlockEditor';
 import { getDocument, runFull, runPhase1, runPhase2, runPhase4, type ApiDocument, updateDocumentMarkdown, type BlockMetadata, listTemplates, applyTemplate, type TemplateImprovement } from '@/lib/api';
 import { MarkdownViewer } from './MarkdownViewer';
 import { activityLogger } from '@/utils/activityLogger';
+import { ActivityLogDisplay } from './ActivityLogDisplay';
 
 interface CenterPaneProps {
   mode: 'editing' | 'original' | 'diff';
@@ -329,7 +330,7 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
               size="sm"
               onClick={handleApplyTemplate}
               disabled={!fileId || !selectedTemplate || applyingTemplate}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+              className="!bg-blue-600 hover:!bg-blue-700 text-white"
             >
               {applyingTemplate ? (
                 <>
@@ -550,12 +551,18 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
       {/* Activity Section - Collapsible */}
       {doc && (
         <div className="border-t border-neutral-200 bg-neutral-50">
+          {/* Activity Log Display - Always visible at bottom */}
+          <div className="w-full">
+            <ActivityLogDisplay />
+          </div>
+          
+          {/* Old logs section - collapsible */}
           <button
             onClick={() => setShowLogs(!showLogs)}
-            className="w-full px-6 py-2 flex items-center justify-between hover:bg-neutral-100 transition-colors"
+            className="w-full px-6 py-2 flex items-center justify-between hover:bg-neutral-100 transition-colors border-t"
           >
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-neutral-700">Activity & Logs</span>
+              <span className="text-sm font-medium text-neutral-700">Processing Details</span>
               {((doc.state?.logs?.length || 0) + (doc.state?.errors?.length || 0)) > 0 && (
                 <Badge variant="secondary" className="text-xs">
                   {(doc.state?.logs?.length || 0) + (doc.state?.errors?.length || 0)} logs

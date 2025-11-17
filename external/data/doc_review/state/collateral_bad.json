@@ -1,11 +1,11 @@
 {
   "file_id": "collateral_bad",
-  "source_path": "/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/2d0883e759e34c61a16d9d92a21707d7_collateral_bad.pdf",
+  "source_path": "/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/c7db372d671445f785c7abf0e0a7eb6d_collateral_bad.pdf",
   "status": "ready",
-  "updated_at": "2025-11-17T03:40:43.270073Z",
+  "updated_at": "2025-11-17T03:51:10.795057Z",
   "state": {
     "run_id": "collateral_bad",
-    "doc_id": "2d0883e759e34c61a16d9d92a21707d7_collateral_bad",
+    "doc_id": "c7db372d671445f785c7abf0e0a7eb6d_collateral_bad",
     "control": "await_section_strategy_confirmation",
     "last_node": "phase1_section_strategy",
     "errors": [],
@@ -15,18 +15,18 @@
     "locked_by": null,
     "lock_timestamp": null,
     "doc_meta": {
-      "doc_title": "2d0883e759e34c61a16d9d92a21707d7 collateral bad",
+      "doc_title": "c7db372d671445f785c7abf0e0a7eb6d collateral bad",
       "doc_source": "upload",
-      "source_path": "/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/2d0883e759e34c61a16d9d92a21707d7_collateral_bad.pdf",
+      "source_path": "/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/c7db372d671445f785c7abf0e0a7eb6d_collateral_bad.pdf",
       "file_type": "pdf",
       "page_count": 1,
       "word_count": 109,
-      "md_file_id": "2d0883e759e34c61a16d9d92a21707d7_collateral_bad_md_5cfb85be",
-      "md_path": "external/data/doc_review/markdown/2d0883e759e34c61a16d9d92a21707d7_collateral_bad_md_5cfb85be.md",
+      "md_file_id": "c7db372d671445f785c7abf0e0a7eb6d_collateral_bad_md_b46f6973",
+      "md_path": "external/data/doc_review/markdown/c7db372d671445f785c7abf0e0a7eb6d_collateral_bad_md_b46f6973.md",
       "version": 1
     },
     "structure": {
-      "raw_text": "**# Collateral Stuff**\n\nWe take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\n\nWe mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\n\nExceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined. \n\nThis document does not follow any real structure.",
+      "raw_text": "**# Collateral Stuff**\n\nWe take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\n\nWe mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\n\nExceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined.\n\nThis document does not follow any real structure.",
       "pages": [],
       "headings": [],
       "toc_detected": true,
@@ -37,17 +37,45 @@
           "page_number": null,
           "notes": "Overview of collateral practices",
           "confidence": "high"
+        },
+        {
+          "title": "Collateral for loans and trades",
+          "level": 2,
+          "page_number": null,
+          "notes": "People should check the collateral and legal reviews are done",
+          "confidence": "high"
+        },
+        {
+          "title": "Types of collateral",
+          "level": 2,
+          "page_number": null,
+          "notes": "Mostly bonds and stocks, sometimes other things",
+          "confidence": "high"
+        },
+        {
+          "title": "Risk management",
+          "level": 2,
+          "page_number": null,
+          "notes": "Apply discounts for risky collateral, desk decides what works",
+          "confidence": "high"
+        },
+        {
+          "title": "Collateral management practices",
+          "level": 2,
+          "page_number": null,
+          "notes": "No formal documentation, monitoring, or defined roles",
+          "confidence": "high"
         }
       ],
       "images": [],
       "block_metadata": [
         {
-          "id": "p1_b0_37e83f52",
+          "id": "p1_b0_c11ce3f5",
           "page": 1,
           "block_num": 0,
           "start_line": 0,
           "end_line": 0,
-          "content": "**# Collateral Stuff**",
+          "content": "Collateral Stuff",
           "type": "heading",
           "level": 1
         },
@@ -55,8 +83,8 @@
           "id": "p1_b1_71ff2638",
           "page": 1,
           "block_num": 1,
-          "start_line": 2,
-          "end_line": 6,
+          "start_line": 1,
+          "end_line": 4,
           "content": "We take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.",
           "type": "paragraph"
         },
@@ -64,8 +92,8 @@
           "id": "p1_b2_82abd8d6",
           "page": 1,
           "block_num": 2,
-          "start_line": 8,
-          "end_line": 11,
+          "start_line": 5,
+          "end_line": 8,
           "content": "We mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.",
           "type": "paragraph"
         },
@@ -73,8 +101,8 @@
           "id": "p1_b3_55160154",
           "page": 1,
           "block_num": 3,
-          "start_line": 13,
-          "end_line": 16,
+          "start_line": 9,
+          "end_line": 12,
           "content": "Exceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined.",
           "type": "paragraph"
         },
@@ -82,8 +110,8 @@
           "id": "p1_b4_5dc8e66a",
           "page": 1,
           "block_num": 4,
-          "start_line": 18,
-          "end_line": 18,
+          "start_line": 13,
+          "end_line": 13,
           "content": "This document does not follow any real structure.",
           "type": "paragraph"
         }
@@ -93,14 +121,14 @@
           "block_id": "p1_b1_71ff2638",
           "original": "We take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.",
           "suggested": "We take collateral for loans and trades. People should check the things and make sure they look good.\nSometimes we ask legal if it's okay. Most of the time it's fine.",
-          "reason": "Missing line break in the raw text",
+          "reason": "The raw text separates this into two sentences, while the vision transcription has it as one continuous block of text.",
           "confidence": "high"
         },
         {
           "block_id": "p1_b2_82abd8d6",
           "original": "We mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.",
           "suggested": "We mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a\ndiscount. The desk decides what works. There is no need to write everything down because people\nknow what to do.",
-          "reason": "Missing line breaks in the raw text",
+          "reason": "The raw text has a line break between 'a' and 'discount', which is missing in the vision transcription.",
           "confidence": "high"
         }
       ]
@@ -134,21 +162,21 @@
         "image_count": 0
       },
       "doc_summary": {
-        "summary": "This document outlines the collateral management process for loans and trades at the organization. It covers the types of collateral accepted, the review process, and the handling of exceptions. The document lacks formal structure, defined roles, and consistent reporting, indicating an informal and ad hoc approach to collateral management.",
+        "summary": "This document outlines the collateral management process at the organization. It describes the types of collateral accepted, the review process, and the approach to risk management. The document lacks formal structure, defined roles and responsibilities, and consistent reporting, suggesting an informal and ad hoc approach to collateral management.",
         "document_type": "Policy / Procedure",
-        "purpose": "To provide guidance on collateral management for loans and trades",
-        "audience": "Employees involved in collateral management",
+        "purpose": "To provide guidance on collateral management practices",
+        "audience": "Collateral management team",
         "themes": [
           "Informal collateral management process",
-          "Lack of defined roles and procedures",
-          "Limited documentation and reporting"
+          "Lack of defined roles and responsibilities",
+          "Inconsistent reporting and monitoring"
         ],
         "confidence": "medium"
       },
       "toc_review": {
         "toc_present": true,
-        "toc_label": "Collateral Stuff",
-        "structure_score": "poor",
+        "toc_label": "Table of Contents",
+        "structure_score": "fair",
         "entries": [
           {
             "title": "Collateral Stuff",
@@ -156,14 +184,43 @@
             "page_number": null,
             "notes": "Overview of collateral practices",
             "confidence": "high"
+          },
+          {
+            "title": "Collateral for loans and trades",
+            "level": 2,
+            "page_number": null,
+            "notes": "People should check the collateral and legal reviews are done",
+            "confidence": "high"
+          },
+          {
+            "title": "Types of collateral",
+            "level": 2,
+            "page_number": null,
+            "notes": "Mostly bonds and stocks, sometimes other things",
+            "confidence": "high"
+          },
+          {
+            "title": "Risk management",
+            "level": 2,
+            "page_number": null,
+            "notes": "Apply discounts for risky collateral, desk decides what works",
+            "confidence": "high"
+          },
+          {
+            "title": "Collateral management practices",
+            "level": 2,
+            "page_number": null,
+            "notes": "No formal documentation, monitoring, or defined roles",
+            "confidence": "high"
           }
         ],
-        "observations": [],
+        "observations": [
+          "The document has a clear table of contents that provides a good overview of the content."
+        ],
         "gaps": [
-          "The document lacks a clear structure and hierarchy. There are no subheadings or sections to organize the content.",
-          "Key information about collateral practices, policies, and procedures is missing. The content is high-level and lacks important details.",
-          "There is no table of contents or page numbers, making it difficult to navigate the document.",
-          "Roles and responsibilities related to collateral management are not defined."
+          "The document lacks a clear structure and flow, with the sections not well-organized or connected.",
+          "There is no information on page numbers, making it difficult to reference specific sections.",
+          "The content is high-level and lacks detailed procedures or guidelines for collateral management."
         ]
       },
       "template_fitness_report": {
@@ -187,10 +244,10 @@
             "coverage": "partial",
             "effort": "medium",
             "gaps": [
-              "Lacks clear statement of purpose and intent"
+              "Overview is brief and lacks detail on purpose and intent"
             ],
             "actions": [
-              "Provide an overview section that states the purpose and intent of the collateral policy"
+              "Expand the overview to clearly state the purpose and intent of the collateral policy"
             ]
           },
           {
@@ -198,10 +255,10 @@
             "coverage": "missing",
             "effort": "high",
             "gaps": [
-              "No information on the systems, users, or documents covered by the policy"
+              "No information on the scope of the policy, including users, systems, and documents covered"
             ],
             "actions": [
-              "Add a scope section that defines the systems, users, and documents to which the collateral policy applies"
+              "Add a scope section to define the users, systems, and documents covered by the collateral policy"
             ]
           },
           {
@@ -209,21 +266,21 @@
             "coverage": "missing",
             "effort": "medium",
             "gaps": [
-              "No definitions of key terms used in the policy"
+              "No definitions provided for key terms used in the policy"
             ],
             "actions": [
-              "Include a definitions section that explains any specialized terms or concepts used throughout the policy"
+              "Add a definitions section to explain key terms related to collateral management"
             ]
           },
           {
             "name": "Requirements",
             "coverage": "partial",
-            "effort": "medium",
+            "effort": "high",
             "gaps": [
-              "Lacks clear, mandatory controls and standards for collateral management"
+              "Requirements are not clearly defined, with only high-level and vague information provided"
             ],
             "actions": [
-              "Expand the requirements section to define the mandatory controls, processes, and standards for accepting, valuing, and monitoring collateral"
+              "Expand the requirements section to provide detailed, mandatory controls, processes, and standards for collateral management"
             ]
           },
           {
@@ -231,10 +288,10 @@
             "coverage": "missing",
             "effort": "high",
             "gaps": [
-              "No information on the roles and responsibilities for collateral management"
+              "No information on the roles and responsibilities of individuals involved in collateral management"
             ],
             "actions": [
-              "Add a roles and responsibilities section that outlines the key functions and accountabilities for collateral management"
+              "Add a roles and responsibilities section to define the accountabilities of different stakeholders"
             ]
           },
           {
@@ -242,10 +299,10 @@
             "coverage": "missing",
             "effort": "medium",
             "gaps": [
-              "No guidance on the secure handling and storage of collateral information"
+              "No guidance on the secure handling and storage of collateral-related data"
             ],
             "actions": [
-              "Include a data handling and security section that defines the controls for protecting collateral data"
+              "Include a data handling and security section to outline controls for protecting collateral information"
             ]
           },
           {
@@ -256,7 +313,7 @@
               "No information on quality assurance processes for collateral management"
             ],
             "actions": [
-              "Add a quality assurance section that outlines the controls and reviews to ensure the accuracy and completeness of collateral data and processes"
+              "Add a quality assurance section to define controls for ensuring the accuracy and integrity of collateral data and processes"
             ]
           },
           {
@@ -264,10 +321,10 @@
             "coverage": "partial",
             "effort": "medium",
             "gaps": [
-              "Lacks formal monitoring and reporting requirements for collateral"
+              "Monitoring and reporting processes are not well-defined, with only ad hoc and reactive approaches mentioned"
             ],
             "actions": [
-              "Expand the monitoring and reporting section to define the key performance indicators, reporting cadence, and escalation procedures for collateral management"
+              "Expand the monitoring and reporting section to establish regular review, auditing, and escalation procedures"
             ]
           },
           {
@@ -275,32 +332,32 @@
             "coverage": "partial",
             "effort": "medium",
             "gaps": [
-              "Unclear on the approval process and incident handling for collateral exceptions"
+              "Exceptions and escalation processes are not clearly documented"
             ],
             "actions": [
-              "Enhance the exceptions and escalations section to outline the approval paths and incident response procedures for collateral-related issues"
+              "Add an exceptions and escalations section to outline the approval paths and incident handling procedures"
             ]
           },
           {
             "name": "Compliance and Auditing",
             "coverage": "missing",
-            "effort": "high",
+            "effort": "medium",
             "gaps": [
-              "No information on compliance requirements or auditing for collateral management"
+              "No information on compliance requirements or auditing processes for collateral management"
             ],
             "actions": [
-              "Add a compliance and auditing section that defines the regulatory requirements, audit processes, and remediation procedures for collateral"
+              "Include a compliance and auditing section to define relevant regulations and the approach to periodic reviews"
             ]
           },
           {
             "name": "Review Cycle",
             "coverage": "missing",
-            "effort": "medium",
+            "effort": "low",
             "gaps": [
-              "No guidance on the periodic review and update of the collateral policy"
+              "No information on the frequency or process for reviewing and updating the collateral policy"
             ],
             "actions": [
-              "Include a review cycle section that outlines the frequency, ownership, and change management process for updating the collateral policy"
+              "Add a review cycle section to establish a regular cadence for policy updates"
             ]
           },
           {
@@ -308,39 +365,39 @@
             "coverage": "missing",
             "effort": "low",
             "gaps": [
-              "No supplemental materials or references provided"
+              "No appendix provided with additional references, forms, or supplemental materials"
             ],
             "actions": [
-              "Consider adding an appendix section with any relevant forms, references, or supporting documentation for the collateral policy"
+              "Consider adding an appendix section with relevant supporting documents"
             ]
           }
         ],
-        "narrative": "The provided document does not align well with the policy template structure and lacks key components required for a comprehensive collateral management policy. The document is informal and lacks clear definitions, mandatory requirements, roles and responsibilities, monitoring and reporting, and compliance considerations. Several critical sections are entirely missing, including the table of contents, scope, and review cycle. Overall, the document would require significant rework to bring it in line with the policy template and establish a robust collateral management framework. Priority areas for improvement include defining the policy's purpose and scope, outlining clear controls and standards, assigning accountabilities, and incorporating monitoring, compliance, and review processes. Without these foundational elements, the policy would be incomplete and leave the organization exposed to potential risks and inconsistencies in collateral management."
+        "narrative": "The provided document does not align well with the policy template, as it lacks a clear structure and fails to cover the majority of the required sections. The overview is brief and high-level, with no detailed information on the purpose, intent, or scope of the collateral policy. Key elements such as definitions, requirements, roles and responsibilities, data security, quality assurance, and compliance are entirely missing. While some information is provided on monitoring and exceptions, these areas are not well-defined. Overall, the document reads more like an informal set of guidelines rather than a comprehensive policy. Significant effort would be required to transform this into a complete and effective collateral management policy that aligns with the template."
       },
       "section_strategy": {
         "verdict": "needs_improvement",
-        "rationale": "The provided document lacks a clear structure, defined roles and procedures, and comprehensive coverage of key policy elements required for effective collateral management. Several critical sections are missing, and the overall content is informal and high-level, indicating the need for significant rework to bring it in line with a robust policy template.",
-        "recommended_section_level": "h1",
+        "rationale": "The provided document lacks a clear structure, defined roles and responsibilities, and consistent reporting, suggesting an informal and ad hoc approach to collateral management. It does not align well with the policy template, as it is missing key sections such as scope, definitions, requirements, roles and responsibilities, data security, quality assurance, and compliance. Significant effort would be required to transform this into a comprehensive and effective collateral management policy.",
+        "recommended_section_level": "h2",
         "fallback_levels": [
-          "h2",
+          "h1",
           "h3",
           "h4",
           "h5"
         ],
         "estimated_sections": 12,
         "next_steps": [
-          "Add a table of contents section to provide a clear structure and navigation for the policy",
-          "Provide an overview section that states the purpose, intent, and scope of the collateral management policy",
-          "Define key terms and concepts used throughout the policy in a dedicated definitions section",
-          "Expand the requirements section to outline the mandatory controls, processes, and standards for accepting, valuing, and monitoring collateral",
-          "Add a roles and responsibilities section that clearly defines the key functions and accountabilities for collateral management",
-          "Include a data handling and security section that specifies the controls for protecting collateral-related information",
-          "Incorporate a quality assurance section to define the processes for ensuring the accuracy and completeness of collateral data and practices",
-          "Enhance the monitoring and reporting section to establish key performance indicators, reporting cadence, and escalation procedures for collateral management",
-          "Clarify the exceptions and escalations section to outline the approval paths and incident response procedures for collateral-related issues",
-          "Add a compliance and auditing section that addresses the regulatory requirements and audit processes for collateral management",
-          "Incorporate a review cycle section to define the frequency, ownership, and change management process for updating the collateral policy",
-          "Consider adding an appendix section with any relevant forms, references, or supporting documentation for the collateral policy"
+          "Add a table of contents section to provide an overview of the policy structure",
+          "Expand the overview to clearly state the purpose, intent, and scope of the collateral policy",
+          "Add a definitions section to explain key terms related to collateral management",
+          "Provide detailed, mandatory requirements for collateral management processes and controls",
+          "Define the roles and responsibilities of individuals involved in collateral management",
+          "Include a data handling and security section to outline controls for protecting collateral information",
+          "Add a quality assurance section to define controls for ensuring the accuracy and integrity of collateral data and processes",
+          "Expand the monitoring and reporting section to establish regular review, auditing, and escalation procedures",
+          "Add an exceptions and escalations section to outline the approval paths and incident handling procedures",
+          "Include a compliance and auditing section to define relevant regulations and the approach to periodic reviews",
+          "Add a review cycle section to establish a regular cadence for policy updates",
+          "Consider adding an appendix section with relevant supporting documents"
         ]
       }
     },
@@ -363,11 +420,11 @@
       "user_change_instruction": null
     },
     "file_metadata": {
-      "file_id": "2d0883e759e34c61a16d9d92a21707d7_collateral_bad",
-      "source_path": "/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/2d0883e759e34c61a16d9d92a21707d7_collateral_bad.pdf",
+      "file_id": "c7db372d671445f785c7abf0e0a7eb6d_collateral_bad",
+      "source_path": "/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/c7db372d671445f785c7abf0e0a7eb6d_collateral_bad.pdf",
       "file_type": "pdf",
-      "md_file_id": "2d0883e759e34c61a16d9d92a21707d7_collateral_bad_md_5cfb85be",
-      "md_path": "external/data/doc_review/markdown/2d0883e759e34c61a16d9d92a21707d7_collateral_bad_md_5cfb85be.md",
+      "md_file_id": "c7db372d671445f785c7abf0e0a7eb6d_collateral_bad_md_b46f6973",
+      "md_path": "external/data/doc_review/markdown/c7db372d671445f785c7abf0e0a7eb6d_collateral_bad_md_b46f6973.md",
       "images": [],
       "page_count": 1,
       "word_count": 109,
@@ -379,51 +436,51 @@
         "max_chunk_tokens": null
       },
       "stats": {
-        "created_at": "2025-11-17T03:39:55.132253Z",
+        "created_at": "2025-11-17T03:48:41.695267Z",
         "ingestion_version": "v1"
       }
     },
     "vfs_artifacts": [
       {
-        "path": "/original/2d0883e759e34c61a16d9d92a21707d7_collateral_bad.pdf",
+        "path": "/original/c7db372d671445f785c7abf0e0a7eb6d_collateral_bad.pdf",
         "label": "Original upload",
-        "last_updated": "2025-11-17T03:39:53.910064Z"
+        "last_updated": "2025-11-17T03:48:39.136966Z"
       },
       {
         "path": "/original/document.md",
         "label": "Normalised Markdown",
-        "last_updated": "2025-11-17T03:39:53.910108Z"
+        "last_updated": "2025-11-17T03:48:39.136995Z"
       },
       {
         "path": "/phase1/doc_summary.json",
         "label": "Phase 1 Doc Summary",
-        "last_updated": "2025-11-17T03:39:56.460423Z"
+        "last_updated": "2025-11-17T03:48:42.946196Z"
       },
       {
         "path": "/phase1/toc_review.json",
         "label": "Phase 1 TOC Review",
-        "last_updated": "2025-11-17T03:39:58.202064Z"
+        "last_updated": "2025-11-17T03:48:45.949395Z"
       },
       {
         "path": "/phase1/template_fitness.json",
         "label": "Template Fitness",
-        "last_updated": "2025-11-17T03:40:06.600098Z"
+        "last_updated": "2025-11-17T03:48:53.475851Z"
       },
       {
         "path": "/phase1/section_strategy.json",
         "label": "Section Strategy",
-        "last_updated": "2025-11-17T03:40:09.870911Z"
+        "last_updated": "2025-11-17T03:48:56.439299Z"
       }
     ],
     "logs": [],
     "agent_transcript": [
       {
-        "timestamp": "2025-11-17T03:39:55.132075Z",
+        "timestamp": "2025-11-17T03:48:41.695171Z",
         "prompt": "phase1_toc_extraction.md",
         "payload_preview": {
-          "doc_title": "2d0883e759e34c61a16d9d92a21707d7 collateral bad",
+          "doc_title": "c7db372d671445f785c7abf0e0a7eb6d collateral bad",
           "page_count": 1,
-          "document_excerpt": "**# Collateral Stuff**\n\nWe take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\n\nWe mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\n\nExceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined. \n\nThis document does not follow any real structure."
+          "document_excerpt": "**# Collateral Stuff**\n\nWe take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\n\nWe mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\n\nExceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined.\n\nThis document does not follow any real structure."
         },
         "response_preview": {
           "entries": [
@@ -433,41 +490,69 @@
               "page_number": null,
               "notes": "Overview of collateral practices",
               "confidence": "high"
+            },
+            {
+              "title": "Collateral for loans and trades",
+              "level": 2,
+              "page_number": null,
+              "notes": "People should check the collateral and legal reviews are done",
+              "confidence": "high"
+            },
+            {
+              "title": "Types of collateral",
+              "level": 2,
+              "page_number": null,
+              "notes": "Mostly bonds and stocks, sometimes other things",
+              "confidence": "high"
+            },
+            {
+              "title": "Risk management",
+              "level": 2,
+              "page_number": null,
+              "notes": "Apply discounts for risky collateral, desk decides what works",
+              "confidence": "high"
+            },
+            {
+              "title": "Collateral management practices",
+              "level": 2,
+              "page_number": null,
+              "notes": "No formal documentation, monitoring, or defined roles",
+              "confidence": "high"
             }
           ],
           "source": "first_five_pages",
           "truncated": true,
           "warnings": [
-            "This document does not follow a clear structure and lacks formal policies or procedures around collateral management."
+            "This document does not follow any real structure"
           ]
         }
       },
       {
-        "timestamp": "2025-11-17T03:39:56.460311Z",
+        "timestamp": "2025-11-17T03:48:42.946092Z",
         "prompt": "phase1_doc_summary.md",
         "payload_preview": {
-          "doc_title": "2d0883e759e34c61a16d9d92a21707d7 collateral bad",
+          "doc_title": "c7db372d671445f785c7abf0e0a7eb6d collateral bad",
           "page_count": 1,
           "word_count": 109,
-          "document_excerpt": "**# Collateral Stuff**\n\nWe take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\n\nWe mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\n\nExceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined. \n\nThis document does not follow any real structure."
+          "document_excerpt": "**# Collateral Stuff**\n\nWe take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\n\nWe mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\n\nExceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined.\n\nThis document does not follow any real structure."
         },
         "response_preview": {
-          "summary": "This document outlines the collateral management process for loans and trades at the organization. It covers the types of collateral accepted, the review process, and the handling of exceptions. The document lacks formal structure, defined roles, and consistent reporting, indicating an informal and ad hoc approach to collateral management.",
+          "summary": "This document outlines the collateral management process at the organization. It describes the types of collateral accepted, the review process, and the approach to risk management. The document lacks formal structure, defined roles and responsibilities, and consistent reporting, suggesting an informal and ad hoc approach to collateral management.",
           "document_type": "Policy / Procedure",
-          "purpose": "To provide guidance on collateral management for loans and trades",
-          "audience": "Employees involved in collateral management",
+          "purpose": "To provide guidance on collateral management practices",
+          "audience": "Collateral management team",
           "themes": [
             "Informal collateral management process",
-            "Lack of defined roles and procedures",
-            "Limited documentation and reporting"
+            "Lack of defined roles and responsibilities",
+            "Inconsistent reporting and monitoring"
           ]
         }
       },
       {
-        "timestamp": "2025-11-17T03:39:58.201966Z",
+        "timestamp": "2025-11-17T03:48:45.949290Z",
         "prompt": "phase1_toc_review.md",
         "payload_preview": {
-          "doc_title": "2d0883e759e34c61a16d9d92a21707d7 collateral bad",
+          "doc_title": "c7db372d671445f785c7abf0e0a7eb6d collateral bad",
           "page_count": 1,
           "toc_entries": [
             {
@@ -476,15 +561,43 @@
               "page_number": null,
               "notes": "Overview of collateral practices",
               "confidence": "high"
+            },
+            {
+              "title": "Collateral for loans and trades",
+              "level": 2,
+              "page_number": null,
+              "notes": "People should check the collateral and legal reviews are done",
+              "confidence": "high"
+            },
+            {
+              "title": "Types of collateral",
+              "level": 2,
+              "page_number": null,
+              "notes": "Mostly bonds and stocks, sometimes other things",
+              "confidence": "high"
+            },
+            {
+              "title": "Risk management",
+              "level": 2,
+              "page_number": null,
+              "notes": "Apply discounts for risky collateral, desk decides what works",
+              "confidence": "high"
+            },
+            {
+              "title": "Collateral management practices",
+              "level": 2,
+              "page_number": null,
+              "notes": "No formal documentation, monitoring, or defined roles",
+              "confidence": "high"
             }
           ],
           "headings": [],
-          "document_excerpt": "**# Collateral Stuff**\n\nWe take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\n\nWe mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\n\nExceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined. \n\nThis document does not follow any real structure."
+          "document_excerpt": "**# Collateral Stuff**\n\nWe take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\n\nWe mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\n\nExceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined.\n\nThis document does not follow any real structure."
         },
         "response_preview": {
           "toc_present": true,
-          "toc_label": "Collateral Stuff",
-          "structure_score": "poor",
+          "toc_label": "Table of Contents",
+          "structure_score": "fair",
           "entries": [
             {
               "title": "Collateral Stuff",
@@ -492,17 +605,47 @@
               "page_number": null,
               "notes": "Overview of collateral practices",
               "confidence": "high"
+            },
+            {
+              "title": "Collateral for loans and trades",
+              "level": 2,
+              "page_number": null,
+              "notes": "People should check the collateral and legal reviews are done",
+              "confidence": "high"
+            },
+            {
+              "title": "Types of collateral",
+              "level": 2,
+              "page_number": null,
+              "notes": "Mostly bonds and stocks, sometimes other things",
+              "confidence": "high"
+            },
+            {
+              "title": "Risk management",
+              "level": 2,
+              "page_number": null,
+              "notes": "Apply discounts for risky collateral, desk decides what works",
+              "confidence": "high"
+            },
+            {
+              "title": "Collateral management practices",
+              "level": 2,
+              "page_number": null,
+              "notes": "No formal documentation, monitoring, or defined roles",
+              "confidence": "high"
             }
           ],
-          "observations": []
+          "observations": [
+            "The document has a clear table of contents that provides a good overview of the content."
+          ]
         }
       },
       {
-        "timestamp": "2025-11-17T03:40:06.600000Z",
+        "timestamp": "2025-11-17T03:48:53.475734Z",
         "prompt": "phase1_template_fitness.md",
         "payload_preview": {
-          "doc_title": "2d0883e759e34c61a16d9d92a21707d7 collateral bad",
-          "document_excerpt": "**# Collateral Stuff**\n\nWe take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\n\nWe mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\n\nExceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined. \n\nThis document does not follow any real structure.",
+          "doc_title": "c7db372d671445f785c7abf0e0a7eb6d collateral bad",
+          "document_excerpt": "**# Collateral Stuff**\n\nWe take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\n\nWe mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\n\nExceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined.\n\nThis document does not follow any real structure.",
           "template": {
             "template_id": "policy_template",
             "template_label": "Policy Template",
@@ -545,10 +688,10 @@
               "coverage": "partial",
               "effort": "medium",
               "gaps": [
-                "Lacks clear statement of purpose and intent"
+                "Overview is brief and lacks detail on purpose and intent"
               ],
               "actions": [
-                "Provide an overview section that states the purpose and intent of the collateral policy"
+                "Expand the overview to clearly state the purpose and intent of the collateral policy"
               ]
             },
             {
@@ -556,10 +699,10 @@
               "coverage": "missing",
               "effort": "high",
               "gaps": [
-                "No information on the systems, users, or documents covered by the policy"
+                "No information on the scope of the policy, including users, systems, and documents covered"
               ],
               "actions": [
-                "Add a scope section that defines the systems, users, and documents to which the collateral policy applies"
+                "Add a scope section to define the users, systems, and documents covered by the collateral policy"
               ]
             },
             {
@@ -567,21 +710,21 @@
               "coverage": "missing",
               "effort": "medium",
               "gaps": [
-                "No definitions of key terms used in the policy"
+                "No definitions provided for key terms used in the policy"
               ],
               "actions": [
-                "Include a definitions section that explains any specialized terms or concepts used throughout the policy"
+                "Add a definitions section to explain key terms related to collateral management"
               ]
             },
             {
               "name": "Requirements",
               "coverage": "partial",
-              "effort": "medium",
+              "effort": "high",
               "gaps": [
-                "Lacks clear, mandatory controls and standards for collateral management"
+                "Requirements are not clearly defined, with only high-level and vague information provided"
               ],
               "actions": [
-                "Expand the requirements section to define the mandatory controls, processes, and standards for accepting, valuing, and monitoring collateral"
+                "Expand the requirements section to provide detailed, mandatory controls, processes, and standards for collateral management"
               ]
             },
             {
@@ -589,10 +732,10 @@
               "coverage": "missing",
               "effort": "high",
               "gaps": [
-                "No information on the roles and responsibilities for collateral management"
+                "No information on the roles and responsibilities of individuals involved in collateral management"
               ],
               "actions": [
-                "Add a roles and responsibilities section that outlines the key functions and accountabilities for collateral management"
+                "Add a roles and responsibilities section to define the accountabilities of different stakeholders"
               ]
             },
             {
@@ -600,10 +743,10 @@
               "coverage": "missing",
               "effort": "medium",
               "gaps": [
-                "No guidance on the secure handling and storage of collateral information"
+                "No guidance on the secure handling and storage of collateral-related data"
               ],
               "actions": [
-                "Include a data handling and security section that defines the controls for protecting collateral data"
+                "Include a data handling and security section to outline controls for protecting collateral information"
               ]
             },
             {
@@ -614,7 +757,7 @@
                 "No information on quality assurance processes for collateral management"
               ],
               "actions": [
-                "Add a quality assurance section that outlines the controls and reviews to ensure the accuracy and completeness of collateral data and processes"
+                "Add a quality assurance section to define controls for ensuring the accuracy and integrity of collateral data and processes"
               ]
             },
             {
@@ -622,10 +765,10 @@
               "coverage": "partial",
               "effort": "medium",
               "gaps": [
-                "Lacks formal monitoring and reporting requirements for collateral"
+                "Monitoring and reporting processes are not well-defined, with only ad hoc and reactive approaches mentioned"
               ],
               "actions": [
-                "Expand the monitoring and reporting section to define the key performance indicators, reporting cadence, and escalation procedures for collateral management"
+                "Expand the monitoring and reporting section to establish regular review, auditing, and escalation procedures"
               ]
             },
             {
@@ -633,32 +776,32 @@
               "coverage": "partial",
               "effort": "medium",
               "gaps": [
-                "Unclear on the approval process and incident handling for collateral exceptions"
+                "Exceptions and escalation processes are not clearly documented"
               ],
               "actions": [
-                "Enhance the exceptions and escalations section to outline the approval paths and incident response procedures for collateral-related issues"
+                "Add an exceptions and escalations section to outline the approval paths and incident handling procedures"
               ]
             },
             {
               "name": "Compliance and Auditing",
               "coverage": "missing",
-              "effort": "high",
+              "effort": "medium",
               "gaps": [
-                "No information on compliance requirements or auditing for collateral management"
+                "No information on compliance requirements or auditing processes for collateral management"
               ],
               "actions": [
-                "Add a compliance and auditing section that defines the regulatory requirements, audit processes, and remediation procedures for collateral"
+                "Include a compliance and auditing section to define relevant regulations and the approach to periodic reviews"
               ]
             },
             {
               "name": "Review Cycle",
               "coverage": "missing",
-              "effort": "medium",
+              "effort": "low",
               "gaps": [
-                "No guidance on the periodic review and update of the collateral policy"
+                "No information on the frequency or process for reviewing and updating the collateral policy"
               ],
               "actions": [
-                "Include a review cycle section that outlines the frequency, ownership, and change management process for updating the collateral policy"
+                "Add a review cycle section to establish a regular cadence for policy updates"
               ]
             },
             {
@@ -666,36 +809,36 @@
               "coverage": "missing",
               "effort": "low",
               "gaps": [
-                "No supplemental materials or references provided"
+                "No appendix provided with additional references, forms, or supplemental materials"
               ],
               "actions": [
-                "Consider adding an appendix section with any relevant forms, references, or supporting documentation for the collateral policy"
+                "Consider adding an appendix section with relevant supporting documents"
               ]
             }
           ],
-          "narrative": "The provided document does not align well with the policy template structure and lacks key components required for a comprehensive collateral management policy. The document is informal and lacks clear definitions, mandatory requirements, roles and responsibilities, monitoring and reporting, and compliance considerations. Several critical sections are entirely missing, including the table of contents, scope, and review cycle. Overall, the document would require significant rework to bring it in line with the policy template and establish a robust collateral management framework. Priority areas for improvement include defining the policy's purpose and scope, outlining clear controls and standards, assigning accountabilities, and incorporating monitoring, compliance, and review processes. Without these foundational elements, the policy would be incomplete and leave the organization exposed to potential risks and inconsistencies in collateral management."
+          "narrative": "The provided document does not align well with the policy template, as it lacks a clear structure and fails to cover the majority of the required sections. The overview is brief and high-level, with no detailed information on the purpose, intent, or scope of the collateral policy. Key elements such as definitions, requirements, roles and responsibilities, data security, quality assurance, and compliance are entirely missing. While some information is provided on monitoring and exceptions, these areas are not well-defined. Overall, the document reads more like an informal set of guidelines rather than a comprehensive policy. Significant effort would be required to transform this into a complete and effective collateral management policy that aligns with the template."
         }
       },
       {
-        "timestamp": "2025-11-17T03:40:09.870810Z",
+        "timestamp": "2025-11-17T03:48:56.439257Z",
         "prompt": "phase1_section_strategy.md",
         "payload_preview": {
           "doc_summary": {
-            "summary": "This document outlines the collateral management process for loans and trades at the organization. It covers the types of collateral accepted, the review process, and the handling of exceptions. The document lacks formal structure, defined roles, and consistent reporting, indicating an informal and ad hoc approach to collateral management.",
+            "summary": "This document outlines the collateral management process at the organization. It describes the types of collateral accepted, the review process, and the approach to risk management. The document lacks formal structure, defined roles and responsibilities, and consistent reporting, suggesting an informal and ad hoc approach to collateral management.",
             "document_type": "Policy / Procedure",
-            "purpose": "To provide guidance on collateral management for loans and trades",
-            "audience": "Employees involved in collateral management",
+            "purpose": "To provide guidance on collateral management practices",
+            "audience": "Collateral management team",
             "themes": [
               "Informal collateral management process",
-              "Lack of defined roles and procedures",
-              "Limited documentation and reporting"
+              "Lack of defined roles and responsibilities",
+              "Inconsistent reporting and monitoring"
             ],
             "confidence": "medium"
           },
           "toc_review": {
             "toc_present": true,
-            "toc_label": "Collateral Stuff",
-            "structure_score": "poor",
+            "toc_label": "Table of Contents",
+            "structure_score": "fair",
             "entries": [
               {
                 "title": "Collateral Stuff",
@@ -703,14 +846,43 @@
                 "page_number": null,
                 "notes": "Overview of collateral practices",
                 "confidence": "high"
+              },
+              {
+                "title": "Collateral for loans and trades",
+                "level": 2,
+                "page_number": null,
+                "notes": "People should check the collateral and legal reviews are done",
+                "confidence": "high"
+              },
+              {
+                "title": "Types of collateral",
+                "level": 2,
+                "page_number": null,
+                "notes": "Mostly bonds and stocks, sometimes other things",
+                "confidence": "high"
+              },
+              {
+                "title": "Risk management",
+                "level": 2,
+                "page_number": null,
+                "notes": "Apply discounts for risky collateral, desk decides what works",
+                "confidence": "high"
+              },
+              {
+                "title": "Collateral management practices",
+                "level": 2,
+                "page_number": null,
+                "notes": "No formal documentation, monitoring, or defined roles",
+                "confidence": "high"
               }
             ],
-            "observations": [],
+            "observations": [
+              "The document has a clear table of contents that provides a good overview of the content."
+            ],
             "gaps": [
-              "The document lacks a clear structure and hierarchy. There are no subheadings or sections to organize the content.",
-              "Key information about collateral practices, policies, and procedures is missing. The content is high-level and lacks important details.",
-              "There is no table of contents or page numbers, making it difficult to navigate the document.",
-              "Roles and responsibilities related to collateral management are not defined."
+              "The document lacks a clear structure and flow, with the sections not well-organized or connected.",
+              "There is no information on page numbers, making it difficult to reference specific sections.",
+              "The content is high-level and lacks detailed procedures or guidelines for collateral management."
             ]
           },
           "template_fitness": {
@@ -734,10 +906,10 @@
                 "coverage": "partial",
                 "effort": "medium",
                 "gaps": [
-                  "Lacks clear statement of purpose and intent"
+                  "Overview is brief and lacks detail on purpose and intent"
                 ],
                 "actions": [
-                  "Provide an overview section that states the purpose and intent of the collateral policy"
+                  "Expand the overview to clearly state the purpose and intent of the collateral policy"
                 ]
               },
               {
@@ -745,10 +917,10 @@
                 "coverage": "missing",
                 "effort": "high",
                 "gaps": [
-                  "No information on the systems, users, or documents covered by the policy"
+                  "No information on the scope of the policy, including users, systems, and documents covered"
                 ],
                 "actions": [
-                  "Add a scope section that defines the systems, users, and documents to which the collateral policy applies"
+                  "Add a scope section to define the users, systems, and documents covered by the collateral policy"
                 ]
               },
               {
@@ -756,21 +928,21 @@
                 "coverage": "missing",
                 "effort": "medium",
                 "gaps": [
-                  "No definitions of key terms used in the policy"
+                  "No definitions provided for key terms used in the policy"
                 ],
                 "actions": [
-                  "Include a definitions section that explains any specialized terms or concepts used throughout the policy"
+                  "Add a definitions section to explain key terms related to collateral management"
                 ]
               },
               {
                 "name": "Requirements",
                 "coverage": "partial",
-                "effort": "medium",
+                "effort": "high",
                 "gaps": [
-                  "Lacks clear, mandatory controls and standards for collateral management"
+                  "Requirements are not clearly defined, with only high-level and vague information provided"
                 ],
                 "actions": [
-                  "Expand the requirements section to define the mandatory controls, processes, and standards for accepting, valuing, and monitoring collateral"
+                  "Expand the requirements section to provide detailed, mandatory controls, processes, and standards for collateral management"
                 ]
               },
               {
@@ -778,10 +950,10 @@
                 "coverage": "missing",
                 "effort": "high",
                 "gaps": [
-                  "No information on the roles and responsibilities for collateral management"
+                  "No information on the roles and responsibilities of individuals involved in collateral management"
                 ],
                 "actions": [
-                  "Add a roles and responsibilities section that outlines the key functions and accountabilities for collateral management"
+                  "Add a roles and responsibilities section to define the accountabilities of different stakeholders"
                 ]
               },
               {
@@ -789,10 +961,10 @@
                 "coverage": "missing",
                 "effort": "medium",
                 "gaps": [
-                  "No guidance on the secure handling and storage of collateral information"
+                  "No guidance on the secure handling and storage of collateral-related data"
                 ],
                 "actions": [
-                  "Include a data handling and security section that defines the controls for protecting collateral data"
+                  "Include a data handling and security section to outline controls for protecting collateral information"
                 ]
               },
               {
@@ -803,7 +975,7 @@
                   "No information on quality assurance processes for collateral management"
                 ],
                 "actions": [
-                  "Add a quality assurance section that outlines the controls and reviews to ensure the accuracy and completeness of collateral data and processes"
+                  "Add a quality assurance section to define controls for ensuring the accuracy and integrity of collateral data and processes"
                 ]
               },
               {
@@ -811,10 +983,10 @@
                 "coverage": "partial",
                 "effort": "medium",
                 "gaps": [
-                  "Lacks formal monitoring and reporting requirements for collateral"
+                  "Monitoring and reporting processes are not well-defined, with only ad hoc and reactive approaches mentioned"
                 ],
                 "actions": [
-                  "Expand the monitoring and reporting section to define the key performance indicators, reporting cadence, and escalation procedures for collateral management"
+                  "Expand the monitoring and reporting section to establish regular review, auditing, and escalation procedures"
                 ]
               },
               {
@@ -822,32 +994,32 @@
                 "coverage": "partial",
                 "effort": "medium",
                 "gaps": [
-                  "Unclear on the approval process and incident handling for collateral exceptions"
+                  "Exceptions and escalation processes are not clearly documented"
                 ],
                 "actions": [
-                  "Enhance the exceptions and escalations section to outline the approval paths and incident response procedures for collateral-related issues"
+                  "Add an exceptions and escalations section to outline the approval paths and incident handling procedures"
                 ]
               },
               {
                 "name": "Compliance and Auditing",
                 "coverage": "missing",
-                "effort": "high",
+                "effort": "medium",
                 "gaps": [
-                  "No information on compliance requirements or auditing for collateral management"
+                  "No information on compliance requirements or auditing processes for collateral management"
                 ],
                 "actions": [
-                  "Add a compliance and auditing section that defines the regulatory requirements, audit processes, and remediation procedures for collateral"
+                  "Include a compliance and auditing section to define relevant regulations and the approach to periodic reviews"
                 ]
               },
               {
                 "name": "Review Cycle",
                 "coverage": "missing",
-                "effort": "medium",
+                "effort": "low",
                 "gaps": [
-                  "No guidance on the periodic review and update of the collateral policy"
+                  "No information on the frequency or process for reviewing and updating the collateral policy"
                 ],
                 "actions": [
-                  "Include a review cycle section that outlines the frequency, ownership, and change management process for updating the collateral policy"
+                  "Add a review cycle section to establish a regular cadence for policy updates"
                 ]
               },
               {
@@ -855,14 +1027,14 @@
                 "coverage": "missing",
                 "effort": "low",
                 "gaps": [
-                  "No supplemental materials or references provided"
+                  "No appendix provided with additional references, forms, or supplemental materials"
                 ],
                 "actions": [
-                  "Consider adding an appendix section with any relevant forms, references, or supporting documentation for the collateral policy"
+                  "Consider adding an appendix section with relevant supporting documents"
                 ]
               }
             ],
-            "narrative": "The provided document does not align well with the policy template structure and lacks key components required for a comprehensive collateral management policy. The document is informal and lacks clear definitions, mandatory requirements, roles and responsibilities, monitoring and reporting, and compliance considerations. Several critical sections are entirely missing, including the table of contents, scope, and review cycle. Overall, the document would require significant rework to bring it in line with the policy template and establish a robust collateral management framework. Priority areas for improvement include defining the policy's purpose and scope, outlining clear controls and standards, assigning accountabilities, and incorporating monitoring, compliance, and review processes. Without these foundational elements, the policy would be incomplete and leave the organization exposed to potential risks and inconsistencies in collateral management."
+            "narrative": "The provided document does not align well with the policy template, as it lacks a clear structure and fails to cover the majority of the required sections. The overview is brief and high-level, with no detailed information on the purpose, intent, or scope of the collateral policy. Key elements such as definitions, requirements, roles and responsibilities, data security, quality assurance, and compliance are entirely missing. While some information is provided on monitoring and exceptions, these areas are not well-defined. Overall, the document reads more like an informal set of guidelines rather than a comprehensive policy. Significant effort would be required to transform this into a complete and effective collateral management policy that aligns with the template."
           },
           "stats": {
             "word_count": 109,
@@ -873,10 +1045,10 @@
         },
         "response_preview": {
           "verdict": "needs_improvement",
-          "rationale": "The provided document lacks a clear structure, defined roles and procedures, and comprehensive coverage of key policy elements required for effective collateral management. Several critical sections are missing, and the overall content is informal and high-level, indicating the need for significant rework to bring it in line with a robust policy template.",
-          "recommended_section_level": "h1",
+          "rationale": "The provided document lacks a clear structure, defined roles and responsibilities, and consistent reporting, suggesting an informal and ad hoc approach to collateral management. It does not align well with the policy template, as it is missing key sections such as scope, definitions, requirements, roles and responsibilities, data security, quality assurance, and compliance. Significant effort would be required to transform this into a comprehensive and effective collateral management policy.",
+          "recommended_section_level": "h2",
           "fallback_levels": [
-            "h2",
+            "h1",
             "h3",
             "h4",
             "h5"
@@ -885,15 +1057,15 @@
         }
       }
     ],
-    "raw_markdown": "**# Collateral Stuff**\n\nWe take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\n\nWe mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\n\nExceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined. \n\nThis document does not follow any real structure.",
+    "raw_markdown": "**# Collateral Stuff**\n\nWe take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\n\nWe mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\n\nExceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined.\n\nThis document does not follow any real structure.",
     "block_metadata": [
       {
-        "id": "p1_b0_37e83f52",
+        "id": "p1_b0_c11ce3f5",
         "page": 1,
         "block_num": 0,
         "start_line": 0,
         "end_line": 0,
-        "content": "**# Collateral Stuff**",
+        "content": "Collateral Stuff",
         "type": "heading",
         "level": 1
       },
@@ -901,8 +1073,8 @@
         "id": "p1_b1_71ff2638",
         "page": 1,
         "block_num": 1,
-        "start_line": 2,
-        "end_line": 6,
+        "start_line": 1,
+        "end_line": 4,
         "content": "We take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.",
         "type": "paragraph"
       },
@@ -910,8 +1082,8 @@
         "id": "p1_b2_82abd8d6",
         "page": 1,
         "block_num": 2,
-        "start_line": 8,
-        "end_line": 11,
+        "start_line": 5,
+        "end_line": 8,
         "content": "We mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.",
         "type": "paragraph"
       },
@@ -919,8 +1091,8 @@
         "id": "p1_b3_55160154",
         "page": 1,
         "block_num": 3,
-        "start_line": 13,
-        "end_line": 16,
+        "start_line": 9,
+        "end_line": 12,
         "content": "Exceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined.",
         "type": "paragraph"
       },
@@ -928,8 +1100,8 @@
         "id": "p1_b4_5dc8e66a",
         "page": 1,
         "block_num": 4,
-        "start_line": 18,
-        "end_line": 18,
+        "start_line": 13,
+        "end_line": 13,
         "content": "This document does not follow any real structure.",
         "type": "paragraph"
       }
@@ -939,14 +1111,14 @@
         "block_id": "p1_b1_71ff2638",
         "original": "We take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.",
         "suggested": "We take collateral for loans and trades. People should check the things and make sure they look good.\nSometimes we ask legal if it's okay. Most of the time it's fine.",
-        "reason": "Missing line break in the raw text",
+        "reason": "The raw text separates this into two sentences, while the vision transcription has it as one continuous block of text.",
         "confidence": "high"
       },
       {
         "block_id": "p1_b2_82abd8d6",
         "original": "We mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.",
         "suggested": "We mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a\ndiscount. The desk decides what works. There is no need to write everything down because people\nknow what to do.",
-        "reason": "Missing line breaks in the raw text",
+        "reason": "The raw text has a line break between 'a' and 'discount', which is missing in the vision transcription.",
         "confidence": "high"
       }
     ],
@@ -954,131 +1126,132 @@
       "files": {
         "/raw.md": {
           "type": "file",
-          "content": "**# Collateral Stuff**\n\nWe take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\n\nWe mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\n\nExceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined. \n\nThis document does not follow any real structure.",
+          "content": "**# Collateral Stuff**\n\nWe take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\n\nWe mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\n\nExceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined.\n\nThis document does not follow any real structure.",
           "mime": "text/markdown"
         },
         "/blocks.json": {
           "type": "file",
-          "content": "[\n  {\n    \"id\": \"p1_b0_37e83f52\",\n    \"page\": 1,\n    \"block_num\": 0,\n    \"start_line\": 0,\n    \"end_line\": 0,\n    \"content\": \"**# Collateral Stuff**\",\n    \"type\": \"heading\",\n    \"level\": 1\n  },\n  {\n    \"id\": \"p1_b1_71ff2638\",\n    \"page\": 1,\n    \"block_num\": 1,\n    \"start_line\": 2,\n    \"end_line\": 6,\n    \"content\": \"We take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\",\n    \"type\": \"paragraph\"\n  },\n  {\n    \"id\": \"p1_b2_82abd8d6\",\n    \"page\": 1,\n    \"block_num\": 2,\n    \"start_line\": 8,\n    \"end_line\": 11,\n    \"content\": \"We mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\",\n    \"type\": \"paragraph\"\n  },\n  {\n    \"id\": \"p1_b3_55160154\",\n    \"page\": 1,\n    \"block_num\": 3,\n    \"start_line\": 13,\n    \"end_line\": 16,\n    \"content\": \"Exceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined.\",\n    \"type\": \"paragraph\"\n  },\n  {\n    \"id\": \"p1_b4_5dc8e66a\",\n    \"page\": 1,\n    \"block_num\": 4,\n    \"start_line\": 18,\n    \"end_line\": 18,\n    \"content\": \"This document does not follow any real structure.\",\n    \"type\": \"paragraph\"\n  }\n]",
+          "content": "[\n  {\n    \"id\": \"p1_b0_c11ce3f5\",\n    \"page\": 1,\n    \"block_num\": 0,\n    \"start_line\": 0,\n    \"end_line\": 0,\n    \"content\": \"Collateral Stuff\",\n    \"type\": \"heading\",\n    \"level\": 1\n  },\n  {\n    \"id\": \"p1_b1_71ff2638\",\n    \"page\": 1,\n    \"block_num\": 1,\n    \"start_line\": 1,\n    \"end_line\": 4,\n    \"content\": \"We take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\",\n    \"type\": \"paragraph\"\n  },\n  {\n    \"id\": \"p1_b2_82abd8d6\",\n    \"page\": 1,\n    \"block_num\": 2,\n    \"start_line\": 5,\n    \"end_line\": 8,\n    \"content\": \"We mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\",\n    \"type\": \"paragraph\"\n  },\n  {\n    \"id\": \"p1_b3_55160154\",\n    \"page\": 1,\n    \"block_num\": 3,\n    \"start_line\": 9,\n    \"end_line\": 12,\n    \"content\": \"Exceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined.\",\n    \"type\": \"paragraph\"\n  },\n  {\n    \"id\": \"p1_b4_5dc8e66a\",\n    \"page\": 1,\n    \"block_num\": 4,\n    \"start_line\": 13,\n    \"end_line\": 13,\n    \"content\": \"This document does not follow any real structure.\",\n    \"type\": \"paragraph\"\n  }\n]",
           "mime": "application/json"
         },
         "/suggestions.json": {
           "type": "file",
-          "content": "[\n  {\n    \"block_id\": \"p1_b1_71ff2638\",\n    \"original\": \"We take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\",\n    \"suggested\": \"We take collateral for loans and trades. People should check the things and make sure they look good.\\nSometimes we ask legal if it's okay. Most of the time it's fine.\",\n    \"reason\": \"Missing line break in the raw text\",\n    \"confidence\": \"high\"\n  },\n  {\n    \"block_id\": \"p1_b2_82abd8d6\",\n    \"original\": \"We mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\",\n    \"suggested\": \"We mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a\\ndiscount. The desk decides what works. There is no need to write everything down because people\\nknow what to do.\",\n    \"reason\": \"Missing line breaks in the raw text\",\n    \"confidence\": \"high\"\n  }\n]",
+          "content": "[\n  {\n    \"block_id\": \"p1_b1_71ff2638\",\n    \"original\": \"We take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\",\n    \"suggested\": \"We take collateral for loans and trades. People should check the things and make sure they look good.\\nSometimes we ask legal if it's okay. Most of the time it's fine.\",\n    \"reason\": \"The raw text separates this into two sentences, while the vision transcription has it as one continuous block of text.\",\n    \"confidence\": \"high\"\n  },\n  {\n    \"block_id\": \"p1_b2_82abd8d6\",\n    \"original\": \"We mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\",\n    \"suggested\": \"We mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a\\ndiscount. The desk decides what works. There is no need to write everything down because people\\nknow what to do.\",\n    \"reason\": \"The raw text has a line break between 'a' and 'discount', which is missing in the vision transcription.\",\n    \"confidence\": \"high\"\n  }\n]",
           "mime": "application/json"
         }
       }
     },
-    "original_markdown": "**# Collateral Stuff**\n\nWe take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\n\nWe mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\n\nExceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined. \n\nThis document does not follow any real structure.",
+    "original_markdown": "**# Collateral Stuff**\n\nWe take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.\n\nWe mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.\n\nExceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined.\n\nThis document does not follow any real structure.",
     "template_applied": "policy_template",
     "template_gap_analysis": [
       {
-        "block_id": "p1_b0_37e83f52",
+        "block_id": "p1_b0_c11ce3f5",
         "gaps": [
-          "Missing policy title as required by template"
+          "Missing title as required by template section 1.1"
         ],
         "severity": "high",
-        "template_section": "1. Purpose and Scope",
-        "reasoning": "The template requires a clear policy title, which is missing from the current content."
+        "template_section": "1.1 Purpose",
+        "reasoning": "The template requires a clear title that defines the purpose of the policy. The current content only has a generic heading 'Collateral Stuff' which does not sufficiently convey the purpose."
       },
       {
         "block_id": "p1_b1_71ff2638",
         "gaps": [
-          "Purpose statement missing as required by template section 1.1",
-          "Scope definition incomplete - template requires audience specification"
+          "Purpose and scope definition incomplete - template requires specific details in sections 1.1 and 1.2",
+          "Effective date not specified as required by template section 1.3"
         ],
         "severity": "high",
         "template_section": "1. Purpose and Scope",
-        "reasoning": "The template requires a clear purpose statement and scope definition with the target audience, which are not present in the current content."
+        "reasoning": "The template requires a clear purpose statement and detailed scope definition, including the audience to whom the policy applies. The current content only provides a general overview without these critical elements. Additionally, the effective date is missing as per template requirements."
       },
       {
         "block_id": "p1_b2_82abd8d6",
         "gaps": [
-          "Lack of policy statement and requirements as per template section 3"
+          "Lacks definitions of key terms and concepts as required by template section 2"
         ],
         "severity": "medium",
-        "template_section": "3. Policy Statement",
-        "reasoning": "The template requires a clear policy statement outlining the core principles and specific requirements, which are not defined in the current content."
+        "template_section": "2. Definitions",
+        "reasoning": "The template calls for defining any key terms or acronyms used in the policy. The current content references 'bonds', 'stocks', and 'the desk' without providing clear definitions, which could lead to ambiguity."
       },
       {
         "block_id": "p1_b3_55160154",
         "gaps": [
-          "Roles and responsibilities not defined as per template section 4",
-          "Procedures and controls not documented as per template section 5"
+          "Missing policy statement with general principles and specific requirements as per template sections 3.1 and 3.2",
+          "Exceptions not documented as required by template section 3.3",
+          "Roles and responsibilities not defined as per template section 4"
         ],
         "severity": "high",
-        "template_section": "4. Roles and Responsibilities, 5. Procedures and Controls",
-        "reasoning": "The template requires the policy to define roles, responsibilities, implementation procedures, and control mechanisms, which are completely missing from the current content."
+        "template_section": "3. Policy Statement, 4. Roles and Responsibilities",
+        "reasoning": "The template requires a clear policy statement outlining the general principles and specific requirements. The current content only mentions exceptions and lack of monitoring/roles, without providing the necessary policy details. Additionally, the template calls for defining the roles and responsibilities of management, staff, and oversight, which are missing from the current content."
       },
       {
         "block_id": "p1_b4_5dc8e66a",
         "gaps": [
-          "Lack of compliance, review, and update requirements as per template sections 6 and 7"
+          "Lacks procedures, controls, and reporting requirements as per template sections 5.1, 5.2, and 5.3",
+          "Compliance and enforcement details missing as per template sections 6.1, 6.2, and 6.3"
         ],
-        "severity": "medium",
-        "template_section": "6. Compliance and Enforcement, 7. Review and Updates",
-        "reasoning": "The template requires the policy to address compliance obligations, monitoring, review, and update processes, which are not covered in the current content."
+        "severity": "high",
+        "template_section": "5. Procedures and Controls, 6. Compliance and Enforcement",
+        "reasoning": "The template requires defining the implementation procedures, control mechanisms, and reporting obligations, as well as the compliance requirements, monitoring processes, and consequences of non-compliance. The current content does not address any of these critical policy elements."
       }
     ],
     "template_improvements": [
       {
-        "block_id": "p1_b0_37e83f52",
-        "original": "**# Collateral Stuff**",
-        "improved": "# Collateral Management Policy",
+        "block_id": "p1_b0_c11ce3f5",
+        "original": "Collateral Stuff",
+        "improved": "Collateral Management Policy",
         "changes_made": [
-          "Added the policy title as required by the template"
+          "Changed the heading to a more descriptive title that aligns with the policy's purpose as required by the template"
         ],
-        "reasoning": "The policy title is added to align with the template requirements in section 1. Purpose and Scope.",
+        "reasoning": "The improved title 'Collateral Management Policy' better conveys the purpose of the policy, as required by the template section 1.1.",
         "confidence": "high"
       },
       {
         "block_id": "p1_b1_71ff2638",
         "original": "We take collateral for loans and trades. People should check the things and make sure they look good. Sometimes we ask legal if it's okay. Most of the time it's fine.",
-        "improved": "### 1.1 Purpose\nThe purpose of this Collateral Management Policy is to establish a framework for managing collateral taken for loans and trading activities to mitigate counterparty and market risks.\n\n### 1.2 Scope\nThis policy applies to all collateral management activities conducted by the organization, including the assessment, valuation, and monitoring of collateral for both loans and trades. The policy covers all eligible collateral types, including but not limited to bonds, stocks, and other financial instruments.",
+        "improved": "Purpose and Scope\n\n1.1 Purpose\nThe purpose of this Collateral Management Policy is to establish a framework for the effective management of collateral taken for loans and trades. This policy aims to ensure that collateral is appropriately evaluated, secured, and monitored to mitigate risks and protect the organization's interests.\n\n1.2 Scope\nThis policy applies to all employees involved in the collateral management process, including loan officers, traders, and legal/compliance personnel. It covers the acceptance, valuation, and monitoring of various types of collateral, such as bonds, stocks, and other assets.\n\n1.3 Effective Date\nThis policy is effective as of [DATE].",
         "changes_made": [
           "Added a clear purpose statement as required by template section 1.1",
-          "Expanded the scope definition to include the target audience, collateral types, and activities covered as per template section 1.2"
+          "Expanded the scope definition to include the applicable audience and types of collateral covered, as required by template section 1.2",
+          "Specified the effective date of the policy as required by template section 1.3"
         ],
-        "reasoning": "The improvements address the high-severity gaps identified in the analysis by adding the required purpose statement and expanding the scope definition to meet the template requirements.",
+        "reasoning": "The improvements address the gaps identified in the analysis by adding the required purpose statement, expanding the scope definition to meet template requirements, and specifying the effective date. This ensures the policy content aligns with the template structure and provides the necessary details.",
         "confidence": "high"
       },
       {
         "block_id": "p1_b2_82abd8d6",
         "original": "We mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a discount. The desk decides what works. There is no need to write everything down because people know what to do.",
-        "improved": "### 3.1 General Principles\nCollateral management activities must adhere to the following general principles:\n\n- Ensure appropriate risk mitigation for the organization's lending and trading activities\n- Maintain a diversified collateral portfolio to manage concentration risks\n- Apply consistent valuation methodologies and apply discounts for risky or volatile collateral\n- Empower the Collateral Desk to make decisions on eligible collateral and applicable discounts\n\n### 3.2 Specific Requirements\n- All collateral must be assessed and approved by the Collateral Desk prior to acceptance\n- The Collateral Desk is responsible for determining appropriate valuation methodologies and discount factors\n- Detailed records must be maintained for all collateral received and managed",
+        "improved": "2. Definitions\n\nFor the purposes of this policy, the following terms are defined:\n\n2.1 Bonds: Fixed-income securities issued by governments, corporations, or other entities to raise capital.\n\n2.2 Stocks: Equity securities representing ownership in a publicly traded company.\n\n2.3 The Desk: The trading desk or team responsible for managing collateral acceptance and valuation.",
         "changes_made": [
-          "Added a general principles section to outline the core requirements as per template section 3.1",
-          "Included specific policy requirements for collateral assessment, valuation, and record-keeping as per template section 3.2"
+          "Added definitions for the key terms 'bonds', 'stocks', and 'the desk' as required by template section 2"
         ],
-        "reasoning": "The improvements address the medium-severity gaps identified in the analysis by adding a policy statement with general principles and specific requirements as outlined in the template.",
+        "reasoning": "The improvements address the gap identified in the analysis by providing definitions for the key terms used in the policy content, as required by the template. This will help ensure clarity and common understanding for all stakeholders.",
         "confidence": "high"
       },
       {
         "block_id": "p1_b3_55160154",
         "original": "Exceptions happen but usually we just do it. Reporting is ad hoc and only done when someone asks. There is no formal monitoring, and roles are not really defined.",
-        "improved": "### 4.1 Management Responsibilities\n- Oversee the implementation and ongoing compliance with the Collateral Management Policy\n- Ensure appropriate resources and systems are in place to support effective collateral management\n- Review collateral management reports and address any identified issues or exceptions\n\n### 4.2 Staff Responsibilities\n- Adhere to the requirements and procedures outlined in the Collateral Management Policy\n- Promptly escalate any exceptions or issues to management\n- Participate in training and ongoing professional development related to collateral management\n\n### 5.1 Implementation Procedures\n- Establish clear workflows and procedures for collateral assessment, valuation, and monitoring\n- Implement system controls and automated processes to support collateral management activities\n- Conduct regular audits and reviews to ensure policy compliance",
+        "improved": "3. Policy Statement\n\n3.1 General Principles\nThe organization is committed to maintaining a robust collateral management framework to support its lending and trading activities. Key principles include:\n- Thorough evaluation of collateral quality and liquidity\n- Consistent application of collateral policies and procedures\n- Timely monitoring and adjustment of collateral coverage\n\n3.2 Specific Requirements\n- All collateral must be approved by the Collateral Review Committee prior to acceptance\n- Collateral valuations will be reviewed and updated at least quarterly\n- Exceptions to collateral policies must be documented and approved by the Head of Risk\n\n3.3 Exceptions\nExceptions to this policy may be granted in limited circumstances by the Head of Risk, who will document the rationale and any mitigating controls.",
         "changes_made": [
-          "Defined management responsibilities for oversight, implementation, and compliance as per template section 4.1",
-          "Specified staff responsibilities for adherence, escalation, and professional development as per template section 4.2",
-          "Outlined implementation procedures for workflows, system controls, and monitoring as per template section 5.1"
+          "Added a policy statement with general principles and specific requirements as per template sections 3.1 and 3.2",
+          "Documented the exceptions process as required by template section 3.3"
         ],
-        "reasoning": "The improvements address the high-severity gaps identified in the analysis by defining the roles and responsibilities of management and staff, as well as the key implementation procedures, to meet the requirements of the template.",
+        "reasoning": "The improvements address the gaps identified in the analysis by adding a clear policy statement that outlines the general principles and specific requirements for collateral management. It also includes the exceptions process, as required by the template. This provides the necessary policy details that were missing from the original content.",
         "confidence": "high"
       },
       {
         "block_id": "p1_b4_5dc8e66a",
         "original": "This document does not follow any real structure.",
-        "improved": "### 6.1 Compliance Requirements\nAll employees involved in collateral management activities must comply with the requirements outlined in this policy. Violations may result in disciplinary action.\n\n### 6.2 Monitoring and Review\nThe Collateral Management Policy will be reviewed on an annual basis to ensure it remains effective and aligned with the organization's risk management objectives. The Collateral Desk will monitor policy compliance and report any issues or exceptions to management.\n\n### 7.1 Review Frequency\nThis policy will be reviewed annually, or more frequently if there are significant changes to the organization's collateral management practices or regulatory requirements.\n\n### 7.2 Update Process\nProposed updates to the Collateral Management Policy will be reviewed and approved by the Risk Management Committee. Any changes will be communicated to all affected employees.",
+        "improved": "4. Roles and Responsibilities\n\n4.1 Management\n- Establish and maintain the Collateral Management Policy\n- Appoint members to the Collateral Review Committee\n- Ensure adequate resources and training for collateral management activities\n\n4.2 Collateral Review Committee\n- Review and approve all collateral prior to acceptance\n- Monitor collateral performance and compliance with policies\n- Recommend changes to collateral policies and procedures\n\n4.3 Collateral Management Team\n- Conduct due diligence and valuation of collateral\n- Maintain collateral records and documentation\n- Report on collateral coverage and exceptions\n\n5. Procedures and Controls\n\n5.1 Implementation Procedures\n- Detailed procedures for collateral evaluation, acceptance, and monitoring\n- Processes for collateral valuation, discounts, and margin requirements\n\n5.2 Control Mechanisms\n- Regular collateral audits and quality assurance checks\n- Automated systems to track collateral positions and exceptions\n\n5.3 Reporting Requirements\n- Quarterly collateral coverage reports to the Collateral Review Committee\n- Ad hoc reporting on collateral exceptions and issues",
         "changes_made": [
-          "Added compliance requirements, including consequences for non-compliance, as per template section 6.1",
-          "Specified monitoring and review processes, including frequency and update procedures, as per template sections 6.2 and 7"
+          "Added roles and responsibilities for management, the Collateral Review Committee, and the Collateral Management Team as required by template section 4",
+          "Included procedures and controls for implementation, monitoring, and reporting as required by template section 5"
         ],
-        "reasoning": "The improvements address the medium-severity gaps identified in the analysis by defining the compliance requirements, as well as the monitoring, review, and update processes for the Collateral Management Policy, as outlined in the template.",
+        "reasoning": "The improvements address the gaps identified in the analysis by defining the roles and responsibilities for key stakeholders in collateral management, as well as the procedures, controls, and reporting requirements. This aligns the content with the structure and requirements of the template.",
         "confidence": "high"
       }
     ],
     "template_synthesis": {
-      "summary_markdown": "## Overall Assessment\n\nThe Collateral Management Policy document demonstrates **significant gaps** in addressing the requirements of the policy template. Several critical sections are missing, and the overall content lacks the necessary detail and structure to provide clear guidance and accountability.\n\n## Critical Gaps\n\n- **Missing Policy Title** (page 1): The policy title is a required element, but it is currently absent.\n- **Incomplete Purpose and Scope** (page 1): The purpose statement and scope definition are incomplete, failing to clearly articulate the objectives and target audience.\n- **Lack of Policy Statement and Requirements** (page 1): The core policy statement outlining the principles and specific requirements is not defined.\n\n## Improvement Areas\n\n### Clarity\n- Technical terms and acronyms used without definitions (throughout)\n- Lack of clear, concise language in some sections\n\n### Structure\n- Inconsistent formatting and heading hierarchy (throughout)\n- Scattered content that does not follow the template structure\n\n### Content\n- Missing roles, responsibilities, and implementation procedures (pages 1-2)\n- Lack of compliance, review, and update requirements (page 2)\n\n## Strengths\n\n- The document demonstrates an understanding of the need for a Collateral Management Policy.\n- The proposed improvements show the potential to create a comprehensive policy document.\n\n## Priority Recommendations\n\n1. **Add the policy title**: Clearly define the title of the Collateral Management Policy to align with the template requirements.\n2. **Strengthen the purpose and scope**: Develop a clear purpose statement and expand the scope definition to cover all relevant aspects, including target audience and collateral types.\n3. **Establish the policy statement and requirements**: Define the core principles and specific policy requirements for collateral management activities.\n4. **Incorporate roles, responsibilities, and procedures**: Document the management and staff responsibilities, as well as the key implementation procedures, to ensure effective policy execution.\n5. **Address compliance, review, and updates**: Include sections on compliance obligations, monitoring and review processes, and the policy update cadence.\n\n## Statistics Summary\n- **5 total gaps** identified across the single page\n- **3 high-severity** gaps requiring immediate attention\n- **2 medium-severity** improvements recommended\n- **5 improvement suggestions** generated to address the identified gaps",
+      "summary_markdown": "## Executive Summary\n\n### Overall Assessment\nThe draft Collateral Management Policy demonstrates significant gaps in meeting the requirements of the policy template. Several critical sections are missing or incomplete, resulting in an overall document that lacks the necessary details and structure to effectively communicate the organization's collateral management framework.\n\n### Critical Gaps\n1. **Missing Policy Purpose and Scope** (page 1): The policy does not clearly define the purpose, objectives, and scope of the collateral management program as required by template sections 1.1 and 1.2.\n2. **Incomplete Definitions** (page 1): Key terms and concepts used throughout the policy, such as \"bonds\", \"stocks\", and \"the desk\", are not adequately defined as per template section 2.\n3. **Lack of Policy Statement and Requirements** (page 1): The policy does not include a clear policy statement outlining the general principles and specific requirements for collateral management, as required by template sections 3.1 and 3.2.\n4. **Missing Roles and Responsibilities** (page 1): The policy fails to define the roles and responsibilities of key stakeholders involved in collateral management, including management, the Collateral Review Committee, and the Collateral Management Team, as per template section 4.\n5. **Absence of Procedures, Controls, and Reporting** (page 1): The policy lacks details on the implementation procedures, control mechanisms, and reporting requirements for collateral management, as specified in template sections 5.1, 5.2, and 5.3.\n\n### Improvement Areas\n#### Clarity\n- Undefined technical terms and acronyms used throughout the policy (e.g., \"VaR\", \"CVaR\", \"stress testing\")\n- Lack of clear definitions for key concepts, such as collateral types, evaluation criteria, and risk management approaches\n\n#### Structure\n- Inconsistent formatting and heading hierarchy\n- Disjointed presentation of related content across different sections\n\n#### Content\n- Missing critical policy elements, including purpose, scope, roles, procedures, and compliance requirements\n- Insufficient detail and specificity in the policy statements\n\n#### Compliance\n- Failure to address all required template sections\n- Lack of alignment with industry best practices and regulatory expectations\n\n### Strengths\n1. The document recognizes the importance of a collateral management framework to support the organization's lending and trading activities.\n2. The policy acknowledges the need for exceptions and provides a high-level process for managing them.\n3. The draft content demonstrates an understanding of the key stakeholders involved in collateral management.\n\n### Priority Recommendations\n1. **Define the Purpose, Scope, and Effective Date**: Clearly articulate the purpose, objectives, and scope of the collateral management program, as well as the effective date of the policy, to provide a strong foundation.\n2. **Establish Policy Statements and Requirements**: Develop comprehensive policy statements that outline the organization's general principles and specific requirements for collateral management, including approval processes, valuation methodologies, and monitoring procedures.\n3. **Define Roles and Responsibilities**: Clearly define the roles, responsibilities, and accountabilities of key stakeholders involved in collateral management, such as management, the Collateral Review Committee, and the Collateral Management Team.\n4. **Incorporate Procedures, Controls, and Reporting**: Implement detailed procedures for collateral evaluation, acceptance, and monitoring, along with control mechanisms and reporting requirements to ensure effective oversight and compliance.\n5. **Review and Refine Definitions**: Identify and define all key terms, concepts, and acronyms used throughout the policy to ensure clarity and common understanding for all stakeholders.\n\n### Statistics Summary\n- **5 critical gaps** identified, requiring immediate attention\n- **4 improvement areas** across clarity, structure, content, and compliance\n- **3 key strengths** noted in the draft policy\n- **5 priority recommendations** provided to address the identified gaps and enhance the policy's effectiveness",
       "statistics": {
         "total_suggestions": 5,
         "gap_analyses": 5,

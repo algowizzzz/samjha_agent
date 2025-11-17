@@ -822,3 +822,14 @@
 {"asctime": "2025-11-16T22:40:39", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 5 gaps, 5 improvements"}
 {"asctime": "2025-11-16T22:40:39", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating synthesis summary for 'collateral_bad'"}
 {"asctime": "2025-11-16T22:40:43", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Synthesis summary generated successfully"}
+{"asctime": "2025-11-16T22:48:31", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_bad doc_id=c7db372d671445f785c7abf0e0a7eb6d_collateral_bad"}
+{"asctime": "2025-11-16T22:48:56", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_bad"}
+{"asctime": "2025-11-16T22:50:47", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T22:50:47", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/1"}
+{"asctime": "2025-11-16T22:50:47", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T22:50:53", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 5 gaps"}
+{"asctime": "2025-11-16T22:50:53", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T22:51:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 5 improvements"}
+{"asctime": "2025-11-16T22:51:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 5 gaps, 5 improvements"}
+{"asctime": "2025-11-16T22:51:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating synthesis summary for 'collateral_bad'"}
+{"asctime": "2025-11-16T22:51:10", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Synthesis summary generated successfully"}
