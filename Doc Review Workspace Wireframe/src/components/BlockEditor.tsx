@@ -38,6 +38,16 @@ interface Block {
   suggestion?: VerificationSuggestion;
   aiSuggestion?: RiskGPTSuggestion;  // NEW: AI suggestions from RiskGPT
   changeHistory: ChangeRecord[];  // Track all changes
+  formatting?: {
+    bold?: boolean;
+    italic?: boolean;
+    has_bold?: boolean;
+    has_italic?: boolean;
+    has_highlight?: boolean;
+    alignment?: 'left' | 'center' | 'right';
+    size?: 'small' | 'normal' | 'large';
+  };
+  indent_level?: number;
 }
 
 interface BlockEditorProps {
@@ -133,7 +143,9 @@ function parseMarkdownWithMetadata(
       changeType,
       commentCount: 0,
       suggestion,
-      changeHistory
+      changeHistory,
+      formatting: (meta as any).formatting,  // Pass formatting metadata
+      indent_level: (meta as any).indent_level  // Pass indent level
     });
   });
   
@@ -703,25 +715,71 @@ export function BlockEditor({
     }
   };
 
-  const getBlockStyles = (type: BlockType) => {
+  const getFormattingStyles = (block: Block): string => {
+    const classes: string[] = [];
+    const fmt = block.formatting;
+    
+    if (fmt) {
+      // Full block formatting
+      if (fmt.bold) classes.push('font-bold');
+      if (fmt.italic) classes.push('italic');
+      
+      // Alignment
+      if (fmt.alignment === 'center') classes.push('text-center');
+      else if (fmt.alignment === 'right') classes.push('text-right');
+      
+      // Size
+      if (fmt.size === 'small') classes.push('text-xs');
+      else if (fmt.size === 'large') classes.push('text-lg');
+      
+      // Highlighting (visual cue for has_highlight)
+      if (fmt.has_highlight) classes.push('bg-yellow-50 border-l-2 border-yellow-400 pl-2');
+    }
+    
+    // Indentation
+    if (block.indent_level && block.indent_level > 0) {
+      classes.push(`ml-${block.indent_level * 4}`);
+    }
+    
+    return classes.join(' ');
+  };
+
+  const getBlockStyles = (type: BlockType, block?: Block) => {
+    let baseStyles = '';
+    
     switch (type) {
       case 'heading1':
-        return 'text-2xl font-semibold text-neutral-900 leading-tight';
+        baseStyles = 'text-2xl font-semibold text-neutral-900 leading-tight';
+        break;
       case 'heading2':
-        return 'text-xl font-semibold text-neutral-900 leading-tight';
+        baseStyles = 'text-xl font-semibold text-neutral-900 leading-tight';
+        break;
       case 'heading3':
-        return 'text-lg font-semibold text-neutral-900 leading-tight';
+        baseStyles = 'text-lg font-semibold text-neutral-900 leading-tight';
+        break;
       case 'bullet':
-        return 'text-sm text-neutral-700 ml-6 list-disc leading-snug';
+        baseStyles = 'text-sm text-neutral-700 ml-6 list-disc leading-snug';
+        break;
       case 'numbered':
-        return 'text-sm text-neutral-700 ml-6 list-decimal leading-snug';
+        baseStyles = 'text-sm text-neutral-700 ml-6 list-decimal leading-snug';
+        break;
       case 'callout':
-        return 'text-sm text-neutral-700 bg-blue-50 border-l-4 border-blue-400 p-3 leading-snug';
+        baseStyles = 'text-sm text-neutral-700 bg-blue-50 border-l-4 border-blue-400 p-3 leading-snug';
+        break;
       case 'quote':
-        return 'text-sm text-neutral-600 italic border-l-4 border-neutral-300 pl-4 leading-snug';
+        baseStyles = 'text-sm text-neutral-600 italic border-l-4 border-neutral-300 pl-4 leading-snug';
+        break;
       default:
-        return 'text-sm text-neutral-700 leading-snug';
+        baseStyles = 'text-sm text-neutral-700 leading-snug';
     }
+    
+    // Apply formatting metadata if block provided
+    if (block) {
+      const formattingStyles = getFormattingStyles(block);
+      return `${baseStyles} ${formattingStyles}`.trim();
+    }
+    
+    return baseStyles;
   };
 
   const renderBlock = (block: Block) => {
@@ -771,7 +829,7 @@ export function BlockEditor({
         {/* Block Content */}
         <div className={block.changeType === 'removed' ? 'line-through opacity-50' : ''}>
           {block.type === 'bullet' || block.type === 'numbered' ? (
-            <li className={getBlockStyles(block.type)}>
+            <li className={getBlockStyles(block.type, block)}>
               <input
                 value={block.content}
                 onChange={(e) => handleInputChange(block.id, e.target.value)}
@@ -779,7 +837,7 @@ export function BlockEditor({
               />
             </li>
           ) : (
-            <div className={getBlockStyles(block.type)}>
+            <div className={getBlockStyles(block.type, block)}>
               <textarea
                 value={block.content}
                 onChange={(e) => {

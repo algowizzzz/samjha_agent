@@ -873,3 +873,7 @@
 {"asctime": "2025-11-16T23:04:29", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 5"}
 {"asctime": "2025-11-16T23:04:34", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Gap analysis failed for page 5: Extra data: line 51 column 1 (char 2243)"}
 {"asctime": "2025-11-16T23:04:34", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 5"}
+{"asctime": "2025-11-16T23:04:47", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 5: Invalid control character at: line 28 column 63 (char 2488)"}
+{"asctime": "2025-11-16T23:04:47", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 30 gaps, 36 improvements"}
+{"asctime": "2025-11-16T23:04:47", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating synthesis summary for 'CAR_Chapter_1_First_5_Pages'"}
+{"asctime": "2025-11-16T23:04:53", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Synthesis summary generated successfully"}

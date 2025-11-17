@@ -1,8 +1,8 @@
 {
   "file_id": "CAR_Chapter_1_First_5_Pages",
   "source_path": "/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages.pdf",
-  "status": "running",
-  "updated_at": "2025-11-17T04:03:07.000267Z",
+  "status": "ready",
+  "updated_at": "2025-11-17T04:04:53.795357Z",
   "state": {
     "run_id": "CAR_Chapter_1_First_5_Pages",
     "doc_id": "3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages",
@@ -3124,6 +3124,647 @@
         }
       }
     },
-    "original_markdown": "**Guideline**\n\n**Subject:** Capital Adequacy Requirements (CAR)\n\n**Chapter 1 \u2013 Overview of risk-based capital requirements**\n\n**Effective Date:** November 2023 / January 2024\n\n**Note:** For institutions with a fiscal year ending October 31 or December 31, respectively.\n\nSubsections 485(1) and 949(1) of the **Bank Act (BA)**, subsection 473(1) of the **Trust and Loan Companies Act (TLCA)** require banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies to maintain adequate capital. The CAR Guideline is not made pursuant to subsections 485(2) or 949(2) of the BA, or to subsection 473(2) of the TLCA. However, the capital standards set out in this guideline together with the leverage requirements set out in the Leverage Requirements Guideline provide the framework within which the Superintendent assesses whether a bank, a bank holding company, a trust company, or a loan company maintains adequate capital pursuant to the Acts.\n\nFor this purpose, the Superintendent has established two minimum standards: the leverage ratio described in the Leverage Requirements Guideline, and the risk-based capital ratio described in this guideline.\u00b9 The first test provides an overall measure of the adequacy of an institution's capital. The second measure focuses on risk faced by the institution. Notwithstanding that a bank, bank holding company, trust company, or loan company may meet these standards, the Superintendent may direct a bank or bank holding company to increase its capital under subsections 485(3) or 949(3) of the BA, or a trust company or a loan company to increase its capital under subsection 473(3) of the TLCA.\n\nOSFI, as a member of the Basel Committee on Banking Supervision, participated in the development of the Basel capital framework on which this guideline is based. Where relevant, the Basel framework paragraph numbers are provided in square brackets at the end of each paragraph referencing material from the Basel framework.\n\n\u00b9 The capital and leverage requirements for domestic systemically important banks are supplemented by the requirements described in OSFI's Total Loss Absorbing Capacity (TLAC) Guideline.\n\n---\n\n**Chapter 1 - Overview of risk-based capital requirements**\n\nThe Capital Adequacy Requirements (CAR) for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies are set out in nine chapters, each of which has been issued as a separate document. This document should be read in conjunction with the other CAR chapters. The complete list of CAR chapters is as follows:\n\nChapter 1     **Overview of Risk-based Capital Requirements**\nChapter 2     **Definition of Capital** \nChapter 3     **Operational Risk**\nChapter 4     **Credit Risk \u2013 Standardized Approach**\nChapter 5     **Credit Risk \u2013 Internal Ratings-Based Approach**\nChapter 6     **Securitization**\nChapter 7     **Settlement and Counterparty Risk** \nChapter 8     **Credit Valuation Adjustment (CVA) Risk**\nChapter 9     **Market Risk**\n\n---\n\n**Table of Contents**\n\nChapter 1 \u2013 Overview of Risk-based Capital Requirements..............................................4\n1.1.  Scope of Application .................................................................................................4\n1.2.  Regulatory Capital...................................................................................................4 \n1.3.  Total Risk weighted Assets ....................................................................................5\n  1.3.1.   Credit Risk................................................................................................5\n  1.3.2.   Market Risk..............................................................................................7\n  1.3.3.   Operational Risk.......................................................................................7\n1.4.  Approval to use Internal Model Based Approaches..............................................8\n  1.4.1.    Approval to use the IRB Approaches to Credit Risk...............................8\n1.5.  Capital Floor\u2013Internal Model Based Approaches ................................................9\n  1.5.1.    The Capital Floor.....................................................................................9\n  1.5.2.    Adjusted Capital Requirement..............................................................11\n1.6.  Calculation of OSFI Minimum Capital Requirements.......................................11\n  1.6.1.    Risk-Based Capital Ratios for D-SIBs and Category I and II SMSBs ..11\n  1.6.2.    Simplified Risk-Based Capital Ratio for Category III SMSBs ..............12\n1.7.  Mandated Capital Buffers....................................................................................12\n  1.7.1.    Capital Conservation Buffer..................................................................13\n  1.7.2.    Countercyclical Buffer...........................................................................15\n1.8.  Domestic Systemically Important Bank (D-SIB) Surcharge...............................18\n1.9.  Domestic Stability Buffer....................................................................................19\n1.10. Capital Targets....................................................................................................20\nAnnex 1    Domestic Systemic Importance and Capital Targets................................22\nAnnex 2    Supervisory Target Capital Requirements................................................26\n\n---\n\n**Chapter 1 \u2013 Overview of Risk-based Capital Requirements**\n\n1. Outlined below is an overview of the capital adequacy requirements for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies, collectively referred to as 'institutions'.\n\n2. This chapter is drawn from the Basel Committee on Banking Supervision (BCBS) Basel Framework published on the Bank for International Settlements (BIS) website.2 For reference, the Basel paragraph numbers that are associated with the text appearing in this chapter are indicated in square brackets at the end of each paragraph.3\n\n**1.1. Scope of Application**\n\n3. The capital adequacy requirements outlined in this guideline apply on a consolidated basis to the following institutions:\n   a. all institutions designated by OSFI as domestic systemically important banks (D-SIBs); and\n   b. small and medium-sized deposit-taking institutions (SMSBs4), which fall into Categories I, II or III as defined in OSFI's SMSB Capital and Liquidity Requirements Guideline.5\n\n4. The consolidated entity includes all subsidiaries except insurance subsidiaries. OSFI expects institutions to hold capital within the consolidated group in a manner that is consistent with the level and location of risk.\n\n**1.2. Regulatory Capital**\n\n5. Total capital consists of the sum of the following elements:\n   i. Tier 1 capital, consisting of:\n      a. Common Equity Tier 1 (CET1) capital; and\n      b. Additional Tier 1 capital\n   ii. Tier 2 capital\n\n2 The Basel Framework\n3 [Following the format: [Basel Framework, XXX yy.zz]]\n4 SMSBs are banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies that have not been designated by OSFI as domestic systemically important banks (D-SIBs). This includes subsidiaries of SMSBs or D-SIBs that are banks (including federal credit unions), federally regulated trust companies or federally regulated loan companies.\n5 SMSB Capital and Liquidity Requirement\n\n---\n\n**The criteria for the capital elements comprising the two tiers, as well as the various limits, restrictions and regulatory adjustments to which they are subject, are described in Chapter 2.**\n\n**1.3. Total Risk-weighted Assets**\n\n**7.** Risk-weighted assets (RWA) make up the denominator of the risk-based capital ratios, and is calculated as the higher of:\n\na. the sum of the following three elements:\n  i. RWA for credit risk;\n  ii. RWA for market risk; and \n  iii. RWA for operational risk; and\nb. the adjusted RWA determined as per the capital floor described in section 1.5.\n\n[Basel Framework, RBC 20.4]\n\n**1.3.1. Credit Risk**\n\n**8.** RWA for credit risk (including counterparty credit risk) is calculated as the sum of:\na. Credit RWA for banking book exposures which, except the RWA listed in (b) through (e) below, is calculated using:\n  i. the standardized approach (as set out in Chapter 4); or\n  ii. the Internal Ratings-Based (IRB) approach (as set out in Chapter 5).\nb. RWA for counterparty credit risk from banking book exposures and trading book exposures (as set out in Chapter 7), except the exposures listed in (c) and (f) below.\nc. Credit RWA for equity investments in funds that are held in the banking book calculated using one or more of the approaches set out in Chapter 4:\n  i. The look-through approach\n  ii. The mandate-based approach\n  iii. The fall-back approach\nd. RWA for securitization exposures held in the banking book, calculating using one or more of the approaches set out in Chapter 6:\n  i. Securitization Standardized Approach (SEC-SA)\n  ii. Securitization External Ratings-Based Approach (SEC-ERBA)\n  iii. Securitization Internal Ratings-Based Approach (SEC-IRBA) \n  iv. Securitization Internal Assessment Approach (SEC-IAA)\n  v. A risk weight of 1250% in cases where the institution cannot use (i) to (iv) above."
+    "original_markdown": "**Guideline**\n\n**Subject:** Capital Adequacy Requirements (CAR)\n\n**Chapter 1 \u2013 Overview of risk-based capital requirements**\n\n**Effective Date:** November 2023 / January 2024\n\n**Note:** For institutions with a fiscal year ending October 31 or December 31, respectively.\n\nSubsections 485(1) and 949(1) of the **Bank Act (BA)**, subsection 473(1) of the **Trust and Loan Companies Act (TLCA)** require banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies to maintain adequate capital. The CAR Guideline is not made pursuant to subsections 485(2) or 949(2) of the BA, or to subsection 473(2) of the TLCA. However, the capital standards set out in this guideline together with the leverage requirements set out in the Leverage Requirements Guideline provide the framework within which the Superintendent assesses whether a bank, a bank holding company, a trust company, or a loan company maintains adequate capital pursuant to the Acts.\n\nFor this purpose, the Superintendent has established two minimum standards: the leverage ratio described in the Leverage Requirements Guideline, and the risk-based capital ratio described in this guideline.\u00b9 The first test provides an overall measure of the adequacy of an institution's capital. The second measure focuses on risk faced by the institution. Notwithstanding that a bank, bank holding company, trust company, or loan company may meet these standards, the Superintendent may direct a bank or bank holding company to increase its capital under subsections 485(3) or 949(3) of the BA, or a trust company or a loan company to increase its capital under subsection 473(3) of the TLCA.\n\nOSFI, as a member of the Basel Committee on Banking Supervision, participated in the development of the Basel capital framework on which this guideline is based. Where relevant, the Basel framework paragraph numbers are provided in square brackets at the end of each paragraph referencing material from the Basel framework.\n\n\u00b9 The capital and leverage requirements for domestic systemically important banks are supplemented by the requirements described in OSFI's Total Loss Absorbing Capacity (TLAC) Guideline.\n\n---\n\n**Chapter 1 - Overview of risk-based capital requirements**\n\nThe Capital Adequacy Requirements (CAR) for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies are set out in nine chapters, each of which has been issued as a separate document. This document should be read in conjunction with the other CAR chapters. The complete list of CAR chapters is as follows:\n\nChapter 1     **Overview of Risk-based Capital Requirements**\nChapter 2     **Definition of Capital** \nChapter 3     **Operational Risk**\nChapter 4     **Credit Risk \u2013 Standardized Approach**\nChapter 5     **Credit Risk \u2013 Internal Ratings-Based Approach**\nChapter 6     **Securitization**\nChapter 7     **Settlement and Counterparty Risk** \nChapter 8     **Credit Valuation Adjustment (CVA) Risk**\nChapter 9     **Market Risk**\n\n---\n\n**Table of Contents**\n\nChapter 1 \u2013 Overview of Risk-based Capital Requirements..............................................4\n1.1.  Scope of Application .................................................................................................4\n1.2.  Regulatory Capital...................................................................................................4 \n1.3.  Total Risk weighted Assets ....................................................................................5\n  1.3.1.   Credit Risk................................................................................................5\n  1.3.2.   Market Risk..............................................................................................7\n  1.3.3.   Operational Risk.......................................................................................7\n1.4.  Approval to use Internal Model Based Approaches..............................................8\n  1.4.1.    Approval to use the IRB Approaches to Credit Risk...............................8\n1.5.  Capital Floor\u2013Internal Model Based Approaches ................................................9\n  1.5.1.    The Capital Floor.....................................................................................9\n  1.5.2.    Adjusted Capital Requirement..............................................................11\n1.6.  Calculation of OSFI Minimum Capital Requirements.......................................11\n  1.6.1.    Risk-Based Capital Ratios for D-SIBs and Category I and II SMSBs ..11\n  1.6.2.    Simplified Risk-Based Capital Ratio for Category III SMSBs ..............12\n1.7.  Mandated Capital Buffers....................................................................................12\n  1.7.1.    Capital Conservation Buffer..................................................................13\n  1.7.2.    Countercyclical Buffer...........................................................................15\n1.8.  Domestic Systemically Important Bank (D-SIB) Surcharge...............................18\n1.9.  Domestic Stability Buffer....................................................................................19\n1.10. Capital Targets....................................................................................................20\nAnnex 1    Domestic Systemic Importance and Capital Targets................................22\nAnnex 2    Supervisory Target Capital Requirements................................................26\n\n---\n\n**Chapter 1 \u2013 Overview of Risk-based Capital Requirements**\n\n1. Outlined below is an overview of the capital adequacy requirements for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies, collectively referred to as 'institutions'.\n\n2. This chapter is drawn from the Basel Committee on Banking Supervision (BCBS) Basel Framework published on the Bank for International Settlements (BIS) website.2 For reference, the Basel paragraph numbers that are associated with the text appearing in this chapter are indicated in square brackets at the end of each paragraph.3\n\n**1.1. Scope of Application**\n\n3. The capital adequacy requirements outlined in this guideline apply on a consolidated basis to the following institutions:\n   a. all institutions designated by OSFI as domestic systemically important banks (D-SIBs); and\n   b. small and medium-sized deposit-taking institutions (SMSBs4), which fall into Categories I, II or III as defined in OSFI's SMSB Capital and Liquidity Requirements Guideline.5\n\n4. The consolidated entity includes all subsidiaries except insurance subsidiaries. OSFI expects institutions to hold capital within the consolidated group in a manner that is consistent with the level and location of risk.\n\n**1.2. Regulatory Capital**\n\n5. Total capital consists of the sum of the following elements:\n   i. Tier 1 capital, consisting of:\n      a. Common Equity Tier 1 (CET1) capital; and\n      b. Additional Tier 1 capital\n   ii. Tier 2 capital\n\n2 The Basel Framework\n3 [Following the format: [Basel Framework, XXX yy.zz]]\n4 SMSBs are banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies that have not been designated by OSFI as domestic systemically important banks (D-SIBs). This includes subsidiaries of SMSBs or D-SIBs that are banks (including federal credit unions), federally regulated trust companies or federally regulated loan companies.\n5 SMSB Capital and Liquidity Requirement\n\n---\n\n**The criteria for the capital elements comprising the two tiers, as well as the various limits, restrictions and regulatory adjustments to which they are subject, are described in Chapter 2.**\n\n**1.3. Total Risk-weighted Assets**\n\n**7.** Risk-weighted assets (RWA) make up the denominator of the risk-based capital ratios, and is calculated as the higher of:\n\na. the sum of the following three elements:\n  i. RWA for credit risk;\n  ii. RWA for market risk; and \n  iii. RWA for operational risk; and\nb. the adjusted RWA determined as per the capital floor described in section 1.5.\n\n[Basel Framework, RBC 20.4]\n\n**1.3.1. Credit Risk**\n\n**8.** RWA for credit risk (including counterparty credit risk) is calculated as the sum of:\na. Credit RWA for banking book exposures which, except the RWA listed in (b) through (e) below, is calculated using:\n  i. the standardized approach (as set out in Chapter 4); or\n  ii. the Internal Ratings-Based (IRB) approach (as set out in Chapter 5).\nb. RWA for counterparty credit risk from banking book exposures and trading book exposures (as set out in Chapter 7), except the exposures listed in (c) and (f) below.\nc. Credit RWA for equity investments in funds that are held in the banking book calculated using one or more of the approaches set out in Chapter 4:\n  i. The look-through approach\n  ii. The mandate-based approach\n  iii. The fall-back approach\nd. RWA for securitization exposures held in the banking book, calculating using one or more of the approaches set out in Chapter 6:\n  i. Securitization Standardized Approach (SEC-SA)\n  ii. Securitization External Ratings-Based Approach (SEC-ERBA)\n  iii. Securitization Internal Ratings-Based Approach (SEC-IRBA) \n  iv. Securitization Internal Assessment Approach (SEC-IAA)\n  v. A risk weight of 1250% in cases where the institution cannot use (i) to (iv) above.",
+    "template_applied": "policy_template",
+    "template_gap_analysis": [
+      {
+        "block_id": "p1_b0_a3928106",
+        "gaps": [
+          "The template does not have a 'Guideline' heading. This section should be renamed to '1. Purpose and Scope' to match the template structure."
+        ],
+        "severity": "medium",
+        "template_section": "1. Purpose and Scope",
+        "reasoning": "The 'Guideline' heading does not match the template structure, which starts with '1. Purpose and Scope'. This should be renamed to align with the expected format."
+      },
+      {
+        "block_id": "p1_b1_d94edb54",
+        "gaps": [
+          "The 'Subject' section is not part of the template structure. This information should be incorporated into the '1.1 Purpose' or '1.2 Scope' sections."
+        ],
+        "severity": "medium",
+        "template_section": "1.1 Purpose, 1.2 Scope",
+        "reasoning": "The 'Subject' block does not fit into the template structure. The purpose and scope of the document should be defined in the appropriate sections."
+      },
+      {
+        "block_id": "p1_b2_6ad83f0b",
+        "gaps": [
+          "The 'Chapter 1 - Overview of risk-based capital requirements' heading should be moved under the '1. Purpose and Scope' section."
+        ],
+        "severity": "medium",
+        "template_section": "1. Purpose and Scope",
+        "reasoning": "The chapter-level heading should be included within the '1. Purpose and Scope' section, rather than as a standalone heading."
+      },
+      {
+        "block_id": "p1_b3_40c7503b",
+        "gaps": [
+          "The 'Effective Date' information should be moved to the '1.3 Effective Date' section of the template."
+        ],
+        "severity": "low",
+        "template_section": "1.3 Effective Date",
+        "reasoning": "The 'Effective Date' information should be included in the '1.3 Effective Date' section of the template."
+      },
+      {
+        "block_id": "p1_b4_a64d86f0",
+        "gaps": [
+          "The 'Note' section does not have a designated place in the template. It should be incorporated into the '1.3 Effective Date' section or a new '1.4 Note' section."
+        ],
+        "severity": "low",
+        "template_section": "1.3 Effective Date, 1.4 Note",
+        "reasoning": "The 'Note' section does not have a designated place in the template and should be incorporated into the document structure."
+      },
+      {
+        "block_id": "p1_b5_485483f3",
+        "gaps": [
+          "The information about the Bank Act and Trust and Loan Companies Act requirements does not fit into the template structure. This could be incorporated into the '1.1 Purpose' or '1.2 Scope' sections."
+        ],
+        "severity": "medium",
+        "template_section": "1.1 Purpose, 1.2 Scope",
+        "reasoning": "The details about the relevant Acts do not have a designated place in the template structure and should be incorporated into the purpose and scope sections."
+      },
+      {
+        "block_id": "p1_b6_a303308a",
+        "gaps": [
+          "The information about the leverage ratio and risk-based capital ratio does not fit into the template structure. This could be incorporated into the '1.1 Purpose' or '3.1 General Principles' sections."
+        ],
+        "severity": "medium",
+        "template_section": "1.1 Purpose, 3.1 General Principles",
+        "reasoning": "The details about the capital requirements do not have a designated place in the template and should be incorporated into the purpose or general principles sections."
+      },
+      {
+        "block_id": "p1_b7_9b409be3",
+        "gaps": [
+          "The information about the Basel capital framework does not fit into the template structure. This could be mentioned in the '8. References' section."
+        ],
+        "severity": "low",
+        "template_section": "8. References",
+        "reasoning": "The details about the Basel capital framework do not have a designated place in the template and could be referenced in the '8. References' section."
+      },
+      {
+        "block_id": "p1_b8_a52e4d52",
+        "gaps": [
+          "The information about the Total Loss Absorbing Capacity (TLAC) Guideline does not fit into the template structure. This could be mentioned in the '8. References' section."
+        ],
+        "severity": "low",
+        "template_section": "8. References",
+        "reasoning": "The details about the TLAC Guideline do not have a designated place in the template and could be referenced in the '8. References' section."
+      },
+      {
+        "block_id": "p2_b2_4e13c3e2",
+        "gaps": [
+          "Missing section header for the overview of the CAR chapters."
+        ],
+        "severity": "medium",
+        "template_section": "3. Policy Statement",
+        "reasoning": "The content in this block provides an overview of the CAR chapters, but does not have a corresponding section header in the template. A section header should be added to clearly identify this information."
+      },
+      {
+        "block_id": "p2_b4_5893b11b",
+        "gaps": [
+          "Missing section number for the 'Overview of Risk-based Capital Requirements' chapter."
+        ],
+        "severity": "low",
+        "template_section": "3. Policy Statement",
+        "reasoning": "The chapter heading does not include a section number, which would help organize the content within the policy document. Adding a section number would improve the structure."
+      },
+      {
+        "block_id": "p2_b12_795e716e",
+        "gaps": [
+          "Missing section numbers for the remaining CAR chapter headings."
+        ],
+        "severity": "low",
+        "template_section": "3. Policy Statement",
+        "reasoning": "The chapter headings for the remaining CAR chapters do not include section numbers, which would help organize the content within the policy document. Adding section numbers would improve the structure."
+      },
+      {
+        "block_id": "p3_b1_42422b31",
+        "gaps": [
+          "No clear purpose statement as required by template section 1.1.",
+          "Scope definition is missing audience specification as per template section 1.2."
+        ],
+        "severity": "high",
+        "template_section": "1. Purpose and Scope",
+        "reasoning": "The template requires a clear purpose statement and scope definition with audience specification, but the current content only provides a high-level overview without these critical elements."
+      },
+      {
+        "block_id": "p3_b3_eda1ba12",
+        "gaps": [
+          "Effective date is not specified as required by template section 1.3."
+        ],
+        "severity": "medium",
+        "template_section": "1. Purpose and Scope",
+        "reasoning": "The template requires the effective date to be specified, but this information is missing from the current content."
+      },
+      {
+        "block_id": "p3_b4_b98600a7",
+        "gaps": [
+          "No definition of key terms and acronyms as required by template section 2."
+        ],
+        "severity": "medium",
+        "template_section": "2. Definitions",
+        "reasoning": "The template calls for defining key terms and acronyms used in the policy, but the current content does not include this information."
+      },
+      {
+        "block_id": "p3_b13_226839c5",
+        "gaps": [
+          "No clear policy statement or general principles as required by template section 3.1.",
+          "Specific requirements are not outlined as per template section 3.2."
+        ],
+        "severity": "high",
+        "template_section": "3. Policy Statement",
+        "reasoning": "The template requires a clear policy statement with general principles and specific requirements, but the current content only provides a high-level overview without these crucial elements."
+      },
+      {
+        "block_id": "p3_b16_0c222317",
+        "gaps": [
+          "Management, staff, and oversight responsibilities are not defined as per template sections 4.1, 4.2, and 4.3."
+        ],
+        "severity": "medium",
+        "template_section": "4. Roles and Responsibilities",
+        "reasoning": "The template calls for defining the responsibilities of management, staff, and oversight functions, but the current content does not include this information."
+      },
+      {
+        "block_id": "p3_b21_eb3a5b22",
+        "gaps": [
+          "Implementation procedures, control mechanisms, and reporting requirements are not specified as required by template sections 5.1, 5.2, and 5.3."
+        ],
+        "severity": "medium",
+        "template_section": "5. Procedures and Controls",
+        "reasoning": "The template requires detailing the implementation procedures, control mechanisms, and reporting requirements, but the current content does not cover these elements."
+      },
+      {
+        "block_id": "p3_b23_b54fda47",
+        "gaps": [
+          "Compliance requirements, monitoring and review processes, and consequences of non-compliance are not defined as per template sections 6.1, 6.2, and 6.3."
+        ],
+        "severity": "medium",
+        "template_section": "6. Compliance and Enforcement",
+        "reasoning": "The template calls for specifying the compliance requirements, monitoring and review processes, and consequences of non-compliance, but the current content does not include this information."
+      },
+      {
+        "block_id": "p3_b22_971ce0b4",
+        "gaps": [
+          "Review frequency, update process, and version control are not documented as required by template sections 7.1, 7.2, and 7.3."
+        ],
+        "severity": "low",
+        "template_section": "7. Review and Updates",
+        "reasoning": "The template requires describing the review frequency, update process, and version control, but this information is missing from the current content."
+      },
+      {
+        "block_id": "p3_b23_b54fda47",
+        "gaps": [
+          "Related policies, regulations, and standards are not listed as per template section 8."
+        ],
+        "severity": "low",
+        "template_section": "8. References",
+        "reasoning": "The template asks for listing any related policies, regulations, and standards, but the current content does not include this information."
+      },
+      {
+        "block_id": "p3_b23_b54fda47",
+        "gaps": [
+          "Approval signatures and dates are not provided as required by template section 9."
+        ],
+        "severity": "low",
+        "template_section": "9. Approval and Authorization",
+        "reasoning": "The template requires documenting the approval signatures and dates, but this information is missing from the current content."
+      },
+      {
+        "block_id": "p4_b0_5504ed49",
+        "gaps": [],
+        "severity": "low",
+        "template_section": "1. Purpose and Scope",
+        "reasoning": "The heading 'Overview of Risk-based Capital Requirements' aligns with the template structure, but does not explicitly state the purpose of the policy."
+      },
+      {
+        "block_id": "p4_b1_3df66012",
+        "gaps": [
+          "Missing clear purpose statement as required by template section 1.1"
+        ],
+        "severity": "high",
+        "template_section": "1.1 Purpose",
+        "reasoning": "The content provides an overview, but does not clearly define the purpose and objectives of the policy as required by the template."
+      },
+      {
+        "block_id": "p4_b2_01ba44c5",
+        "gaps": [],
+        "severity": "low",
+        "template_section": "1. Purpose and Scope",
+        "reasoning": "The information about the Basel framework aligns with the template, but does not directly address the purpose or scope of the policy."
+      },
+      {
+        "block_id": "p4_b3_0eaaebc3",
+        "gaps": [],
+        "severity": "low",
+        "template_section": "1.2 Scope",
+        "reasoning": "The 'Scope of Application' heading aligns with the template structure, but the content does not fully define the scope as required."
+      },
+      {
+        "block_id": "p4_b4_40eaf91b",
+        "gaps": [
+          "Scope definition incomplete - template requires audience specification"
+        ],
+        "severity": "medium",
+        "template_section": "1.2 Scope",
+        "reasoning": "The scope is defined in terms of the institutions covered, but does not specify the audience as required by the template."
+      },
+      {
+        "block_id": "p4_b5_00c7e89b",
+        "gaps": [],
+        "severity": "low",
+        "template_section": "1.2 Scope",
+        "reasoning": "The content about consolidated entities aligns with the scope definition in the template."
+      },
+      {
+        "block_id": "p4_b6_eda1ba12",
+        "gaps": [
+          "Effective date not specified"
+        ],
+        "severity": "medium",
+        "template_section": "1.3 Effective Date",
+        "reasoning": "The 'Regulatory Capital' heading does not include the effective date as required by the template."
+      },
+      {
+        "block_id": "p4_b7_e88ad0b6",
+        "gaps": [],
+        "severity": "low",
+        "template_section": "2. Definitions",
+        "reasoning": "The content defining the capital elements aligns with the 'Definitions' section in the template, but should be moved to the appropriate section."
+      }
+    ],
+    "template_improvements": [
+      {
+        "block_id": "p1_b0_a3928106",
+        "original": "Guideline",
+        "improved": "1. Purpose and Scope",
+        "changes_made": [
+          "Renamed the 'Guideline' heading to '1. Purpose and Scope' to align with the template structure."
+        ],
+        "reasoning": "The 'Guideline' heading does not match the template structure, which starts with '1. Purpose and Scope'. This has been renamed to align with the expected format.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p1_b1_d94edb54",
+        "original": "Subject: Capital Adequacy Requirements (CAR)",
+        "improved": "1.1 Purpose\nThe purpose of this policy is to outline the capital adequacy requirements for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies, collectively referred to as 'institutions'.",
+        "changes_made": [
+          "Incorporated the 'Subject' information into the '1.1 Purpose' section to define the purpose of the document."
+        ],
+        "reasoning": "The 'Subject' section is not part of the template structure. This information has been incorporated into the '1.1 Purpose' section to define the purpose of the document.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p1_b2_6ad83f0b",
+        "original": "Chapter 1 \u2013 Overview of risk-based capital requirements",
+        "improved": "1.2 Scope\nThis policy applies to the following institutions:\na. all institutions designated by OSFI as domestic systemically important banks (D-SIBs); and\nb. small and medium-sized deposit-taking institutions (SMSBs), which fall into Categories I, II or III as defined in OSFI's SMSB Capital and Liquidity Requirements Guideline.",
+        "changes_made": [
+          "Moved the 'Chapter 1 - Overview of risk-based capital requirements' heading under the '1. Purpose and Scope' section to align with the template structure.",
+          "Incorporated the scope information into the '1.2 Scope' section."
+        ],
+        "reasoning": "The chapter-level heading should be included within the '1. Purpose and Scope' section, rather than as a standalone heading. The scope information has been incorporated into the '1.2 Scope' section.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p1_b3_40c7503b",
+        "original": "Effective Date: November 2023 / January 2024",
+        "improved": "1.3 Effective Date\nThis policy is effective November 2023 for institutions with a fiscal year ending October 31, and January 2024 for institutions with a fiscal year ending December 31.",
+        "changes_made": [
+          "Moved the 'Effective Date' information to the '1.3 Effective Date' section of the template."
+        ],
+        "reasoning": "The 'Effective Date' information should be included in the '1.3 Effective Date' section of the template.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p1_b4_a64d86f0",
+        "original": "Note: For institutions with a fiscal year ending October 31 or December 31, respectively.",
+        "improved": "1.4 Note\nThis policy applies to institutions with a fiscal year ending October 31 or December 31.",
+        "changes_made": [
+          "Incorporated the 'Note' information into a new '1.4 Note' section to provide additional context."
+        ],
+        "reasoning": "The 'Note' section does not have a designated place in the template and has been incorporated into a new '1.4 Note' section to provide additional context.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p1_b5_485483f3",
+        "original": "Subsections 485(1) and 949(1) of the Bank Act (BA), subsection 473(1) of the Trust and Loan Companies Act (TLCA) require banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies to maintain adequate capital. The CAR Guideline is not made pursuant to subsections 485(2) or 949(2) of the BA, or to subsection 473(2) of the TLCA. However, the capital standards set out in this guideline together with the leverage requirements set out in the Leverage Requirements Guideline provide the framework within which the Superintendent assesses whether a bank, a bank holding company, a trust company, or a loan company maintains adequate capital pursuant to the Acts.",
+        "improved": "1.1 Purpose\nThe purpose of this policy is to outline the capital adequacy requirements for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies, as required by the Bank Act and Trust and Loan Companies Act. The capital standards set out in this guideline, together with the leverage requirements in the Leverage Requirements Guideline, provide the framework for the Superintendent to assess whether these institutions maintain adequate capital.",
+        "changes_made": [
+          "Incorporated the information about the Bank Act and Trust and Loan Companies Act requirements into the '1.1 Purpose' section to provide context for the policy."
+        ],
+        "reasoning": "The details about the relevant Acts do not have a designated place in the template structure and have been incorporated into the '1.1 Purpose' section to provide context for the policy.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p1_b6_a303308a",
+        "original": "For this purpose, the Superintendent has established two minimum standards: the leverage ratio described in the Leverage Requirements Guideline, and the risk-based capital ratio described in this guideline.\u00b9 The first test provides an overall measure of the adequacy of an institution's capital. The second measure focuses on risk faced by the institution. Notwithstanding that a bank, bank holding company, trust company, or loan company may meet these standards, the Superintendent may direct a bank or bank holding company to increase its capital under subsections 485(3) or 949(3) of the BA, or a trust company or a loan company to increase its capital under subsection 473(3) of the TLCA.",
+        "improved": "3.1 General Principles\nThis policy establishes two minimum capital standards for institutions:\na. The leverage ratio described in the Leverage Requirements Guideline, which provides an overall measure of capital adequacy.\nb. The risk-based capital ratio described in this guideline, which focuses on the risks faced by the institution.\nNotwithstanding that an institution may meet these standards, the Superintendent may still require the institution to increase its capital under the relevant sections of the Bank Act or Trust and Loan Companies Act.",
+        "changes_made": [
+          "Incorporated the information about the leverage ratio and risk-based capital ratio into the '3.1 General Principles' section to outline the key capital requirements.",
+          "Included the details about the Superintendent's authority to require increased capital in the '3.1 General Principles' section."
+        ],
+        "reasoning": "The details about the capital requirements do not have a designated place in the template and have been incorporated into the '3.1 General Principles' section to outline the key requirements.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p1_b7_9b409be3",
+        "original": "OSFI, as a member of the Basel Committee on Banking Supervision, participated in the development of the Basel capital framework on which this guideline is based. Where relevant, the Basel framework paragraph numbers are provided in square brackets at the end of each paragraph referencing material from the Basel framework.",
+        "improved": "8. References\nThis policy is based on the Basel capital framework developed by the Basel Committee on Banking Supervision, of which OSFI is a member. Where relevant, the corresponding Basel framework paragraph numbers are provided in square brackets.",
+        "changes_made": [
+          "Incorporated the information about the Basel capital framework into the '8. References' section to provide context for the policy."
+        ],
+        "reasoning": "The details about the Basel capital framework do not have a designated place in the template and have been included in the '8. References' section.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p1_b8_a52e4d52",
+        "original": "The capital and leverage requirements for domestic systemically important banks are supplemented by the requirements described in OSFI's Total Loss Absorbing Capacity (TLAC) Guideline.",
+        "improved": "8. References\nThe capital and leverage requirements in this policy are supplemented by the requirements described in OSFI's Total Loss Absorbing Capacity (TLAC) Guideline.",
+        "changes_made": [
+          "Incorporated the information about the TLAC Guideline into the '8. References' section to provide additional context."
+        ],
+        "reasoning": "The details about the TLAC Guideline do not have a designated place in the template and have been included in the '8. References' section.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b2_4e13c3e2",
+        "original": "The Capital Adequacy Requirements (CAR) for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies are set out in nine chapters, each of which has been issued as a separate document. This document should be read in conjunction with the other CAR chapters. The complete list of CAR chapters is as follows:",
+        "improved": "3.2 Specific Requirements\nThe Capital Adequacy Requirements (CAR) for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies are set out in the following nine chapters, each of which has been issued as a separate document. This policy should be read in conjunction with the other CAR chapters:",
+        "changes_made": [
+          "Added a section header '3.2 Specific Requirements' to align with the template structure.",
+          "Incorporated the information about the CAR chapters into the '3.2 Specific Requirements' section."
+        ],
+        "reasoning": "The content in this block provides details about the CAR chapters, which should be included under the '3.2 Specific Requirements' section of the template. Adding the section header helps organize the information appropriately.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b4_5893b11b",
+        "original": "Chapter 1     **Overview of Risk-based Capital Requirements**",
+        "improved": "3.2.1 Chapter 1: Overview of Risk-based Capital Requirements",
+        "changes_made": [
+          "Added a section number '3.2.1' to the chapter heading to align with the template structure."
+        ],
+        "reasoning": "The chapter heading should include a section number to better organize the content within the policy document. Adding '3.2.1' to the heading achieves this.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b5_3cb4e91b",
+        "original": "Chapter 2     **Definition of Capital** ",
+        "improved": "3.2.2 Chapter 2: Definition of Capital",
+        "changes_made": [
+          "Added a section number '3.2.2' to the chapter heading to align with the template structure."
+        ],
+        "reasoning": "The chapter heading should include a section number to better organize the content within the policy document. Adding '3.2.2' to the heading achieves this.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b6_3352490a",
+        "original": "Chapter 3     **Operational Risk**",
+        "improved": "3.2.3 Chapter 3: Operational Risk",
+        "changes_made": [
+          "Added a section number '3.2.3' to the chapter heading to align with the template structure."
+        ],
+        "reasoning": "The chapter heading should include a section number to better organize the content within the policy document. Adding '3.2.3' to the heading achieves this.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b7_4c6f4bf5",
+        "original": "Chapter 4     **Credit Risk \u2013 Standardized Approach**",
+        "improved": "3.2.4 Chapter 4: Credit Risk \u2013 Standardized Approach",
+        "changes_made": [
+          "Added a section number '3.2.4' to the chapter heading to align with the template structure."
+        ],
+        "reasoning": "The chapter heading should include a section number to better organize the content within the policy document. Adding '3.2.4' to the heading achieves this.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b8_58778f1d",
+        "original": "Chapter 5     **Credit Risk \u2013 Internal Ratings-Based Approach**",
+        "improved": "3.2.5 Chapter 5: Credit Risk \u2013 Internal Ratings-Based Approach",
+        "changes_made": [
+          "Added a section number '3.2.5' to the chapter heading to align with the template structure."
+        ],
+        "reasoning": "The chapter heading should include a section number to better organize the content within the policy document. Adding '3.2.5' to the heading achieves this.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b9_137646e1",
+        "original": "Chapter 6     **Securitization**",
+        "improved": "3.2.6 Chapter 6: Securitization",
+        "changes_made": [
+          "Added a section number '3.2.6' to the chapter heading to align with the template structure."
+        ],
+        "reasoning": "The chapter heading should include a section number to better organize the content within the policy document. Adding '3.2.6' to the heading achieves this.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b10_6c44df54",
+        "original": "Chapter 7     **Settlement and Counterparty Risk** ",
+        "improved": "3.2.7 Chapter 7: Settlement and Counterparty Risk",
+        "changes_made": [
+          "Added a section number '3.2.7' to the chapter heading to align with the template structure."
+        ],
+        "reasoning": "The chapter heading should include a section number to better organize the content within the policy document. Adding '3.2.7' to the heading achieves this.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b11_d0880ce4",
+        "original": "Chapter 8     **Credit Valuation Adjustment (CVA) Risk**",
+        "improved": "3.2.8 Chapter 8: Credit Valuation Adjustment (CVA) Risk",
+        "changes_made": [
+          "Added a section number '3.2.8' to the chapter heading to align with the template structure."
+        ],
+        "reasoning": "The chapter heading should include a section number to better organize the content within the policy document. Adding '3.2.8' to the heading achieves this.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b12_795e716e",
+        "original": "Chapter 9     **Market Risk**",
+        "improved": "3.2.9 Chapter 9: Market Risk",
+        "changes_made": [
+          "Added a section number '3.2.9' to the chapter heading to align with the template structure."
+        ],
+        "reasoning": "The chapter heading should include a section number to better organize the content within the policy document. Adding '3.2.9' to the heading achieves this.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p3_b1_42422b31",
+        "original": "Chapter 1 \u2013 Overview of Risk-based Capital Requirements",
+        "improved": "1.1 Purpose\nThis policy establishes the risk-based capital requirements for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies (collectively referred to as 'institutions') in order to ensure they maintain adequate capital to support their operations and withstand potential losses.\n\n1.2 Scope\nThis policy applies to all institutions designated by OSFI as domestic systemically important banks (D-SIBs) and small and medium-sized deposit-taking institutions (SMSBs) that fall into Categories I, II or III as defined in OSFI's SMSB Capital and Liquidity Requirements Guideline.",
+        "changes_made": [
+          "Added a clear purpose statement in section 1.1 to define the objectives of the policy.",
+          "Expanded the scope definition in section 1.2 to specify the audience and institutions covered by the policy."
+        ],
+        "reasoning": "The improvements address the high-severity gaps identified in the analysis by adding the required purpose statement and expanding the scope definition to meet the template requirements.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p3_b3_eda1ba12",
+        "original": "Regulatory Capital",
+        "improved": "1.3 Effective Date\nThis policy is effective from November 2023 for institutions with a fiscal year ending October 31, and from January 2024 for institutions with a fiscal year ending December 31.",
+        "changes_made": [
+          "Added a new section 1.3 to specify the effective date of the policy as required by the template."
+        ],
+        "reasoning": "The improvement addresses the medium-severity gap identified in the analysis by including the effective date information as per the template requirements.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p3_b4_b98600a7",
+        "original": "Total Risk weighted Assets",
+        "improved": "2. Definitions\nFor the purpose of this policy, the following definitions apply:\n\n'D-SIBs' means domestic systemically important banks designated by OSFI.\n'SMSBs' means small and medium-sized deposit-taking institutions that fall into Categories I, II or III as defined in OSFI's SMSB Capital and Liquidity Requirements Guideline.\n'RWA' means risk-weighted assets.",
+        "changes_made": [
+          "Added a new 'Definitions' section to define key terms and acronyms used in the policy, as required by the template."
+        ],
+        "reasoning": "The improvement addresses the medium-severity gap identified in the analysis by including definitions for the key terms and acronyms used throughout the policy, as per the template requirements.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p3_b13_226839c5",
+        "original": "Calculation of OSFI Minimum Capital Requirements",
+        "improved": "3. Policy Statement\n\n3.1 General Principles\nInstitutions must maintain adequate capital to support their operations and absorb potential losses. The capital adequacy requirements set out in this policy are designed to ensure institutions have sufficient capital to withstand stress scenarios and continue operating effectively.\n\n3.2 Specific Requirements\nThe capital adequacy requirements for institutions are established across the following nine chapters of the Capital Adequacy Requirements (CAR) Guideline:",
+        "changes_made": [
+          "Added a new 'Policy Statement' section with general principles in section 3.1.",
+          "Moved the list of CAR chapters to the new '3.2 Specific Requirements' section."
+        ],
+        "reasoning": "The improvements address the high-severity gaps identified in the analysis by adding a clear policy statement with general principles, as well as outlining the specific requirements related to the CAR chapters, as per the template structure.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p3_b16_0c222317",
+        "original": "Mandated Capital Buffers",
+        "improved": "4. Roles and Responsibilities\n\n4.1 Management\nManagement is responsible for implementing this policy and ensuring the institution maintains adequate capital to meet the requirements set out herein.\n\n4.2 Staff\nAll staff are responsible for adhering to the capital adequacy requirements and reporting any non-compliance or concerns to management.\n\n4.3 Oversight\nThe institution's Board of Directors is responsible for providing oversight and governance over the implementation of this policy.",
+        "changes_made": [
+          "Added a new 'Roles and Responsibilities' section with subsections defining the responsibilities of management, staff, and oversight functions, as required by the template."
+        ],
+        "reasoning": "The improvements address the medium-severity gaps identified in the analysis by clearly defining the roles and responsibilities of management, staff, and oversight functions as per the template requirements.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p3_b21_eb3a5b22",
+        "original": "Capital Targets",
+        "improved": "5. Procedures and Controls\n\n5.1 Implementation Procedures\nInstitutions must implement the capital adequacy requirements outlined in this policy and the supporting CAR Guideline chapters. Detailed implementation procedures must be documented and followed.\n\n5.2 Control Mechanisms\nInstitutions must establish effective control mechanisms to monitor compliance with the capital adequacy requirements, including regular reporting and review processes.\n\n5.3 Reporting Requirements\nInstitutions must comply with all regulatory reporting requirements related to capital adequacy, as specified by OSFI.",
+        "changes_made": [
+          "Added a new 'Procedures and Controls' section with subsections defining the implementation procedures, control mechanisms, and reporting requirements, as per the template."
+        ],
+        "reasoning": "The improvements address the medium-severity gaps identified in the analysis by specifying the required procedures, controls, and reporting obligations related to the capital adequacy requirements, as outlined in the template.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p3_b23_b54fda47",
+        "original": "Supervisory Target Capital Requirements",
+        "improved": "6. Compliance and Enforcement\n\n6.1 Compliance Requirements\nInstitutions must comply with the capital adequacy requirements set out in this policy and the supporting CAR Guideline chapters. Non-compliance may result in regulatory intervention and enforcement actions.\n\n6.2 Monitoring and Review\nOSFI will regularly monitor and review institutions' compliance with the capital adequacy requirements. Institutions must cooperate fully with OSFI's oversight and provide all requested information.\n\n6.3 Consequences of Non-Compliance\nInstitutions that fail to maintain the required capital levels may be subject to a range of enforcement actions, including but not limited to restrictions on operations, capital distribution, or asset growth.",
+        "changes_made": [
+          "Added a new 'Compliance and Enforcement' section with subsections defining the compliance requirements, monitoring and review processes, and consequences of non-compliance, as per the template."
+        ],
+        "reasoning": "The improvements address the medium-severity gaps identified in the analysis by specifying the compliance requirements, monitoring and review processes, and consequences of non-compliance, as outlined in the template.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p3_b22_971ce0b4",
+        "original": "Domestic Systemic Importance and Capital Targets",
+        "improved": "7. Review and Updates\n\n7.1 Review Frequency\nThis policy will be reviewed and updated at least annually to ensure it remains relevant and effective.\n\n7.2 Update Process\nAny changes to this policy must be approved by the institution's Board of Directors and communicated to all relevant stakeholders.\n\n7.3 Version Control\nThe institution will maintain a version history of this policy, including all updates and revisions.",
+        "changes_made": [
+          "Added a new 'Review and Updates' section with subsections defining the review frequency, update process, and version control, as per the template."
+        ],
+        "reasoning": "The improvements address the low-severity gaps identified in the analysis by specifying the review frequency, update process, and version control requirements, as outlined in the template.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p3_b23_b54fda47",
+        "original": "Supervisory Target Capital Requirements",
+        "improved": "8. References\nThis policy should be read in conjunction with the following related policies, regulations, and standards:\n- Bank Act (BA)\n- Trust and Loan Companies Act (TLCA)\n- OSFI Leverage Requirements Guideline\n- OSFI Total Loss Absorbing Capacity (TLAC) Guideline\n\n9. Approval and Authorization\nThis policy has been approved by the Board of Directors on [DATE].",
+        "changes_made": [
+          "Added a new 'References' section to list the related policies, regulations, and standards, as per the template.",
+          "Added a new 'Approval and Authorization' section to document the approval signatures and dates, as required by the template."
+        ],
+        "reasoning": "The improvements address the low-severity gaps identified in the analysis by including the references to related documents and the approval signatures and dates, as outlined in the template.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p4_b0_5504ed49",
+        "original": "Overview of Risk-based Capital Requirements",
+        "improved": "1.1 Purpose",
+        "changes_made": [
+          "Changed the heading to '1.1 Purpose' to align with the template structure."
+        ],
+        "reasoning": "The heading should be changed to '1.1 Purpose' to match the template and clearly state the purpose of the policy.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p4_b1_3df66012",
+        "original": "Outlined below is an overview of the capital adequacy requirements for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies, collectively referred to as institutions",
+        "improved": "This policy establishes the risk-based capital requirements for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies (collectively referred to as 'institutions') in order to ensure they maintain adequate capital to support their operations and withstand potential losses.",
+        "changes_made": [
+          "Added a clear purpose statement to define the objectives of the policy."
+        ],
+        "reasoning": "The improvements address the high-severity gap by adding a clear purpose statement as required by the template.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p4_b2_01ba44c5",
+        "original": "This chapter is drawn from the Basel Committee on Banking Supervision (BCBS) Basel Framework published on the Bank for International Settlements (BIS) website. For reference, the Basel paragraph numbers that are associated with the text appearing in this chapter are indicated in square brackets at the end of each paragraph",
+        "improved": "1.2 Scope",
+        "changes_made": [
+          "Changed the heading to '1.2 Scope' to align with the template structure."
+        ],
+        "reasoning": "The heading should be changed to '1.2 Scope' to match the template and transition to the next section.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p4_b3_0eaaebc3",
+        "original": "Scope of Application",
+        "improved": "This policy applies to all institutions designated by OSFI as domestic systemically important banks (D-SIBs) and small and medium-sized deposit-taking institutions (SMSBs) that fall into Categories I, II or III as defined in OSFI's SMSB Capital and Liquidity Requirements Guideline.",
+        "changes_made": [
+          "Expanded the scope definition to specify the audience and institutions covered by the policy."
+        ],
+        "reasoning": "The improvements address the medium-severity gap by expanding the scope definition to meet the template requirements.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p4_b4_40eaf91b",
+        "original": "The capital adequacy requirements outlined in this guideline apply on a consolidated basis to all institutions designated by OSFI as domestic systemically important banks (D-SIBs); and small and medium-sized deposit-taking institutions (SMSBs), which fall into Categories I, II or III as defined in OSFI's SMSB Capital and Liquidity Requirements Guideline",
+        "improved": "1.3 Effective Date",
+        "changes_made": [
+          "Changed the heading to '1.3 Effective Date' to align with the template structure."
+        ],
+        "reasoning": "The heading should be changed to '1.3 Effective Date' to match the template and transition to the next section.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p4_b5_00c7e89b",
+        "original": "The consolidated entity includes all subsidiaries except insurance subsidiaries. OSFI expects institutions to hold capital within the consolidated group in a manner that is consistent with the level and location of risk",
+        "improved": "This policy is effective from November 2023 for institutions with a fiscal year ending October 31, and from January 2024 for institutions with a fiscal year ending December 31.",
+        "changes_made": [
+          "Added the effective date information as required by the template."
+        ],
+        "reasoning": "The improvements address the medium-severity gap by including the effective date as per the template requirements.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p4_b6_eda1ba12",
+        "original": "Regulatory Capital",
+        "improved": "2. Definitions",
+        "changes_made": [
+          "Changed the heading to '2. Definitions' to align with the template structure."
+        ],
+        "reasoning": "The heading should be changed to '2. Definitions' to match the template and transition to the next section.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p4_b7_e88ad0b6",
+        "original": "Total capital consists of the sum of the following elements: Tier 1 capital, consisting of: Common Equity Tier 1 (CET1) capital; and Additional Tier 1 capital; Tier 2 capital",
+        "improved": "For the purpose of this policy, the following definitions apply:\n\n'D-SIBs' means domestic systemically important banks designated by OSFI.\n'SMSBs' means small and medium-sized deposit-taking institutions that fall into Categories I, II or III as defined in OSFI's SMSB Capital and Liquidity Requirements Guideline.\n'RWA' means risk-weighted assets.",
+        "changes_made": [
+          "Added definitions for the key terms and acronyms used in the policy, as required by the template."
+        ],
+        "reasoning": "The improvements address the medium-severity gap by including definitions for the key terms and acronyms used throughout the policy, as per the template requirements.",
+        "confidence": "high"
+      }
+    ],
+    "template_synthesis": {
+      "summary_markdown": "## Overall Assessment\n\nThe document demonstrates **partial compliance** with the template structure and requirements. While the core sections are present, several critical elements are missing or incomplete, particularly around defining the purpose, scope, policy statement, and key roles and responsibilities.\n\n## Critical Gaps\n\n1. **Missing Clear Purpose Statement** (pages 3-4): The document does not clearly define the objectives and intent of the capital adequacy policy.\n2. **Incomplete Scope Definition** (pages 3-4): The scope does not specify the intended audience for the policy.\n3. **Lack of Policy Statement and General Principles** (page 3): The document does not provide a clear policy statement or outline the general principles governing the capital adequacy requirements.\n4. **Undefined Roles and Responsibilities** (page 3): The policy does not define the responsibilities of management, staff, and oversight functions.\n5. **Missing Effective Date** (page 4): The effective date for the policy implementation is not specified.\n\n## Improvement Areas\n\n### Clarity (11 issues across pages 1-4)\n- Technical terms and acronyms used without definitions (e.g. VaR, CVaR, RWA)\n- Inconsistent formatting of chapter headings\n\n### Structure (7 issues across pages 1-4)\n- Chapter headings not properly integrated into the template sections\n- Lack of designated sections for procedures, controls, compliance, and review/updates\n\n### Content (5 issues across pages 1-4)\n- Information about relevant acts and regulations not fully incorporated\n- Details on capital requirements and supervisory targets missing\n\n## Strengths\n\n- Good overview of the CAR chapters and their scope\n- Clear formatting and organization of the content\n- Appropriate references to the Basel capital framework\n\n## Priority Recommendations\n\n1. **Define Clear Purpose and Scope**: Clearly state the objectives of the policy and specify the intended audience in the '1. Purpose and Scope' section.\n2. **Establish Policy Statement and General Principles**: Add a new '3. Policy Statement' section to outline the general principles governing the capital adequacy requirements.\n3. **Specify Roles and Responsibilities**: Define the responsibilities of management, staff, and oversight functions in a new '4. Roles and Responsibilities' section.\n4. **Include Effective Date**: Provide the effective date for the policy implementation in the '1.3 Effective Date' section.\n5. **Incorporate Definitions**: Add a '2. Definitions' section to define key terms and acronyms used throughout the policy.\n\n## Statistics Summary\n\n- **24 total suggestions** generated across 5 pages\n- **5 high severity** gaps requiring immediate attention\n- **9 medium severity** improvements recommended\n- **10 minor polish** suggestions",
+      "statistics": {
+        "total_suggestions": 36,
+        "gap_analyses": 30,
+        "pages_analyzed": 5
+      }
+    }
   }
 }

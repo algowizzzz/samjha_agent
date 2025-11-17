@@ -10175,3 +10175,35 @@ AssertionError: write() before start_response
 2025-11-16 23:04:34,946 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
 2025-11-16 23:04:34,947 - external.doc_review.template_processor - ERROR - Gap analysis failed for page 5: Extra data: line 51 column 1 (char 2243)
 2025-11-16 23:04:34,947 - external.doc_review.template_processor - INFO - Generating improvements for page 5
+2025-11-16 23:04:47,851 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 23:04:47,854 - external.doc_review.template_processor - ERROR - Content improvement failed for page 5: Invalid control character at: line 28 column 63 (char 2488)
+2025-11-16 23:04:47,855 - external.doc_review.template_processor - INFO - Template processing complete: 30 gaps, 36 improvements
+2025-11-16 23:04:47,855 - external.doc_review.template_processor - INFO - Generating synthesis summary for 'CAR_Chapter_1_First_5_Pages'
+2025-11-16 23:04:53,791 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 23:04:53,794 - external.doc_review.template_processor - INFO - Synthesis summary generated successfully
+2025-11-16 23:04:53,810 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:04:53] "POST /api/doc_review/documents/CAR_Chapter_1_First_5_Pages/apply_template HTTP/1.1" 200 -
+2025-11-16 23:04:53,816 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:04:53] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 23:04:53,822 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:04:53] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 23:04:57,779 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:04:57] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 23:04:57,795 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:04:57] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 23:04:57,796 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:04:57] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 23:04:57,797 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:04:57] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 23:04:57,799 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:04:57] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 23:04:57,801 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:04:57] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 23:04:57,803 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:04:57] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 23:04:57,804 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:04:57] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 23:05:01,775 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:05:01] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 23:05:03,112 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:05:03] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 23:05:03,113 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:05:03] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 23:05:03,113 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:05:03] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 23:05:03,121 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:05:03] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 23:05:03,121 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:05:03] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 23:05:03,127 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:05:03] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 23:05:12,936 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:05:12] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 23:05:12,944 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:05:12] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 23:05:12,946 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:05:12] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 23:05:12,948 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:05:12] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 23:05:12,952 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:05:12] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 23:05:12,956 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:05:12] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 23:05:12,957 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:05:12] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 23:05:12,963 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:05:12] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
