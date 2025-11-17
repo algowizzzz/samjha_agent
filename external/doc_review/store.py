@@ -62,6 +62,11 @@ class DocReviewStore:
             return json.load(f)
 
     def save(self, file_id: str, source_path: str, state: AgentState, status: str) -> Dict[str, Any]:
+        # Preserve original_markdown if not yet set and raw_markdown exists
+        if state.get("raw_markdown") and not state.get("original_markdown"):
+            state["original_markdown"] = state["raw_markdown"]
+            logger.info(f"Preserved original_markdown for {file_id}")
+        
         payload = {
             "file_id": file_id,
             "source_path": source_path,

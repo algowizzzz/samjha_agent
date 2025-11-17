@@ -24,6 +24,19 @@ class TemplateProcessor:
         self.gap_analysis_prompt = self._load_prompt("gap_analysis.txt")
         self.content_improvement_prompt = self._load_prompt("content_improvement.txt")
         
+        # Try to load synthesis prompt (optional, for backward compatibility)
+        try:
+            # Check new location first
+            synthesis_path = Path(__file__).parent / "prompts" / "phase2_synthesis_summary.md"
+            if synthesis_path.exists():
+                self.synthesis_prompt = synthesis_path.read_text()
+            else:
+                self.synthesis_prompt = None
+                logger.warning("Synthesis prompt not found - synthesis summary will be unavailable")
+        except Exception as e:
+            logger.warning(f"Could not load synthesis prompt: {e}")
+            self.synthesis_prompt = None
+        
     def _load_prompt(self, filename: str) -> str:
         """Load prompt template from config."""
         prompt_path = self.config_dir / filename
@@ -69,7 +82,8 @@ class TemplateProcessor:
                 new_doc_so_far=new_doc_so_far,
                 current_page=page_data['markdown'],
                 page_blocks=page_data['blocks'],
-                page_num=page_num
+                page_num=page_num,
+                current_suggestions=all_improvements  # Pass existing suggestions
             )
             all_gap_analysis.extend(gap_analysis)
             
@@ -81,7 +95,8 @@ class TemplateProcessor:
                 current_page=page_data['markdown'],
                 page_blocks=page_data['blocks'],
                 gap_analysis=gap_analysis,
-                page_num=page_num
+                page_num=page_num,
+                current_suggestions=all_improvements  # Pass existing suggestions
             )
             all_improvements.extend(improvements)
             
@@ -132,7 +147,8 @@ class TemplateProcessor:
         new_doc_so_far: str,
         current_page: str,
         page_blocks: List[Dict],
-        page_num: int
+        page_num: int,
+        current_suggestions: List[Dict] = None
     ) -> List[Dict]:
         """Perform gap analysis for a single page."""
         logger.info(f"Performing gap analysis for page {page_num}")
@@ -147,6 +163,11 @@ class TemplateProcessor:
             for b in page_blocks
         ], indent=2)
         
+        # Prepare existing suggestions summary
+        suggestions_summary = ""
+        if current_suggestions:
+            suggestions_summary = f"\n\nEXISTING SUGGESTIONS (from previous pages):\n{json.dumps(current_suggestions[-10:], indent=2)}\nNote: Avoid duplicate or contradictory suggestions."
+        
         user_prompt = f"""
 ORIGINAL FULL DOCUMENT:
 {full_document}
@@ -160,6 +181,7 @@ TEMPLATE:
 
 NEW DOCUMENT SO FAR:
 {new_doc_so_far if new_doc_so_far else "(This is page 1, no previous content)"}
+{suggestions_summary}
 
 ---
 
@@ -208,7 +230,8 @@ Analyze the current page against the template and identify gaps block by block.
         current_page: str,
         page_blocks: List[Dict],
         gap_analysis: List[Dict],
-        page_num: int
+        page_num: int,
+        current_suggestions: List[Dict] = None
     ) -> List[Dict]:
         """Generate content improvements for a single page."""
         logger.info(f"Generating improvements for page {page_num}")
@@ -225,6 +248,11 @@ Analyze the current page against the template and identify gaps block by block.
         
         gap_analysis_json = json.dumps(gap_analysis, indent=2)
         
+        # Prepare existing suggestions summary
+        suggestions_summary = ""
+        if current_suggestions:
+            suggestions_summary = f"\n\nEXISTING SUGGESTIONS (from previous pages):\n{json.dumps(current_suggestions[-10:], indent=2)}\nNote: Maintain consistency with previous suggestions."
+        
         user_prompt = f"""
 ORIGINAL FULL DOCUMENT:
 {full_document}
@@ -238,6 +266,7 @@ TEMPLATE:
 
 NEW DOCUMENT SO FAR:
 {new_doc_so_far if new_doc_so_far else "(This is page 1, no previous content)"}
+{suggestions_summary}
 
 ---
 
@@ -301,6 +330,107 @@ Generate improved content for each block that addresses the identified gaps.
         # For now, just return original - improvements are shown as suggestions
         # In future, could optionally auto-apply improvements
         return page_markdown
+    
+    def generate_synthesis_summary(
+        self,
+        template_name: str,
+        document_title: str,
+        total_pages: int,
+        all_gap_analyses: List[Dict],
+        all_suggestions: List[Dict]
+    ) -> Dict[str, Any]:
+        """
+        Generate executive synthesis summary from all page-level analyses.
+        
+        Args:
+            template_name: Name of template used
+            document_title: Title of document being reviewed
+            total_pages: Number of pages analyzed
+            all_gap_analyses: All gap analysis results
+            all_suggestions: All improvement suggestions
+            
+        Returns:
+            Synthesis summary dict with overall assessment, critical gaps, etc.
+        """
+        if not self.synthesis_prompt:
+            logger.warning("Synthesis prompt not loaded - returning empty summary")
+            return {
+                "overall_assessment": {
+                    "compliance_level": "unknown",
+                    "compliance_percentage": 0,
+                    "summary": "Synthesis unavailable - prompt not loaded"
+                },
+                "critical_gaps": [],
+                "improvement_areas": [],
+                "strengths": [],
+                "priority_recommendations": [],
+                "statistics": {
+                    "total_issues": len(all_suggestions),
+                    "high_severity": 0,
+                    "medium_severity": 0,
+                    "low_severity": 0,
+                    "sections_analyzed": 0,
+                    "sections_missing": 0
+                }
+            }
+        
+        logger.info(f"Generating synthesis summary for '{document_title}'")
+        
+        # Prepare data for LLM
+        user_prompt = f"""
+TEMPLATE NAME: {template_name}
+DOCUMENT TITLE: {document_title}
+TOTAL PAGES: {total_pages}
+
+---
+
+ALL GAP ANALYSES (from page-by-page review):
+{json.dumps(all_gap_analyses, indent=2)}
+
+---
+
+ALL IMPROVEMENT SUGGESTIONS (from page-by-page review):
+{json.dumps(all_suggestions, indent=2)}
+
+---
+
+Based on all the page-level findings above, create a comprehensive executive summary that identifies patterns, prioritizes issues, and provides actionable guidance.
+"""
+        
+        try:
+            response = self.client.messages.create(
+                model="claude-3-haiku-20240307",
+                max_tokens=4096,
+                system=self.synthesis_prompt,
+                messages=[{"role": "user", "content": user_prompt}]
+            )
+            
+            response_text = response.content[0].text.strip()
+            
+            if not response_text:
+                raise ValueError("Empty response from LLM")
+            
+            logger.info("Synthesis summary generated successfully")
+            # Return markdown directly - much simpler!
+            return {
+                "summary_markdown": response_text,
+                "statistics": {
+                    "total_suggestions": len(all_suggestions),
+                    "gap_analyses": len(all_gap_analyses),
+                    "pages_analyzed": total_pages
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Synthesis summary generation failed: {e}")
+            return {
+                "summary_markdown": f"## Synthesis Generation Failed\n\n{str(e)}\n\n---\n\n**Suggestions Generated:** {len(all_suggestions)}\n\n**Pages Analyzed:** {total_pages}",
+                "statistics": {
+                    "total_suggestions": len(all_suggestions),
+                    "gap_analyses": len(all_gap_analyses),
+                    "pages_analyzed": total_pages
+                }
+            }
 
 
 def load_template(template_name: str) -> str:

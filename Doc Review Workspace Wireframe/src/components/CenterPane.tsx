@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Play, FileText, Upload } from 'lucide-react';
+import { Play, FileText, Upload, ChevronDown, ChevronUp } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { BlockEditor } from './BlockEditor';
 import { getDocument, runFull, runPhase1, runPhase2, runPhase4, type ApiDocument, updateDocumentMarkdown, type BlockMetadata, listTemplates, applyTemplate, type TemplateImprovement } from '@/lib/api';
 import { MarkdownViewer } from './MarkdownViewer';
+import { activityLogger } from '@/utils/activityLogger';
 
 interface CenterPaneProps {
-  mode: 'editing' | 'diff';
-  onModeChange: (mode: 'editing' | 'diff') => void;
+  mode: 'editing' | 'original' | 'diff';
+  onModeChange: (mode: 'editing' | 'original' | 'diff') => void;
   onTextSelect: (text: string) => void;
   selectedIssueId: string | null;
   onCommentClick: (blockId: string) => void;
@@ -20,11 +21,12 @@ interface CenterPaneProps {
   onBlockWithSuggestionClick?: (blockId: string) => void; // NEW: Notify parent when block with suggestion is clicked
   onAcceptSuggestion?: (blockId: string) => void; // NEW: Accept suggestion from left panel
   onRejectSuggestion?: (blockId: string) => void; // NEW: Reject suggestion from left panel
+  onSynthesisReceived?: (synthesis: any) => void; // NEW: Pass synthesis summary to parent
 }
 
 type PhaseStatus = 'idle' | 'running' | 'done';
 
-export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, onCommentClick, fileId, onSelectedBlocksChange, aiSuggestions = [], onSuggestionsListChange, selectedSuggestionId, onBlockWithSuggestionClick, onAcceptSuggestion, onRejectSuggestion }: CenterPaneProps) {
+export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, onCommentClick, fileId, onSelectedBlocksChange, aiSuggestions = [], onSuggestionsListChange, selectedSuggestionId, onBlockWithSuggestionClick, onAcceptSuggestion, onRejectSuggestion, onSynthesisReceived }: CenterPaneProps) {
   const [phaseStatuses, setPhaseStatuses] = useState<Record<string, PhaseStatus>>({
     phase1: 'idle',
     phase2: 'idle',
@@ -39,6 +41,7 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
   const [applyingTemplate, setApplyingTemplate] = useState(false);
   const [templateSuggestions, setTemplateSuggestions] = useState<Array<{ block_id: string; original: string; suggested: string; reason: string }>>([]);
+  const [showLogs, setShowLogs] = useState(false);
   // sockets disabled for now to avoid connection issues
 
   function clearPoll() {
@@ -59,6 +62,14 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
       // ignore for now
     }
   }
+
+  // Expose refresh function to window for external refresh button
+  useEffect(() => {
+    (window as any).__centerPaneRefreshDocument = refreshDocument;
+    return () => {
+      delete (window as any).__centerPaneRefreshDocument;
+    };
+  }, [fileId]);
 
   useEffect(() => {
     clearPoll();
@@ -159,6 +170,45 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
     });
   }, [docStatus]);
 
+  // Get display status for badge
+  const getDisplayStatus = (): { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; className?: string } => {
+    if (!doc) return { label: 'No Document', variant: 'default' };
+    
+    const state = doc.state as any;
+    const status = doc.status?.toLowerCase() || 'pending';
+    
+    // Check for errors
+    if (status === 'error' || status === 'failed') {
+      return { label: 'Error', variant: 'destructive' };
+    }
+    
+    // Check if running
+    if (status === 'running') {
+      return { label: 'Processing', variant: 'default', className: 'bg-amber-100 text-amber-800 border-amber-200' };
+    }
+    
+    // Check which phase is completed
+    const hasBlocks = state?.block_metadata && state.block_metadata.length > 0;
+    const hasSuggestions = state?.verification_suggestions && state.verification_suggestions.length > 0;
+    const hasImprovedMarkdown = !!state?.improved_markdown;
+    
+    if (hasImprovedMarkdown) {
+      return { label: 'Improved', variant: 'default', className: 'bg-emerald-100 text-emerald-800 border-emerald-200' };
+    } else if (hasSuggestions && hasSuggestions.length > 0) {
+      return { label: 'Reviewed', variant: 'default', className: 'bg-emerald-100 text-emerald-800 border-emerald-200' };
+    } else if (hasBlocks) {
+      return { label: 'Analyzed', variant: 'default', className: 'bg-emerald-100 text-emerald-800 border-emerald-200' };
+    } else if (status === 'ready' || status === 'completed') {
+      return { label: 'Ready', variant: 'default', className: 'bg-emerald-100 text-emerald-800 border-emerald-200' };
+    } else if (status === 'pending') {
+      return { label: 'Uploaded', variant: 'secondary' };
+    }
+    
+    return { label: 'Pending', variant: 'default' };
+  };
+
+  const displayStatus = getDisplayStatus();
+
   const handleRun = async (which: 'full' | 'phase1' | 'phase2' | 'phase4') => {
     if (!fileId) return;
     // eslint-disable-next-line no-console
@@ -197,6 +247,12 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
       }));
       
       setTemplateSuggestions(suggestions);
+      
+      // Pass synthesis to parent (RightPane via App)
+      if (result.synthesis && onSynthesisReceived) {
+        onSynthesisReceived(result.synthesis);
+      }
+      
       await refreshDocument();
     } catch (e) {
       console.error('[CenterPane] Template application error', e);
@@ -217,9 +273,16 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
       {/* Top Bar */}
       <div className="border-b border-neutral-200 px-6 py-3">
         <div className="flex items-start justify-between mb-2">
-          <div>
-            <h1 className="text-neutral-900 mb-1">{title}</h1>
-            <p className="text-neutral-500 text-xs">{doc?.file_id || ''}</p>
+          <div className="flex items-center gap-3">
+            <div>
+              <h1 className="text-neutral-900 mb-1">{title}</h1>
+              <p className="text-neutral-500 text-xs">{doc?.file_id || ''}</p>
+            </div>
+            {doc && (
+              <Badge variant={displayStatus.variant} className={`mt-1 ${displayStatus.className || ''}`}>
+                {displayStatus.label}
+              </Badge>
+            )}
           </div>
           <div className="flex gap-2 items-center relative">
             {/* Template Dropdown */}
@@ -301,6 +364,16 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
             Editing
           </button>
           <button
+            onClick={() => onModeChange('original')}
+            className={`px-4 py-1.5 rounded transition-colors text-sm ${
+              mode === 'original' 
+                ? 'bg-white text-neutral-900 shadow-sm' 
+                : 'text-neutral-600 hover:text-neutral-900'
+            }`}
+          >
+            Original
+          </button>
+          <button
             onClick={() => onModeChange('diff')}
                 onMouseDown={() => console.debug('[UI] Switch mode -> diff')}
             className={`px-4 py-1.5 rounded transition-colors text-sm ${
@@ -373,6 +446,7 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
                       acceptedSuggestions: string[]; 
                       rejectedSuggestions: string[] 
                     }) => {
+                      activityLogger.info('Saving document...');
                       console.log('[CenterPane] onSave called with data:', {
                         markdownLength: data.markdown.length,
                         blockMetadataCount: data.blockMetadata.length,
@@ -394,9 +468,22 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
                           data.acceptedSuggestions,
                           data.rejectedSuggestions
                         );
-                        console.log('[CenterPane] ✅ Save successful!');
-                        // Refresh document after a short delay to avoid loops
-                        setTimeout(() => refreshDocument(), 500);
+                        console.log('[CenterPane] ✅ Save successful! Current editor state persisted.');
+                        activityLogger.changesSaved();
+                        
+                        // Update local state with new accepted/rejected counts without reloading editor
+                        if (doc && doc.state) {
+                          setDoc({
+                            ...doc,
+                            state: {
+                              ...doc.state,
+                              accepted_suggestions: data.acceptedSuggestions,
+                              rejected_suggestions: data.rejectedSuggestions,
+                              block_metadata: data.blockMetadata,
+                              improved_markdown: data.markdown
+                            }
+                          });
+                        }
                       } catch (e) {
                         console.error('[CenterPane] ❌ Save failed:', e);
                         alert(`Failed to save: ${e}`);
@@ -409,6 +496,23 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        ) : mode === 'original' ? (
+          <div className="flex-1 overflow-y-auto">
+            <div className="bg-neutral-100 px-6 py-2 sticky top-0 border-b border-neutral-200">
+              <span className="text-neutral-700 text-sm font-medium">Original Document</span>
+            </div>
+            <div className="px-10 py-6">
+              {doc?.state?.original_markdown || doc?.state?.raw_markdown ? (
+                <MarkdownViewer 
+                  content={doc?.state?.original_markdown || doc?.state?.raw_markdown || ''} 
+                  title={`${title} (original)`} 
+                  onCommentClick={onCommentClick} 
+                />
+              ) : (
+                <div className="text-sm text-neutral-600">No original markdown available.</div>
+              )}
             </div>
           </div>
         ) : (
@@ -442,6 +546,114 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
           </div>
         )}
       </div>
+
+      {/* Activity Section - Collapsible */}
+      {doc && (
+        <div className="border-t border-neutral-200 bg-neutral-50">
+          <button
+            onClick={() => setShowLogs(!showLogs)}
+            className="w-full px-6 py-2 flex items-center justify-between hover:bg-neutral-100 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-neutral-700">Activity & Logs</span>
+              {((doc.state?.logs?.length || 0) + (doc.state?.errors?.length || 0)) > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {(doc.state?.logs?.length || 0) + (doc.state?.errors?.length || 0)} logs
+                </Badge>
+              )}
+            </div>
+            {showLogs ? (
+              <ChevronUp className="w-4 h-4 text-neutral-500" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-neutral-500" />
+            )}
+          </button>
+          
+          {showLogs && (
+            <div className="px-6 py-3 max-h-64 overflow-y-auto bg-white border-t border-neutral-200">
+              {/* Current Processing Status */}
+              {doc.status === 'running' && (
+                <div className="mb-4 pb-3 border-b border-neutral-200">
+                  <div className="flex items-center gap-2 text-amber-700 mb-2">
+                    <div className="animate-spin h-4 w-4 border-2 border-amber-300 border-t-amber-700 rounded-full"></div>
+                    <span className="text-xs font-semibold">Processing in Progress...</span>
+                  </div>
+                  <div className="text-xs text-neutral-600 bg-amber-50 px-3 py-2 rounded">
+                    {doc.state?.last_node || 'Initializing'} 
+                    {doc.state?.control && ` → ${doc.state.control}`}
+                  </div>
+                </div>
+              )}
+
+              {/* Phase Status Overview */}
+              {(doc.state?.block_metadata?.length > 0 || doc.state?.verification_suggestions?.length > 0 || doc.state?.improved_markdown) && (
+                <div className="mb-4 pb-3 border-b border-neutral-200">
+                  <div className="text-xs font-semibold text-neutral-700 mb-2">Processing Stages:</div>
+                  <div className="space-y-1">
+                    <div className={`flex items-center gap-2 text-xs px-2 py-1 rounded ${doc.state?.block_metadata?.length > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-neutral-50 text-neutral-400'}`}>
+                      <div className={`w-2 h-2 rounded-full ${doc.state?.block_metadata?.length > 0 ? 'bg-emerald-500' : 'bg-neutral-300'}`}></div>
+                      <span>Phase 1: Analyzed ({doc.state?.block_metadata?.length || 0} blocks)</span>
+                    </div>
+                    <div className={`flex items-center gap-2 text-xs px-2 py-1 rounded ${doc.state?.verification_suggestions?.length > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-neutral-50 text-neutral-400'}`}>
+                      <div className={`w-2 h-2 rounded-full ${doc.state?.verification_suggestions?.length > 0 ? 'bg-emerald-500' : 'bg-neutral-300'}`}></div>
+                      <span>Phase 2: Reviewed ({doc.state?.verification_suggestions?.length || 0} suggestions)</span>
+                    </div>
+                    <div className={`flex items-center gap-2 text-xs px-2 py-1 rounded ${doc.state?.improved_markdown ? 'bg-emerald-50 text-emerald-700' : 'bg-neutral-50 text-neutral-400'}`}>
+                      <div className={`w-2 h-2 rounded-full ${doc.state?.improved_markdown ? 'bg-emerald-500' : 'bg-neutral-300'}`}></div>
+                      <span>Phase 3: {doc.state?.improved_markdown ? 'Improved document ready' : 'Not started'}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Errors */}
+              {doc.state?.errors && doc.state.errors.length > 0 && (
+                <div className="mb-3">
+                  <div className="text-xs font-semibold text-red-700 mb-1">⚠️ Errors:</div>
+                  {doc.state.errors.map((error: string, idx: number) => (
+                    <div key={`error-${idx}`} className="text-xs text-red-600 py-1 px-2 bg-red-50 rounded mb-1 font-mono">
+                      {error}
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* Processing Logs */}
+              {doc.state?.logs && doc.state.logs.length > 0 && (
+                <div className="mb-3">
+                  <div className="text-xs font-semibold text-neutral-700 mb-1">🔍 Processing Details:</div>
+                  <div className="space-y-0.5 max-h-32 overflow-y-auto">
+                    {doc.state.logs.slice(-20).map((log: string | { node?: string; msg?: string; timestamp?: string }, idx: number) => {
+                      const logText = typeof log === 'string' ? log : (log.msg || JSON.stringify(log));
+                      return (
+                        <div key={`log-${idx}`} className="text-xs text-neutral-600 py-1 px-2 bg-neutral-50 rounded font-mono">
+                          {logText}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Document Stats */}
+              {(doc.state?.raw_markdown || doc.updated_at) && (
+                <div className="text-xs text-neutral-500 pt-2 border-t border-neutral-100">
+                  <div className="flex justify-between">
+                    <span>Last updated: {doc.updated_at ? new Date(doc.updated_at).toLocaleString() : 'Never'}</span>
+                    {doc.state?.raw_markdown && (
+                      <span>{Math.round(doc.state.raw_markdown.length / 1024)}KB</span>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {!doc.state?.logs?.length && !doc.state?.errors?.length && !doc.state?.accepted_suggestions?.length && !doc.state?.rejected_suggestions?.length && !doc.state?.block_metadata?.length && (
+                <div className="text-xs text-neutral-500 italic text-center py-4">No activity yet. Upload a document to get started.</div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

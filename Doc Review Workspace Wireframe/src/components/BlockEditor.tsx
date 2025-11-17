@@ -15,6 +15,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { BlockMetadata, VerificationSuggestion, RiskGPTSuggestion, askRiskGPT } from '@/lib/api';
+import { activityLogger } from '@/utils/activityLogger';
 
 type BlockType = 'paragraph' | 'heading1' | 'heading2' | 'heading3' | 'bullet' | 'numbered' | 'table' | 'callout' | 'quote' | 'empty';
 type ChangeType = 'verified' | 'modified' | 'ai_suggested' | 'ai_applied' | 'rejected' | 'none';
@@ -323,12 +324,14 @@ export function BlockEditor({
       // Store the handler reference so we can call it from the left panel
       (window as any).__blockEditorAcceptSuggestion = (blockId: string) => {
         console.log('[BlockEditor] Accepting suggestion from left panel:', blockId);
+        activityLogger.suggestionAccepted(blockId);
         acceptAISuggestion(blockId);
       };
     }
     if (onRejectSuggestion) {
       (window as any).__blockEditorRejectSuggestion = (blockId: string) => {
         console.log('[BlockEditor] Rejecting suggestion from left panel:', blockId);
+        activityLogger.suggestionRejected(blockId);
         rejectAISuggestion(blockId);
       };
     }
@@ -440,6 +443,7 @@ export function BlockEditor({
     }
     
     console.log('[BlockEditor] Block clicked:', blockId);
+    activityLogger.blockSelected(blockId);
     
     // If this block has a suggestion, notify parent to highlight it in left panel
     const clickedBlock = blocks.find(b => b.id === blockId);
@@ -604,6 +608,7 @@ export function BlockEditor({
       return meta;
     });
     
+    activityLogger.info('Saving changes...');
     console.log('[BlockEditor] 💾 Saving...', {
       blocks: updatedBlockMetadata.length,
       accepted: acceptedSuggestions.length,

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Search, Upload } from 'lucide-react';
+import { Search, Upload, Trash2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { TemplatePreviewModal } from './TemplatePreviewModal';
-import { UploadModal } from './UploadModal';
-import { getTemplate, listTemplates, type ApiTemplate } from '@/lib/api';
+import { UploadTemplateModal } from './UploadTemplateModal';
+import { getTemplate, listTemplates, getTemplateContent, deleteTemplate, type ApiTemplate } from '@/lib/api';
 
 export function TemplatesPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -14,6 +14,7 @@ export function TemplatesPage() {
   const [error, setError] = useState<string | null>(null);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -21,9 +22,16 @@ export function TemplatesPage() {
       setError(null);
       try {
         const res = await listTemplates();
-        setTemplates(res.templates || []);
-        if ((res.templates || []).length > 0) {
-          setSelectedTemplateId(res.templates[0].template_id);
+        // Handle both string array and object array formats
+        const templateList = (res.templates || []).map((t: any) => {
+          if (typeof t === 'string') {
+            return { template_id: t, path: '', size: 0, location: '' };
+          }
+          return t;
+        });
+        setTemplates(templateList);
+        if (templateList.length > 0) {
+          setSelectedTemplateId(templateList[0].template_id);
         }
       } catch (e: any) {
         setError(e?.message || 'Failed to load templates');
@@ -39,20 +47,50 @@ export function TemplatesPage() {
       setSelectedTemplateContent(null);
       if (!selectedTemplateId) return;
       try {
-        const res = await getTemplate(selectedTemplateId);
+        const res = await getTemplateContent(selectedTemplateId);
         if (res?.content) {
-          setSelectedTemplateContent(JSON.stringify(res.content, null, 2));
+          setSelectedTemplateContent(res.content);
         }
       } catch (e) {
-        // Endpoint may require login; ignore for MVP
+        console.error('Failed to load template:', e);
+        setSelectedTemplateContent(null);
       }
     }
     loadTemplate();
   }, [selectedTemplateId]);
 
+  const handleDelete = async (templateId: string) => {
+    if (!confirm(`Are you sure you want to delete template "${templateId}"?`)) {
+      return;
+    }
+    
+    setDeletingId(templateId);
+    try {
+      await deleteTemplate(templateId);
+      // Refresh the list
+      const res = await listTemplates();
+      const templateList = (res.templates || []).map((t: any) => {
+        if (typeof t === 'string') {
+          return { template_id: t, path: '', size: 0, location: '' };
+        }
+        return t;
+      });
+      setTemplates(templateList);
+      
+      // If deleted template was selected, clear selection
+      if (selectedTemplateId === templateId) {
+        setSelectedTemplateId(templateList.length > 0 ? templateList[0].template_id : null);
+      }
+    } catch (e: any) {
+      alert(`Failed to delete: ${e?.message || 'Unknown error'}`);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const filteredTemplates = useMemo(() => {
     return templates.filter((t) =>
-      t.template_id.toLowerCase().includes(searchQuery.toLowerCase())
+      t?.template_id?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [templates, searchQuery]);
 
@@ -88,16 +126,35 @@ export function TemplatesPage() {
           {loading && <div className="px-4 py-2 text-sm text-neutral-600">Loading…</div>}
           {error && <div className="px-4 py-2 text-sm text-red-600">{error}</div>}
           {!loading && !error && filteredTemplates.map((template) => (
-            <button
+            <div
               key={template.template_id}
-              onClick={() => setSelectedTemplateId(template.template_id)}
-              className={`w-full text-left px-4 py-3 border-b border-neutral-100 hover:bg-neutral-50 transition-colors ${
+              className={`w-full text-left px-4 py-3 border-b border-neutral-100 hover:bg-neutral-50 transition-colors flex items-center justify-between group ${
                 selectedTemplateId === template.template_id ? 'bg-neutral-100' : ''
               }`}
             >
-              <p className="text-neutral-900 mb-1 text-sm">{template.template_id}</p>
-              <p className="text-neutral-600 text-xs">{template.location}</p>
-            </button>
+              <button
+                onClick={() => setSelectedTemplateId(template.template_id)}
+                className="flex-1 text-left"
+              >
+                <p className="text-neutral-900 mb-1 text-sm">{template.template_id}</p>
+                <p className="text-neutral-600 text-xs">{template.location}</p>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(template.template_id);
+                }}
+                disabled={deletingId === template.template_id}
+                className="ml-2 p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                title="Delete template"
+              >
+                {deletingId === template.template_id ? (
+                  <div className="w-4 h-4 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin" />
+                ) : (
+                  <Trash2 className="w-4 h-4" />
+                )}
+              </button>
+            </div>
           ))}
         </div>
       </div>
@@ -114,18 +171,27 @@ export function TemplatesPage() {
           </div>
 
           {/* Preview */}
-          <div className="mb-6 p-6 bg-neutral-50 border border-neutral-200 rounded">
+          <div className="mb-6 p-6 bg-white border border-neutral-200 rounded-lg shadow-sm">
             <div className="prose prose-neutral prose-sm max-w-none">
               {selectedTemplateId ? (
                 selectedTemplateContent ? (
-                  <pre className="text-xs text-neutral-800 whitespace-pre-wrap">{selectedTemplateContent}</pre>
+                  <div className="markdown-preview">
+                    <pre className="whitespace-pre-wrap font-mono text-sm text-neutral-800 leading-relaxed">
+                      {selectedTemplateContent}
+                    </pre>
+                  </div>
                 ) : (
-                  <div className="text-sm text-neutral-600">
-                    Preview requires login. You can still select this template when running reviews.
+                  <div className="flex items-center justify-center py-12">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900 mx-auto mb-3"></div>
+                      <div className="text-sm text-neutral-600">Loading template...</div>
+                    </div>
                   </div>
                 )
               ) : (
-                <div className="text-sm text-neutral-600">Select a template to preview details.</div>
+                <div className="text-sm text-neutral-500 text-center py-12">
+                  Select a template from the left to preview its content
+                </div>
               )}
             </div>
           </div>
@@ -155,7 +221,35 @@ export function TemplatesPage() {
       )}
       
       {uploadModalOpen && (
-        <UploadModal onClose={() => setUploadModalOpen(false)} />
+        <UploadTemplateModal 
+          onClose={() => setUploadModalOpen(false)} 
+          onSuccess={async () => {
+            // Reload templates list after successful upload
+            setLoading(true);
+            setError(null);
+            try {
+              const res = await listTemplates();
+              const templateList = (res.templates || []).map((t: any) => {
+                if (typeof t === 'string') {
+                  return { template_id: t, path: '', size: 0, location: 'data/templates' };
+                }
+                return t;
+              });
+              setTemplates(templateList);
+              // Select the newly uploaded template if it's the only change
+              if (templateList.length > templates.length && templateList.length > 0) {
+                const newTemplate = templateList.find(t => !templates.some(old => old.template_id === t.template_id));
+                if (newTemplate) {
+                  setSelectedTemplateId(newTemplate.template_id);
+                }
+              }
+            } catch (err: any) {
+              console.error('Failed to reload templates:', err);
+            } finally {
+              setLoading(false);
+            }
+          }}
+        />
       )}
     </div>
   );

@@ -1,6 +1,6 @@
-import { FileText, LayoutTemplate, Settings } from 'lucide-react';
+import { FileText, LayoutTemplate, Settings, MessageSquare } from 'lucide-react';
 
-type Page = 'documents' | 'workspace' | 'templates' | 'settings';
+type Page = 'documents' | 'workspace' | 'templates' | 'prompts' | 'settings';
 
 interface MainNavProps {
   currentPage: Page;
@@ -36,6 +36,18 @@ export function MainNav({ currentPage, onNavigate }: MainNavProps) {
           >
             <LayoutTemplate className="w-4 h-4" />
             <span>Templates</span>
+          </button>
+          
+          <button
+            onClick={() => onNavigate('prompts')}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded transition-colors ${
+              currentPage === 'prompts'
+                ? 'bg-neutral-100 text-neutral-900'
+                : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50'
+            }`}
+          >
+            <MessageSquare className="w-4 h-4" />
+            <span>Prompts</span>
           </button>
           
           <button

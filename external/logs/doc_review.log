@@ -533,3 +533,292 @@
 {"asctime": "2025-11-16T19:48:11", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 15850 chars of context"}
 {"asctime": "2025-11-16T19:48:15", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT response length: 2092 chars"}
 {"asctime": "2025-11-16T19:48:15", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T20:08:15", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 14735 chars of context"}
+{"asctime": "2025-11-16T20:08:19", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT response length: 1539 chars"}
+{"asctime": "2025-11-16T20:08:19", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T20:11:32", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 3964 chars of context"}
+{"asctime": "2025-11-16T20:11:36", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT response length: 2406 chars"}
+{"asctime": "2025-11-16T20:11:36", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T20:12:04", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 6465 chars of context"}
+{"asctime": "2025-11-16T20:12:13", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT response length: 5160 chars"}
+{"asctime": "2025-11-16T20:12:13", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T20:24:10", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_middle doc_id=140019d9a71d419eaf88b00aab87b011_collateral_middle"}
+{"asctime": "2025-11-16T20:25:28", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 1826 chars of context"}
+{"asctime": "2025-11-16T20:25:31", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT response length: 1498 chars"}
+{"asctime": "2025-11-16T20:25:31", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T20:25:56", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_bad doc_id=7d9e48492801442c809e1512ae9258ca_collateral_bad"}
+{"asctime": "2025-11-16T20:38:43", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AGENT_PRODUCT_OVERVIEW doc_id=35da0daaaaf94911a25fdfc437fdd8a4_AGENT_PRODUCT_OVERVIEW"}
+{"asctime": "2025-11-16T20:39:28", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for AGENT_PRODUCT_OVERVIEW"}
+{"asctime": "2025-11-16T20:43:20", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_bad doc_id=7d9e48492801442c809e1512ae9258ca_collateral_bad"}
+{"asctime": "2025-11-16T20:43:50", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_bad"}
+{"asctime": "2025-11-16T20:49:08", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'AGENT_PRODUCT_OVERVIEW'"}
+{"asctime": "2025-11-16T20:49:08", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/1"}
+{"asctime": "2025-11-16T20:49:08", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T20:49:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 5 gaps"}
+{"asctime": "2025-11-16T20:49:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T20:49:22", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 1: Invalid control character at: line 28 column 391 (char 2405)"}
+{"asctime": "2025-11-16T20:49:22", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 5 gaps, 0 improvements"}
+{"asctime": "2025-11-16T20:50:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T20:50:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/1"}
+{"asctime": "2025-11-16T20:50:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T20:50:09", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 5 gaps"}
+{"asctime": "2025-11-16T20:50:09", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T20:50:19", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 5 improvements"}
+{"asctime": "2025-11-16T20:50:19", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 5 gaps, 5 improvements"}
+{"asctime": "2025-11-16T20:57:37", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'AGENT_PRODUCT_OVERVIEW'"}
+{"asctime": "2025-11-16T20:57:37", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/1"}
+{"asctime": "2025-11-16T20:57:37", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T20:57:42", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 5 gaps"}
+{"asctime": "2025-11-16T20:57:42", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T20:57:52", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 1: Invalid control character at: line 27 column 226 (char 2159)"}
+{"asctime": "2025-11-16T20:57:52", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 5 gaps, 0 improvements"}
+{"asctime": "2025-11-16T20:59:07", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T20:59:07", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/1"}
+{"asctime": "2025-11-16T20:59:07", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T20:59:12", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 5 gaps"}
+{"asctime": "2025-11-16T20:59:12", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T20:59:16", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 650 chars of context"}
+{"asctime": "2025-11-16T20:59:20", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT response length: 2251 chars"}
+{"asctime": "2025-11-16T20:59:20", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T20:59:21", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 5 improvements"}
+{"asctime": "2025-11-16T20:59:21", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 5 gaps, 5 improvements"}
+{"asctime": "2025-11-16T21:02:14", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T21:02:14", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/1"}
+{"asctime": "2025-11-16T21:02:14", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T21:02:19", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 5 gaps"}
+{"asctime": "2025-11-16T21:02:19", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T21:02:27", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 5 improvements"}
+{"asctime": "2025-11-16T21:02:27", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 5 gaps, 5 improvements"}
+{"asctime": "2025-11-16T21:02:32", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T21:02:32", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/1"}
+{"asctime": "2025-11-16T21:02:32", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T21:02:37", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 6 gaps"}
+{"asctime": "2025-11-16T21:02:37", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T21:02:45", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 3 improvements"}
+{"asctime": "2025-11-16T21:02:45", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 6 gaps, 3 improvements"}
+{"asctime": "2025-11-16T21:03:44", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T21:03:44", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/1"}
+{"asctime": "2025-11-16T21:03:44", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T21:03:48", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 5 gaps"}
+{"asctime": "2025-11-16T21:03:48", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T21:03:57", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 5 improvements"}
+{"asctime": "2025-11-16T21:03:57", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 5 gaps, 5 improvements"}
+{"asctime": "2025-11-16T21:08:05", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_bad doc_id=105266e94444439087b8a8f69fec0e1b_collateral_bad"}
+{"asctime": "2025-11-16T21:08:35", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_bad"}
+{"asctime": "2025-11-16T21:09:08", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'AGENT_PRODUCT_OVERVIEW'"}
+{"asctime": "2025-11-16T21:09:08", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/1"}
+{"asctime": "2025-11-16T21:09:08", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T21:09:12", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 3 gaps"}
+{"asctime": "2025-11-16T21:09:12", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T21:09:19", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 3 improvements"}
+{"asctime": "2025-11-16T21:09:19", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 3 gaps, 3 improvements"}
+{"asctime": "2025-11-16T21:09:34", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'AGENT_PRODUCT_OVERVIEW'"}
+{"asctime": "2025-11-16T21:09:34", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/1"}
+{"asctime": "2025-11-16T21:09:34", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T21:09:38", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 3 gaps"}
+{"asctime": "2025-11-16T21:09:38", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T21:09:45", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 1: Invalid control character at: line 30 column 200 (char 3122)"}
+{"asctime": "2025-11-16T21:09:45", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 3 gaps, 0 improvements"}
+{"asctime": "2025-11-16T21:10:41", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_bad doc_id=b73d150e8aea415d92cc90207c0502a1_collateral_bad"}
+{"asctime": "2025-11-16T21:10:46", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_bad doc_id=b73d150e8aea415d92cc90207c0502a1_collateral_bad"}
+{"asctime": "2025-11-16T21:11:11", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_bad"}
+{"asctime": "2025-11-16T21:11:18", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_bad"}
+{"asctime": "2025-11-16T21:12:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T21:12:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/1"}
+{"asctime": "2025-11-16T21:12:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T21:12:11", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 8 gaps"}
+{"asctime": "2025-11-16T21:12:11", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T21:12:26", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 1: Invalid control character at: line 71 column 58 (char 8747)"}
+{"asctime": "2025-11-16T21:12:26", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 8 gaps, 0 improvements"}
+{"asctime": "2025-11-16T21:13:01", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T21:13:01", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/1"}
+{"asctime": "2025-11-16T21:13:01", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T21:13:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 3 gaps"}
+{"asctime": "2025-11-16T21:13:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T21:13:14", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 3 improvements"}
+{"asctime": "2025-11-16T21:13:14", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 3 gaps, 3 improvements"}
+{"asctime": "2025-11-16T21:14:02", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 749 chars of context"}
+{"asctime": "2025-11-16T21:14:05", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT response length: 2054 chars"}
+{"asctime": "2025-11-16T21:14:05", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T21:14:40", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 1748 chars of context"}
+{"asctime": "2025-11-16T21:14:42", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT response length: 786 chars"}
+{"asctime": "2025-11-16T21:14:42", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T21:18:50", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_middle doc_id=519b49987c1243d5be1898d2ea087320_collateral_middle"}
+{"asctime": "2025-11-16T21:19:19", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_middle doc_id=519b49987c1243d5be1898d2ea087320_collateral_middle"}
+{"asctime": "2025-11-16T21:19:34", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_middle"}
+{"asctime": "2025-11-16T21:20:01", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_middle"}
+{"asctime": "2025-11-16T21:21:08", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_bad doc_id=d1ed31622c24457082a600a426ef4eff_collateral_bad"}
+{"asctime": "2025-11-16T21:21:35", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_bad"}
+{"asctime": "2025-11-16T21:21:46", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T21:21:46", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/1"}
+{"asctime": "2025-11-16T21:21:46", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T21:21:50", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 5 gaps"}
+{"asctime": "2025-11-16T21:21:50", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T21:22:00", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 5 improvements"}
+{"asctime": "2025-11-16T21:22:00", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 5 gaps, 5 improvements"}
+{"asctime": "2025-11-16T21:22:00", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating synthesis summary for 'collateral_bad'"}
+{"asctime": "2025-11-16T21:22:00", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Synthesis summary generation failed: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCfV1RiEeoJbpgr8Y8LQ'}"}
+{"asctime": "2025-11-16T21:24:23", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_bad doc_id=9f992f3c38c9412ca21a3da1a2acfa8d_collateral_bad"}
+{"asctime": "2025-11-16T21:24:30", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_bad doc_id=9f992f3c38c9412ca21a3da1a2acfa8d_collateral_bad"}
+{"asctime": "2025-11-16T21:24:53", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_bad"}
+{"asctime": "2025-11-16T21:24:59", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_bad"}
+{"asctime": "2025-11-16T21:25:42", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T21:25:42", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/1"}
+{"asctime": "2025-11-16T21:25:42", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T21:25:48", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 5 gaps"}
+{"asctime": "2025-11-16T21:25:48", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T21:25:58", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 5 improvements"}
+{"asctime": "2025-11-16T21:25:58", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 5 gaps, 5 improvements"}
+{"asctime": "2025-11-16T21:25:58", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating synthesis summary for 'collateral_bad'"}
+{"asctime": "2025-11-16T21:25:58", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Synthesis summary generation failed: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCfnaNq84Wf6ptdy3Qj2'}"}
+{"asctime": "2025-11-16T21:28:05", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_bad doc_id=1bc4ec5982dc4c4d9e269ca28ed56642_collateral_bad"}
+{"asctime": "2025-11-16T21:28:33", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_bad"}
+{"asctime": "2025-11-16T21:33:10", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T21:33:10", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/2"}
+{"asctime": "2025-11-16T21:33:10", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T21:33:15", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 5 gaps"}
+{"asctime": "2025-11-16T21:33:15", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T21:33:30", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 5 improvements"}
+{"asctime": "2025-11-16T21:33:30", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/2"}
+{"asctime": "2025-11-16T21:33:30", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T21:33:34", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Found 4 gaps"}
+{"asctime": "2025-11-16T21:33:34", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T21:33:44", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Generated 4 improvements"}
+{"asctime": "2025-11-16T21:33:44", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 9 gaps, 9 improvements"}
+{"asctime": "2025-11-16T21:33:44", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating synthesis summary for 'collateral_middle'"}
+{"asctime": "2025-11-16T21:33:52", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Synthesis summary generation failed: Expecting value: line 1 column 1 (char 0)"}
+{"asctime": "2025-11-16T21:45:42", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_middle-4ngo5n doc_id=c24827105c7845e8b905dbe92caea898_collateral_middle"}
+{"asctime": "2025-11-16T21:46:26", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_middle-4ngo5n"}
+{"asctime": "2025-11-16T21:46:34", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T21:46:34", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/2"}
+{"asctime": "2025-11-16T21:46:34", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T21:46:39", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 6 gaps"}
+{"asctime": "2025-11-16T21:46:39", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T21:46:57", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 6 improvements"}
+{"asctime": "2025-11-16T21:46:57", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/2"}
+{"asctime": "2025-11-16T21:46:57", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T21:47:02", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Found 5 gaps"}
+{"asctime": "2025-11-16T21:47:02", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T21:47:11", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Generated 5 improvements"}
+{"asctime": "2025-11-16T21:47:11", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 11 gaps, 11 improvements"}
+{"asctime": "2025-11-16T21:47:11", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating synthesis summary for 'collateral_middle-4ngo5n'"}
+{"asctime": "2025-11-16T21:47:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Synthesis summary generated successfully"}
+{"asctime": "2025-11-16T21:48:28", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_good doc_id=e9c241b1b0e241e6907487772f75aa73_collateral_good"}
+{"asctime": "2025-11-16T21:49:14", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_good"}
+{"asctime": "2025-11-16T21:49:17", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T21:49:17", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T21:49:17", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T21:49:22", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 6 gaps"}
+{"asctime": "2025-11-16T21:49:22", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T21:49:33", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 5 improvements"}
+{"asctime": "2025-11-16T21:49:33", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T21:49:33", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T21:49:40", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Found 12 gaps"}
+{"asctime": "2025-11-16T21:49:40", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T21:49:55", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Generated 12 improvements"}
+{"asctime": "2025-11-16T21:49:55", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T21:49:55", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T21:49:58", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Found 2 gaps"}
+{"asctime": "2025-11-16T21:49:58", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T21:50:01", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Generated 2 improvements"}
+{"asctime": "2025-11-16T21:50:01", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 20 gaps, 19 improvements"}
+{"asctime": "2025-11-16T21:50:01", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating synthesis summary for 'collateral_good'"}
+{"asctime": "2025-11-16T21:50:06", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Synthesis summary generated successfully"}
+{"asctime": "2025-11-16T21:51:01", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_good doc_id=136a1b71cacc41018749534117544a2d_collateral_good"}
+{"asctime": "2025-11-16T21:51:53", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_good"}
+{"asctime": "2025-11-16T21:53:00", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T21:53:00", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T21:53:00", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T21:53:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 3 gaps"}
+{"asctime": "2025-11-16T21:53:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T21:53:09", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 3 improvements"}
+{"asctime": "2025-11-16T21:53:09", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T21:53:09", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T21:53:20", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Gap analysis failed for page 2: Extra data: line 111 column 1 (char 4417)"}
+{"asctime": "2025-11-16T21:53:20", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T21:53:37", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 2: Invalid control character at: line 77 column 112 (char 3908)"}
+{"asctime": "2025-11-16T21:53:37", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T21:53:37", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T21:53:39", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Found 2 gaps"}
+{"asctime": "2025-11-16T21:53:39", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T21:53:43", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Generated 2 improvements"}
+{"asctime": "2025-11-16T21:53:43", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 5 gaps, 5 improvements"}
+{"asctime": "2025-11-16T21:53:43", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating synthesis summary for 'collateral_good'"}
+{"asctime": "2025-11-16T21:53:47", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Synthesis summary generated successfully"}
+{"asctime": "2025-11-16T21:56:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T21:56:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T21:56:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T21:56:17", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 4 gaps"}
+{"asctime": "2025-11-16T21:56:17", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T21:56:26", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 4 improvements"}
+{"asctime": "2025-11-16T21:56:26", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T21:56:26", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T21:56:33", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Found 7 gaps"}
+{"asctime": "2025-11-16T21:56:33", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T21:56:45", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Generated 7 improvements"}
+{"asctime": "2025-11-16T21:56:45", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T21:56:45", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T21:56:48", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Found 2 gaps"}
+{"asctime": "2025-11-16T21:56:48", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T21:56:52", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Generated 2 improvements"}
+{"asctime": "2025-11-16T21:56:52", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 13 gaps, 13 improvements"}
+{"asctime": "2025-11-16T21:56:52", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating synthesis summary for 'collateral_good'"}
+{"asctime": "2025-11-16T21:56:57", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Synthesis summary generated successfully"}
+{"asctime": "2025-11-16T22:03:07", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 10008 chars of context"}
+{"asctime": "2025-11-16T22:03:09", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT response length: 1348 chars"}
+{"asctime": "2025-11-16T22:03:09", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T22:06:54", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_good doc_id=aa2e43ae1f494194b8815cb497573ba1_collateral_good"}
+{"asctime": "2025-11-16T22:07:45", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_good"}
+{"asctime": "2025-11-16T22:08:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T22:08:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T22:08:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T22:08:09", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 6 gaps"}
+{"asctime": "2025-11-16T22:08:09", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T22:08:17", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 4 improvements"}
+{"asctime": "2025-11-16T22:08:17", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T22:08:17", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T22:08:22", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Found 5 gaps"}
+{"asctime": "2025-11-16T22:08:22", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T22:08:34", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Generated 5 improvements"}
+{"asctime": "2025-11-16T22:08:34", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T22:08:34", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T22:08:37", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Found 2 gaps"}
+{"asctime": "2025-11-16T22:08:37", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T22:08:41", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Generated 2 improvements"}
+{"asctime": "2025-11-16T22:08:41", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 13 gaps, 11 improvements"}
+{"asctime": "2025-11-16T22:08:41", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating synthesis summary for 'collateral_good'"}
+{"asctime": "2025-11-16T22:08:45", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Synthesis summary generated successfully"}
+{"asctime": "2025-11-16T22:11:19", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_good doc_id=2c7960eb182e4042b2f9c74955cbb664_collateral_good"}
+{"asctime": "2025-11-16T22:12:17", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_good"}
+{"asctime": "2025-11-16T22:12:22", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T22:12:22", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T22:12:22", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T22:12:25", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 4 gaps"}
+{"asctime": "2025-11-16T22:12:25", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T22:12:34", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 4 improvements"}
+{"asctime": "2025-11-16T22:12:34", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T22:12:34", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T22:12:44", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Found 10 gaps"}
+{"asctime": "2025-11-16T22:12:44", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T22:13:01", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Generated 10 improvements"}
+{"asctime": "2025-11-16T22:13:01", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T22:13:01", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T22:13:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Found 2 gaps"}
+{"asctime": "2025-11-16T22:13:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T22:13:07", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Generated 2 improvements"}
+{"asctime": "2025-11-16T22:13:07", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 16 gaps, 16 improvements"}
+{"asctime": "2025-11-16T22:13:07", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating synthesis summary for 'collateral_good'"}
+{"asctime": "2025-11-16T22:13:12", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Synthesis summary generated successfully"}
+{"asctime": "2025-11-16T22:14:27", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_good doc_id=4cfe4cd099904ddcbb192d258a7dd691_collateral_good"}
+{"asctime": "2025-11-16T22:15:23", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_good"}
+{"asctime": "2025-11-16T22:39:46", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_bad doc_id=2d0883e759e34c61a16d9d92a21707d7_collateral_bad"}
+{"asctime": "2025-11-16T22:40:09", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for collateral_bad"}
+{"asctime": "2025-11-16T22:40:24", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T22:40:24", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/1"}
+{"asctime": "2025-11-16T22:40:24", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T22:40:28", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 5 gaps"}
+{"asctime": "2025-11-16T22:40:28", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T22:40:39", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 5 improvements"}
+{"asctime": "2025-11-16T22:40:39", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 5 gaps, 5 improvements"}
+{"asctime": "2025-11-16T22:40:39", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating synthesis summary for 'collateral_bad'"}
+{"asctime": "2025-11-16T22:40:43", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Synthesis summary generated successfully"}

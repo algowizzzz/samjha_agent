@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FileText, AlertCircle, FolderTree, ChevronRight, ChevronDown, MessageSquare, Sparkles, Check, X } from 'lucide-react';
+import { FileText, AlertCircle, FolderTree, ChevronRight, ChevronDown, MessageSquare, Sparkles, Check, X, RefreshCw } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { ArtifactPreviewModal } from './ArtifactPreviewModal';
 import { vfsReadFile, vfsTree } from '@/lib/api';
 import { getDocument } from '@/lib/api';
+import { activityLogger } from '@/utils/activityLogger';
 
 type LeftPaneTab = 'suggestions' | 'outline' | 'issues' | 'artifacts';
 
@@ -144,6 +145,7 @@ function SuggestionsList({
                   onClick={(e) => {
                     e.stopPropagation();
                     console.log('[LeftPane] Accept clicked:', suggestion.block_id);
+                    activityLogger.suggestionAccepted(suggestion.block_id);
                     onAcceptSuggestion?.(suggestion.block_id);
                   }}
                   className="p-1.5 hover:bg-green-100 rounded transition-colors"
@@ -155,6 +157,7 @@ function SuggestionsList({
                   onClick={(e) => {
                     e.stopPropagation();
                     console.log('[LeftPane] Reject clicked:', suggestion.block_id);
+                    activityLogger.suggestionRejected(suggestion.block_id);
                     onRejectSuggestion?.(suggestion.block_id);
                   }}
                   className="p-1.5 hover:bg-red-100 rounded transition-colors"
@@ -307,9 +310,10 @@ interface LeftPaneProps {
   onAcceptSuggestion?: (blockId: string) => void;
   onRejectSuggestion?: (blockId: string) => void;
   onCommentSuggestion?: (blockId: string) => void;
+  onRefreshSuggestions?: () => void;
 }
 
-export function LeftPane({ onIssueSelect, selectedIssueId, onArtifactSelect, fileId, suggestions = [], onSuggestionSelect, selectedSuggestionId, onAcceptSuggestion, onRejectSuggestion, onCommentSuggestion }: LeftPaneProps) {
+export function LeftPane({ onIssueSelect, selectedIssueId, onArtifactSelect, fileId, suggestions = [], onSuggestionSelect, selectedSuggestionId, onAcceptSuggestion, onRejectSuggestion, onCommentSuggestion, onRefreshSuggestions }: LeftPaneProps) {
   const [activeTab, setActiveTab] = useState<LeftPaneTab>('suggestions');
   const [severityFilter, setSeverityFilter] = useState<string>('All');
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['phase1', 'phase2', 'phase4']));
@@ -477,14 +481,25 @@ export function LeftPane({ onIssueSelect, selectedIssueId, onArtifactSelect, fil
   return (
     <div className="flex flex-col h-full">
       {/* Header - Suggestions Only */}
-      <div className="border-b border-neutral-200 px-4 py-3 bg-yellow-50">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-neutral-900">Template Suggestions</h2>
-          {suggestions.length > 0 && (
-            <span className="px-2 py-1 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold">
-              {suggestions.length}
-            </span>
-          )}
+      <div className="border-b border-neutral-200 px-3 py-2.5 bg-yellow-50">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold text-neutral-900 flex-shrink-0">Template Suggestions</h2>
+          <div className="flex items-center gap-1.5">
+            {suggestions.length > 0 && (
+              <span className="px-1.5 py-0.5 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold">
+                {suggestions.length}
+              </span>
+            )}
+            {onRefreshSuggestions && (
+              <button
+                onClick={onRefreshSuggestions}
+                className="p-1 hover:bg-yellow-100 rounded transition-colors flex-shrink-0"
+                title="Refresh suggestions"
+              >
+                <RefreshCw className="w-3.5 h-3.5 text-neutral-600" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

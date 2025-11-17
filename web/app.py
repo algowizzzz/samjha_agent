@@ -71,8 +71,12 @@ def create_app():
     app.config['SESSION_TYPE'] = 'filesystem'
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)
     
-    # Enable CORS
-    CORS(app)
+    # Enable CORS with credentials support
+    CORS(app, 
+         supports_credentials=True,
+         origins=["http://localhost:3001", "http://localhost:3000", "http://127.0.0.1:3001", "http://127.0.0.1:3000"],
+         allow_headers=["Content-Type", "Authorization", "X-API-Key"],
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"])
     
     # Initialize SocketIO
     socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')

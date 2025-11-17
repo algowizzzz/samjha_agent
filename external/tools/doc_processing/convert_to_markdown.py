@@ -100,51 +100,57 @@ class ConvertToMarkdownTool(BaseMCPTool):
         image_base64 = self._image_to_base64(image)
         
         # Prompt for precise transcription
-        prompt = """Transcribe this document page to markdown. Start immediately with the content.
+        prompt = """Transcribe this document page preserving all visual formatting and structure. Start immediately with the content.
 
-RULES:
+CRITICAL RULES:
 1. NO intro text - start transcribing right away
 2. This may continue from a previous page
-3. Use # ## ### ONLY for text that is VISUALLY a heading (large, bold, standalone line)
-4. Regular text with numbers like "1. Item" or "6. Paragraph text" = write as-is, NO # symbols
-5. The document does NOT contain # symbols - you add them only for visual headings
-6. Do NOT invent or add headings - only transcribe what you see
+3. DO NOT ADD # ## ### symbols for headings
+4. DO USE **bold** markdown to represent visual formatting
+5. Preserve document structure through formatting + line breaks
 
-HEADINGS (large, bold, standalone):
-- Document title (largest) → # Title
-- Section heading (large, bold) → ## 1. Overview
-- Subsection (medium, bold) → ### 1.1 Details
+HEADING TRANSCRIPTION (large, bold, standalone lines):
+- Document title (largest, bold) → **Title Text**
+- Section heading (large, bold) → **1. Overview**
+- Subsection (medium, bold) → **1.1 Details**
+- Always: bold format + standalone line + blank line after
+(NOTE: Use **bold**, NOT # symbols)
 
-LISTS AND NUMBERED TEXT (normal size):
-- Numbered list items → 1. Item text
+INLINE FORMATTING (within paragraphs):
+- Bold text → **text**
+- Italic text → *text*
+- Bold + Italic → ***text***
+- Underlined/emphasized → *text*
+
+STRUCTURE & SPACING:
+- Preserve blank lines between sections
+- Headings are standalone lines (not part of paragraphs)
+- Keep paragraph breaks
+- Maintain document flow
+
+LISTS:
 - Bullet points → - Item text
-- Numbered paragraphs → 6. Paragraph text continues...
-
-FORMATTING:
-- Bold → **text**
-- Italic → *text*
-- Preserve line breaks and spacing
+- Numbered items → 1. Item text
+- Sub-bullets → Indent with spaces: - Item
+  - Sub-item
 
 TABLES:
-- Convert ALL tables to proper markdown table format with | pipes
+- Convert ALL tables to markdown format with | pipes
 - Include header row with column names
 - Add separator row with |---|---|---| 
-- Align columns properly
 - Example:
   | Column 1 | Column 2 |
   |----------|----------|
   | Data 1   | Data 2   |
 
 IMAGES/CHARTS/DIAGRAMS:
-- If you see an image, chart, diagram, or graphic, mark it as:
-  ![Image: Brief description of what the image shows]
-- Do NOT try to transcribe visual elements as text
+- Mark as: ![Image: Brief description]
 - Do NOT skip images - always mark their presence
 
-OTHER:
-- Keep all special characters, symbols, and formatting
-- If text is unclear, provide your best transcription
-- Ignore page numbers, headers, footers unless they are main content
+DISTINCTION:
+✅ Large heading → **Risk Management Overview** (bold, standalone)
+✅ Bold word in paragraph → This is **important** text.
+❌ NEVER → # Risk Management Overview (no # symbols)
 
 Begin transcription:"""
 
@@ -189,23 +195,41 @@ Begin transcription:"""
         return f"p{page}_b{block_num}_{content_hash}"
     
     def _detect_block_type(self, content: str) -> str:
-        """Detect block type from markdown syntax"""
+        """Detect block type from content structure with **bold** headings"""
         stripped = content.strip()
         if not stripped:
             return 'empty'
         
-        # Check first line for heading markers
+        # Check first line for structure
         first_line = stripped.split('\n')[0].strip()
-        if first_line.startswith('### '): return 'heading3'
-        if first_line.startswith('## '): return 'heading2'
-        if first_line.startswith('# '): return 'heading1'
-        if first_line.startswith('- '): return 'bullet'
-        if re.match(r'^\d+\.\s', first_line): return 'numbered'
-        if first_line.startswith('> '): return 'quote'
         
-        # Check if it's a table
+        # Bullet list
+        if first_line.startswith('- '):
+            return 'bullet'
+        
+        # Numbered list
+        if re.match(r'^\d+\.\s', first_line):
+            return 'numbered'
+        
+        # Quote
+        if first_line.startswith('> '):
+            return 'quote'
+        
+        # Table (has pipe separators)
         if '|' in stripped and '---' in stripped:
             return 'table'
+        
+        # Heading detection: **bold** + short + standalone line
+        lines = stripped.split('\n')
+        if len(lines) == 1 and len(first_line) < 100:
+            # Check if wrapped in **bold** markers
+            if first_line.startswith('**') and '**' in first_line[2:]:
+                return 'heading'
+            
+            # Also detect by structure: short, title-like, all caps
+            words = first_line.split()
+            if words and (first_line.isupper() or sum(w[0].isupper() for w in words if w and w[0].isalpha()) > len(words) * 0.5):
+                return 'heading'
         
         return 'paragraph'
     
@@ -217,47 +241,69 @@ Begin transcription:"""
         if not self.client:
             raise RuntimeError("Anthropic client not initialized")
         
-        prompt = f"""Analyze this markdown and group it into semantic blocks.
+        prompt = f"""Analyze this text and group it into semantic blocks with heading level detection.
 
-MARKDOWN TO ANALYZE:
+TEXT TO ANALYZE:
 {page_md}
 
 INSTRUCTIONS:
 - Group related lines into semantic blocks (entire paragraphs, headings, lists, tables)
-- Each block should be a complete unit (e.g., entire paragraph, complete list, full table)
+- Each block should be a complete unit
 - DO NOT split paragraphs or lists into multiple blocks
 - Empty lines can be their own blocks
+- Detect headings by **bold** formatting + structure
+- Infer heading level (1-3) from context
 
 OUTPUT FORMAT (JSON array):
 [
   {{
     "start_line": 0,
     "end_line": 0,
-    "content": "# Guideline",
-    "type": "heading1"
-  }},
-  {{
-    "start_line": 1,
-    "end_line": 1,
-    "content": "",
-    "type": "empty"
+    "content": "**Risk Management Policy**",
+    "type": "heading",
+    "level": 1
   }},
   {{
     "start_line": 2,
-    "end_line": 5,
-    "content": "This is a complete paragraph that spans multiple lines. It should be treated as one block.",
+    "end_line": 2,
+    "content": "**1. Overview**",
+    "type": "heading",
+    "level": 2
+  }},
+  {{
+    "start_line": 4,
+    "end_line": 4,
+    "content": "**1.1 Purpose**",
+    "type": "heading",
+    "level": 3
+  }},
+  {{
+    "start_line": 6,
+    "end_line": 8,
+    "content": "This is a complete paragraph with **bold** words inside.",
     "type": "paragraph"
   }}
 ]
 
 BLOCK TYPES:
-- heading1, heading2, heading3
-- paragraph (entire paragraph, even if multi-line)
-- bullet (entire bullet list)
-- numbered (entire numbered list)
-- table (entire table)
-- quote (entire quote block)
-- empty (blank lines)
+- heading (with level 1-3): **bold** + short + standalone line
+- paragraph: multi-line text blocks
+- bullet: entire bullet list (lines starting with -)
+- numbered: entire numbered list (lines starting with 1. 2. 3.)
+- table: markdown tables with | pipes
+- empty: blank lines
+
+HEADING LEVEL DETECTION:
+- Level 1: Appears first, largest, document title, all caps, or no numbering
+- Level 2: Section headings, numbered "1.", "2.", "3."
+- Level 3: Subsections, numbered "1.1", "2.1", indented, or under level 2
+
+HEADING PATTERNS:
+- "**RISK POLICY**" → level 1 (all caps, title)
+- "**Risk Management Policy**" → level 1 (title case, first heading)
+- "**1. Overview**" → level 2 (section numbering)
+- "**1.1 Purpose**" → level 3 (subsection numbering)
+- "**Background**" → level 2 or 3 (context dependent)
 
 CRITICAL: Output ONLY the JSON array, no other text.
 """
@@ -459,6 +505,10 @@ If no issues found, return empty array: []
                     'content': block_data['content'],
                     'type': block_data['type']
                 }
+                # Add level field if it's a heading
+                if block_data['type'] == 'heading' and 'level' in block_data:
+                    block_meta['level'] = block_data['level']
+                
                 all_blocks.append(block_meta)
                 page_blocks.append(block_meta)
             

@@ -6,25 +6,28 @@ import { CenterPane } from './components/CenterPane';
 import { RightPane } from './components/RightPane';
 import { DocumentsList } from './components/DocumentsList';
 import { TemplatesPage } from './components/TemplatesPage';
+import { PromptsPage } from './components/PromptsPage';
 import { SettingsPage } from './components/SettingsPage';
 import { MainNav } from './components/MainNav';
 import { MarkdownViewer } from './components/MarkdownViewer';
 import { type BlockMetadata } from './lib/api';
+import { activityLogger } from './utils/activityLogger';
 
-type Page = 'documents' | 'workspace' | 'templates' | 'settings';
+type Page = 'documents' | 'workspace' | 'templates' | 'prompts' | 'settings';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('documents');
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
   
   const [selectedText, setSelectedText] = useState<string>('');
-  const [centerMode, setCenterMode] = useState<'editing' | 'diff'>('editing');
+  const [centerMode, setCenterMode] = useState<'editing' | 'original' | 'diff'>('editing');
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [selectedBlocks, setSelectedBlocks] = useState<BlockMetadata[]>([]); // NEW: Selected blocks for RiskGPT
   const [aiSuggestions, setAiSuggestions] = useState<Array<{ block_id: string; original: string; suggested: string; reason: string }>>([]); // NEW: AI suggestions from chat
   const [suggestions, setSuggestions] = useState<Array<{ block_id: string; original: string; suggested: string; reason: string; block_content: string }>>([]); // NEW: All suggestions for left panel
   const [selectedSuggestionId, setSelectedSuggestionId] = useState<string | null>(null); // NEW: Selected suggestion in left panel
+  const [synthesisData, setSynthesisData] = useState<any>(null); // NEW: Template synthesis summary
   const [selectedArtifact, setSelectedArtifact] = useState<{
     fileName: string;
     filePath: string;
@@ -53,6 +56,7 @@ export default function App() {
     setAiSuggestions([]); // Clear AI suggestions when switching documents
     setSuggestions([]); // Clear suggestions when switching documents
     setSelectedSuggestionId(null); // Clear selected suggestion
+    setSynthesisData(null); // Clear synthesis data when switching documents
     setCurrentPage('workspace');
     const params = new URLSearchParams(window.location.search);
     params.set('file', fileId);
@@ -75,6 +79,7 @@ export default function App() {
   // Handler for accepting a suggestion from the left panel
   const handleAcceptSuggestion = (blockId: string) => {
     console.log('[App] Accept suggestion:', blockId);
+    activityLogger.suggestionAccepted(blockId);
     // Call the BlockEditor's accept function via window global
     if ((window as any).__blockEditorAcceptSuggestion) {
       (window as any).__blockEditorAcceptSuggestion(blockId);
@@ -86,6 +91,7 @@ export default function App() {
   // Handler for rejecting a suggestion from the left panel
   const handleRejectSuggestion = (blockId: string) => {
     console.log('[App] Reject suggestion:', blockId);
+    activityLogger.suggestionRejected(blockId);
     // Call the BlockEditor's reject function via window global
     if ((window as any).__blockEditorRejectSuggestion) {
       (window as any).__blockEditorRejectSuggestion(blockId);
@@ -107,6 +113,15 @@ export default function App() {
       if ((window as any).__blockEditorSelectBlock) {
         (window as any).__blockEditorSelectBlock(blockId);
       }
+    }
+  };
+
+  // Handler for refreshing suggestions
+  const handleRefreshSuggestions = () => {
+    console.log('[App] Refresh suggestions');
+    // Call the CenterPane's refresh function via window global
+    if ((window as any).__centerPaneRefreshDocument) {
+      (window as any).__centerPaneRefreshDocument();
     }
   };
   
@@ -155,6 +170,7 @@ export default function App() {
                 onAcceptSuggestion={handleAcceptSuggestion}
                 onRejectSuggestion={handleRejectSuggestion}
                 onCommentSuggestion={handleCommentSuggestion}
+                onRefreshSuggestions={handleRefreshSuggestions}
               />
             </Resizable>
           )}
@@ -194,6 +210,7 @@ export default function App() {
                 onBlockWithSuggestionClick={setSelectedSuggestionId}
                 onAcceptSuggestion={handleAcceptSuggestion}
                 onRejectSuggestion={handleRejectSuggestion}
+                onSynthesisReceived={setSynthesisData}
               // @ts-ignore
               fileId={selectedDocumentId || undefined}
               />
@@ -249,6 +266,7 @@ export default function App() {
                 fileId={selectedDocumentId}
                 selectedBlocks={selectedBlocks}
                 onSuggestionsReceived={setAiSuggestions}
+                synthesisData={synthesisData}
               />
             </Resizable>
           )}
@@ -266,6 +284,7 @@ export default function App() {
           <DocumentsList onOpenDocument={handleOpenDocument} />
         )}
         {currentPage === 'templates' && <TemplatesPage />}
+        {currentPage === 'prompts' && <PromptsPage />}
         {currentPage === 'settings' && <SettingsPage />}
       </div>
     </div>

@@ -244,9 +244,17 @@ class DocReviewRoutes(BaseRoutes):
 
             return jsonify({"document": record}), 201
 
-        @app.route("/api/doc_review/documents/<file_id>", methods=["GET"])
+        @app.route("/api/doc_review/documents/<file_id>", methods=["GET", "DELETE"])
         @_api_key_or_login_required
-        def get_document(file_id: str):
+        def get_or_delete_document(file_id: str):
+            if request.method == "DELETE":
+                success = self.store.delete(file_id)
+                if success:
+                    logger.info(f"Document deleted: {file_id}")
+                    return jsonify({"message": f"Document '{file_id}' deleted successfully"}), 200
+                return jsonify({"error": "Document not found"}), 404
+            
+            # GET method
             record = self.store.load(file_id)
             if not record:
                 return jsonify({"error": "Document not found"}), 404
@@ -932,6 +940,23 @@ class DocReviewRoutes(BaseRoutes):
                 logger.exception("Failed to list templates: %s", exc)
                 return jsonify({"error": f"Failed to list templates: {str(exc)}"}), 500
 
+        @app.route("/api/doc_review/templates/<template_name>/content", methods=["GET"])
+        @_api_key_or_login_required
+        def get_template_content(template_name: str):
+            """Get markdown template content."""
+            try:
+                from external.doc_review.template_processor import load_template
+                content = load_template(template_name)
+                return jsonify({
+                    "template_name": template_name,
+                    "content": content
+                })
+            except FileNotFoundError:
+                return jsonify({"error": f"Template '{template_name}' not found"}), 404
+            except Exception as exc:  # pylint: disable=broad-except
+                logger.exception("Failed to load template content: %s", exc)
+                return jsonify({"error": f"Failed to load template: {str(exc)}"}), 500
+
         @app.route("/api/doc_review/templates/upload", methods=["POST"])
         @_api_key_or_login_required
         def upload_template():
@@ -962,6 +987,26 @@ class DocReviewRoutes(BaseRoutes):
             except Exception as exc:  # pylint: disable=broad-except
                 logger.exception("Template upload failed: %s", exc)
                 return jsonify({"error": f"Template upload failed: {str(exc)}"}), 500
+
+        @app.route("/api/doc_review/templates/<template_name>", methods=["DELETE"])
+        @_api_key_or_login_required
+        def delete_template(template_name: str):
+            """Delete a template file."""
+            try:
+                template_dir = Path("data/templates")
+                template_path = template_dir / f"{template_name}.md"
+                
+                if not template_path.exists():
+                    return jsonify({"error": f"Template '{template_name}' not found"}), 404
+                
+                template_path.unlink()
+                logger.info(f"Template deleted: {template_name}")
+                return jsonify({
+                    "message": f"Template '{template_name}' deleted successfully"
+                }), 200
+            except Exception as exc:  # pylint: disable=broad-except
+                logger.exception("Template delete failed: %s", exc)
+                return jsonify({"error": f"Template delete failed: {str(exc)}"}), 500
 
         @app.route("/api/doc_review/documents/<file_id>/apply_template", methods=["POST"])
         @_api_key_or_login_required
@@ -1016,10 +1061,24 @@ class DocReviewRoutes(BaseRoutes):
                     template_name=template_name
                 )
                 
+                # Generate synthesis summary
+                file_metadata = state.get("file_metadata", {})
+                document_title = file_metadata.get("file_name", file_id)
+                total_pages = len(set(b.get("page", 1) for b in block_metadata))
+                
+                synthesis_summary = processor.generate_synthesis_summary(
+                    template_name=template_name,
+                    document_title=document_title,
+                    total_pages=total_pages,
+                    all_gap_analyses=gap_analysis,
+                    all_suggestions=improvements
+                )
+                
                 # Store results in state
                 state["template_applied"] = template_name
                 state["template_gap_analysis"] = gap_analysis
                 state["template_improvements"] = improvements
+                state["template_synthesis"] = synthesis_summary
                 
                 # Save updated state
                 source_path = record.get("source_path")
@@ -1033,7 +1092,8 @@ class DocReviewRoutes(BaseRoutes):
                     emitter("template_applied", {
                         "template_name": template_name,
                         "gap_count": len(gap_analysis),
-                        "improvement_count": len(improvements)
+                        "improvement_count": len(improvements),
+                        "synthesis": synthesis_summary
                     })
                 
                 return jsonify({
@@ -1041,6 +1101,7 @@ class DocReviewRoutes(BaseRoutes):
                     "template_name": template_name,
                     "gap_analysis": gap_analysis,
                     "improvements": improvements,
+                    "synthesis": synthesis_summary,
                     "document": updated
                 })
                 
@@ -1187,3 +1248,91 @@ class DocReviewRoutes(BaseRoutes):
                 return resp
             except Exception as exc:
                 return jsonify({"error": str(exc)}), 500
+
+        @app.route("/api/doc_review/prompts", methods=["GET"])
+        @_api_key_or_login_required
+        def list_prompts():
+            """List all available prompts."""
+            try:
+                prompts_dir = Path("external/doc_review/prompts")
+                if not prompts_dir.exists():
+                    return jsonify({"prompts": []})
+                
+                prompts = []
+                # Include both .txt and .md files
+                for prompt_file in prompts_dir.glob("*"):
+                    if prompt_file.suffix in [".txt", ".md"]:
+                        prompts.append({
+                            "name": prompt_file.stem,
+                            "filename": prompt_file.name,
+                            "size": prompt_file.stat().st_size
+                        })
+                
+                return jsonify({"prompts": sorted(prompts, key=lambda x: x["name"])})
+            except Exception as exc:
+                logger.exception("Failed to list prompts: %s", exc)
+                return jsonify({"error": f"Failed to list prompts: {str(exc)}"}), 500
+
+        @app.route("/api/doc_review/prompts/<prompt_name>", methods=["GET"])
+        @_api_key_or_login_required
+        def get_prompt(prompt_name: str):
+            """Get prompt content by name."""
+            try:
+                prompts_dir = Path("external/doc_review/prompts")
+                
+                # Try both .txt and .md extensions
+                prompt_path = None
+                for ext in [".txt", ".md"]:
+                    candidate = prompts_dir / f"{prompt_name}{ext}"
+                    if candidate.exists():
+                        prompt_path = candidate
+                        break
+                
+                if not prompt_path:
+                    return jsonify({"error": f"Prompt '{prompt_name}' not found"}), 404
+                
+                content = prompt_path.read_text(encoding="utf-8")
+                return jsonify({
+                    "name": prompt_name,
+                    "content": content
+                })
+            except Exception as exc:
+                logger.exception("Failed to get prompt: %s", exc)
+                return jsonify({"error": f"Failed to get prompt: {str(exc)}"}), 500
+
+        @app.route("/api/doc_review/prompts/<prompt_name>", methods=["PUT"])
+        @_api_key_or_login_required
+        def update_prompt(prompt_name: str):
+            """Update prompt content."""
+            try:
+                data = request.get_json() or {}
+                content = data.get("content")
+                
+                if content is None:
+                    return jsonify({"error": "content is required"}), 400
+                
+                prompts_dir = Path("external/doc_review/prompts")
+                prompts_dir.mkdir(parents=True, exist_ok=True)
+                
+                # Determine existing file extension or default to .md
+                prompt_path = None
+                for ext in [".txt", ".md"]:
+                    candidate = prompts_dir / f"{prompt_name}{ext}"
+                    if candidate.exists():
+                        prompt_path = candidate
+                        break
+                
+                # If file doesn't exist, create as .md
+                if not prompt_path:
+                    prompt_path = prompts_dir / f"{prompt_name}.md"
+                
+                prompt_path.write_text(content, encoding="utf-8")
+                
+                logger.info(f"Prompt updated: {prompt_name}")
+                return jsonify({
+                    "name": prompt_name,
+                    "message": f"Prompt '{prompt_name}' updated successfully"
+                })
+            except Exception as exc:
+                logger.exception("Failed to update prompt: %s", exc)
+                return jsonify({"error": f"Failed to update prompt: {str(exc)}"}), 500

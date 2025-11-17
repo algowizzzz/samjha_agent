@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Search, Upload, FileText, GripVertical } from 'lucide-react';
+import { Search, Upload, FileText, GripVertical, Trash2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { UploadModal } from './UploadModal';
-import { listDocuments, type ApiDocument } from '@/lib/api';
+import { listDocuments, deleteDocument, type ApiDocument } from '@/lib/api';
 
 type ColumnKey = 'name' | 'fileId' | 'source' | 'status' | 'lastUpdated';
 
@@ -20,6 +20,8 @@ const defaultColumns: Column[] = [
   { key: 'lastUpdated', label: 'Last Updated' },
 ];
 
+type ColumnKeyWithActions = ColumnKey | 'actions';
+
 interface DocumentsListProps {
   onOpenDocument: (fileId: string) => void;
 }
@@ -33,6 +35,7 @@ export function DocumentsList({ onOpenDocument }: DocumentsListProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [docs, setDocs] = useState<ApiDocument[]>([]);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   async function refresh() {
     setLoading(true);
@@ -110,7 +113,25 @@ export function DocumentsList({ onOpenDocument }: DocumentsListProps) {
     setDraggedColumn(null);
   };
 
-  const renderCellContent = (doc: Document, columnKey: ColumnKey) => {
+  const handleDelete = async (fileId: string, fileName: string) => {
+    if (!confirm(`Are you sure you want to delete "${fileName}"?\n\nThis action cannot be undone.`)) {
+      return;
+    }
+    
+    setDeletingId(fileId);
+    try {
+      await deleteDocument(fileId);
+      console.log('[DocumentsList] Document deleted:', fileId);
+      await refresh();
+    } catch (e: any) {
+      console.error('[DocumentsList] Delete failed:', e);
+      alert(`Failed to delete document: ${e?.message || 'Unknown error'}`);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const renderCellContent = (doc: Document, columnKey: ColumnKeyWithActions) => {
     switch (columnKey) {
       case 'name':
         // @ts-ignore
@@ -127,6 +148,28 @@ export function DocumentsList({ onOpenDocument }: DocumentsListProps) {
       case 'lastUpdated':
         // @ts-ignore
         return <span className="text-neutral-600">{(doc as any).updated_at || ''}</span>;
+      case 'actions':
+        // @ts-ignore
+        return (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              // @ts-ignore
+              handleDelete((doc as any).file_id, (doc as any)._displayName);
+            }}
+            // @ts-ignore
+            disabled={deletingId === (doc as any).file_id}
+            className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Delete document"
+          >
+            {/* @ts-ignore */}
+            {deletingId === (doc as any).file_id ? (
+              <div className="animate-spin h-4 w-4 border-2 border-neutral-300 border-t-red-600 rounded-full" />
+            ) : (
+              <Trash2 className="w-4 h-4" />
+            )}
+          </button>
+        );
       default:
         return null;
     }
@@ -228,6 +271,7 @@ export function DocumentsList({ onOpenDocument }: DocumentsListProps) {
                   </div>
                 </th>
               ))}
+              <th className="text-left px-6 py-2 text-neutral-700 text-sm">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -242,6 +286,9 @@ export function DocumentsList({ onOpenDocument }: DocumentsListProps) {
                     {renderCellContent(doc, column.key)}
                   </td>
                 ))}
+                <td className="px-6 py-3">
+                  {renderCellContent(doc, 'actions')}
+                </td>
               </tr>
             ))}
           </tbody>

@@ -23,9 +23,10 @@ interface RightPaneProps {
   fileId: string | null;
   selectedBlocks?: BlockMetadata[]; // NEW: Selected blocks from BlockEditor
   onSuggestionsReceived?: (suggestions: Array<{ block_id: string; original: string; suggested: string; reason: string }>) => void; // NEW: Callback when suggestions received
+  synthesisData?: any; // NEW: Template synthesis summary
 }
 
-export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileId, selectedBlocks = [], onSuggestionsReceived }: RightPaneProps) {
+export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileId, selectedBlocks = [], onSuggestionsReceived, synthesisData }: RightPaneProps) {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -49,6 +50,12 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
         const state: any = res.document?.state || {};
         const history: any[] = state.chat_history || [];
         const mappedChat: ChatMessage[] = [];
+        
+        // Check if there's a synthesis summary to inject as first message
+        if (state.template_synthesis) {
+          const synthesisMessage = formatSynthesisMessage(state.template_synthesis);
+          mappedChat.push(synthesisMessage);
+        }
         
         // Map chat history
         history.forEach((h, idx) => {
@@ -82,6 +89,98 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
     load();
     return () => { cancelled = true; };
   }, [fileId]);
+
+  // Auto-inject synthesis as first message when template is applied (for live updates)
+  useEffect(() => {
+    if (synthesisData) {
+      const synthesisMessage = formatSynthesisMessage(synthesisData);
+      setChatMessages(prev => {
+        // Check if synthesis message already exists
+        const hasSynthesis = prev.some(msg => msg.id === 'synthesis');
+        if (hasSynthesis) {
+          // Replace existing synthesis
+          return prev.map(msg => msg.id === 'synthesis' ? synthesisMessage : msg);
+        } else {
+          // Add as first message (only if not already loaded from backend)
+          return [synthesisMessage, ...prev];
+        }
+      });
+    }
+  }, [synthesisData]);
+
+  // Format synthesis data into a nice chat message
+  const formatSynthesisMessage = (synthesis: any): ChatMessage => {
+    // New format: synthesis is now markdown directly
+    if (synthesis?.summary_markdown) {
+      const content = synthesis.summary_markdown;
+      const stats = synthesis.statistics || {};
+      
+      return {
+        id: 'synthesis',
+        role: 'assistant',
+        content: content,
+      };
+    }
+    
+    // Fallback for old format (if any exists)
+    const { overall_assessment, critical_gaps, improvement_areas, strengths, priority_recommendations, statistics } = synthesis || {};
+    
+    if (!overall_assessment) {
+      // Empty or invalid synthesis
+      return {
+        id: 'synthesis',
+        role: 'assistant',
+        content: 'Template analysis completed. Check the suggestions panel for details.',
+      };
+    }
+    
+    let content = `I've analyzed your document against the template.\n\n`;
+    content += `**Overall Assessment: ${overall_assessment.compliance_level} Compliance (${overall_assessment.compliance_percentage}%)**\n\n`;
+    content += `${overall_assessment.summary}\n\n`;
+    
+    if (critical_gaps && critical_gaps.length > 0) {
+      content += `🔴 **Critical Gaps (${critical_gaps.length}):**\n`;
+      critical_gaps.slice(0, 3).forEach((gap: any) => {
+        content += `• **${gap.title}** - ${gap.impact}\n`;
+        if (gap.affected_pages && gap.affected_pages.length > 0) {
+          content += `  Pages: ${gap.affected_pages.join(', ')}\n`;
+        }
+      });
+      content += `\n`;
+    }
+    
+    if (improvement_areas && improvement_areas.length > 0) {
+      content += `🟡 **Improvements Needed (${statistics?.total_issues || improvement_areas.length}):**\n`;
+      improvement_areas.slice(0, 5).forEach((area: any) => {
+        content += `• **${area.title}** (${area.issue_count} issues)\n`;
+      });
+      content += `\n`;
+    }
+    
+    if (strengths && strengths.length > 0) {
+      content += `✅ **Strengths:**\n`;
+      strengths.forEach((strength: string) => {
+        content += `• ${strength}\n`;
+      });
+      content += `\n`;
+    }
+    
+    if (priority_recommendations && priority_recommendations.length > 0) {
+      content += `**Priority Recommendations:**\n`;
+      priority_recommendations.forEach((rec: string, idx: number) => {
+        content += `${idx + 1}. ${rec}\n`;
+      });
+      content += `\n`;
+    }
+    
+    content += `I've highlighted ${statistics?.total_issues || 0} specific suggestions in the document. What would you like to address first?`;
+    
+    return {
+      id: 'synthesis',
+      role: 'assistant',
+      content,
+    };
+  };
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || !fileId) return;

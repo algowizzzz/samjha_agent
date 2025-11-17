@@ -39,7 +39,10 @@ export type ApiTemplate = {
   location: string;
 };
 
-const API_BASE = '/api';
+// Use port 8000 as Flask server runs on 8000 (port 5000 is used by macOS ControlCenter)
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:8000/api'
+  : '/api';
 const DEV_API_KEY = 'docreview_dev_key_12345';
 
 function buildHeaders(isJson: boolean = true): HeadersInit {
@@ -105,6 +108,14 @@ export async function listDocuments(): Promise<{ documents: ApiDocument[] }> {
 
 export async function getDocument(fileId: string): Promise<{ document: ApiDocument }> {
   const res = await fetchWithDebug(`${API_BASE}/doc_review/documents/${encodeURIComponent(fileId)}`, {
+    headers: buildHeaders(),
+  });
+  return handleResponse(res);
+}
+
+export async function deleteDocument(fileId: string): Promise<{ message: string }> {
+  const res = await fetchWithDebug(`${API_BASE}/doc_review/documents/${encodeURIComponent(fileId)}`, {
+    method: 'DELETE',
     headers: buildHeaders(),
   });
   return handleResponse(res);
@@ -296,6 +307,14 @@ export async function uploadTemplate(file: File): Promise<{ template_name: strin
   return handleResponse(res);
 }
 
+export async function deleteTemplate(templateName: string): Promise<{ message: string }> {
+  const res = await fetchWithDebug(`${API_BASE}/doc_review/templates/${encodeURIComponent(templateName)}`, {
+    method: 'DELETE',
+    headers: buildHeaders(),
+  });
+  return handleResponse(res);
+}
+
 export type TemplateGapAnalysis = {
   block_id: string;
   gaps: string[];
@@ -313,6 +332,36 @@ export type TemplateImprovement = {
   confidence: 'high' | 'medium' | 'low';
 };
 
+export interface TemplateSynthesis {
+  overall_assessment: {
+    compliance_level: 'full' | 'partial' | 'minimal' | 'none' | 'unknown';
+    compliance_percentage: number;
+    summary: string;
+  };
+  critical_gaps: Array<{
+    title: string;
+    impact: string;
+    affected_pages: number[];
+    count: number;
+  }>;
+  improvement_areas: Array<{
+    category: string;
+    title: string;
+    issue_count: number;
+    pages_affected: number[];
+  }>;
+  strengths: string[];
+  priority_recommendations: string[];
+  statistics: {
+    total_issues: number;
+    high_severity: number;
+    medium_severity: number;
+    low_severity: number;
+    sections_analyzed: number;
+    sections_missing: number;
+  };
+}
+
 export async function applyTemplate(
   fileId: string,
   templateName: string
@@ -321,6 +370,7 @@ export async function applyTemplate(
   template_name: string;
   gap_analysis: TemplateGapAnalysis[];
   improvements: TemplateImprovement[];
+  synthesis?: TemplateSynthesis;
   document: ApiDocument;
 }> {
   const res = await fetchWithDebug(`${API_BASE}/doc_review/documents/${encodeURIComponent(fileId)}/apply_template`, {
@@ -329,6 +379,54 @@ export async function applyTemplate(
     body: JSON.stringify({
       template_name: templateName,
     }),
+  });
+  return handleResponse(res);
+}
+
+// ========================
+// Prompts API
+// ========================
+
+export interface ApiPrompt {
+  name: string;
+  filename: string;
+  size: number;
+}
+
+export interface ApiPromptContent {
+  name: string;
+  content: string;
+}
+
+export async function listPrompts(): Promise<{ prompts: ApiPrompt[] }> {
+  const res = await fetchWithDebug(`${API_BASE}/doc_review/prompts`, {
+    method: 'GET',
+    headers: buildHeaders(false),
+  });
+  return handleResponse(res);
+}
+
+export async function getPrompt(name: string): Promise<ApiPromptContent> {
+  const res = await fetchWithDebug(`${API_BASE}/doc_review/prompts/${encodeURIComponent(name)}`, {
+    method: 'GET',
+    headers: buildHeaders(false),
+  });
+  return handleResponse(res);
+}
+
+export async function updatePrompt(name: string, content: string): Promise<{ name: string; message: string }> {
+  const res = await fetchWithDebug(`${API_BASE}/doc_review/prompts/${encodeURIComponent(name)}`, {
+    method: 'PUT',
+    headers: buildHeaders(true),
+    body: JSON.stringify({ content }),
+  });
+  return handleResponse(res);
+}
+
+export async function getTemplateContent(templateName: string): Promise<{ template_name: string; content: string }> {
+  const res = await fetchWithDebug(`${API_BASE}/doc_review/templates/${encodeURIComponent(templateName)}/content`, {
+    method: 'GET',
+    headers: buildHeaders(false),
   });
   return handleResponse(res);
 }
