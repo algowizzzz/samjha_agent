@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Send, Sparkles, X } from 'lucide-react';
+import { Send, Sparkles, X, Copy, Check, RotateCcw, FileDown, Search, Moon, Sun, ChevronDown, ChevronUp } from 'lucide-react';
 import { getDocument, askRiskGPT, type BlockMetadata } from '@/lib/api';
 
 interface ChatMessage {
@@ -14,6 +14,8 @@ interface ChatMessage {
     reason: string;
   }>;
   selectedBlocks?: BlockMetadata[];
+  timestamp?: Date;
+  isCollapsed?: boolean;
 }
 
 interface RightPaneProps {
@@ -33,11 +35,156 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  // NEW: Feature states
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
+  const [collapsedMessages, setCollapsedMessages] = useState<Set<string>>(new Set());
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
+
+  // NEW: Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
+    }
+  }, [inputMessage]);
+
+  // NEW: Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd/Ctrl + K to focus input
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        textareaRef.current?.focus();
+      }
+      // Cmd/Ctrl + / to toggle search
+      if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+        e.preventDefault();
+        setShowSearch(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // NEW: Copy message to clipboard
+  const copyMessage = async (message: ChatMessage) => {
+    try {
+      await navigator.clipboard.writeText(message.content);
+      setCopiedMessageId(message.id);
+      setTimeout(() => setCopiedMessageId(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy message:', err);
+    }
+  };
+
+  // NEW: Export conversation
+  const exportConversation = () => {
+    const markdown = chatMessages
+      .map(msg => {
+        const timestamp = msg.timestamp ? new Date(msg.timestamp).toLocaleString() : '';
+        const role = msg.role === 'user' ? 'You' : 'RiskGPT';
+        return `## ${role} ${timestamp ? `(${timestamp})` : ''}\n\n${msg.content}\n`;
+      })
+      .join('\n---\n\n');
+    
+    const blob = new Blob([markdown], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `riskgpt-conversation-${Date.now()}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // NEW: Toggle message collapse
+  const toggleMessageCollapse = (messageId: string) => {
+    setCollapsedMessages(prev => {
+      const next = new Set(prev);
+      if (next.has(messageId)) {
+        next.delete(messageId);
+      } else {
+        next.add(messageId);
+      }
+      return next;
+    });
+  };
+
+  // NEW: Regenerate response
+  const regenerateResponse = async (messageId: string) => {
+    const messageIndex = chatMessages.findIndex(msg => msg.id === messageId);
+    if (messageIndex === -1) return;
+    
+    // Find the previous user message
+    let userMessageIndex = messageIndex - 1;
+    while (userMessageIndex >= 0 && chatMessages[userMessageIndex].role !== 'user') {
+      userMessageIndex--;
+    }
+    
+    if (userMessageIndex < 0) return;
+    
+    const userMessage = chatMessages[userMessageIndex];
+    setIsLoading(true);
+    
+    try {
+      const conversationHistory = chatMessages
+        .slice(0, userMessageIndex)
+        .slice(-10)
+        .map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
+      
+      const selectedBlockIds = userMessage.selectedBlocks?.map(b => b.id) || [];
+      const response = await askRiskGPT(
+        fileId!, 
+        selectedBlockIds,
+        userMessage.content,
+        conversationHistory
+      );
+      
+      const newMessage: ChatMessage = {
+        id: `a${Date.now()}`,
+        role: 'assistant',
+        content: response.analysis || 'Here are my suggestions:',
+        analysis: response.analysis,
+        suggestions: response.suggestions,
+        timestamp: new Date(),
+      };
+
+      // Replace the old response with the new one
+      setChatMessages(prev => [
+        ...prev.slice(0, messageIndex),
+        newMessage,
+        ...prev.slice(messageIndex + 1)
+      ]);
+      
+      if (onSuggestionsReceived && response.suggestions && response.suggestions.length > 0) {
+        onSuggestionsReceived(response.suggestions);
+      }
+    } catch (error) {
+      console.error('[RightPane] Error regenerating response:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // NEW: Apply all suggestions from a message
+  const applyAllSuggestions = (message: ChatMessage) => {
+    if (message.suggestions && onSuggestionsReceived) {
+      onSuggestionsReceived(message.suggestions);
+    }
+  };
 
   // Load chat history from backend
   useEffect(() => {
@@ -193,6 +340,7 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
       role: 'user',
       content: inputMessage,
       selectedBlocks: selectedBlocks.length > 0 ? selectedBlocks : undefined,
+      timestamp: new Date(), // NEW: Add timestamp
     };
 
     setChatMessages(prev => [...prev, userMessage]);
@@ -222,6 +370,7 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
         content: response.analysis || 'Here are my suggestions:',
         analysis: response.analysis,
         suggestions: response.suggestions,
+        timestamp: new Date(), // NEW: Add timestamp
       };
 
       setChatMessages(prev => [...prev, assistantMessage]);
@@ -243,66 +392,163 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
     }
   };
 
+  // Filter messages by search query
+  const filteredMessages = searchQuery
+    ? chatMessages.filter(msg => 
+        msg.content.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : chatMessages;
+
   return (
-    <div className="flex flex-col h-full bg-white">
-      {/* Chat Header */}
-      <div className="border-b border-neutral-200 px-4 py-3 bg-neutral-50">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-blue-600" />
-          <h2 className="text-sm font-semibold text-neutral-900">RiskGPT</h2>
+    <div className={`flex flex-col h-full ${isDarkMode ? 'bg-neutral-900' : 'bg-white'}`}>
+      {/* Chat Header with actions */}
+      <div className={`border-b ${isDarkMode ? 'border-neutral-700 bg-neutral-800' : 'border-neutral-200 bg-neutral-50'} px-4 py-3`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className={`w-5 h-5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+            <h2 className={`text-sm font-semibold ${isDarkMode ? 'text-neutral-100' : 'text-neutral-900'}`}>RiskGPT</h2>
+            {chatMessages.length > 0 && (
+              <span className={`text-xs ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>
+                ({chatMessages.length} messages)
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-1">
+            {/* Search button */}
+            <button
+              onClick={() => setShowSearch(!showSearch)}
+              className={`p-1.5 rounded ${isDarkMode ? 'hover:bg-neutral-700' : 'hover:bg-neutral-200'} transition-colors`}
+              title="Search messages (Cmd+/)"
+            >
+              <Search className={`w-4 h-4 ${isDarkMode ? 'text-neutral-300' : 'text-neutral-600'}`} />
+            </button>
+            {/* Export button */}
+            <button
+              onClick={exportConversation}
+              disabled={chatMessages.length === 0}
+              className={`p-1.5 rounded ${isDarkMode ? 'hover:bg-neutral-700 disabled:opacity-30' : 'hover:bg-neutral-200 disabled:opacity-30'} transition-colors disabled:cursor-not-allowed`}
+              title="Export conversation"
+            >
+              <FileDown className={`w-4 h-4 ${isDarkMode ? 'text-neutral-300' : 'text-neutral-600'}`} />
+            </button>
+            {/* Dark mode toggle */}
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className={`p-1.5 rounded ${isDarkMode ? 'hover:bg-neutral-700' : 'hover:bg-neutral-200'} transition-colors`}
+              title="Toggle dark mode"
+            >
+              {isDarkMode ? (
+                <Sun className="w-4 h-4 text-neutral-300" />
+              ) : (
+                <Moon className="w-4 h-4 text-neutral-600" />
+              )}
+            </button>
+          </div>
         </div>
+        
+        {/* Search bar */}
+        {showSearch && (
+          <div className="mt-2">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search messages..."
+              className={`w-full px-3 py-1.5 text-sm rounded border ${
+                isDarkMode 
+                  ? 'bg-neutral-700 border-neutral-600 text-neutral-100 placeholder-neutral-400' 
+                  : 'bg-white border-neutral-300 text-neutral-900 placeholder-neutral-500'
+              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              autoFocus
+            />
+          </div>
+        )}
       </div>
 
       {/* Messages Area - Full Height */}
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
-        {chatMessages.length === 0 && (
+        {filteredMessages.length === 0 && chatMessages.length === 0 && (
           <div className="flex items-center justify-center h-full text-center">
-            <div className="text-neutral-500">
-              <Sparkles className="w-12 h-12 mx-auto mb-3 text-neutral-300" />
-              <p className="text-sm">Select blocks and ask RiskGPT to improve them</p>
+            <div className={isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}>
+              <Sparkles className={`w-12 h-12 mx-auto mb-3 ${isDarkMode ? 'text-neutral-600' : 'text-neutral-300'}`} />
+              <p className="text-sm font-medium mb-2">Welcome to RiskGPT</p>
+              <p className="text-xs max-w-xs mx-auto">Select blocks and ask me to improve them, or ask general questions about your document</p>
+              <div className="mt-4 text-xs space-y-1">
+                <p className={isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}>💡 Try: "Improve the clarity of this section"</p>
+                <p className={isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}>💡 Try: "Check for compliance issues"</p>
+              </div>
             </div>
           </div>
         )}
         
-        {chatMessages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
+        {filteredMessages.length === 0 && chatMessages.length > 0 && (
+          <div className="flex items-center justify-center h-full text-center">
+            <div className={isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}>
+              <Search className={`w-12 h-12 mx-auto mb-3 ${isDarkMode ? 'text-neutral-600' : 'text-neutral-300'}`} />
+              <p className="text-sm">No messages match your search</p>
+            </div>
+          </div>
+        )}
+        
+        {filteredMessages.map((message) => {
+          const isCollapsed = collapsedMessages.has(message.id);
+          const shouldShowCollapse = message.content.length > 500;
+          const displayContent = isCollapsed && shouldShowCollapse 
+            ? message.content.substring(0, 500) + '...' 
+            : message.content;
+          
+          return (
+            <div
+              key={message.id}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} group`}
+            >
             <div className={`max-w-[85%] flex flex-col gap-2`}>
+              {/* Timestamp (hover to show) */}
+              {message.timestamp && (
+                <div className={`text-xs ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'} ${message.role === 'user' ? 'text-right' : 'text-left'} opacity-0 group-hover:opacity-100 transition-opacity`}>
+                  {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              )}
+              
               {/* Selected Blocks Attachment */}
               {message.selectedBlocks && message.selectedBlocks.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-2">
+                <div className="flex flex-wrap gap-2 mb-1">
                   {message.selectedBlocks.map((block) => (
                     <div
                       key={block.id}
-                      className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs flex items-center gap-1"
+                      className={`px-2 py-1 rounded text-xs flex items-center gap-1 ${
+                        isDarkMode 
+                          ? 'bg-blue-900 text-blue-200 border border-blue-700' 
+                          : 'bg-blue-100 text-blue-800 border border-blue-200'
+                      }`}
+                      title={block.content.substring(0, 100)}
                     >
-                      <span>Block {block.block_num}</span>
-                      <button
-                        onClick={() => {/* TODO: Scroll to block */}}
-                        className="hover:text-blue-600"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
+                      <span className="font-medium">Block {block.block_num}</span>
+                      <span className={isDarkMode ? 'text-blue-400' : 'text-blue-600'}>·</span>
+                      <span className="max-w-[100px] truncate">{block.content}</span>
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* Message Bubble */}
-              <div
-                className={`px-4 py-3 rounded-2xl text-sm ${
-                  message.role === 'user'
-                    ? 'bg-blue-600 text-white rounded-br-sm'
-                    : 'bg-neutral-100 text-neutral-900 rounded-bl-sm'
-                }`}
-              >
+              {/* Message Bubble with header actions */}
+              <div className="relative">
+                <div
+                  className={`px-4 py-3 rounded-2xl text-sm ${
+                    message.role === 'user'
+                      ? isDarkMode 
+                        ? 'bg-blue-700 text-white rounded-br-sm' 
+                        : 'bg-blue-600 text-white rounded-br-sm'
+                      : isDarkMode 
+                        ? 'bg-neutral-800 text-neutral-100 rounded-bl-sm border border-neutral-700' 
+                        : 'bg-neutral-100 text-neutral-900 rounded-bl-sm'
+                  }`}
+                >
                 {message.role === 'assistant' ? (
                   <div 
-                    className="prose prose-sm max-w-none prose-headings:mt-3 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-li:my-0"
+                    className={`prose prose-sm max-w-none prose-headings:mt-3 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-li:my-0 ${isDarkMode ? 'prose-invert' : ''}`}
                     dangerouslySetInnerHTML={{ 
-                      __html: message.content
+                      __html: displayContent
                         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
                         .replace(/\*(.+?)\*/g, '<em>$1</em>')
                         .replace(/^### (.+)$/gm, '<h3 class="font-semibold text-base">$1</h3>')
@@ -316,44 +562,100 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
                     }}
                   />
                 ) : (
-                  <p className="whitespace-pre-wrap">{message.content}</p>
+                  <p className="whitespace-pre-wrap">{displayContent}</p>
+                )}
+                
+                {/* Collapse toggle for long messages */}
+                {shouldShowCollapse && (
+                  <button
+                    onClick={() => toggleMessageCollapse(message.id)}
+                    className={`mt-2 text-xs flex items-center gap-1 ${
+                      message.role === 'user'
+                        ? 'text-blue-100 hover:text-white'
+                        : isDarkMode
+                          ? 'text-blue-400 hover:text-blue-300'
+                          : 'text-blue-600 hover:text-blue-800'
+                    }`}
+                  >
+                    {isCollapsed ? (
+                      <>
+                        <ChevronDown className="w-3 h-3" />
+                        Show more
+                      </>
+                    ) : (
+                      <>
+                        <ChevronUp className="w-3 h-3" />
+                        Show less
+                      </>
+                    )}
+                  </button>
                 )}
               </div>
-
-              {/* Analysis Section (only show if there are suggestions too) */}
-              {message.analysis && message.suggestions && message.suggestions.length > 0 && (
-                <div className="px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg text-sm">
-                  <p className="font-semibold text-blue-900 mb-2">Analysis:</p>
-                  <p className="text-blue-800 whitespace-pre-wrap">{message.analysis}</p>
-                </div>
-              )}
-
-              {/* Suggestions Section (if present) */}
-              {message.suggestions && message.suggestions.length > 0 && (
-                <div className="px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-lg text-sm">
-                  <p className="font-semibold text-neutral-900 mb-3">Suggested Changes:</p>
-                  <div className="space-y-3">
-                    {message.suggestions.map((sug, idx) => (
-                      <div key={idx} className="border-l-4 border-blue-500 pl-3">
-                        <p className="text-xs text-neutral-600 mb-1">{sug.reason}</p>
-                        <p className="text-xs text-neutral-500 line-through mb-1">{sug.original}</p>
-                        <p className="text-xs text-neutral-900 font-medium">{sug.suggested}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              
+              {/* Action buttons (hover to show) */}
+              <div className={`flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                {/* Copy button */}
+                <button
+                  onClick={() => copyMessage(message)}
+                  className={`p-1.5 rounded text-xs flex items-center gap-1 ${
+                    isDarkMode 
+                      ? 'hover:bg-neutral-700 text-neutral-400 hover:text-neutral-200' 
+                      : 'hover:bg-neutral-200 text-neutral-600 hover:text-neutral-900'
+                  }`}
+                  title="Copy message"
+                >
+                  {copiedMessageId === message.id ? (
+                    <><Check className="w-3 h-3" /> Copied</>
+                  ) : (
+                    <><Copy className="w-3 h-3" /> Copy</>
+                  )}
+                </button>
+                
+                {/* Regenerate button (assistant messages only) */}
+                {message.role === 'assistant' && (
+                  <button
+                    onClick={() => regenerateResponse(message.id)}
+                    disabled={isLoading}
+                    className={`p-1.5 rounded text-xs flex items-center gap-1 ${
+                      isDarkMode 
+                        ? 'hover:bg-neutral-700 text-neutral-400 hover:text-neutral-200 disabled:opacity-30' 
+                        : 'hover:bg-neutral-200 text-neutral-600 hover:text-neutral-900 disabled:opacity-30'
+                    } disabled:cursor-not-allowed`}
+                    title="Regenerate response"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    Regenerate
+                  </button>
+                )}
+                
+                {/* Apply all button (if there are suggestions) */}
+                {message.role === 'assistant' && message.suggestions && message.suggestions.length > 0 && (
+                  <button
+                    onClick={() => applyAllSuggestions(message)}
+                    className={`p-1.5 rounded text-xs flex items-center gap-1 font-medium ${
+                      isDarkMode 
+                        ? 'bg-green-900 text-green-200 hover:bg-green-800 border border-green-700' 
+                        : 'bg-green-100 text-green-800 hover:bg-green-200 border border-green-300'
+                    }`}
+                    title="Apply all suggestions"
+                  >
+                    <Check className="w-3 h-3" />
+                    Apply All ({message.suggestions.length})
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        ))}
+        );
+        })}
         
         {isLoading && (
           <div className="flex justify-start">
-            <div className="px-4 py-3 bg-neutral-100 rounded-2xl rounded-bl-sm">
+            <div className={`px-4 py-3 rounded-2xl rounded-bl-sm ${isDarkMode ? 'bg-neutral-800' : 'bg-neutral-100'}`}>
               <div className="flex gap-1">
-                <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                <div className={`w-2 h-2 rounded-full animate-bounce ${isDarkMode ? 'bg-neutral-500' : 'bg-neutral-400'}`} style={{ animationDelay: '0ms' }}></div>
+                <div className={`w-2 h-2 rounded-full animate-bounce ${isDarkMode ? 'bg-neutral-500' : 'bg-neutral-400'}`} style={{ animationDelay: '150ms' }}></div>
+                <div className={`w-2 h-2 rounded-full animate-bounce ${isDarkMode ? 'bg-neutral-500' : 'bg-neutral-400'}`} style={{ animationDelay: '300ms' }}></div>
               </div>
             </div>
           </div>
@@ -363,23 +665,47 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
       </div>
 
       {/* Input Area - Fixed at Bottom */}
-      <div className="border-t border-neutral-200 p-4 bg-white">
+      <div className={`border-t ${isDarkMode ? 'border-neutral-700 bg-neutral-800' : 'border-neutral-200 bg-white'} p-4`}>
+        {/* Smart prompt suggestions */}
+        {!inputMessage && selectedBlocks.length > 0 && chatMessages.length === 0 && (
+          <div className="mb-3 flex flex-wrap gap-2">
+            <span className={`text-xs ${isDarkMode ? 'text-neutral-400' : 'text-neutral-600'}`}>Quick prompts:</span>
+            {['Improve clarity', 'Check compliance', 'Simplify language', 'Add examples'].map((prompt) => (
+              <button
+                key={prompt}
+                onClick={() => setInputMessage(prompt)}
+                className={`px-2 py-1 text-xs rounded border ${
+                  isDarkMode 
+                    ? 'border-neutral-600 text-neutral-300 hover:bg-neutral-700' 
+                    : 'border-neutral-300 text-neutral-700 hover:bg-neutral-100'
+                } transition-colors`}
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
+        )}
+        
         {/* Selected Blocks Display */}
         {selectedBlocks.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-2 items-center">
-            <span className="text-xs text-neutral-600">Selected ({selectedBlocks.length}):</span>
+            <span className={`text-xs ${isDarkMode ? 'text-neutral-400' : 'text-neutral-600'}`}>Selected ({selectedBlocks.length}):</span>
             {selectedBlocks.map((block) => (
               <div
                 key={block.id}
-                className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs flex items-center gap-1.5 hover:bg-blue-200 transition-colors"
+                className={`px-2 py-1 rounded text-xs flex items-center gap-1.5 transition-colors ${
+                  isDarkMode 
+                    ? 'bg-blue-900 text-blue-200 hover:bg-blue-800 border border-blue-700' 
+                    : 'bg-blue-100 text-blue-800 hover:bg-blue-200 border border-blue-200'
+                }`}
               >
                 <span className="font-medium">Block {block.block_num}</span>
-                <span className="text-blue-600">·</span>
+                <span className={isDarkMode ? 'text-blue-400' : 'text-blue-600'}>·</span>
                 <span className="max-w-[120px] truncate">{block.content}</span>
                 {onDeselectBlock && (
                   <button
                     onClick={() => onDeselectBlock(block.id)}
-                    className="hover:bg-blue-300 rounded p-0.5 transition-colors"
+                    className={`rounded p-0.5 transition-colors ${isDarkMode ? 'hover:bg-blue-700' : 'hover:bg-blue-300'}`}
                     title="Remove block"
                   >
                     <X className="w-3 h-3" />
@@ -390,7 +716,11 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
             {selectedBlocks.length > 1 && onClearAllBlocks && (
               <button
                 onClick={onClearAllBlocks}
-                className="px-2 py-1 text-xs text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded transition-colors"
+                className={`px-2 py-1 text-xs rounded transition-colors ${
+                  isDarkMode 
+                    ? 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700' 
+                    : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
+                }`}
                 title="Clear all selections"
               >
                 Clear all
@@ -399,25 +729,36 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
           </div>
         )}
         
-        <div className="flex gap-2">
-          <input
-            type="text"
+        <div className="flex gap-2 items-end">
+          <textarea
+            ref={textareaRef}
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
+              if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                 e.preventDefault();
                 handleSendMessage();
               }
             }}
-            placeholder={selectedBlocks.length > 0 ? "Ask RiskGPT to improve selected blocks..." : "Ask RiskGPT about the document..."}
+            placeholder={selectedBlocks.length > 0 ? "Ask RiskGPT to improve selected blocks... (Cmd+Enter to send)" : "Ask RiskGPT about the document... (Cmd+Enter to send)"}
             disabled={isLoading}
-            className="flex-1 px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm disabled:bg-neutral-100 disabled:cursor-not-allowed"
+            rows={1}
+            className={`flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm resize-none ${
+              isDarkMode 
+                ? 'bg-neutral-700 border-neutral-600 text-neutral-100 placeholder-neutral-400 disabled:bg-neutral-800 disabled:text-neutral-500' 
+                : 'bg-white border-neutral-300 text-neutral-900 placeholder-neutral-500 disabled:bg-neutral-100'
+            } disabled:cursor-not-allowed`}
+            style={{ maxHeight: '200px' }}
           />
           <button
             onClick={handleSendMessage}
             disabled={!inputMessage.trim() || isLoading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-neutral-300 disabled:cursor-not-allowed flex items-center justify-center"
+            className={`px-4 py-2 rounded-lg flex items-center justify-center transition-colors ${
+              isDarkMode 
+                ? 'bg-blue-700 text-white hover:bg-blue-600 disabled:bg-neutral-700 disabled:text-neutral-500' 
+                : 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-neutral-300 disabled:text-neutral-500'
+            } disabled:cursor-not-allowed`}
+            title="Send message (Cmd+Enter)"
           >
             {isLoading ? (
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -425,6 +766,14 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
               <Send className="w-4 h-4" />
             )}
           </button>
+        </div>
+        
+        {/* Keyboard shortcuts hint */}
+        <div className={`mt-2 text-xs ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'} flex justify-between`}>
+          <span>Cmd+K to focus • Cmd+Enter to send • Cmd+/ to search</span>
+          {chatMessages.length > 0 && (
+            <span>{chatMessages.length} message{chatMessages.length !== 1 ? 's' : ''}</span>
+          )}
         </div>
       </div>
     </div>
