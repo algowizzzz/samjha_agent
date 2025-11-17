@@ -1,1 +1,0 @@
-"""Sample codebase for testing."""

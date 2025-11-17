@@ -1,9 +1,0 @@
-IDE E2E Checklist:
-1) Start OpenVSCode Server on http://localhost:3000
-2) Open /doc-review/ide and load the IDE
-3) Install extension (load unpacked or VSIX)
-4) Run 'Doc Review: Select Document' and pick a file_id
-5) Verify Explorer lists /phase1, /phase2, /changes
-6) Open a markdown file and verify content
-7) Run 'Doc Review: Open Agent Console' and send 'Run Phase 2'
-8) See plan summary and status in chat; verify artifacts update
