@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}VS Code Web Shell{% endblock %}
+
+{% block extra_css %}
+<style>
+.ide-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.ide-status {
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f8fafc;
+}
+.ide-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.ide-frame {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    min-height: 720px;
+}
+.ide-frame iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 8px;
+}
+.code-block {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    background: #0f172a;
+    color: #f8fafc;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-1">Document Review IDE</h1>
+    <p class="text-muted mb-4">Launch the embedded VS Code Web workspace to inspect artifacts, edit markdown, and interact with the agent.</p>
+
+    <div class="ide-wrapper">
+        <section class="ide-status">
+            {% if vscode_ready %}
+                <p class="mb-2">
+                    <span class="badge bg-success me-2">Ready</span>
+                    VS Code Web assets found at <code>web/static/vscode-web</code>.
+                </p>
+                <div class="ide-actions">
+                    <a class="btn btn-primary" href="{{ url_for('doc_review_vscode_launch') }}" target="_blank">
+                        <i class="bi bi-window me-1"></i> Open IDE in new tab
+                    </a>
+                    <a class="btn btn-outline-secondary" href="{{ url_for('doc_review_vscode_launch') }}">
+                        <i class="bi bi-box-arrow-up-right me-1"></i> Load inline
+                    </a>
+                </div>
+            {% else %}
+                <p class="mb-2">
+                    <span class="badge bg-warning text-dark me-2">Setup required</span>
+                    VS Code Web bundle not detected. Run the setup script below and refresh.
+                </p>
+                {% if error %}
+                    <div class="alert alert-danger py-2 px-3 mb-3">{{ error }}</div>
+                {% endif %}
+                <div>
+                    <p class="mb-2">From the repository root:</p>
+                    <pre class="code-block">chmod +x scripts/setup_vscode_web.sh
+./scripts/setup_vscode_web.sh</pre>
+                    <p class="text-muted mb-0">The script downloads the latest VS Code Web bundle into <code>web/static/vscode-web</code>. Restart the Flask server afterwards.</p>
+                </div>
+            {% endif %}
+        </section>
+
+        {% if vscode_ready %}
+        <section class="ide-frame">
+            <iframe src="{{ url_for('doc_review_vscode_launch') }}"></iframe>
+        </section>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,19 @@
+{
+  "codebase": {
+    "file_extensions": [".py"],
+    "exclude_patterns": ["__pycache__", "*.pyc", ".git", ".venv", "venv", ".env"]
+  },
+  "llm": {
+    "model": "claude-3-opus-20240229",
+    "temperature": 0.2
+  },
+  "template": {
+    "template_id": "bmo_model_documentation",
+    "default_path": "config/doc_review/outline_templates/"
+  },
+  "output": {
+    "base_dir": "external/data/model_doc/output",
+    "create_timestamped_dir": true
+  }
+}
+

@@ -1,0 +1,10 @@
+{
+  "name": "chunk_markdown",
+  "description": "Doc review tool: Chunk Markdown",
+  "enabled": true,
+  "version": "1.0.0",
+  "metadata": {
+    "category": "doc_review"
+  },
+  "implementation": "external.tools.doc_processing.chunk_markdown.ChunkMarkdownTool"
+}

@@ -1,0 +1,49 @@
+{
+  "total_tests": 6,
+  "passed": 6,
+  "failed": 0,
+  "results": [
+    {
+      "tool": "detect_file_type",
+      "passed": true,
+      "reasons": [
+        "✓ All checks passed"
+      ]
+    },
+    {
+      "tool": "convert_to_markdown",
+      "passed": true,
+      "reasons": [
+        "✓ All checks passed"
+      ]
+    },
+    {
+      "tool": "extract_images",
+      "passed": true,
+      "reasons": [
+        "✓ All checks passed"
+      ]
+    },
+    {
+      "tool": "compute_file_stats",
+      "passed": true,
+      "reasons": [
+        "✓ All checks passed"
+      ]
+    },
+    {
+      "tool": "analyze_heading_structure",
+      "passed": true,
+      "reasons": [
+        "✓ All checks passed"
+      ]
+    },
+    {
+      "tool": "build_file_metadata",
+      "passed": true,
+      "reasons": [
+        "✓ All checks passed"
+      ]
+    }
+  ]
+}

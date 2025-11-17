@@ -1,0 +1,10 @@
+{
+  "name": "annotate_markdown_for_ui",
+  "description": "Doc review tool: Annotate Markdown For Ui",
+  "enabled": true,
+  "version": "1.0.0",
+  "metadata": {
+    "category": "doc_review"
+  },
+  "implementation": "external.tools.doc_processing.annotate_markdown_for_ui.AnnotateMarkdownForUITool"
+}

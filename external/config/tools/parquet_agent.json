@@ -7,11 +7,17 @@
   "inputSchema": {
     "type": "object",
     "properties": {
-      "query": { "type": "string", "description": "Natural language request/query" },
-      "session_id": { "type": "string", "description": "Optional session id" }
+      "query": {
+        "type": "string",
+        "description": "Natural language request/query"
+      },
+      "session_id": {
+        "type": "string",
+        "description": "Optional session id"
+      }
     },
-    "required": ["query"]
+    "required": [
+      "query"
+    ]
   }
 }
-
-

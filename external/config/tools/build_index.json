@@ -1,0 +1,10 @@
+{
+  "name": "build_index",
+  "description": "Doc review tool: Build Index",
+  "enabled": true,
+  "version": "1.0.0",
+  "metadata": {
+    "category": "doc_review"
+  },
+  "implementation": "external.tools.doc_processing.build_index.BuildIndexTool"
+}

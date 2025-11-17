@@ -1,0 +1,465 @@
+{
+  "reviews": {
+    "Overview": {
+      "section_title": "Overview",
+      "fit": "partial",
+      "severity": "medium",
+      "issues": [
+        {
+          "id": "SEC-001",
+          "title": "Unclear policy purpose",
+          "severity": "medium",
+          "type": "clarity",
+          "location_instruction": "First sentence",
+          "original_text": "The purpose of this draft policy is to outline how the lending desk handles collateral.",
+          "suggested_text": "The purpose of this policy is to establish a comprehensive framework for the lending desk to accept, value, and manage collateral to mitigate credit risk.",
+          "reason": "The current statement is vague and does not clearly convey the full intent and scope of the policy."
+        },
+        {
+          "id": "SEC-002",
+          "title": "Lack of policy requirements",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Second sentence",
+          "suggested_text": "This policy defines the key requirements for collateral acceptance, including eligible asset types, valuation methodologies, haircut schedules, decision-making authorities, operational procedures, and compliance monitoring mechanisms.",
+          "reason": "The section does not outline the specific policy requirements that will be covered in the document."
+        }
+      ],
+      "improvement_guidance": [
+        "Clearly state the purpose and key objectives of the collateral acceptance policy",
+        "Provide an overview of the major policy requirements and components that will be defined",
+        "Outline the scope of covered products, counterparties, and collateral types",
+        "Briefly mention the roles and responsibilities of key stakeholders",
+        "Indicate that detailed operational procedures and compliance monitoring will be covered in subsequent sections"
+      ]
+    },
+    "Scope": {
+      "section_title": "Scope",
+      "fit": "partial",
+      "severity": "medium",
+      "issues": [
+        {
+          "id": "SEC-001",
+          "title": "Unclear product and counterparty coverage",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Expand the scope to clearly define the covered lending products, counterparty types, and regional applicability.",
+          "suggested_text": "This policy applies to all lending activities in capital markets, including but not limited to secured loans, repurchase agreements, and securities lending transactions. It covers lending to financial institutions, corporate entities, and government agencies located in North America, Europe, and Asia Pacific. Exclusions, if any, must be explicitly stated.",
+          "reason": "The current scope statement is vague and lacks specificity on the covered products, counterparties, and regional applicability."
+        },
+        {
+          "id": "SEC-002",
+          "title": "Incomplete exclusions definition",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Provide a clear list of exclusions from the policy scope.",
+          "suggested_text": "This policy does not apply to retail lending, private wealth management, or any lending activities outside of the capital markets business. Any other exclusions must be approved by the Credit Risk Committee and documented in the policy.",
+          "reason": "The section mentions that exclusions are not clearly defined and require expansion, but does not provide any details on what those exclusions might be."
+        }
+      ],
+      "improvement_guidance": [
+        "Clearly define the specific lending products, counterparty types, and regional coverage within the scope of this policy.",
+        "Provide a comprehensive list of any exclusions from the policy scope, along with the approval process for adding or modifying exclusions.",
+        "Ensure the scope definition is complete, unambiguous, and aligned with the overall purpose and audience of the policy document."
+      ]
+    },
+    "Definitions": {
+      "section_title": "Definitions",
+      "fit": "partial",
+      "severity": "medium",
+      "issues": [
+        {
+          "id": "SEC-001",
+          "title": "Missing glossary alignment",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Add a comprehensive definitions section with all key terms used throughout the policy",
+          "suggested_text": "This policy includes the following defined terms:\n\n1. Collateral: Assets pledged by a borrower to secure a loan or other financial obligation.\n2. Lending Desk: The team responsible for managing the collateral acceptance and monitoring processes.\n3. Haircut: The percentage reduction applied to the market value of collateral to account for potential price volatility and liquidation costs.\n4. Valuation Methodology: The process used to determine the fair market value of accepted collateral.",
+          "reason": "The section indicates that key terms are used but a comprehensive definitions section is missing."
+        }
+      ],
+      "improvement_guidance": [
+        "Add a dedicated 'Definitions' section that aligns with the template expectation",
+        "Include definitions for all critical terms used throughout the policy, such as 'collateral', 'lending desk', 'haircut', and 'valuation methodology'",
+        "Ensure the definitions are clear, concise, and comprehensive to support consistent interpretation of the policy"
+      ]
+    },
+    "Requirements": {
+      "section_title": "Requirements",
+      "fit": "partial",
+      "severity": "medium",
+      "issues": [
+        {
+          "id": "SEC-001",
+          "title": "Unclear valuation methodology and frequency",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Add details on valuation methodology and frequency",
+          "suggested_text": "Valuations of collateral must be performed at least annually, or more frequently if market conditions warrant. The valuation methodology should be based on independent third-party appraisals or other reliable pricing sources, with appropriate haircuts applied based on asset type, liquidity, and volatility."
+        },
+        {
+          "id": "SEC-002",
+          "title": "Lack of defined haircut schedules and exceptions",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Add haircut schedules and exception criteria",
+          "suggested_text": "Haircut schedules must be established for each eligible collateral type, reflecting the risk characteristics of the asset. Haircut levels should be reviewed and updated at least annually. Exceptions to standard haircut levels may be granted on a case-by-case basis, subject to approval by the Credit Committee and documented rationale."
+        },
+        {
+          "id": "SEC-003",
+          "title": "Unclear legal review requirements",
+          "severity": "medium",
+          "type": "clarity",
+          "location_instruction": "Clarify legal review requirements",
+          "original_text": "Legal review happens in most cases, but requirements need clarity.",
+          "suggested_text": "Legal review of collateral documentation is required for all transactions, with the scope and depth of review determined by the complexity of the collateral and transaction. Standard operating procedures must define the criteria for when enhanced legal review is necessary, such as for novel or structured collateral types."
+        },
+        {
+          "id": "SEC-004",
+          "title": "Lack of measurable criteria and traceability",
+          "severity": "high",
+          "type": "missing_content",
+          "location_instruction": "Add measurable criteria and traceability requirements",
+          "suggested_text": "All collateral acceptance decisions must be based on clearly defined, measurable criteria, such as asset type, value, liquidity, and counterparty creditworthiness. The rationale and approvals for each collateral acceptance decision must be documented and traceable for audit and compliance purposes."
+        }
+      ],
+      "improvement_guidance": [
+        "Define the valuation methodology and frequency for all eligible collateral types",
+        "Establish haircut schedules and exception criteria for each collateral type",
+        "Clarify the legal review requirements, including the scope and depth of review",
+        "Implement measurable criteria and traceability for all collateral acceptance decisions",
+        "Reference relevant standard operating procedures to provide additional operational details"
+      ]
+    },
+    "Roles and Responsibilities": {
+      "section_title": "Roles and Responsibilities",
+      "fit": "partial",
+      "severity": "medium",
+      "issues": [
+        {
+          "id": "SEC-001",
+          "title": "Unclear division of authority and escalation rights",
+          "severity": "medium",
+          "type": "structural",
+          "location_instruction": "Expand on the responsibilities and decision-making boundaries for the Lending Desk and Credit and Risk teams.",
+          "original_text": "Needs: clearer division of authority, escalation rights, and decision-making boundaries.",
+          "suggested_text": "The Lending Desk is responsible for onboarding new collateral and managing the day-to-day collateral acceptance process. The Credit and Risk team provides oversight and has final approval authority on all collateral decisions. The policy should clearly define the escalation process and decision-making boundaries between the two teams to ensure appropriate governance and risk management.",
+          "reason": "The section indicates a need for clearer division of authority and escalation rights between the Lending Desk and Credit and Risk teams, but does not provide specifics."
+        }
+      ],
+      "improvement_guidance": [
+        "Clearly define the roles, responsibilities, and decision-making authorities of the Lending Desk and Credit and Risk teams.",
+        "Establish a formal escalation process for collateral decisions, including criteria for when the Credit and Risk team must be involved.",
+        "Specify the types of collateral decisions that require Credit and Risk team approval."
+      ]
+    },
+    "Data Handling and Security": {
+      "section_title": "Data Handling and Security",
+      "fit": "partial",
+      "severity": "medium",
+      "issues": [
+        {
+          "id": "SEC-001",
+          "title": "Unclear scope and coverage",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Section 2",
+          "suggested_text": "Clearly define the scope of this policy, including the specific lending activities, covered products, counterparties, and regional applicability. Explicitly state any exclusions or exceptions to the policy.",
+          "reason": "The section states the policy 'applies broadly to lending activities in capital markets' but lacks specifics on the covered products, counterparties, and regional applicability."
+        },
+        {
+          "id": "SEC-002",
+          "title": "Incomplete policy requirements",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Section 3",
+          "suggested_text": "Expand the policy requirements to include details on the collateral valuation methodology, haircut schedules, legal review process, and any other measurable criteria. Ensure traceability to regulatory and internal governance standards.",
+          "reason": "The policy requirements lack key details on valuation, haircuts, legal review, and measurable criteria."
+        },
+        {
+          "id": "SEC-003",
+          "title": "Unclear roles and responsibilities",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Section 4",
+          "suggested_text": "Clearly define the roles, responsibilities, authority levels, and decision-making boundaries for all key stakeholders involved in the collateral acceptance process, including the lending desk, credit and risk teams, and any other relevant functions.",
+          "reason": "The roles and responsibilities are only partially defined, lacking a clear division of authority, escalation rights, and decision-making boundaries."
+        },
+        {
+          "id": "SEC-004",
+          "title": "Lack of operational structure",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Section 5",
+          "suggested_text": "Provide a comprehensive overview of the standard operating procedures for the collateral acceptance process, including reference to any supporting workflows, controls, and alignment with enterprise-wide policies and procedures.",
+          "reason": "The operational procedures are only briefly mentioned and lack structure, reference to standard operating procedures, and alignment with enterprise controls."
+        },
+        {
+          "id": "SEC-005",
+          "title": "Unclear exceptions and escalations",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Section 6",
+          "suggested_text": "Clearly define the criteria for exceptions, the approval path, and the documentation requirements. Establish a formal escalation process for exceptions that aligns with the roles and responsibilities defined in the policy.",
+          "reason": "The exceptions and escalations process is unclear, lacking defined criteria, approval path, and documentation requirements."
+        },
+        {
+          "id": "SEC-006",
+          "title": "Incomplete compliance, monitoring, and reporting",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Section 7",
+          "suggested_text": "Formalize the compliance monitoring and reporting requirements, including the cadence, evidence standards, and escalation rules. Ensure alignment with regulatory and internal governance expectations.",
+          "reason": "The compliance monitoring and reporting requirements are not clearly defined, lacking details on cadence, evidence standards, and escalation rules."
+        },
+        {
+          "id": "SEC-007",
+          "title": "Missing definitions and interpretations",
+          "severity": "low",
+          "type": "missing_content",
+          "location_instruction": "Section 8",
+          "suggested_text": "Develop a comprehensive glossary of terms and definitions to ensure alignment with enterprise-wide terminology and interpretations.",
+          "reason": "The definitions and interpretations section is incomplete, lacking a full glossary of relevant terms."
+        }
+      ],
+      "improvement_guidance": [
+        "Clearly define the scope of this policy, including the specific lending activities, covered products, counterparties, and regional applicability.",
+        "Expand the policy requirements to include details on the collateral valuation methodology, haircut schedules, legal review process, and any other measurable criteria.",
+        "Clearly define the roles, responsibilities, authority levels, and decision-making boundaries for all key stakeholders involved in the collateral acceptance process.",
+        "Provide a comprehensive overview of the standard operating procedures for the collateral acceptance process, including reference to any supporting workflows, controls, and alignment with enterprise-wide policies and procedures.",
+        "Clearly define the criteria for exceptions, the approval path, and the documentation requirements. Establish a formal escalation process for exceptions that aligns with the roles and responsibilities defined in the policy."
+      ]
+    },
+    "Quality Assurance": {
+      "section_title": "Quality Assurance",
+      "fit": "partial",
+      "severity": "medium",
+      "issues": [
+        {
+          "id": "SEC-001",
+          "title": "Unclear scope",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Section 2",
+          "suggested_text": "Clearly define the scope of this policy, including the specific lending activities, covered products, counterparties, and regional applicability. Explicitly state any exclusions.",
+          "reason": "The section states the policy 'applies broadly to lending activities in capital markets' but lacks specifics on the covered scope."
+        },
+        {
+          "id": "SEC-002",
+          "title": "Incomplete policy requirements",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Section 3",
+          "suggested_text": "Expand the policy requirements section to fully detail the collateral acceptance criteria, including:\n- Valuation methodologies and frequency\n- Haircut schedules and exception criteria\n- Legal review requirements and processes\n- Measurable compliance thresholds and traceability",
+          "reason": "The policy requirements lack key details on valuation, haircuts, legal review, and measurable compliance criteria."
+        },
+        {
+          "id": "SEC-003",
+          "title": "Unclear roles and responsibilities",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Section 4",
+          "suggested_text": "Clearly define the roles, responsibilities, authority levels, and escalation paths for all key stakeholders involved in the collateral acceptance process, including the lending desk, credit and risk teams, and any other relevant functions.",
+          "reason": "The roles and responsibilities section lacks a clear division of authority, escalation rights, and decision-making boundaries between the lending desk and credit/risk teams."
+        },
+        {
+          "id": "SEC-004",
+          "title": "Incomplete operational procedures",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Section 5",
+          "suggested_text": "Provide a comprehensive overview of the standard operating procedures for the collateral acceptance process, including:\n- Detailed workflow steps\n- References to any supporting SOPs or enterprise controls\n- Alignment with the policy requirements defined in Section 3",
+          "reason": "The operational procedures section only briefly mentions a few high-level steps without referencing any standard workflows or alignment with enterprise controls."
+        },
+        {
+          "id": "SEC-005",
+          "title": "Unclear exceptions and escalations",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Section 6",
+          "suggested_text": "Clearly define the criteria, approval path, and documentation requirements for any exceptions to the collateral acceptance policy. Establish formal escalation procedures for handling exceptions and non-compliance.",
+          "reason": "The exceptions and escalations section lacks specifics on the criteria, approval process, and documentation for exceptions."
+        },
+        {
+          "id": "SEC-006",
+          "title": "Incomplete compliance monitoring and reporting",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Section 7",
+          "suggested_text": "Formalize the compliance monitoring and reporting requirements, including:\n- Reporting cadence and distribution\n- Key performance indicators and evidence standards\n- Escalation triggers and paths for non-compliance",
+          "reason": "The compliance monitoring and reporting section lacks details on the reporting cadence, KPIs, evidence standards, and escalation mechanisms."
+        },
+        {
+          "id": "SEC-007",
+          "title": "Missing definitions and appendix",
+          "severity": "low",
+          "type": "missing_content",
+          "location_instruction": "Sections 8 and 9",
+          "suggested_text": "Add a comprehensive definitions section to align key terminology with the organization's glossary. Include any relevant appendix materials referenced in the policy.",
+          "reason": "The definitions and appendix sections are incomplete, which could lead to ambiguity and lack of alignment with other organizational policies."
+        }
+      ],
+      "improvement_guidance": [
+        "Clearly define the scope of this policy, including the specific lending activities, covered products, counterparties, and regional applicability.",
+        "Expand the policy requirements section to fully detail the collateral acceptance criteria, including valuation methodologies, haircut schedules, legal review processes, and measurable compliance thresholds.",
+        "Clearly define the roles, responsibilities, authority levels, and escalation paths for all key stakeholders involved in the collateral acceptance process.",
+        "Provide a comprehensive overview of the standard operating procedures for the collateral acceptance process, including detailed workflow steps and alignment with enterprise controls.",
+        "Establish formal criteria, approval paths, and documentation requirements for any exceptions to the collateral acceptance policy, as well as escalation procedures for handling exceptions and non-compliance."
+      ]
+    },
+    "Monitoring and Reporting": {
+      "section_title": "Monitoring and Reporting",
+      "fit": "partial",
+      "severity": "medium",
+      "issues": [
+        {
+          "id": "SEC-001",
+          "title": "Lack of defined monitoring and reporting processes",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Add a new section detailing the monitoring and reporting requirements",
+          "suggested_text": "The organization shall establish formal monitoring and reporting processes to ensure ongoing compliance with this policy. This shall include:\n\n- Defining the cadence, content, and distribution of compliance reports\n- Specifying the evidence standards and data sources required for reporting\n- Establishing clear escalation rules and responsibilities for policy breaches or control failures\n- Outlining the governance and oversight mechanisms for reviewing monitoring results and driving remediation"
+        },
+        {
+          "id": "SEC-002",
+          "title": "Vague description of current monitoring state",
+          "severity": "low",
+          "type": "clarity",
+          "location_instruction": "Paragraph 1",
+          "original_text": "Monitoring exists informally.",
+          "suggested_text": "Currently, monitoring of collateral acceptance activities is performed on an ad-hoc basis without defined processes or standards.",
+          "reason": "The original text is too vague and does not provide enough context about the current state of monitoring."
+        }
+      ],
+      "improvement_guidance": [
+        "Define the formal monitoring and reporting requirements for this policy, including cadence, content, evidence standards, escalation rules, and governance oversight.",
+        "Provide more detailed and specific language to describe the current state of monitoring activities."
+      ]
+    },
+    "Exceptions and Escalations": {
+      "section_title": "Exceptions and Escalations",
+      "fit": "partial",
+      "severity": "medium",
+      "issues": [
+        {
+          "id": "SEC-001",
+          "title": "Unclear exception criteria and approval path",
+          "severity": "medium",
+          "type": "clarity",
+          "location_instruction": "Expand this section to define the specific criteria for exceptions, the approval process, and documentation requirements.",
+          "original_text": "Exceptions occur but the criteria, approval path, and documentation are unclear.",
+          "suggested_text": "Exceptions to the collateral acceptance policy may be granted on a case-by-case basis. Exceptions must be approved by the Head of Credit and the Chief Risk Officer, and documented in the exception log with the rationale and mitigating factors.",
+          "reason": "The current text does not provide any details on the exception criteria, approval process, or documentation requirements."
+        },
+        {
+          "id": "SEC-002",
+          "title": "Missing escalation procedures",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Add a new subsection to outline the escalation procedures for incidents or issues related to collateral acceptance.",
+          "suggested_text": "Escalation Procedures\nAny incidents or issues related to collateral acceptance, such as valuation disputes, counterparty defaults, or policy violations, must be escalated to the Head of Credit and the Chief Risk Officer. They will determine the appropriate response, which may include adjusting collateral requirements, initiating liquidation, or reporting to senior management and regulators as necessary."
+        }
+      ],
+      "improvement_guidance": [
+        "Define the specific criteria and approval process for exceptions to the collateral acceptance policy.",
+        "Outline the escalation procedures for incidents or issues related to collateral acceptance, including the roles and responsibilities of key stakeholders.",
+        "Ensure that the exceptions and escalations section is comprehensive and aligned with the overall policy objectives and regulatory requirements."
+      ]
+    },
+    "Compliance and Auditing": {
+      "section_title": "Compliance, Monitoring & Reporting",
+      "fit": "partial",
+      "severity": "medium",
+      "issues": [
+        {
+          "id": "SEC-001",
+          "title": "Unclear monitoring and reporting details",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Expand on the monitoring and reporting requirements",
+          "suggested_text": "The policy must define the formal monitoring and reporting processes for compliance with this collateral acceptance policy. This should include:\n- Specific monitoring activities and frequency (e.g. daily valuation checks, quarterly audits)\n- Reporting cadence, content, and distribution (e.g. weekly compliance reports to the risk committee)\n- Escalation procedures for policy breaches or exceptions\n- Evidence standards and recordkeeping requirements"
+        },
+        {
+          "id": "SEC-002",
+          "title": "Vague language around monitoring",
+          "severity": "low",
+          "type": "clarity",
+          "location_instruction": "Rephrase the monitoring description for clarity",
+          "original_text": "Monitoring exists informally.",
+          "suggested_text": "Monitoring of compliance with this policy is currently performed on an ad-hoc basis without formal processes or documentation."
+        }
+      ],
+      "improvement_guidance": [
+        "Define the specific monitoring activities, reporting requirements, and escalation procedures for ensuring compliance with this collateral acceptance policy.",
+        "Clarify the current state of compliance monitoring and outline the planned formalization of these processes.",
+        "Ensure the policy comprehensively addresses all aspects of compliance, monitoring, and reporting to provide clear guidance and accountability."
+      ]
+    },
+    "Review Cycle": {
+      "section_title": "Review Cycle",
+      "fit": "partial",
+      "severity": "medium",
+      "issues": [
+        {
+          "id": "SEC-001",
+          "title": "Lack of review cycle details",
+          "severity": "medium",
+          "type": "missing_content",
+          "location_instruction": "Add a new section after the overview to define the review cycle",
+          "suggested_text": "2. Review Cycle\n\nThis policy will be reviewed on an annual basis by the Lending Desk Manager and the Credit Risk team. Any proposed changes will be presented to the Policy Governance Committee for approval. The next scheduled review date is [DATE]."
+        }
+      ],
+      "improvement_guidance": [
+        "Define the specific review cycle for this policy, including frequency, responsible parties, and approval process",
+        "Provide the next scheduled review date"
+      ]
+    },
+    "Appendix": {
+      "section_title": "Appendix",
+      "fit": "none",
+      "severity": "high",
+      "issues": [
+        {
+          "id": "SEC-001",
+          "title": "Missing Appendix Content",
+          "severity": "high",
+          "type": "missing_content",
+          "location_instruction": null,
+          "original_text": "",
+          "suggested_text": "The Appendix should include relevant references, forms, and supplemental materials to support the collateral acceptance policy. This may include items such as:\n- Collateral valuation methodologies and haircut schedules\n- Standard operating procedures for collateral management\n- Reporting templates and escalation workflows\n- Relevant regulatory guidelines or industry standards",
+          "reason": "The section text indicates that 'Appendix materials need to be added', but does not provide any actual content."
+        }
+      ],
+      "improvement_guidance": [
+        "Develop the Appendix section to include the relevant references, forms, and supplemental materials as described in the template expectation.",
+        "Ensure the Appendix content aligns with and supports the key policy requirements outlined in the main body of the document.",
+        "Review the document summary and incorporate feedback to enhance the overall structure, clarity, and completeness of the policy."
+      ]
+    }
+  },
+  "summary": {
+    "overall_posture": "needs_work",
+    "section_heatmap": {
+      "Overview": "medium",
+      "Scope": "medium",
+      "Definitions": "medium",
+      "Requirements": "medium",
+      "Roles and Responsibilities": "medium",
+      "Data Handling and Security": "medium",
+      "Quality Assurance": "medium",
+      "Monitoring and Reporting": "medium",
+      "Exceptions and Escalations": "medium",
+      "Compliance, Monitoring & Reporting": "medium",
+      "Review Cycle": "medium",
+      "Appendix": "high"
+    },
+    "systemic_gaps": [
+      "Lack of clear, measurable criteria and traceability for collateral acceptance decisions",
+      "Incomplete definition of roles, responsibilities, and escalation paths between the Lending Desk and Credit/Risk teams",
+      "Missing details on standard operating procedures, compliance monitoring, and reporting requirements"
+    ],
+    "narrative": "The collateral middle policy has several areas that need improvement to ensure a comprehensive and effective framework for managing collateral acceptance and risk. The policy lacks clarity on the purpose and key objectives, and the scope definition is incomplete, particularly around covered products, counterparties, and exclusions. The policy requirements are also missing critical details on valuation methodologies, haircut schedules, legal review processes, and measurable compliance criteria. Roles and responsibilities between the Lending Desk and Credit/Risk teams are not clearly defined, leading to potential gaps in governance and decision-making. Additionally, the policy lacks a robust set of standard operating procedures, compliance monitoring activities, and reporting requirements to provide adequate oversight and traceability. While the policy has some foundational elements, significant work is needed to address these systemic gaps and elevate the overall posture to 'ready'.",
+    "total_issues": 32,
+    "high_severity_count": 2
+  }
+}

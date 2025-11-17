@@ -1,0 +1,302 @@
+{
+  "heading_mapping_llm": {
+    "file_id": "car-chapter-1-overview",
+    "index": {
+      "sections": [
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "Guideline",
+          "heading_path": ["Guideline"],
+          "status": "mapped",
+          "template_mapping": {
+            "mapped": true,
+            "template_section_id": "<DYNAMIC>",
+            "template_path": ["Overview"],
+            "confidence": 0.80
+          }
+        },
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "Chapter 1 - Overview of risk-based capital",
+          "heading_path": ["Chapter 1 - Overview of risk-based capital"],
+          "status": "mapped",
+          "template_mapping": {
+            "mapped": true,
+            "template_section_id": "<DYNAMIC>",
+            "template_path": ["Overview"],
+            "confidence": 0.90
+          }
+        },
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "requirements",
+          "heading_path": ["requirements"],
+          "status": "mapped",
+          "template_mapping": {
+            "mapped": true,
+            "template_section_id": "<DYNAMIC>",
+            "template_path": ["Overview"],
+            "confidence": 0.75
+          }
+        },
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "Chapter 1 – Overview of Risk-based Capital",
+          "heading_path": ["Chapter 1 – Overview of Risk-based Capital"],
+          "status": "unmapped",
+          "template_mapping": {
+            "mapped": false,
+            "template_section_id": null,
+            "template_path": null,
+            "confidence": 0.40
+          }
+        },
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "Requirements",
+          "heading_path": ["Requirements"],
+          "status": "unmapped",
+          "template_mapping": {
+            "mapped": false,
+            "template_section_id": null,
+            "template_path": null,
+            "confidence": 0.35
+          }
+        }
+      ],
+      "stats": {
+        "total_sections": 5,
+        "mapped_sections": 3,
+        "unmapped_sections": 2,
+        "mapping_confidence_avg": 0.70
+      }
+    }
+  },
+  "title_improver_llm": {
+    "file_id": "car-chapter-1-overview",
+    "index": {
+      "sections": [
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "Guideline",
+          "heading_text_improved": "Capital Adequacy Guidelines Overview",
+          "status": "mapped",
+          "template_mapping": {
+            "mapped": true,
+            "template_section_id": "<DYNAMIC>",
+            "template_path": ["Overview"],
+            "confidence": 0.80
+          }
+        },
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "Chapter 1 - Overview of risk-based capital",
+          "heading_text_improved": "Chapter 1: Overview of Risk-Based Capital Requirements",
+          "status": "mapped",
+          "template_mapping": {
+            "mapped": true,
+            "template_section_id": "<DYNAMIC>",
+            "template_path": ["Overview"],
+            "confidence": 0.90
+          }
+        },
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "requirements",
+          "heading_text_improved": "Capital Requirements Framework",
+          "status": "mapped",
+          "template_mapping": {
+            "mapped": true,
+            "template_section_id": "<DYNAMIC>",
+            "template_path": ["Overview"],
+            "confidence": 0.75
+          }
+        },
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "Chapter 1 – Overview of Risk-based Capital",
+          "heading_text_improved": null,
+          "status": "unmapped",
+          "template_mapping": {
+            "mapped": false,
+            "template_section_id": null,
+            "template_path": null,
+            "confidence": 0.40
+          }
+        },
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "Requirements",
+          "heading_text_improved": null,
+          "status": "unmapped",
+          "template_mapping": {
+            "mapped": false,
+            "template_section_id": null,
+            "template_path": null,
+            "confidence": 0.35
+          }
+        }
+      ]
+    }
+  },
+  "relevancy_scoring_llm": {
+    "file_id": "car-chapter-1-overview",
+    "index": {
+      "sections": [
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "Guideline",
+          "heading_text_improved": "Capital Adequacy Guidelines Overview",
+          "status": "mapped",
+          "template_mapping": {
+            "mapped": true,
+            "template_section_id": "<DYNAMIC>",
+            "template_path": ["Overview"],
+            "confidence": 0.80
+          }
+        },
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "Chapter 1 - Overview of risk-based capital",
+          "heading_text_improved": "Chapter 1: Overview of Risk-Based Capital Requirements",
+          "status": "mapped",
+          "template_mapping": {
+            "mapped": true,
+            "template_section_id": "<DYNAMIC>",
+            "template_path": ["Overview"],
+            "confidence": 0.90
+          }
+        },
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "requirements",
+          "heading_text_improved": "Capital Requirements Framework",
+          "status": "mapped",
+          "template_mapping": {
+            "mapped": true,
+            "template_section_id": "<DYNAMIC>",
+            "template_path": ["Overview"],
+            "confidence": 0.75
+          }
+        },
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "Chapter 1 – Overview of Risk-based Capital",
+          "status": "unmapped",
+          "relevancy_score_if_unmapped": 0.75,
+          "template_mapping": {
+            "mapped": false,
+            "template_section_id": null,
+            "template_path": null,
+            "confidence": 0.40,
+            "relevancy_score": 0.75,
+            "category": "maybe_append"
+          }
+        },
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "Requirements",
+          "status": "unmapped",
+          "relevancy_score_if_unmapped": 0.45,
+          "template_mapping": {
+            "mapped": false,
+            "template_section_id": null,
+            "template_path": null,
+            "confidence": 0.35,
+            "relevancy_score": 0.45,
+            "category": "maybe_append"
+          }
+        }
+      ]
+    }
+  },
+  "second_pass_mapping_llm": {
+    "file_id": "car-chapter-1-overview",
+    "index": {
+      "sections": [
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "Guideline",
+          "heading_text_improved": "Capital Adequacy Guidelines Overview",
+          "status": "mapped",
+          "template_mapping": {
+            "mapped": true,
+            "template_section_id": "<DYNAMIC>",
+            "template_path": ["Overview"],
+            "confidence": 0.80
+          }
+        },
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "Chapter 1 - Overview of risk-based capital",
+          "heading_text_improved": "Chapter 1: Overview of Risk-Based Capital Requirements",
+          "status": "mapped",
+          "template_mapping": {
+            "mapped": true,
+            "template_section_id": "<DYNAMIC>",
+            "template_path": ["Overview"],
+            "confidence": 0.90
+          }
+        },
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "requirements",
+          "heading_text_improved": "Capital Requirements Framework",
+          "status": "mapped",
+          "template_mapping": {
+            "mapped": true,
+            "template_section_id": "<DYNAMIC>",
+            "template_path": ["Overview"],
+            "confidence": 0.75
+          }
+        },
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "Chapter 1 – Overview of Risk-based Capital",
+          "status": "appended_late",
+          "relevancy_score_if_unmapped": 0.75,
+          "template_mapping": {
+            "mapped": true,
+            "template_section_id": "<DYNAMIC>",
+            "relevancy_score": 0.75,
+            "category": "maybe_append"
+          }
+        },
+        {
+          "file_section_id": "<DYNAMIC>",
+          "heading_text_original": "Requirements",
+          "status": "unmapped",
+          "relevancy_score_if_unmapped": 0.45,
+          "template_mapping": {
+            "mapped": false,
+            "relevancy_score": 0.45,
+            "category": "maybe_append"
+          }
+        }
+      ],
+      "stats": {
+        "total_sections": 5,
+        "mapped_sections": 4,
+        "unmapped_sections": 1,
+        "appended_late_sections": 1,
+        "mapping_confidence_avg": 0.75
+      }
+    }
+  },
+  "notes": {
+    "llm_variance": "Phase 3 results depend on LLM outputs which may vary. Expected results show structure and approximate values.",
+    "status_values": {
+      "mapped": "Section successfully mapped to template",
+      "unmapped": "Section not mapped (low confidence or no match)",
+      "appended_late": "Section mapped in second pass (high relevancy)"
+    },
+    "category_values": {
+      "maybe_append": "Medium relevancy, consider for second pass",
+      "low_value": "Low relevancy, likely to remain unmapped",
+      "append_anyway": "High relevancy, should be mapped if possible"
+    },
+    "confidence_scores": "Range 0.0-1.0, typically 0.6-0.95 for mapped sections, <0.5 for unmapped",
+    "relevancy_scores": "Range 0.0-1.0, threshold 0.4 used for second-pass mapping"
+  }
+}
+

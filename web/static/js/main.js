@@ -9,6 +9,7 @@ let isAuthenticated = false;
 
 // Initialize on document ready
 $(document).ready(function() {
+    console.info('[GlobalAssets][version]', '2025-11-13T21:15:00Z');
     // Initialize tooltips
     $('[data-bs-toggle="tooltip"]').tooltip();
     
@@ -18,11 +19,8 @@ $(document).ready(function() {
     // Auto-hide alerts after 5 seconds
     $('.alert-dismissible').delay(5000).fadeOut('slow');
     
-    // Initialize WebSocket connection if authenticated
-    const token = getSessionToken();
-    if (token) {
-        initializeWebSocket(token);
-    }
+    // Initialize WebSocket connection (token will be fetched lazily)
+    initializeWebSocket();
     
     // Handle form validation
     $('.needs-validation').on('submit', function(event) {
@@ -34,27 +32,69 @@ $(document).ready(function() {
     });
 });
 
+async function refreshSessionToken() {
+    try {
+        const response = await fetch('/api/doc_review/token', { credentials: 'same-origin' });
+        if (!response.ok) {
+            return null;
+        }
+        const data = await response.json();
+        if (data.token) {
+            if (typeof sessionStorage !== 'undefined') {
+                sessionStorage.setItem('mcp_token', data.token);
+            }
+            document.cookie = `mcp_token=${data.token}; path=/`;
+            return data.token;
+        }
+    } catch (err) {
+        console.warn('Unable to refresh session token', err);
+    }
+    return null;
+}
+
+function currentSessionToken() {
+    const token = getSessionToken();
+    if (token && token.trim().length > 0) {
+        return token;
+    }
+    return null;
+}
+
 // Initialize WebSocket connection
-function initializeWebSocket(token) {
+function initializeWebSocket() {
     socket = io({
         transports: ['websocket'],
         upgrade: false
     });
     
-    socket.on('connect', function() {
+    socket.on('connect', async function() {
         console.log('Connected to WebSocket server');
         
-        // Authenticate
-        socket.emit('authenticate', { token: token });
+        let token = currentSessionToken();
+        if (!token) {
+            token = await refreshSessionToken();
+        }
+        if (token) {
+            socket.emit('authenticate', { token: token });
+        } else {
+            console.warn('No session token available for WebSocket authentication');
+        }
     });
     
-    socket.on('authenticated', function(data) {
+    socket.on('authenticated', async function(data) {
         if (data.success) {
             isAuthenticated = true;
             console.log('WebSocket authenticated:', data.user);
         } else {
             console.error('WebSocket authentication failed');
-            socket.disconnect();
+            isAuthenticated = false;
+            const freshToken = await refreshSessionToken();
+            if (freshToken) {
+                console.info('Retrying WebSocket authentication with refreshed token');
+                socket.emit('authenticate', { token: freshToken });
+            } else {
+                socket.disconnect();
+            }
         }
     });
     

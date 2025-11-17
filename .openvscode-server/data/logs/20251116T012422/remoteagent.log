@@ -1,0 +1,60 @@
+2025-11-16 01:24:22.113 [info] 
+
+
+
+
+2025-11-16 01:24:22.119 [info] Extension host agent started.
+2025-11-16 01:24:22.125 [info] Started initializing default profile extensions in extensions installation folder. file:///home/workspace/.openvscode-server/extensions
+2025-11-16 01:24:22.130 [info] Completed initializing default profile extensions in extensions installation folder. file:///home/workspace/.openvscode-server/extensions
+2025-11-16 01:30:16.009 [info] [192.168.65.1][8cef664d][ManagementConnection] New connection established.
+2025-11-16 01:30:16.024 [info] [192.168.65.1][096ab985][ExtensionHostConnection] New connection established.
+2025-11-16 01:30:16.140 [info] [192.168.65.1][096ab985][ExtensionHostConnection] <30> Launched Extension Host Process.
+2025-11-16 01:35:39.430 [info] Installing extension: samjha.doc-review-vfs {"installGivenVersion":true,"isApplicationScoped":false,"profileLocation":{"$mid":1,"fsPath":"/home/workspace/.openvscode-server/extensions/extensions.json","external":"file:///home/workspace/.openvscode-server/extensions/extensions.json","path":"/home/workspace/.openvscode-server/extensions/extensions.json","scheme":"file"},"productVersion":{"version":"1.105.1","date":"2025-10-23T13:35:33.140Z"}}
+2025-11-16 01:35:39.511 [info] Extracted extension to file:///home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0: samjha.doc-review-vfs
+2025-11-16 01:35:39.516 [info] Renamed to /home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0
+2025-11-16 01:35:39.525 [info] Extension installed successfully: samjha.doc-review-vfs file:///home/workspace/.openvscode-server/extensions/extensions.json
+2025-11-16 01:35:39.713 [error] #2: https://open-vsx.org/vscode/gallery/vscode/samjha/doc-review-vfs/latest - error GET connect ECONNREFUSED 127.0.0.1:80
+2025-11-16 01:35:39.714 [error] Error while getting the latest version for the extension samjha.doc-review-vfs from https://open-vsx.org/vscode/gallery/vscode/{publisher}/{name}/latest. Trying the fallback https://open-vsx.org/vscode/gallery/{publisher}/{name}/latest Failed
+2025-11-16 01:36:09.798 [info] Installing extension: samjha.doc-review-vfs {"installGivenVersion":true,"pinned":true,"isApplicationScoped":false,"profileLocation":{"$mid":1,"fsPath":"/home/workspace/.openvscode-server/extensions/extensions.json","external":"file:///home/workspace/.openvscode-server/extensions/extensions.json","path":"/home/workspace/.openvscode-server/extensions/extensions.json","scheme":"file"},"productVersion":{"version":"1.105.1","date":"2025-10-23T13:35:33.140Z"}}
+2025-11-16 01:36:09.827 [info] Deleted existing extension from disk samjha.doc-review-vfs /home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0
+2025-11-16 01:36:09.843 [info] Extracted extension to file:///home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0: samjha.doc-review-vfs
+2025-11-16 01:36:09.847 [info] Renamed to /home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0
+2025-11-16 01:36:09.852 [info] Extension installed successfully: samjha.doc-review-vfs file:///home/workspace/.openvscode-server/extensions/extensions.json
+2025-11-16 01:36:10.514 [error] #5: https://open-vsx.org/vscode/gallery/vscode/samjha/doc-review-vfs/latest - error GET connect ECONNREFUSED 127.0.0.1:80
+2025-11-16 01:36:10.515 [error] Error while getting the latest version for the extension samjha.doc-review-vfs from https://open-vsx.org/vscode/gallery/vscode/{publisher}/{name}/latest. Trying the fallback https://open-vsx.org/vscode/gallery/{publisher}/{name}/latest Failed
+2025-11-16 01:41:32.671 [info] [192.168.65.1][ddc6a611][ManagementConnection] New connection established.
+2025-11-16 01:41:32.680 [info] [192.168.65.1][71138fa5][ExtensionHostConnection] New connection established.
+2025-11-16 01:41:32.691 [info] [192.168.65.1][71138fa5][ExtensionHostConnection] <54> Launched Extension Host Process.
+2025-11-16 01:41:33.107 [warning] RequestStore#acceptReply was called without receiving a matching request 25
+2025-11-16 01:41:33.107 [warning] RequestStore#acceptReply was called without receiving a matching request 26
+2025-11-16 01:41:33.108 [warning] RequestStore#acceptReply was called without receiving a matching request 27
+2025-11-16 01:41:33.108 [warning] RequestStore#acceptReply was called without receiving a matching request 28
+2025-11-16 01:41:33.108 [warning] RequestStore#acceptReply was called without receiving a matching request 29
+2025-11-16 01:41:33.108 [warning] RequestStore#acceptReply was called without receiving a matching request 30
+2025-11-16 01:41:33.108 [warning] RequestStore#acceptReply was called without receiving a matching request 31
+2025-11-16 01:41:33.109 [warning] RequestStore#acceptReply was called without receiving a matching request 32
+2025-11-16 01:41:33.109 [warning] RequestStore#acceptReply was called without receiving a matching request 33
+2025-11-16 01:41:33.109 [warning] RequestStore#acceptReply was called without receiving a matching request 34
+2025-11-16 01:41:33.109 [warning] RequestStore#acceptReply was called without receiving a matching request 35
+2025-11-16 01:41:33.109 [warning] RequestStore#acceptReply was called without receiving a matching request 36
+2025-11-16 01:43:30.333 [info] [192.168.65.1][8cef664d][ManagementConnection] The client has disconnected gracefully, so the connection will be disposed.
+2025-11-16 01:43:30.414 [info] [192.168.65.1][096ab985][ExtensionHostConnection] <30> Extension Host Process exited with code: 0, signal: null.
+2025-11-16 01:43:30.890 [info] [192.168.65.1][01f2bc89][ManagementConnection] New connection established.
+2025-11-16 01:43:30.896 [info] [192.168.65.1][9f7d8bc5][ExtensionHostConnection] New connection established.
+2025-11-16 01:43:30.906 [info] [192.168.65.1][9f7d8bc5][ExtensionHostConnection] <71> Launched Extension Host Process.
+2025-11-16 01:43:31.215 [warning] RequestStore#acceptReply was called without receiving a matching request 37
+2025-11-16 01:43:31.215 [warning] RequestStore#acceptReply was called without receiving a matching request 38
+2025-11-16 01:43:31.215 [warning] RequestStore#acceptReply was called without receiving a matching request 39
+2025-11-16 01:43:31.215 [warning] RequestStore#acceptReply was called without receiving a matching request 40
+2025-11-16 01:43:31.216 [warning] RequestStore#acceptReply was called without receiving a matching request 41
+2025-11-16 01:43:31.216 [warning] RequestStore#acceptReply was called without receiving a matching request 42
+2025-11-16 01:43:31.216 [warning] RequestStore#acceptReply was called without receiving a matching request 43
+2025-11-16 01:43:31.216 [warning] RequestStore#acceptReply was called without receiving a matching request 44
+2025-11-16 01:43:31.216 [warning] RequestStore#acceptReply was called without receiving a matching request 45
+2025-11-16 01:43:31.217 [warning] RequestStore#acceptReply was called without receiving a matching request 46
+2025-11-16 01:43:31.217 [warning] RequestStore#acceptReply was called without receiving a matching request 47
+2025-11-16 01:43:31.217 [warning] RequestStore#acceptReply was called without receiving a matching request 48
+2025-11-16 01:48:19.745 [info] [192.168.65.1][01f2bc89][ManagementConnection] The client has disconnected gracefully, so the connection will be disposed.
+2025-11-16 01:48:19.850 [info] [192.168.65.1][9f7d8bc5][ExtensionHostConnection] <71> Extension Host Process exited with code: 0, signal: null.
+2025-11-16 01:48:21.006 [info] [192.168.65.1][ddc6a611][ManagementConnection] The client has disconnected gracefully, so the connection will be disposed.
+2025-11-16 01:48:21.081 [info] [192.168.65.1][71138fa5][ExtensionHostConnection] <54> Extension Host Process exited with code: 0, signal: null.

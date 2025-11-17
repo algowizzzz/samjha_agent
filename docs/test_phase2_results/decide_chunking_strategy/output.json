@@ -1,0 +1,6 @@
+{
+  "should_chunk": true,
+  "strategy": "by_h1",
+  "reason": "page_count>=threshold",
+  "context_aware_level": "h1"
+}

@@ -1,0 +1,23 @@
+{
+  "chunking": {
+    "page_threshold": 50,
+    "default_strategy": "by_h2",
+    "context_aware_level": "h2",
+    "force_chunk": null,
+    "max_chunk_tokens": 1800
+  },
+  "template": {
+    "template_id": "policy_template",
+    "toc_level": "h1",
+    "late_append_relevancy_threshold": 0.45,
+    "append_unmapped_heading": "Additional Sections"
+  },
+  "llm": {
+    "model": "claude-3-opus-20240229",
+    "temperature": 0.2
+  },
+  "ui": {
+    "show_ai_title_highlight": true,
+    "show_ai_comments": true
+  }
+}

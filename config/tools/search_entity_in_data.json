@@ -1,0 +1,9 @@
+{
+  "name": "search_entity_in_data",
+  "implementation": "tools.impl.search_entity_in_data_tool.SearchEntityInDataTool",
+  "description": "Search for entity values across structured data sources (placeholder)",
+  "version": "0.0.1",
+  "enabled": false,
+  "inputSchema": {},
+  "outputSchema": {}
+}

@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block title %}Model Documentation Cockpit{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/model_doc_cockpit.css') }}?v=20250113" rel="stylesheet">
+<!-- Marked.js for Markdown rendering -->
+<script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3 align-items-center">
+        <div class="col-md-8">
+            <h1 class="h3 mb-0"><i class="bi bi-code-slash"></i> Model Documentation Cockpit</h1>
+            <p class="text-muted mb-0">Automated documentation generation from Python codebases using AI.</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <button id="btn-refresh" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Three-Panel Layout -->
+    <div class="model-doc-container">
+        <!-- Left Panel: Codebases & Navigation -->
+        <div class="codebase-sidebar">
+            <div class="codebase-sidebar-header">
+                <h5 class="mb-0"><i class="bi bi-folder"></i> Codebases</h5>
+                <button class="btn btn-sm btn-primary mt-2 w-100" id="btn-register-new">
+                    <i class="bi bi-plus-circle"></i> Register New
+                </button>
+            </div>
+            <div class="codebase-sidebar-list" id="codebasesList">
+                <div class="text-center text-muted small p-3">No codebases yet. Register a codebase to begin.</div>
+            </div>
+        </div>
+
+        <!-- Center Panel: Workspace (Dynamic based on phase) -->
+        <div class="codebase-workspace">
+            <div class="workspace-header">
+                <h5 class="mb-0" id="workspaceTitle">Select a codebase to begin</h5>
+                <small class="text-muted" id="workspaceSubtitle">Choose a codebase from the left sidebar</small>
+            </div>
+            <div class="workspace-content" id="workspaceContent">
+                <!-- Phase 0: Welcome Screen -->
+                <div id="phase-welcome" class="phase-welcome">
+                    <i class="bi bi-code-square" style="font-size: 4rem; color: #003DA5; margin-bottom: 1rem;"></i>
+                    <h4>Welcome to Model Documentation</h4>
+                    <p class="mb-4">Register a codebase directory to automatically generate comprehensive technical documentation.</p>
+                    <div class="card" style="max-width: 500px; margin: 0 auto;">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="bi bi-folder-plus"></i> Register Codebase</h6>
+                            <div class="mb-3">
+                                <label for="codebasePathInput" class="form-label">Codebase Directory Path</label>
+                                <input type="text" id="codebasePathInput" class="form-control" placeholder="/path/to/codebase">
+                                <div class="form-text">Path to the root directory containing Python files</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="codebaseIdInput" class="form-label">Codebase ID (optional)</label>
+                                <input type="text" id="codebaseIdInput" class="form-control" placeholder="my_codebase">
+                                <div class="form-text">Unique identifier for this codebase</div>
+                            </div>
+                            <button type="button" class="btn btn-primary w-100" id="btnRegisterCodebase">
+                                <i class="bi bi-plus-circle"></i> Register Codebase
+                            </button>
+                            <div id="registerStatus" class="mt-2 small text-muted"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 1: Codebase Discovery -->
+                <div id="phase-1-view" style="display: none;">
+                    <div class="mb-4">
+                        <button type="button" class="btn btn-phase btn-lg w-100" id="btnRunPhase1">
+                            <i class="bi bi-play-circle"></i> Start Phase 1: Codebase Discovery
+                        </button>
+                    </div>
+                    <div id="phase1-dashboard" style="display: none;">
+                        <!-- Metric Cards -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-label">Files</div>
+                                    <div class="metric-value" id="metric-file-count">0</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-label">Classes</div>
+                                    <div class="metric-value" id="metric-class-count">0</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-label">Functions</div>
+                                    <div class="metric-value" id="metric-function-count">0</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-label">Lines of Code</div>
+                                    <div class="metric-value" id="metric-loc">0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Code Structure Viewer -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="bi bi-diagram-3"></i> Code Structure</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="code-structure-viewer" id="code-structure-viewer"></div>
+                            </div>
+                        </div>
+
+                        <!-- Proceed Button -->
+                        <div class="text-center">
+                            <button type="button" class="btn btn-phase btn-lg" id="btnProceedPhase2">
+                                <i class="bi bi-arrow-right-circle"></i> Proceed to Phase 2: Summarization →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 2: Summarization -->
+                <div id="phase-2-view" style="display: none;">
+                    <div class="mb-4">
+                        <button type="button" class="btn btn-phase btn-lg w-100" id="btnRunPhase2">
+                            <i class="bi bi-play-circle"></i> Start Phase 2: Generate Summaries
+                        </button>
+                    </div>
+                    <div id="phase2-dashboard" style="display: none;">
+                        <!-- LLM Analysis Accordion -->
+                        <div class="accordion mb-4" id="llmAnalysisAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSummary">
+                                        <i class="bi bi-file-text me-2"></i> Hierarchical Summary
+                                    </button>
+                                </h2>
+                                <div id="collapseSummary" class="accordion-collapse collapse show" data-bs-parent="#llmAnalysisAccordion">
+                                    <div class="accordion-body" id="llm-summary"></div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInsights">
+                                        <i class="bi bi-lightbulb me-2"></i> Insights
+                                    </button>
+                                </h2>
+                                <div id="collapseInsights" class="accordion-collapse collapse" data-bs-parent="#llmAnalysisAccordion">
+                                    <div class="accordion-body" id="llm-insights"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Proceed Button -->
+                        <div class="text-center">
+                            <button type="button" class="btn btn-phase btn-lg" id="btnProceedPhase3">
+                                <i class="bi bi-arrow-right-circle"></i> Proceed to Phase 3: Outline Generation →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 3: Outline Generation -->
+                <div id="phase-3-view" style="display: none;">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-file-earmark-text"></i> Template Settings</h6>
+                        </div>
+                        <div class="card-body">
+                            <label for="selectTemplate" class="form-label">Select Documentation Template</label>
+                            <select id="selectTemplate" class="form-select mb-3"></select>
+                            <button type="button" class="btn btn-phase w-100" id="btnRunPhase3">
+                                <i class="bi bi-play-fill"></i> Generate Documentation Outline
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="phase3-dashboard" style="display: none;">
+                        <!-- Outline Preview -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="bi bi-list-ul"></i> Generated Outline</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="outline-preview"></div>
+                            </div>
+                        </div>
+
+                        <!-- Proceed Button -->
+                        <div class="text-center">
+                            <button type="button" class="btn btn-phase btn-lg" id="btnProceedPhase4">
+                                <i class="bi bi-arrow-right-circle"></i> Proceed to Phase 4: Content Generation →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 4: Content Generation -->
+                <div id="phase-4-view" style="display: none;">
+                    <div class="mb-4">
+                        <button type="button" class="btn btn-phase btn-lg w-100" id="btnRunPhase4">
+                            <i class="bi bi-play-circle"></i> Start Phase 4: Generate Section Content
+                        </button>
+                    </div>
+                    <div id="phase4-dashboard" style="display: none;">
+                        <!-- Progress -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="bi bi-hourglass-split"></i> Generation Progress</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="progress mb-2">
+                                    <div id="section-progress" class="progress-bar" role="progressbar" style="width: 0%">0%</div>
+                                </div>
+                                <div id="section-status" class="small text-muted">Preparing sections...</div>
+                            </div>
+                        </div>
+
+                        <!-- Proceed Button -->
+                        <div class="text-center">
+                            <button type="button" class="btn btn-phase btn-lg" id="btnProceedPhase5">
+                                <i class="bi bi-arrow-right-circle"></i> Proceed to Phase 5: Final Documentation →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 5: Final Documentation -->
+                <div id="phase-5-view" style="display: none;">
+                    <div id="phase5-dashboard">
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0"><i class="bi bi-file-earmark-text"></i> Generated Documentation</h6>
+                                <button type="button" class="btn btn-sm btn-primary" id="btn-download-doc">
+                                    <i class="bi bi-download"></i> Download
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div id="final-documentation-preview"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Split View - Editor & Chat -->
+        <div class="codebase-right-panel">
+            <div class="right-panel-split">
+                <!-- Top: Documentation Editor -->
+                <div class="editor-pane" id="editor-pane">
+                    <div class="editor-header">
+                        <h6 class="mb-0"><i class="bi bi-pencil-square"></i> Documentation Editor</h6>
+                        <button type="button" class="btn btn-sm btn-success" id="btn-save-doc" style="display: none;">
+                            <i class="bi bi-save"></i> Save
+                        </button>
+                    </div>
+                    <textarea id="documentation-editor" class="form-control documentation-editor" 
+                              placeholder="Generated documentation will appear here..." readonly></textarea>
+                </div>
+
+                <!-- Bottom: Chat Interface -->
+                <div class="chat-pane" id="chat-pane">
+                    <div class="chat-header">
+                        <h6 class="mb-0"><i class="bi bi-chat-dots"></i> Chat with Codebase</h6>
+                    </div>
+                    <div class="chat-content">
+                        <div class="chat-history" id="chatHistory"></div>
+                        <div class="chat-input-area">
+                            <form id="chat-form">
+                                <div class="input-group">
+                                    <textarea id="inputChat" class="chat-textarea" placeholder="Ask about the codebase..." rows="2"></textarea>
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="bi bi-send"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Socket.IO -->
+<script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/model_doc_cockpit.js') }}?v=20250113"></script>
+{% endblock %}
+

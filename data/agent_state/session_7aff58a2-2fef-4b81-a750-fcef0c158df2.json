@@ -1,0 +1,1298 @@
+{
+  "session_id": "7aff58a2-2fef-4b81-a750-fcef0c158df2",
+  "user_id": null,
+  "created_at": "2025-11-15T00:16:37.540772Z",
+  "updated_at": "2025-11-15T00:16:37.540772Z",
+  "state": {
+    "user_input": "What was the exposure for RBC yesterday?",
+    "user_id": null,
+    "session_id": "7aff58a2-2fef-4b81-a750-fcef0c158df2",
+    "timestamp": "2025-11-15T00:16:37.412129Z",
+    "logs": [
+      {
+        "node": "discover_sources",
+        "timestamp": "2025-11-15T00:16:37.412554Z",
+        "msg": "Discovered 6 structured data sources",
+        "control": "extract_schemas"
+      },
+      {
+        "node": "extract_schemas",
+        "timestamp": "2025-11-15T00:16:37.412778Z",
+        "msg": "Extracted schema metadata for 6 tables",
+        "control": "extract_text_values"
+      },
+      {
+        "node": "extract_text_values",
+        "timestamp": "2025-11-15T00:16:37.413472Z",
+        "msg": "Collected text samples for entity mapping",
+        "control": "extract_entities"
+      },
+      {
+        "node": "extract_entities",
+        "timestamp": "2025-11-15T00:16:37.413680Z",
+        "msg": "Extracted 1 entity candidates",
+        "control": "capture_intent"
+      },
+      {
+        "node": "capture_intent",
+        "timestamp": "2025-11-15T00:16:37.413692Z",
+        "msg": "Captured user intent snapshot",
+        "control": "create_embeddings"
+      },
+      {
+        "node": "create_embeddings",
+        "timestamp": "2025-11-15T00:16:37.414468Z",
+        "msg": "Embeddings index created at data/agent_state/deep_research_embeddings_20251115T001637Z.json",
+        "control": "map_entities"
+      },
+      {
+        "node": "map_entities",
+        "timestamp": "2025-11-15T00:16:37.414962Z",
+        "msg": "Mapped 1 entities to candidate columns",
+        "control": "search_entities"
+      },
+      {
+        "node": "search_entities",
+        "timestamp": "2025-11-15T00:16:37.540522Z",
+        "msg": "Indexed entity occurrences across data files",
+        "control": "decompose_query"
+      },
+      {
+        "node": "decompose_query",
+        "timestamp": "2025-11-15T00:16:37.540581Z",
+        "msg": "Decomposed request into 4 query blocks",
+        "control": "construct_queries"
+      },
+      {
+        "node": "construct_queries",
+        "timestamp": "2025-11-15T00:16:37.540634Z",
+        "msg": "Constructed 4 SQL templates",
+        "control": "validate_queries"
+      },
+      {
+        "node": "validate_queries",
+        "timestamp": "2025-11-15T00:16:37.540642Z",
+        "msg": "Queries validated",
+        "control": "tool_decision"
+      },
+      {
+        "node": "tool_decision",
+        "timestamp": "2025-11-15T00:16:37.540655Z",
+        "msg": "No additional tool calls needed",
+        "control": "generate_reasoning"
+      },
+      {
+        "node": "generate_reasoning",
+        "timestamp": "2025-11-15T00:16:37.540756Z",
+        "msg": "Compiled analytical reasoning document",
+        "control": "synthesize"
+      },
+      {
+        "node": "synthesize",
+        "timestamp": "2025-11-15T00:16:37.540763Z",
+        "msg": "Finalized deep research output",
+        "control": "end"
+      }
+    ],
+    "metrics": {
+      "start_time": "2025-11-15T00:16:37.412322Z",
+      "total_steps": 14
+    },
+    "control": "end",
+    "last_node": "synthesize",
+    "node_reasoning": "Finalized deep research output",
+    "data_sources": [
+      {
+        "name": "breach_data",
+        "path": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data/breach_data.csv",
+        "format": "csv",
+        "size_bytes": 78,
+        "root": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data"
+      },
+      {
+        "name": "exposure_data",
+        "path": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data/exposure_data.csv",
+        "format": "csv",
+        "size_bytes": 106,
+        "root": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data"
+      },
+      {
+        "name": "balance_sheet",
+        "path": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data/balance_sheet.csv",
+        "format": "csv",
+        "size_bytes": 90,
+        "root": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data"
+      },
+      {
+        "name": "income_statement",
+        "path": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data/income_statement.csv",
+        "format": "csv",
+        "size_bytes": 73,
+        "root": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data"
+      },
+      {
+        "name": "trade_data",
+        "path": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data/trade_data.csv",
+        "format": "csv",
+        "size_bytes": 83,
+        "root": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data"
+      },
+      {
+        "name": "projects",
+        "path": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data/projects.csv",
+        "format": "csv",
+        "size_bytes": 67,
+        "root": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data"
+      }
+    ],
+    "table_schemas": {
+      "breach_data": {
+        "path": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data/breach_data.csv",
+        "format": "csv",
+        "columns": [
+          {
+            "name": "company",
+            "type": "VARCHAR"
+          },
+          {
+            "name": "limit_name",
+            "type": "VARCHAR"
+          },
+          {
+            "name": "breach_date",
+            "type": "VARCHAR"
+          }
+        ]
+      },
+      "exposure_data": {
+        "path": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data/exposure_data.csv",
+        "format": "csv",
+        "columns": [
+          {
+            "name": "company",
+            "type": "VARCHAR"
+          },
+          {
+            "name": "date",
+            "type": "VARCHAR"
+          },
+          {
+            "name": "exposure_amt",
+            "type": "VARCHAR"
+          },
+          {
+            "name": "region",
+            "type": "VARCHAR"
+          }
+        ]
+      },
+      "balance_sheet": {
+        "path": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data/balance_sheet.csv",
+        "format": "csv",
+        "columns": [
+          {
+            "name": "company",
+            "type": "VARCHAR"
+          },
+          {
+            "name": "period",
+            "type": "VARCHAR"
+          },
+          {
+            "name": "total_assets",
+            "type": "VARCHAR"
+          },
+          {
+            "name": "total_liabilities",
+            "type": "VARCHAR"
+          }
+        ]
+      },
+      "income_statement": {
+        "path": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data/income_statement.csv",
+        "format": "csv",
+        "columns": [
+          {
+            "name": "company",
+            "type": "VARCHAR"
+          },
+          {
+            "name": "period",
+            "type": "VARCHAR"
+          },
+          {
+            "name": "revenue",
+            "type": "VARCHAR"
+          },
+          {
+            "name": "expenses",
+            "type": "VARCHAR"
+          }
+        ]
+      },
+      "trade_data": {
+        "path": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data/trade_data.csv",
+        "format": "csv",
+        "columns": [
+          {
+            "name": "trade_id",
+            "type": "VARCHAR"
+          },
+          {
+            "name": "company",
+            "type": "VARCHAR"
+          },
+          {
+            "name": "trade_date",
+            "type": "VARCHAR"
+          },
+          {
+            "name": "notional",
+            "type": "VARCHAR"
+          }
+        ]
+      },
+      "projects": {
+        "path": "/private/var/folders/r2/28mbtqt13ngcm8ht50nqw3fh0000gn/T/pytest-of-saadahmed/pytest-4/test_single_table_query0/data/projects.csv",
+        "format": "csv",
+        "columns": [
+          {
+            "name": "project_name",
+            "type": "VARCHAR"
+          },
+          {
+            "name": "status",
+            "type": "VARCHAR"
+          },
+          {
+            "name": "owner",
+            "type": "VARCHAR"
+          }
+        ]
+      }
+    },
+    "docs_meta": [
+      {
+        "table": "breach_data",
+        "description": "Discovered from breach_data.csv",
+        "column_count": 3
+      },
+      {
+        "table": "exposure_data",
+        "description": "Discovered from exposure_data.csv",
+        "column_count": 4
+      },
+      {
+        "table": "balance_sheet",
+        "description": "Discovered from balance_sheet.csv",
+        "column_count": 4
+      },
+      {
+        "table": "income_statement",
+        "description": "Discovered from income_statement.csv",
+        "column_count": 4
+      },
+      {
+        "table": "trade_data",
+        "description": "Discovered from trade_data.csv",
+        "column_count": 4
+      },
+      {
+        "table": "projects",
+        "description": "Discovered from projects.csv",
+        "column_count": 3
+      }
+    ],
+    "text_column_values": {
+      "breach_data": {
+        "company": [
+          "RBC",
+          "ACME"
+        ],
+        "limit_name": [
+          "Limit A",
+          "Limit B"
+        ],
+        "breach_date": [
+          "2024-11-14",
+          "2024-11-13"
+        ]
+      },
+      "exposure_data": {
+        "company": [
+          "RBC",
+          "ACME"
+        ],
+        "date": [
+          "2024-11-14",
+          "2024-11-13"
+        ],
+        "exposure_amt": [
+          "100",
+          "95",
+          "50"
+        ],
+        "region": [
+          "Canada",
+          "US"
+        ]
+      },
+      "balance_sheet": {
+        "company": [
+          "ACME"
+        ],
+        "period": [
+          "2024Q3",
+          "2024Q2"
+        ],
+        "total_assets": [
+          "5000",
+          "4800"
+        ],
+        "total_liabilities": [
+          "3000",
+          "2900"
+        ]
+      },
+      "income_statement": {
+        "company": [
+          "ACME"
+        ],
+        "period": [
+          "2024Q3",
+          "2024Q2"
+        ],
+        "revenue": [
+          "1000",
+          "900"
+        ],
+        "expenses": [
+          "700",
+          "650"
+        ]
+      },
+      "trade_data": {
+        "trade_id": [
+          "T1",
+          "T2"
+        ],
+        "company": [
+          "RBC",
+          "ACME"
+        ],
+        "trade_date": [
+          "2024-11-14"
+        ],
+        "notional": [
+          "1000",
+          "500"
+        ]
+      },
+      "projects": {
+        "project_name": [
+          "Phoenix",
+          "Helios"
+        ],
+        "status": [
+          "On Track",
+          "Delayed"
+        ],
+        "owner": [
+          "RBC",
+          "ACME"
+        ]
+      }
+    },
+    "extracted_entities": [
+      {
+        "text": "RBC",
+        "type": "proper_noun",
+        "confidence": 0.8
+      }
+    ],
+    "intent_snapshot": {
+      "primary_objective": "Analyze structured data",
+      "goal_type": "descriptive",
+      "required_entities": [
+        "RBC"
+      ],
+      "expected_outputs": [
+        "sql_queries",
+        "analytical_reasoning"
+      ],
+      "confidence": 0.7
+    },
+    "embeddings_index_path": "data/agent_state/deep_research_embeddings_20251115T001637Z.json",
+    "entity_mappings": {
+      "RBC": {
+        "pattern_match": {
+          "entity_value": "RBC",
+          "matches": [
+            {
+              "table": "breach_data",
+              "column": "company",
+              "data_type": "VARCHAR",
+              "score": 1.0,
+              "match_type": "value_exact",
+              "evidence": [
+                "RBC"
+              ],
+              "description": null,
+              "table_description": null
+            },
+            {
+              "table": "exposure_data",
+              "column": "company",
+              "data_type": "VARCHAR",
+              "score": 1.0,
+              "match_type": "value_exact",
+              "evidence": [
+                "RBC"
+              ],
+              "description": null,
+              "table_description": null
+            },
+            {
+              "table": "trade_data",
+              "column": "company",
+              "data_type": "VARCHAR",
+              "score": 1.0,
+              "match_type": "value_exact",
+              "evidence": [
+                "RBC"
+              ],
+              "description": null,
+              "table_description": null
+            },
+            {
+              "table": "projects",
+              "column": "owner",
+              "data_type": "VARCHAR",
+              "score": 1.0,
+              "match_type": "value_exact",
+              "evidence": [
+                "RBC"
+              ],
+              "description": null,
+              "table_description": null
+            }
+          ],
+          "max_score": 1.0,
+          "total_matches": 4
+        },
+        "vector_search": {
+          "entity_value": "RBC",
+          "model_used": "sentence-transformers/all-MiniLM-L6-v2",
+          "index_path": "data/agent_state/deep_research_embeddings_20251115T001637Z.json",
+          "top_matches": [
+            {
+              "table": "breach_data",
+              "column": "company",
+              "data_type": "VARCHAR",
+              "score": 1.0,
+              "signature": "Table: breach_data\nColumn: company\nType: VARCHAR\nDescription: \nSamples: RBC, ACME",
+              "metadata": {
+                "table_description": "",
+                "sample_values": [
+                  "RBC",
+                  "ACME"
+                ],
+                "tags": []
+              }
+            },
+            {
+              "table": "breach_data",
+              "column": "limit_name",
+              "data_type": "VARCHAR",
+              "score": 0.9923,
+              "signature": "Table: breach_data\nColumn: limit_name\nType: VARCHAR\nDescription: \nSamples: Limit A, Limit B",
+              "metadata": {
+                "table_description": "",
+                "sample_values": [
+                  "Limit A",
+                  "Limit B"
+                ],
+                "tags": []
+              }
+            },
+            {
+              "table": "breach_data",
+              "column": "breach_date",
+              "data_type": "VARCHAR",
+              "score": 0.9839,
+              "signature": "Table: breach_data\nColumn: breach_date\nType: VARCHAR\nDescription: \nSamples: 2024-11-14, 2024-11-13",
+              "metadata": {
+                "table_description": "",
+                "sample_values": [
+                  "2024-11-14",
+                  "2024-11-13"
+                ],
+                "tags": []
+              }
+            },
+            {
+              "table": "exposure_data",
+              "column": "company",
+              "data_type": "VARCHAR",
+              "score": 0.9778,
+              "signature": "Table: exposure_data\nColumn: company\nType: VARCHAR\nDescription: \nSamples: RBC, ACME",
+              "metadata": {
+                "table_description": "",
+                "sample_values": [
+                  "RBC",
+                  "ACME"
+                ],
+                "tags": []
+              }
+            },
+            {
+              "table": "exposure_data",
+              "column": "date",
+              "data_type": "VARCHAR",
+              "score": 0.9734,
+              "signature": "Table: exposure_data\nColumn: date\nType: VARCHAR\nDescription: \nSamples: 2024-11-14, 2024-11-13",
+              "metadata": {
+                "table_description": "",
+                "sample_values": [
+                  "2024-11-14",
+                  "2024-11-13"
+                ],
+                "tags": []
+              }
+            }
+          ]
+        },
+        "llm_mapping": {
+          "entity_value": "RBC",
+          "selected_column": {
+            "table": "breach_data",
+            "column": "company",
+            "confidence": 0.0,
+            "reasoning": "LLM unavailable; using heuristic mapping."
+          },
+          "alternatives": [
+            {
+              "table": "exposure_data",
+              "column": "company",
+              "score": 0.0
+            },
+            {
+              "table": "trade_data",
+              "column": "company",
+              "score": 0.0
+            }
+          ],
+          "reasoning": "LLM unavailable; using heuristic mapping.",
+          "llm_used": false
+        },
+        "final_mapping": {
+          "table": "breach_data",
+          "column": "company",
+          "confidence": 0.0,
+          "reasoning": "LLM unavailable; using heuristic mapping."
+        }
+      }
+    },
+    "entity_search_results": {
+      "RBC": {
+        "entity_value": "RBC",
+        "total_matches": 5,
+        "matches": [
+          {
+            "table": "breach_data",
+            "column": "company",
+            "match_count": 1,
+            "sample_values": [
+              "RBC"
+            ],
+            "case_sensitive": false
+          },
+          {
+            "table": "exposure_data",
+            "column": "company",
+            "match_count": 2,
+            "sample_values": [
+              "RBC"
+            ],
+            "case_sensitive": false
+          },
+          {
+            "table": "trade_data",
+            "column": "company",
+            "match_count": 1,
+            "sample_values": [
+              "RBC"
+            ],
+            "case_sensitive": false
+          },
+          {
+            "table": "projects",
+            "column": "owner",
+            "match_count": 1,
+            "sample_values": [
+              "RBC"
+            ],
+            "case_sensitive": false
+          }
+        ]
+      }
+    },
+    "query_decomposition": {
+      "sub_queries": [
+        {
+          "id": "sq_primary",
+          "description": "Analyze exposure_data for matched entities",
+          "table": "exposure_data"
+        },
+        {
+          "id": "sq_breach_data",
+          "description": "Collect supporting data from breach_data",
+          "table": "breach_data"
+        },
+        {
+          "id": "sq_trade_data",
+          "description": "Collect supporting data from trade_data",
+          "table": "trade_data"
+        },
+        {
+          "id": "sq_projects",
+          "description": "Collect supporting data from projects",
+          "table": "projects"
+        }
+      ],
+      "execution_strategy": "sequential",
+      "reasoning": "Generated based on entity-to-table mappings"
+    },
+    "sql_queries": [
+      {
+        "id": "sq_primary",
+        "table": "exposure_data",
+        "sql": "SELECT * FROM exposure_data WHERE 1=1 LIMIT 50;",
+        "description": "Analyze exposure_data for matched entities"
+      },
+      {
+        "id": "sq_breach_data",
+        "table": "breach_data",
+        "sql": "SELECT * FROM breach_data WHERE LOWER(company) LIKE '%rbc%' LIMIT 50;",
+        "description": "Collect supporting data from breach_data"
+      },
+      {
+        "id": "sq_trade_data",
+        "table": "trade_data",
+        "sql": "SELECT * FROM trade_data WHERE 1=1 LIMIT 50;",
+        "description": "Collect supporting data from trade_data"
+      },
+      {
+        "id": "sq_projects",
+        "table": "projects",
+        "sql": "SELECT * FROM projects WHERE 1=1 LIMIT 50;",
+        "description": "Collect supporting data from projects"
+      }
+    ],
+    "tool_loop_count": 0,
+    "analytical_reasoning": {
+      "intent": {
+        "primary_objective": "Analyze structured data",
+        "goal_type": "descriptive",
+        "required_entities": [
+          "RBC"
+        ],
+        "expected_outputs": [
+          "sql_queries",
+          "analytical_reasoning"
+        ],
+        "confidence": 0.7
+      },
+      "entities": [
+        {
+          "text": "RBC",
+          "type": "proper_noun",
+          "confidence": 0.8
+        }
+      ],
+      "entity_mappings": {
+        "RBC": {
+          "pattern_match": {
+            "entity_value": "RBC",
+            "matches": [
+              {
+                "table": "breach_data",
+                "column": "company",
+                "data_type": "VARCHAR",
+                "score": 1.0,
+                "match_type": "value_exact",
+                "evidence": [
+                  "RBC"
+                ],
+                "description": null,
+                "table_description": null
+              },
+              {
+                "table": "exposure_data",
+                "column": "company",
+                "data_type": "VARCHAR",
+                "score": 1.0,
+                "match_type": "value_exact",
+                "evidence": [
+                  "RBC"
+                ],
+                "description": null,
+                "table_description": null
+              },
+              {
+                "table": "trade_data",
+                "column": "company",
+                "data_type": "VARCHAR",
+                "score": 1.0,
+                "match_type": "value_exact",
+                "evidence": [
+                  "RBC"
+                ],
+                "description": null,
+                "table_description": null
+              },
+              {
+                "table": "projects",
+                "column": "owner",
+                "data_type": "VARCHAR",
+                "score": 1.0,
+                "match_type": "value_exact",
+                "evidence": [
+                  "RBC"
+                ],
+                "description": null,
+                "table_description": null
+              }
+            ],
+            "max_score": 1.0,
+            "total_matches": 4
+          },
+          "vector_search": {
+            "entity_value": "RBC",
+            "model_used": "sentence-transformers/all-MiniLM-L6-v2",
+            "index_path": "data/agent_state/deep_research_embeddings_20251115T001637Z.json",
+            "top_matches": [
+              {
+                "table": "breach_data",
+                "column": "company",
+                "data_type": "VARCHAR",
+                "score": 1.0,
+                "signature": "Table: breach_data\nColumn: company\nType: VARCHAR\nDescription: \nSamples: RBC, ACME",
+                "metadata": {
+                  "table_description": "",
+                  "sample_values": [
+                    "RBC",
+                    "ACME"
+                  ],
+                  "tags": []
+                }
+              },
+              {
+                "table": "breach_data",
+                "column": "limit_name",
+                "data_type": "VARCHAR",
+                "score": 0.9923,
+                "signature": "Table: breach_data\nColumn: limit_name\nType: VARCHAR\nDescription: \nSamples: Limit A, Limit B",
+                "metadata": {
+                  "table_description": "",
+                  "sample_values": [
+                    "Limit A",
+                    "Limit B"
+                  ],
+                  "tags": []
+                }
+              },
+              {
+                "table": "breach_data",
+                "column": "breach_date",
+                "data_type": "VARCHAR",
+                "score": 0.9839,
+                "signature": "Table: breach_data\nColumn: breach_date\nType: VARCHAR\nDescription: \nSamples: 2024-11-14, 2024-11-13",
+                "metadata": {
+                  "table_description": "",
+                  "sample_values": [
+                    "2024-11-14",
+                    "2024-11-13"
+                  ],
+                  "tags": []
+                }
+              },
+              {
+                "table": "exposure_data",
+                "column": "company",
+                "data_type": "VARCHAR",
+                "score": 0.9778,
+                "signature": "Table: exposure_data\nColumn: company\nType: VARCHAR\nDescription: \nSamples: RBC, ACME",
+                "metadata": {
+                  "table_description": "",
+                  "sample_values": [
+                    "RBC",
+                    "ACME"
+                  ],
+                  "tags": []
+                }
+              },
+              {
+                "table": "exposure_data",
+                "column": "date",
+                "data_type": "VARCHAR",
+                "score": 0.9734,
+                "signature": "Table: exposure_data\nColumn: date\nType: VARCHAR\nDescription: \nSamples: 2024-11-14, 2024-11-13",
+                "metadata": {
+                  "table_description": "",
+                  "sample_values": [
+                    "2024-11-14",
+                    "2024-11-13"
+                  ],
+                  "tags": []
+                }
+              }
+            ]
+          },
+          "llm_mapping": {
+            "entity_value": "RBC",
+            "selected_column": {
+              "table": "breach_data",
+              "column": "company",
+              "confidence": 0.0,
+              "reasoning": "LLM unavailable; using heuristic mapping."
+            },
+            "alternatives": [
+              {
+                "table": "exposure_data",
+                "column": "company",
+                "score": 0.0
+              },
+              {
+                "table": "trade_data",
+                "column": "company",
+                "score": 0.0
+              }
+            ],
+            "reasoning": "LLM unavailable; using heuristic mapping.",
+            "llm_used": false
+          },
+          "final_mapping": {
+            "table": "breach_data",
+            "column": "company",
+            "confidence": 0.0,
+            "reasoning": "LLM unavailable; using heuristic mapping."
+          }
+        }
+      },
+      "entity_search": {
+        "RBC": {
+          "entity_value": "RBC",
+          "total_matches": 5,
+          "matches": [
+            {
+              "table": "breach_data",
+              "column": "company",
+              "match_count": 1,
+              "sample_values": [
+                "RBC"
+              ],
+              "case_sensitive": false
+            },
+            {
+              "table": "exposure_data",
+              "column": "company",
+              "match_count": 2,
+              "sample_values": [
+                "RBC"
+              ],
+              "case_sensitive": false
+            },
+            {
+              "table": "trade_data",
+              "column": "company",
+              "match_count": 1,
+              "sample_values": [
+                "RBC"
+              ],
+              "case_sensitive": false
+            },
+            {
+              "table": "projects",
+              "column": "owner",
+              "match_count": 1,
+              "sample_values": [
+                "RBC"
+              ],
+              "case_sensitive": false
+            }
+          ]
+        }
+      },
+      "query_plan": {
+        "sub_queries": [
+          {
+            "id": "sq_primary",
+            "description": "Analyze exposure_data for matched entities",
+            "table": "exposure_data"
+          },
+          {
+            "id": "sq_breach_data",
+            "description": "Collect supporting data from breach_data",
+            "table": "breach_data"
+          },
+          {
+            "id": "sq_trade_data",
+            "description": "Collect supporting data from trade_data",
+            "table": "trade_data"
+          },
+          {
+            "id": "sq_projects",
+            "description": "Collect supporting data from projects",
+            "table": "projects"
+          }
+        ],
+        "execution_strategy": "sequential",
+        "reasoning": "Generated based on entity-to-table mappings"
+      },
+      "sql_queries": [
+        {
+          "id": "sq_primary",
+          "table": "exposure_data",
+          "sql": "SELECT * FROM exposure_data WHERE 1=1 LIMIT 50;",
+          "description": "Analyze exposure_data for matched entities"
+        },
+        {
+          "id": "sq_breach_data",
+          "table": "breach_data",
+          "sql": "SELECT * FROM breach_data WHERE LOWER(company) LIKE '%rbc%' LIMIT 50;",
+          "description": "Collect supporting data from breach_data"
+        },
+        {
+          "id": "sq_trade_data",
+          "table": "trade_data",
+          "sql": "SELECT * FROM trade_data WHERE 1=1 LIMIT 50;",
+          "description": "Collect supporting data from trade_data"
+        },
+        {
+          "id": "sq_projects",
+          "table": "projects",
+          "sql": "SELECT * FROM projects WHERE 1=1 LIMIT 50;",
+          "description": "Collect supporting data from projects"
+        }
+      ]
+    },
+    "reasoning_text": "{\n  \"intent\": {\n    \"primary_objective\": \"Analyze structured data\",\n    \"goal_type\": \"descriptive\",\n    \"required_entities\": [\n      \"RBC\"\n    ],\n    \"expected_outputs\": [\n      \"sql_queries\",\n      \"analytical_reasoning\"\n    ],\n    \"confidence\": 0.7\n  },\n  \"entities\": [\n    {\n      \"text\": \"RBC\",\n      \"type\": \"proper_noun\",\n      \"confidence\": 0.8\n    }\n  ],\n  \"entity_mappings\": {\n    \"RBC\": {\n      \"pattern_match\": {\n        \"entity_value\": \"RBC\",\n        \"matches\": [\n          {\n            \"table\": \"breach_data\",\n            \"column\": \"company\",\n            \"data_type\": \"VARCHAR\",\n            \"score\": 1.0,\n            \"match_type\": \"value_exact\",\n            \"evidence\": [\n              \"RBC\"\n            ],\n            \"description\": null,\n            \"table_description\": null\n          },\n          {\n            \"table\": \"exposure_data\",\n            \"column\": \"company\",\n            \"data_type\": \"VARCHAR\",\n            \"score\": 1.0,\n            \"match_type\": \"value_exact\",\n            \"evidence\": [\n              \"RBC\"\n            ],\n            \"description\": null,\n            \"table_description\": null\n          },\n          {\n            \"table\": \"trade_data\",\n            \"column\": \"company\",\n            \"data_type\": \"VARCHAR\",\n            \"score\": 1.0,\n            \"match_type\": \"value_exact\",\n            \"evidence\": [\n              \"RBC\"\n            ],\n            \"description\": null,\n            \"table_description\": null\n          },\n          {\n            \"table\": \"projects\",\n            \"column\": \"owner\",\n            \"data_type\": \"VARCHAR\",\n            \"score\": 1.0,\n            \"match_type\": \"value_exact\",\n            \"evidence\": [\n              \"RBC\"\n            ],\n            \"description\": null,\n            \"table_description\": null\n          }\n        ],\n        \"max_score\": 1.0,\n        \"total_matches\": 4\n      },\n      \"vector_search\": {\n        \"entity_value\": \"RBC\",\n        \"model_used\": \"sentence-transformers/all-MiniLM-L6-v2\",\n        \"index_path\": \"data/agent_state/deep_research_embeddings_20251115T001637Z.json\",\n        \"top_matches\": [\n          {\n            \"table\": \"breach_data\",\n            \"column\": \"company\",\n            \"data_type\": \"VARCHAR\",\n            \"score\": 1.0,\n            \"signature\": \"Table: breach_data\\nColumn: company\\nType: VARCHAR\\nDescription: \\nSamples: RBC, ACME\",\n            \"metadata\": {\n              \"table_description\": \"\",\n              \"sample_values\": [\n                \"RBC\",\n                \"ACME\"\n              ],\n              \"tags\": []\n            }\n          },\n          {\n            \"table\": \"breach_data\",\n            \"column\": \"limit_name\",\n            \"data_type\": \"VARCHAR\",\n            \"score\": 0.9923,\n            \"signature\": \"Table: breach_data\\nColumn: limit_name\\nType: VARCHAR\\nDescription: \\nSamples: Limit A, Limit B\",\n            \"metadata\": {\n              \"table_description\": \"\",\n              \"sample_values\": [\n                \"Limit A\",\n                \"Limit B\"\n              ],\n              \"tags\": []\n            }\n          },\n          {\n            \"table\": \"breach_data\",\n            \"column\": \"breach_date\",\n            \"data_type\": \"VARCHAR\",\n            \"score\": 0.9839,\n            \"signature\": \"Table: breach_data\\nColumn: breach_date\\nType: VARCHAR\\nDescription: \\nSamples: 2024-11-14, 2024-11-13\",\n            \"metadata\": {\n              \"table_description\": \"\",\n              \"sample_values\": [\n                \"2024-11-14\",\n                \"2024-11-13\"\n              ],\n              \"tags\": []\n            }\n          },\n          {\n            \"table\": \"exposure_data\",\n            \"column\": \"company\",\n            \"data_type\": \"VARCHAR\",\n            \"score\": 0.9778,\n            \"signature\": \"Table: exposure_data\\nColumn: company\\nType: VARCHAR\\nDescription: \\nSamples: RBC, ACME\",\n            \"metadata\": {\n              \"table_description\": \"\",\n              \"sample_values\": [\n                \"RBC\",\n                \"ACME\"\n              ],\n              \"tags\": []\n            }\n          },\n          {\n            \"table\": \"exposure_data\",\n            \"column\": \"date\",\n            \"data_type\": \"VARCHAR\",\n            \"score\": 0.9734,\n            \"signature\": \"Table: exposure_data\\nColumn: date\\nType: VARCHAR\\nDescription: \\nSamples: 2024-11-14, 2024-11-13\",\n            \"metadata\": {\n              \"table_description\": \"\",\n              \"sample_values\": [\n                \"2024-11-14\",\n                \"2024-11-13\"\n              ],\n              \"tags\": []\n            }\n          }\n        ]\n      },\n      \"llm_mapping\": {\n        \"entity_value\": \"RBC\",\n        \"selected_column\": {\n          \"table\": \"breach_data\",\n          \"column\": \"company\",\n          \"confidence\": 0.0,\n          \"reasoning\": \"LLM unavailable; using heuristic mapping.\"\n        },\n        \"alternatives\": [\n          {\n            \"table\": \"exposure_data\",\n            \"column\": \"company\",\n            \"score\": 0.0\n          },\n          {\n            \"table\": \"trade_data\",\n            \"column\": \"company\",\n            \"score\": 0.0\n          }\n        ],\n        \"reasoning\": \"LLM unavailable; using heuristic mapping.\",\n        \"llm_used\": false\n      },\n      \"final_mapping\": {\n        \"table\": \"breach_data\",\n        \"column\": \"company\",\n        \"confidence\": 0.0,\n        \"reasoning\": \"LLM unavailable; using heuristic mapping.\"\n      }\n    }\n  },\n  \"entity_search\": {\n    \"RBC\": {\n      \"entity_value\": \"RBC\",\n      \"total_matches\": 5,\n      \"matches\": [\n        {\n          \"table\": \"breach_data\",\n          \"column\": \"company\",\n          \"match_count\": 1,\n          \"sample_values\": [\n            \"RBC\"\n          ],\n          \"case_sensitive\": false\n        },\n        {\n          \"table\": \"exposure_data\",\n          \"column\": \"company\",\n          \"match_count\": 2,\n          \"sample_values\": [\n            \"RBC\"\n          ],\n          \"case_sensitive\": false\n        },\n        {\n          \"table\": \"trade_data\",\n          \"column\": \"company\",\n          \"match_count\": 1,\n          \"sample_values\": [\n            \"RBC\"\n          ],\n          \"case_sensitive\": false\n        },\n        {\n          \"table\": \"projects\",\n          \"column\": \"owner\",\n          \"match_count\": 1,\n          \"sample_values\": [\n            \"RBC\"\n          ],\n          \"case_sensitive\": false\n        }\n      ]\n    }\n  },\n  \"query_plan\": {\n    \"sub_queries\": [\n      {\n        \"id\": \"sq_primary\",\n        \"description\": \"Analyze exposure_data for matched entities\",\n        \"table\": \"exposure_data\"\n      },\n      {\n        \"id\": \"sq_breach_data\",\n        \"description\": \"Collect supporting data from breach_data\",\n        \"table\": \"breach_data\"\n      },\n      {\n        \"id\": \"sq_trade_data\",\n        \"description\": \"Collect supporting data from trade_data\",\n        \"table\": \"trade_data\"\n      },\n      {\n        \"id\": \"sq_projects\",\n        \"description\": \"Collect supporting data from projects\",\n        \"table\": \"projects\"\n      }\n    ],\n    \"execution_strategy\": \"sequential\",\n    \"reasoning\": \"Generated based on entity-to-table mappings\"\n  },\n  \"sql_queries\": [\n    {\n      \"id\": \"sq_primary\",\n      \"table\": \"exposure_data\",\n      \"sql\": \"SELECT * FROM exposure_data WHERE 1=1 LIMIT 50;\",\n      \"description\": \"Analyze exposure_data for matched entities\"\n    },\n    {\n      \"id\": \"sq_breach_data\",\n      \"table\": \"breach_data\",\n      \"sql\": \"SELECT * FROM breach_data WHERE LOWER(company) LIKE '%rbc%' LIMIT 50;\",\n      \"description\": \"Collect supporting data from breach_data\"\n    },\n    {\n      \"id\": \"sq_trade_data\",\n      \"table\": \"trade_data\",\n      \"sql\": \"SELECT * FROM trade_data WHERE 1=1 LIMIT 50;\",\n      \"description\": \"Collect supporting data from trade_data\"\n    },\n    {\n      \"id\": \"sq_projects\",\n      \"table\": \"projects\",\n      \"sql\": \"SELECT * FROM projects WHERE 1=1 LIMIT 50;\",\n      \"description\": \"Collect supporting data from projects\"\n    }\n  ]\n}",
+    "final_output": {
+      "response": "Deep research plan ready",
+      "analytical_reasoning": {
+        "intent": {
+          "primary_objective": "Analyze structured data",
+          "goal_type": "descriptive",
+          "required_entities": [
+            "RBC"
+          ],
+          "expected_outputs": [
+            "sql_queries",
+            "analytical_reasoning"
+          ],
+          "confidence": 0.7
+        },
+        "entities": [
+          {
+            "text": "RBC",
+            "type": "proper_noun",
+            "confidence": 0.8
+          }
+        ],
+        "entity_mappings": {
+          "RBC": {
+            "pattern_match": {
+              "entity_value": "RBC",
+              "matches": [
+                {
+                  "table": "breach_data",
+                  "column": "company",
+                  "data_type": "VARCHAR",
+                  "score": 1.0,
+                  "match_type": "value_exact",
+                  "evidence": [
+                    "RBC"
+                  ],
+                  "description": null,
+                  "table_description": null
+                },
+                {
+                  "table": "exposure_data",
+                  "column": "company",
+                  "data_type": "VARCHAR",
+                  "score": 1.0,
+                  "match_type": "value_exact",
+                  "evidence": [
+                    "RBC"
+                  ],
+                  "description": null,
+                  "table_description": null
+                },
+                {
+                  "table": "trade_data",
+                  "column": "company",
+                  "data_type": "VARCHAR",
+                  "score": 1.0,
+                  "match_type": "value_exact",
+                  "evidence": [
+                    "RBC"
+                  ],
+                  "description": null,
+                  "table_description": null
+                },
+                {
+                  "table": "projects",
+                  "column": "owner",
+                  "data_type": "VARCHAR",
+                  "score": 1.0,
+                  "match_type": "value_exact",
+                  "evidence": [
+                    "RBC"
+                  ],
+                  "description": null,
+                  "table_description": null
+                }
+              ],
+              "max_score": 1.0,
+              "total_matches": 4
+            },
+            "vector_search": {
+              "entity_value": "RBC",
+              "model_used": "sentence-transformers/all-MiniLM-L6-v2",
+              "index_path": "data/agent_state/deep_research_embeddings_20251115T001637Z.json",
+              "top_matches": [
+                {
+                  "table": "breach_data",
+                  "column": "company",
+                  "data_type": "VARCHAR",
+                  "score": 1.0,
+                  "signature": "Table: breach_data\nColumn: company\nType: VARCHAR\nDescription: \nSamples: RBC, ACME",
+                  "metadata": {
+                    "table_description": "",
+                    "sample_values": [
+                      "RBC",
+                      "ACME"
+                    ],
+                    "tags": []
+                  }
+                },
+                {
+                  "table": "breach_data",
+                  "column": "limit_name",
+                  "data_type": "VARCHAR",
+                  "score": 0.9923,
+                  "signature": "Table: breach_data\nColumn: limit_name\nType: VARCHAR\nDescription: \nSamples: Limit A, Limit B",
+                  "metadata": {
+                    "table_description": "",
+                    "sample_values": [
+                      "Limit A",
+                      "Limit B"
+                    ],
+                    "tags": []
+                  }
+                },
+                {
+                  "table": "breach_data",
+                  "column": "breach_date",
+                  "data_type": "VARCHAR",
+                  "score": 0.9839,
+                  "signature": "Table: breach_data\nColumn: breach_date\nType: VARCHAR\nDescription: \nSamples: 2024-11-14, 2024-11-13",
+                  "metadata": {
+                    "table_description": "",
+                    "sample_values": [
+                      "2024-11-14",
+                      "2024-11-13"
+                    ],
+                    "tags": []
+                  }
+                },
+                {
+                  "table": "exposure_data",
+                  "column": "company",
+                  "data_type": "VARCHAR",
+                  "score": 0.9778,
+                  "signature": "Table: exposure_data\nColumn: company\nType: VARCHAR\nDescription: \nSamples: RBC, ACME",
+                  "metadata": {
+                    "table_description": "",
+                    "sample_values": [
+                      "RBC",
+                      "ACME"
+                    ],
+                    "tags": []
+                  }
+                },
+                {
+                  "table": "exposure_data",
+                  "column": "date",
+                  "data_type": "VARCHAR",
+                  "score": 0.9734,
+                  "signature": "Table: exposure_data\nColumn: date\nType: VARCHAR\nDescription: \nSamples: 2024-11-14, 2024-11-13",
+                  "metadata": {
+                    "table_description": "",
+                    "sample_values": [
+                      "2024-11-14",
+                      "2024-11-13"
+                    ],
+                    "tags": []
+                  }
+                }
+              ]
+            },
+            "llm_mapping": {
+              "entity_value": "RBC",
+              "selected_column": {
+                "table": "breach_data",
+                "column": "company",
+                "confidence": 0.0,
+                "reasoning": "LLM unavailable; using heuristic mapping."
+              },
+              "alternatives": [
+                {
+                  "table": "exposure_data",
+                  "column": "company",
+                  "score": 0.0
+                },
+                {
+                  "table": "trade_data",
+                  "column": "company",
+                  "score": 0.0
+                }
+              ],
+              "reasoning": "LLM unavailable; using heuristic mapping.",
+              "llm_used": false
+            },
+            "final_mapping": {
+              "table": "breach_data",
+              "column": "company",
+              "confidence": 0.0,
+              "reasoning": "LLM unavailable; using heuristic mapping."
+            }
+          }
+        },
+        "entity_search": {
+          "RBC": {
+            "entity_value": "RBC",
+            "total_matches": 5,
+            "matches": [
+              {
+                "table": "breach_data",
+                "column": "company",
+                "match_count": 1,
+                "sample_values": [
+                  "RBC"
+                ],
+                "case_sensitive": false
+              },
+              {
+                "table": "exposure_data",
+                "column": "company",
+                "match_count": 2,
+                "sample_values": [
+                  "RBC"
+                ],
+                "case_sensitive": false
+              },
+              {
+                "table": "trade_data",
+                "column": "company",
+                "match_count": 1,
+                "sample_values": [
+                  "RBC"
+                ],
+                "case_sensitive": false
+              },
+              {
+                "table": "projects",
+                "column": "owner",
+                "match_count": 1,
+                "sample_values": [
+                  "RBC"
+                ],
+                "case_sensitive": false
+              }
+            ]
+          }
+        },
+        "query_plan": {
+          "sub_queries": [
+            {
+              "id": "sq_primary",
+              "description": "Analyze exposure_data for matched entities",
+              "table": "exposure_data"
+            },
+            {
+              "id": "sq_breach_data",
+              "description": "Collect supporting data from breach_data",
+              "table": "breach_data"
+            },
+            {
+              "id": "sq_trade_data",
+              "description": "Collect supporting data from trade_data",
+              "table": "trade_data"
+            },
+            {
+              "id": "sq_projects",
+              "description": "Collect supporting data from projects",
+              "table": "projects"
+            }
+          ],
+          "execution_strategy": "sequential",
+          "reasoning": "Generated based on entity-to-table mappings"
+        },
+        "sql_queries": [
+          {
+            "id": "sq_primary",
+            "table": "exposure_data",
+            "sql": "SELECT * FROM exposure_data WHERE 1=1 LIMIT 50;",
+            "description": "Analyze exposure_data for matched entities"
+          },
+          {
+            "id": "sq_breach_data",
+            "table": "breach_data",
+            "sql": "SELECT * FROM breach_data WHERE LOWER(company) LIKE '%rbc%' LIMIT 50;",
+            "description": "Collect supporting data from breach_data"
+          },
+          {
+            "id": "sq_trade_data",
+            "table": "trade_data",
+            "sql": "SELECT * FROM trade_data WHERE 1=1 LIMIT 50;",
+            "description": "Collect supporting data from trade_data"
+          },
+          {
+            "id": "sq_projects",
+            "table": "projects",
+            "sql": "SELECT * FROM projects WHERE 1=1 LIMIT 50;",
+            "description": "Collect supporting data from projects"
+          }
+        ]
+      },
+      "sql_queries": [
+        {
+          "id": "sq_primary",
+          "table": "exposure_data",
+          "sql": "SELECT * FROM exposure_data WHERE 1=1 LIMIT 50;",
+          "description": "Analyze exposure_data for matched entities"
+        },
+        {
+          "id": "sq_breach_data",
+          "table": "breach_data",
+          "sql": "SELECT * FROM breach_data WHERE LOWER(company) LIKE '%rbc%' LIMIT 50;",
+          "description": "Collect supporting data from breach_data"
+        },
+        {
+          "id": "sq_trade_data",
+          "table": "trade_data",
+          "sql": "SELECT * FROM trade_data WHERE 1=1 LIMIT 50;",
+          "description": "Collect supporting data from trade_data"
+        },
+        {
+          "id": "sq_projects",
+          "table": "projects",
+          "sql": "SELECT * FROM projects WHERE 1=1 LIMIT 50;",
+          "description": "Collect supporting data from projects"
+        }
+      ]
+    }
+  }
+}

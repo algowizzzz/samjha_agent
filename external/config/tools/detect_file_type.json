@@ -1,0 +1,10 @@
+{
+  "name": "detect_file_type",
+  "description": "Doc review tool: Detect File Type",
+  "enabled": true,
+  "version": "1.0.0",
+  "metadata": {
+    "category": "doc_review"
+  },
+  "implementation": "external.tools.doc_processing.detect_file_type.DetectFileTypeTool"
+}

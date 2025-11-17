@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VS Code Web – Doc Review IDE</title>
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .banner { padding: 10px 14px; background: #0f172a; color: #e2e8f0; font-size: 14px; }
+    .hint { color: #94a3b8; }
+    iframe { width: 100%; height: calc(100% - 46px); border: none; display: block; }
+  </style>
+  <script>
+    // Default target for an external OpenVSCode Server instance
+    const DEFAULT_IDE_URL = 'http://localhost:3000/';
+    function init() {
+      const params = new URLSearchParams(location.search);
+      const target = params.get('target') || DEFAULT_IDE_URL;
+      const frame = document.getElementById('ide');
+      frame.src = target;
+      document.getElementById('link').href = target;
+      document.getElementById('link').textContent = target;
+    }
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</head>
+<body>
+  <div class="banner">
+    VS Code Web is being loaded from <a id="link" href="#" target="_blank" style="color:#38bdf8; text-decoration:none;"></a>
+    <span class="hint"> • Adjust by appending ?target=http://host:port/ to this URL</span>
+  </div>
+  <iframe id="ide" title="VS Code Web"></iframe>
+</body>
+<html>
+
+

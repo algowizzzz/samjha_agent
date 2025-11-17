@@ -1,0 +1,402 @@
+{
+  "model": "sentence-transformers/all-MiniLM-L6-v2",
+  "dimension": 2,
+  "created_at": "2025-11-15T00:16:56.936211Z",
+  "column_count": 22,
+  "columns": [
+    {
+      "table": "breach_data",
+      "column": "company",
+      "data_type": "VARCHAR",
+      "signature": "Table: breach_data\nColumn: company\nType: VARCHAR\nDescription: \nSamples: RBC, ACME",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "RBC",
+          "ACME"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        1.0,
+        2.0
+      ]
+    },
+    {
+      "table": "breach_data",
+      "column": "limit_name",
+      "data_type": "VARCHAR",
+      "signature": "Table: breach_data\nColumn: limit_name\nType: VARCHAR\nDescription: \nSamples: Limit A, Limit B",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "Limit A",
+          "Limit B"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        2.0,
+        3.0
+      ]
+    },
+    {
+      "table": "breach_data",
+      "column": "breach_date",
+      "data_type": "VARCHAR",
+      "signature": "Table: breach_data\nColumn: breach_date\nType: VARCHAR\nDescription: \nSamples: 2024-11-14, 2024-11-13",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "2024-11-14",
+          "2024-11-13"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        3.0,
+        4.0
+      ]
+    },
+    {
+      "table": "exposure_data",
+      "column": "company",
+      "data_type": "VARCHAR",
+      "signature": "Table: exposure_data\nColumn: company\nType: VARCHAR\nDescription: \nSamples: RBC, ACME",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "RBC",
+          "ACME"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        4.0,
+        5.0
+      ]
+    },
+    {
+      "table": "exposure_data",
+      "column": "date",
+      "data_type": "VARCHAR",
+      "signature": "Table: exposure_data\nColumn: date\nType: VARCHAR\nDescription: \nSamples: 2024-11-14, 2024-11-13",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "2024-11-14",
+          "2024-11-13"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        5.0,
+        6.0
+      ]
+    },
+    {
+      "table": "exposure_data",
+      "column": "exposure_amt",
+      "data_type": "VARCHAR",
+      "signature": "Table: exposure_data\nColumn: exposure_amt\nType: VARCHAR\nDescription: \nSamples: 100, 95, 50",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "100",
+          "95",
+          "50"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        6.0,
+        7.0
+      ]
+    },
+    {
+      "table": "exposure_data",
+      "column": "region",
+      "data_type": "VARCHAR",
+      "signature": "Table: exposure_data\nColumn: region\nType: VARCHAR\nDescription: \nSamples: Canada, US",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "Canada",
+          "US"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        7.0,
+        8.0
+      ]
+    },
+    {
+      "table": "balance_sheet",
+      "column": "company",
+      "data_type": "VARCHAR",
+      "signature": "Table: balance_sheet\nColumn: company\nType: VARCHAR\nDescription: \nSamples: ACME",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "ACME"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        8.0,
+        9.0
+      ]
+    },
+    {
+      "table": "balance_sheet",
+      "column": "period",
+      "data_type": "VARCHAR",
+      "signature": "Table: balance_sheet\nColumn: period\nType: VARCHAR\nDescription: \nSamples: 2024Q3, 2024Q2",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "2024Q3",
+          "2024Q2"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        9.0,
+        10.0
+      ]
+    },
+    {
+      "table": "balance_sheet",
+      "column": "total_assets",
+      "data_type": "VARCHAR",
+      "signature": "Table: balance_sheet\nColumn: total_assets\nType: VARCHAR\nDescription: \nSamples: 5000, 4800",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "5000",
+          "4800"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        10.0,
+        11.0
+      ]
+    },
+    {
+      "table": "balance_sheet",
+      "column": "total_liabilities",
+      "data_type": "VARCHAR",
+      "signature": "Table: balance_sheet\nColumn: total_liabilities\nType: VARCHAR\nDescription: \nSamples: 3000, 2900",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "3000",
+          "2900"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        11.0,
+        12.0
+      ]
+    },
+    {
+      "table": "income_statement",
+      "column": "company",
+      "data_type": "VARCHAR",
+      "signature": "Table: income_statement\nColumn: company\nType: VARCHAR\nDescription: \nSamples: ACME",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "ACME"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        12.0,
+        13.0
+      ]
+    },
+    {
+      "table": "income_statement",
+      "column": "period",
+      "data_type": "VARCHAR",
+      "signature": "Table: income_statement\nColumn: period\nType: VARCHAR\nDescription: \nSamples: 2024Q3, 2024Q2",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "2024Q3",
+          "2024Q2"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        13.0,
+        14.0
+      ]
+    },
+    {
+      "table": "income_statement",
+      "column": "revenue",
+      "data_type": "VARCHAR",
+      "signature": "Table: income_statement\nColumn: revenue\nType: VARCHAR\nDescription: \nSamples: 1000, 900",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "1000",
+          "900"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        14.0,
+        15.0
+      ]
+    },
+    {
+      "table": "income_statement",
+      "column": "expenses",
+      "data_type": "VARCHAR",
+      "signature": "Table: income_statement\nColumn: expenses\nType: VARCHAR\nDescription: \nSamples: 700, 650",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "700",
+          "650"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        15.0,
+        16.0
+      ]
+    },
+    {
+      "table": "trade_data",
+      "column": "trade_id",
+      "data_type": "VARCHAR",
+      "signature": "Table: trade_data\nColumn: trade_id\nType: VARCHAR\nDescription: \nSamples: T1, T2",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "T1",
+          "T2"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        16.0,
+        17.0
+      ]
+    },
+    {
+      "table": "trade_data",
+      "column": "company",
+      "data_type": "VARCHAR",
+      "signature": "Table: trade_data\nColumn: company\nType: VARCHAR\nDescription: \nSamples: RBC, ACME",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "RBC",
+          "ACME"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        17.0,
+        18.0
+      ]
+    },
+    {
+      "table": "trade_data",
+      "column": "trade_date",
+      "data_type": "VARCHAR",
+      "signature": "Table: trade_data\nColumn: trade_date\nType: VARCHAR\nDescription: \nSamples: 2024-11-14",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "2024-11-14"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        18.0,
+        19.0
+      ]
+    },
+    {
+      "table": "trade_data",
+      "column": "notional",
+      "data_type": "VARCHAR",
+      "signature": "Table: trade_data\nColumn: notional\nType: VARCHAR\nDescription: \nSamples: 1000, 500",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "1000",
+          "500"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        19.0,
+        20.0
+      ]
+    },
+    {
+      "table": "projects",
+      "column": "project_name",
+      "data_type": "VARCHAR",
+      "signature": "Table: projects\nColumn: project_name\nType: VARCHAR\nDescription: \nSamples: Phoenix, Helios",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "Phoenix",
+          "Helios"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        20.0,
+        21.0
+      ]
+    },
+    {
+      "table": "projects",
+      "column": "status",
+      "data_type": "VARCHAR",
+      "signature": "Table: projects\nColumn: status\nType: VARCHAR\nDescription: \nSamples: On Track, Delayed",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "On Track",
+          "Delayed"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        21.0,
+        22.0
+      ]
+    },
+    {
+      "table": "projects",
+      "column": "owner",
+      "data_type": "VARCHAR",
+      "signature": "Table: projects\nColumn: owner\nType: VARCHAR\nDescription: \nSamples: RBC, ACME",
+      "metadata": {
+        "table_description": "",
+        "sample_values": [
+          "RBC",
+          "ACME"
+        ],
+        "tags": []
+      },
+      "embedding": [
+        22.0,
+        23.0
+      ]
+    }
+  ]
+}

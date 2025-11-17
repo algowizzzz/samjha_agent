@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doc Review Frontend WebSocket Tests</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .test-output {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .test-pass { color: #28a745; }
+        .test-fail { color: #dc3545; }
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Document Review Frontend WebSocket Tests</h1>
+    <p>Testing SocketIO event handling, timeline updates, chat functionality, and room management.</p>
+    <button onclick="runTests()" style="padding: 10px 20px; font-size: 16px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px;">
+        Run Tests
+    </button>
+    <div id="testOutput" class="test-output">Click "Run Tests" to start...</div>
+
+    <script src="test_doc_review_frontend_websocket.js"></script>
+    <script>
+        function runTests() {
+            const output = document.getElementById('testOutput');
+            output.textContent = 'Running tests...\n\n';
+            
+            // Capture console.log and console.error
+            const originalLog = console.log;
+            const originalError = console.error;
+            let logOutput = '';
+            
+            console.log = (...args) => {
+                logOutput += args.join(' ') + '\n';
+                originalLog.apply(console, args);
+            };
+            
+            console.error = (...args) => {
+                logOutput += args.join(' ') + '\n';
+                originalError.apply(console, args);
+            };
+            
+            // Run tests
+            setTimeout(() => {
+                console.log = originalLog;
+                console.error = originalError;
+                output.textContent = logOutput;
+                
+                // Add summary styling
+                const lines = logOutput.split('\n');
+                let styledOutput = '';
+                lines.forEach(line => {
+                    if (line.includes('✅')) {
+                        styledOutput += `<span class="test-pass">${line}</span>\n`;
+                    } else if (line.includes('❌')) {
+                        styledOutput += `<span class="test-fail">${line}</span>\n`;
+                    } else {
+                        styledOutput += line + '\n';
+                    }
+                });
+                output.innerHTML = styledOutput;
+            }, 100);
+        }
+    </script>
+</body>
+</html>
+

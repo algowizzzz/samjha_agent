@@ -1,0 +1,13 @@
+{
+  "name": "model_doc_compute_stats",
+  "implementation": "tools.impl.model_doc_compute_stats_tool.ModelDocComputeStatsTool",
+  "description": "Calculate lines of code, complexity metrics, and counts from file content and AST structure.",
+  "version": "1.0.0",
+  "enabled": true,
+  "metadata": {
+    "author": "Ashutosh Sinha",
+    "category": "Model Documentation",
+    "tags": ["model-doc", "statistics", "metrics", "complexity"]
+  }
+}
+

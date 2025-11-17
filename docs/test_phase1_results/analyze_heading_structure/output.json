@@ -1,0 +1,625 @@
+{
+  "file_id": "car-chapter-1-overview",
+  "md_file_id": "car-chapter-1-overview_md_9eff46d4",
+  "headings": [
+    {
+      "level": 1,
+      "heading_level": "h1",
+      "heading_text": "Guideline",
+      "line_number": 1,
+      "heading_path": [
+        "Guideline"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "Chapter 1 – Overview of risk-based capital requirements",
+      "line_number": 5,
+      "heading_path": [
+        "Guideline",
+        "Chapter 1 – Overview of risk-based capital requirements"
+      ]
+    },
+    {
+      "level": 1,
+      "heading_level": "h1",
+      "heading_text": "Chapter 1 - Overview of risk-based capital",
+      "line_number": 9,
+      "heading_path": [
+        "Chapter 1 - Overview of risk-based capital"
+      ]
+    },
+    {
+      "level": 1,
+      "heading_level": "h1",
+      "heading_text": "requirements",
+      "line_number": 11,
+      "heading_path": [
+        "requirements"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "chapters is as follows",
+      "line_number": 15,
+      "heading_path": [
+        "requirements",
+        "chapters is as follows"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "Chapter 1 Overview of Risk-based Capital Requirements",
+      "line_number": 17,
+      "heading_path": [
+        "requirements",
+        "Chapter 1 Overview of Risk-based Capital Requirements"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "Chapter 2 Definition of Capital",
+      "line_number": 19,
+      "heading_path": [
+        "requirements",
+        "Chapter 2 Definition of Capital"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "Chapter 3 Operational Risk",
+      "line_number": 21,
+      "heading_path": [
+        "requirements",
+        "Chapter 3 Operational Risk"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "Chapter 4 Credit Risk – Standardized Approach",
+      "line_number": 23,
+      "heading_path": [
+        "requirements",
+        "Chapter 4 Credit Risk – Standardized Approach"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "Chapter 5 Credit Risk – Internal Ratings-Based Approach",
+      "line_number": 25,
+      "heading_path": [
+        "requirements",
+        "Chapter 5 Credit Risk – Internal Ratings-Based Approach"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "Chapter 6 Securitization",
+      "line_number": 27,
+      "heading_path": [
+        "requirements",
+        "Chapter 6 Securitization"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "Chapter 7 Settlement and Counterparty Risk",
+      "line_number": 29,
+      "heading_path": [
+        "requirements",
+        "Chapter 7 Settlement and Counterparty Risk"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "Chapter 8 Credit Valuation Adjustment (CVA) Risk",
+      "line_number": 31,
+      "heading_path": [
+        "requirements",
+        "Chapter 8 Credit Valuation Adjustment (CVA) Risk"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "Chapter 9 Market Risk",
+      "line_number": 33,
+      "heading_path": [
+        "requirements",
+        "Chapter 9 Market Risk"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "Chapter 1 – Overview of Risk-based Capital Requirements ................................................ 4",
+      "line_number": 37,
+      "heading_path": [
+        "requirements",
+        "Chapter 1 – Overview of Risk-based Capital Requirements ................................................ 4"
+      ]
+    },
+    {
+      "level": 1,
+      "heading_level": "h1",
+      "heading_text": "Chapter 1 – Overview of Risk-based Capital",
+      "line_number": 41,
+      "heading_path": [
+        "Chapter 1 – Overview of Risk-based Capital"
+      ]
+    },
+    {
+      "level": 1,
+      "heading_level": "h1",
+      "heading_text": "Requirements",
+      "line_number": 43,
+      "heading_path": [
+        "Requirements"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "basis to the following institutions",
+      "line_number": 47,
+      "heading_path": [
+        "Requirements",
+        "basis to the following institutions"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "5. Total capital consists of the sum of the following elements",
+      "line_number": 51,
+      "heading_path": [
+        "Requirements",
+        "5. Total capital consists of the sum of the following elements"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "i. Tier 1 capital, consisting of",
+      "line_number": 53,
+      "heading_path": [
+        "Requirements",
+        "i. Tier 1 capital, consisting of"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "Chapter 2.",
+      "line_number": 57,
+      "heading_path": [
+        "Requirements",
+        "Chapter 2."
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "and is calculated as the higher of",
+      "line_number": 61,
+      "heading_path": [
+        "Requirements",
+        "and is calculated as the higher of"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "a. the sum of the following three elements",
+      "line_number": 63,
+      "heading_path": [
+        "Requirements",
+        "a. the sum of the following three elements"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "through (e) below, is calculated using",
+      "line_number": 67,
+      "heading_path": [
+        "Requirements",
+        "through (e) below, is calculated using"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "or more of the approaches set out in Chapter 6",
+      "line_number": 71,
+      "heading_path": [
+        "Requirements",
+        "or more of the approaches set out in Chapter 6"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "banking book, calculated as set out in Chapter 8 using either",
+      "line_number": 75,
+      "heading_path": [
+        "Requirements",
+        "banking book, calculated as set out in Chapter 8 using either"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "cost",
+      "line_number": 79,
+      "heading_path": [
+        "Requirements",
+        "cost"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "Chapter 7 for an overview of the counterparty credit risk requirements including the types of",
+      "line_number": 83,
+      "heading_path": [
+        "Requirements",
+        "Chapter 7 for an overview of the counterparty credit risk requirements including the types of"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "transactions to which the methods below can be applied)",
+      "line_number": 85,
+      "heading_path": [
+        "Requirements",
+        "transactions to which the methods below can be applied)"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "book, calculated using",
+      "line_number": 89,
+      "heading_path": [
+        "Requirements",
+        "book, calculated using"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "19. RWA for operational risk are calculated using either",
+      "line_number": 93,
+      "heading_path": [
+        "Requirements",
+        "19. RWA for operational risk are calculated using either"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "counterparty credit risk, or market risk must calculate the difference between",
+      "line_number": 97,
+      "heading_path": [
+        "Requirements",
+        "counterparty credit risk, or market risk must calculate the difference between"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "net total of the following amounts",
+      "line_number": 101,
+      "heading_path": [
+        "Requirements",
+        "net total of the following amounts"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "calculation of the capital floor",
+      "line_number": 105,
+      "heading_path": [
+        "Requirements",
+        "calculation of the capital floor"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "guideline and is equal to the net total of the following amounts",
+      "line_number": 109,
+      "heading_path": [
+        "Requirements",
+        "guideline and is equal to the net total of the following amounts"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "Chapter 2 of this guideline.",
+      "line_number": 113,
+      "heading_path": [
+        "Requirements",
+        "Chapter 2 of this guideline."
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "calculated as follows",
+      "line_number": 117,
+      "heading_path": [
+        "Requirements",
+        "calculated as follows"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶",
+      "line_number": 121,
+      "heading_path": [
+        "Requirements",
+        "𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "Where",
+      "line_number": 125,
+      "heading_path": [
+        "Requirements",
+        "Where"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "𝑅𝑅𝑅𝑅𝑅𝑅",
+      "line_number": 127,
+      "heading_path": [
+        "Requirements",
+        "𝑅𝑅𝑅𝑅𝑅𝑅"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "CET1 4.5%",
+      "line_number": 131,
+      "heading_path": [
+        "Requirements",
+        "CET1 4.5%"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "calculated as follows",
+      "line_number": 135,
+      "heading_path": [
+        "Requirements",
+        "calculated as follows"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "SRBCR",
+      "line_number": 137,
+      "heading_path": [
+        "Requirements",
+        "SRBCR"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶",
+      "line_number": 139,
+      "heading_path": [
+        "Requirements",
+        "𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶 𝑹𝑹𝑶𝑶𝑹𝑹𝑹𝑹",
+      "line_number": 143,
+      "heading_path": [
+        "Requirements",
+        "𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶 𝑹𝑹𝑶𝑶𝑹𝑹𝑹𝑹"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "𝑹𝑹𝑹𝑹𝑹𝑹",
+      "line_number": 145,
+      "heading_path": [
+        "Requirements",
+        "𝑹𝑹𝑹𝑹𝑹𝑹"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "𝑅𝑅𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐶𝐶𝐴𝐴𝐴𝐴 𝑇𝑇𝑇𝑇𝐶𝐶𝐶𝐶𝐶𝐶 𝑅𝑅𝐴𝐴𝐴𝐴𝐴𝐴𝐶𝐶𝐴𝐴 +",
+      "line_number": 147,
+      "heading_path": [
+        "Requirements",
+        "𝑅𝑅𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐶𝐶𝐴𝐴𝐴𝐴 𝑇𝑇𝑇𝑇𝐶𝐶𝐶𝐶𝐶𝐶 𝑅𝑅𝐴𝐴𝐴𝐴𝐴𝐴𝐶𝐶𝐴𝐴 +"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "Where",
+      "line_number": 149,
+      "heading_path": [
+        "Requirements",
+        "Where"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "CET1 4.5%",
+      "line_number": 153,
+      "heading_path": [
+        "Requirements",
+        "CET1 4.5%"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "CET1 7.0%",
+      "line_number": 157,
+      "heading_path": [
+        "Requirements",
+        "CET1 7.0%"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "RWA ]",
+      "line_number": 161,
+      "heading_path": [
+        "Requirements",
+        "RWA ]"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "apply to dividends which satisfy all of the following conditions",
+      "line_number": 165,
+      "heading_path": [
+        "Requirements",
+        "apply to dividends which satisfy all of the following conditions"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "54. The countercyclical buffer regime consists, in Canada, of the following elements",
+      "line_number": 169,
+      "heading_path": [
+        "Requirements",
+        "54. The countercyclical buffer regime consists, in Canada, of the following elements"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "CET1",
+      "line_number": 173,
+      "heading_path": [
+        "Requirements",
+        "CET1"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "RBC 30.14]",
+      "line_number": 177,
+      "heading_path": [
+        "Requirements",
+        "RBC 30.14]"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "30.14 FAQ1]",
+      "line_number": 181,
+      "heading_path": [
+        "Requirements",
+        "30.14 FAQ1]"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "booked in Canada or abroad, the data show that",
+      "line_number": 185,
+      "heading_path": [
+        "Requirements",
+        "booked in Canada or abroad, the data show that"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "range of evidence are the following",
+      "line_number": 189,
+      "heading_path": [
+        "Requirements",
+        "range of evidence are the following"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "important provides credible additional loss absorbency given",
+      "line_number": 193,
+      "heading_path": [
+        "Requirements",
+        "important provides credible additional loss absorbency given"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "From a forward-looking perspective",
+      "line_number": 197,
+      "heading_path": [
+        "Requirements",
+        "From a forward-looking perspective"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "following",
+      "line_number": 201,
+      "heading_path": [
+        "Requirements",
+        "following"
+      ]
+    },
+    {
+      "level": 2,
+      "heading_level": "h2",
+      "heading_text": "Notes",
+      "line_number": 205,
+      "heading_path": [
+        "Requirements",
+        "Notes"
+      ]
+    }
+  ],
+  "heading_levels": [
+    "h1",
+    "h2"
+  ]
+}

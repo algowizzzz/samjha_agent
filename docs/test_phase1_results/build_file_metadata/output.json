@@ -1,0 +1,26 @@
+{
+  "file_metadata": {
+    "file_id": "car-chapter-1-overview",
+    "source_path": "/Users/saadahmed/samjha_agent/samjha_agent/docs/CAR_Chapter_1_Overview.pdf",
+    "file_type": "pdf",
+    "md_file_id": "car-chapter-1-overview_md_9eff46d4",
+    "md_path": "external/data/doc_review/markdown/car-chapter-1-overview_md_9eff46d4.md",
+    "images": [],
+    "page_count": 24,
+    "word_count": 10354,
+    "heading_levels": [
+      "h1",
+      "h2"
+    ],
+    "chunking": {
+      "should_chunk": null,
+      "strategy": null,
+      "reason": null,
+      "max_chunk_tokens": null
+    },
+    "stats": {
+      "created_at": "2025-11-13T22:16:15.192509Z",
+      "ingestion_version": "v1"
+    }
+  }
+}

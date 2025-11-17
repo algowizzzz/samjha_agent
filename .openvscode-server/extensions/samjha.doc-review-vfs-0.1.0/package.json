@@ -1,0 +1,61 @@
+{
+	"name": "doc-review-vfs",
+	"displayName": "Doc Review VFS",
+	"description": "Virtual file system provider for the Document Review Agent backend.",
+	"version": "0.1.0",
+	"publisher": "samjha",
+	"engines": {
+		"vscode": "^1.85.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:docReview.selectDocument",
+		"onCommand:docReview.refresh",
+		"onCommand:docReview.openAgentConsole",
+		"onStartupFinished"
+	],
+	"main": "./dist/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "docReview.selectDocument",
+				"title": "Doc Review: Select Document"
+			},
+			{
+				"command": "docReview.refresh",
+				"title": "Doc Review: Refresh File System"
+			},
+			{
+				"command": "docReview.openAgentConsole",
+				"title": "Doc Review: Open Agent Console"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "Doc Review",
+			"properties": {
+				"docReview.apiBaseUrl": {
+					"type": "string",
+					"default": "",
+					"description": "Override the backend base URL if the IDE is proxied under a different origin."
+				}
+			}
+		}
+	},
+	"scripts": {
+		"compile": "tsc -p ./tsconfig.json",
+		"watch": "tsc -w -p ./tsconfig.json"
+	},
+	"devDependencies": {
+		"@types/node": "^18.19.0",
+		"@types/vscode": "^1.85.0",
+		"typescript": "^5.3.3"
+	},
+	"__metadata": {
+		"installedTimestamp": 1763256969843,
+		"targetPlatform": "undefined",
+		"size": 39351
+	}
+}

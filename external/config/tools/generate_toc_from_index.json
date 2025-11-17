@@ -1,0 +1,10 @@
+{
+  "name": "generate_toc_from_index",
+  "description": "Doc review tool: Generate Toc From Index",
+  "enabled": true,
+  "version": "1.0.0",
+  "metadata": {
+    "category": "doc_review"
+  },
+  "implementation": "external.tools.doc_processing.generate_toc_from_index.GenerateTocFromIndexTool"
+}

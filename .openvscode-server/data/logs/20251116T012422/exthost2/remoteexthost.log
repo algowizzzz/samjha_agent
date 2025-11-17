@@ -1,0 +1,43 @@
+2025-11-16 01:41:33.142 [info] Extension host with pid 54 started
+2025-11-16 01:41:33.211 [info] ExtensionService#_doActivateExtension vscode.emmet, startup: false, activationEvent: 'onLanguage'
+2025-11-16 01:41:33.316 [info] ExtensionService#_doActivateExtension vscode.git-base, startup: true, activationEvent: '*', root cause: vscode.git
+2025-11-16 01:41:33.321 [info] ExtensionService#_doActivateExtension vscode.git, startup: true, activationEvent: '*'
+2025-11-16 01:41:33.321 [info] ExtensionService#_doActivateExtension vscode.github, startup: true, activationEvent: '*'
+2025-11-16 01:41:33.382 [info] Eager extensions activated
+2025-11-16 01:41:33.382 [info] ExtensionService#_doActivateExtension vscode.debug-auto-launch, startup: false, activationEvent: 'onStartupFinished'
+2025-11-16 01:41:33.382 [info] ExtensionService#_doActivateExtension vscode.merge-conflict, startup: false, activationEvent: 'onStartupFinished'
+2025-11-16 01:41:33.382 [info] ExtensionService#_doActivateExtension samjha.doc-review-vfs, startup: false, activationEvent: 'onStartupFinished'
+2025-11-16 01:41:39.255 [error] TypeError: fetch failed
+	at node:internal/deps/undici/undici:13510:13
+	at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+	at async RQ.globalThis.fetch (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:203:24658)
+	at async DocReviewApi.getJSON (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:67:26)
+	at async pickDocument (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:155:20)
+	at async /home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:191:21
+	at async iy.h (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:41613) docReview.selectDocument {"value":"samjha.doc-review-vfs","_lower":"samjha.doc-review-vfs"}
+2025-11-16 01:41:40.259 [error] TypeError: fetch failed
+	at node:internal/deps/undici/undici:13510:13
+	at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+	at async RQ.globalThis.fetch (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:203:24658)
+	at async DocReviewApi.getJSON (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:67:26)
+	at async pickDocument (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:155:20)
+	at async /home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:191:21
+	at async iy.h (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:41613)
+2025-11-16 01:41:54.707 [error] TypeError: fetch failed
+	at node:internal/deps/undici/undici:13510:13
+	at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+	at async RQ.globalThis.fetch (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:203:24658)
+	at async DocReviewApi.getJSON (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:67:26)
+	at async pickDocument (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:155:20)
+	at async /home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:191:21
+	at async iy.h (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:41613) docReview.selectDocument {"value":"samjha.doc-review-vfs","_lower":"samjha.doc-review-vfs"}
+2025-11-16 01:45:17.307 [error] TypeError: fetch failed
+	at node:internal/deps/undici/undici:13510:13
+	at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+	at async RQ.globalThis.fetch (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:203:24658)
+	at async DocReviewApi.getJSON (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:67:26)
+	at async pickDocument (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:155:20)
+	at async /home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:191:21
+	at async iy.h (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:41613) docReview.selectDocument {"value":"samjha.doc-review-vfs","_lower":"samjha.doc-review-vfs"}
+2025-11-16 01:48:21.027 [info] Extension host terminating: received terminate message from renderer
+2025-11-16 01:48:21.047 [info] Extension host with pid 54 exiting with code 0

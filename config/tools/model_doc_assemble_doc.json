@@ -1,0 +1,13 @@
+{
+  "name": "model_doc_assemble_doc",
+  "implementation": "tools.impl.model_doc_assemble_doc_tool.ModelDocAssembleDocTool",
+  "description": "Combine section drafts into a complete markdown document based on template structure.",
+  "version": "1.0.0",
+  "enabled": true,
+  "metadata": {
+    "author": "Ashutosh Sinha",
+    "category": "Model Documentation",
+    "tags": ["model-doc", "assembly", "markdown", "documentation"]
+  }
+}
+

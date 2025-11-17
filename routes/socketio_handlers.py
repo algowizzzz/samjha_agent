@@ -127,3 +127,63 @@ class SocketIOHandlers:
                 join_room(session_id)
                 logging.info(f"Client {request.sid} joined session room: {session_id}")
                 emit('session_joined', {'session_id': session_id})
+
+        @self.socketio.on('doc_review:join')
+        def handle_doc_review_join(data):
+            """Join a document review log stream"""
+            token = data.get('token')
+            file_id = data.get('file_id')
+            if not token or not file_id:
+                emit('doc_review:error', {'error': 'token and file_id are required'}, to=request.sid)
+                return
+
+            session_data = self.auth_manager.validate_session(token)
+            if not session_data:
+                emit('doc_review:error', {'error': 'Invalid token'}, to=request.sid)
+                return
+
+            room = f"doc_review:{file_id}"
+            join_room(room)
+            logging.info("Client %s joined doc review room %s", request.sid, room)
+            emit('doc_review:joined', {'file_id': file_id}, to=request.sid)
+
+        @self.socketio.on('doc_review:leave')
+        def handle_doc_review_leave(data):
+            """Leave a document review log stream"""
+            file_id = data.get('file_id')
+            if not file_id:
+                return
+            room = f"doc_review:{file_id}"
+            leave_room(room)
+            logging.info("Client %s left doc review room %s", request.sid, room)
+            emit('doc_review:left', {'file_id': file_id}, to=request.sid)
+
+        @self.socketio.on('model_doc:join')
+        def handle_model_doc_join(data):
+            """Join a model documentation log stream"""
+            token = data.get('token')
+            codebase_id = data.get('codebase_id')
+            if not token or not codebase_id:
+                emit('model_doc:error', {'error': 'token and codebase_id are required'}, to=request.sid)
+                return
+
+            session_data = self.auth_manager.validate_session(token)
+            if not session_data:
+                emit('model_doc:error', {'error': 'Invalid token'}, to=request.sid)
+                return
+
+            room = f"model_doc:{codebase_id}"
+            join_room(room)
+            logging.info("Client %s joined model doc room %s", request.sid, room)
+            emit('model_doc:joined', {'codebase_id': codebase_id}, to=request.sid)
+
+        @self.socketio.on('model_doc:leave')
+        def handle_model_doc_leave(data):
+            """Leave a model documentation log stream"""
+            codebase_id = data.get('codebase_id')
+            if not codebase_id:
+                return
+            room = f"model_doc:{codebase_id}"
+            leave_room(room)
+            logging.info("Client %s left model doc room %s", request.sid, room)
+            emit('model_doc:left', {'codebase_id': codebase_id}, to=request.sid)

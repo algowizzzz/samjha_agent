@@ -1,0 +1,834 @@
+Below is a concrete, code-level sketch of the nodes for a LangGraph (Python) workflow, wired around the `AgentState` we defined.
+
+I’ll:
+
+* Use `AgentState` as in our previous message (you can paste that in a shared `state.py`).
+* Show **function signatures** as `def node_name(state: AgentState) -> AgentState:`.
+* For each node, clearly mark **reads** and **writes** in comments.
+* Treat MCP calls as a placeholder function `call_mcp(tool_name, payload)` that you’ll implement with your MCP client.
+
+You can then plug these into `StateGraph` with edges.
+
+---
+
+## 0. Imports and AgentState alias
+
+```python
+from typing import cast
+from typing_extensions import TypedDict
+from copy import deepcopy
+
+# Assume AgentState, FileMetadata, Chunk, FileIndex, etc. are defined as before
+from .types import AgentState
+from .mcp_client import call_mcp  # your wrapper around MCP calls
+```
+
+---
+
+## 1. Ingestion nodes
+
+### 1.1 `node_detect_file_type`
+
+```python
+def node_detect_file_type(state: AgentState) -> AgentState:
+    """
+    Reads:
+      - state["file_id"]
+      - state["source_path"]
+    Writes:
+      - state["file_type"]
+      - state["last_node"], state["logs"]
+    """
+    file_id = state["file_id"]
+    source_path = state["source_path"]
+
+    result = call_mcp("detect_file_type", {
+        "file_id": file_id,
+        "source_path": source_path,
+    })
+
+    state["file_type"] = result["file_type"]
+    state.setdefault("logs", []).append(f"detect_file_type: {result}")
+    state["last_node"] = "detect_file_type"
+    return state
+```
+
+---
+
+### 1.2 `node_convert_to_markdown`
+
+```python
+def node_convert_to_markdown(state: AgentState) -> AgentState:
+    """
+    Reads:
+      - state["file_id"]
+      - state["source_path"]
+      - state["file_type"]
+    Writes:
+      - state["md_file_id"]
+      - state["md_path"]
+      - state["raw_markdown"]
+      - state["last_node"], state["logs"]
+    """
+    file_id = state["file_id"]
+    source_path = state["source_path"]
+    file_type = state["file_type"]
+
+    result = call_mcp("convert_to_markdown", {
+        "file_id": file_id,
+        "source_path": source_path,
+        "file_type": file_type,
+    })
+
+    state["md_file_id"] = result["md_file_id"]
+    state["md_path"] = result["md_path"]
+    state["raw_markdown"] = result["raw_markdown"]
+    state.setdefault("logs", []).append(f"convert_to_markdown: md_file_id={result['md_file_id']}")
+    state["last_node"] = "convert_to_markdown"
+    return state
+```
+
+---
+
+### 1.3 `node_extract_images`
+
+```python
+def node_extract_images(state: AgentState) -> AgentState:
+    """
+    Reads:
+      - state["file_id"]
+      - state["source_path"]
+    Writes:
+      - state["images"]
+      - state["last_node"], state["logs"]
+    """
+    file_id = state["file_id"]
+    source_path = state["source_path"]
+
+    result = call_mcp("extract_images", {
+        "file_id": file_id,
+        "source_path": source_path,
+    })
+
+    state["images"] = result.get("images", [])
+    state.setdefault("logs", []).append(f"extract_images: {len(state['images'])} images")
+    state["last_node"] = "extract_images"
+    return state
+```
+
+---
+
+### 1.4 `node_compute_file_stats`
+
+```python
+def node_compute_file_stats(state: AgentState) -> AgentState:
+    """
+    Reads:
+      - state["file_id"]
+      - state["md_file_id"]
+      - state["raw_markdown"]
+    Writes:
+      - state["file_metadata"]["page_count"]
+      - state["file_metadata"]["word_count"]
+      - state["last_node"], state["logs"]
+    """
+    file_id = state["file_id"]
+    md_file_id = state["md_file_id"]
+    raw_markdown = state["raw_markdown"]
+
+    result = call_mcp("compute_file_stats", {
+        "file_id": file_id,
+        "md_file_id": md_file_id,
+        "raw_markdown": raw_markdown,
+    })
+
+    # Initialise metadata container if needed
+    file_metadata = cast(dict, state.get("file_metadata", {}))
+    file_metadata.setdefault("file_id", file_id)
+    file_metadata["page_count"] = result["page_count"]
+    file_metadata["word_count"] = result["word_count"]
+    state["file_metadata"] = file_metadata
+
+    state.setdefault("logs", []).append(
+        f"compute_file_stats: pages={result['page_count']} words={result['word_count']}"
+    )
+    state["last_node"] = "compute_file_stats"
+    return state
+```
+
+---
+
+### 1.5 `node_analyze_heading_structure`
+
+```python
+def node_analyze_heading_structure(state: AgentState) -> AgentState:
+    """
+    Reads:
+      - state["file_id"]
+      - state["md_file_id"]
+      - state["raw_markdown"]
+    Writes:
+      - state["heading_structure"]
+      - state["file_metadata"]["heading_levels"]
+      - state["last_node"], state["logs"]
+    """
+    file_id = state["file_id"]
+    md_file_id = state["md_file_id"]
+    raw_markdown = state["raw_markdown"]
+
+    result = call_mcp("analyze_heading_structure", {
+        "file_id": file_id,
+        "md_file_id": md_file_id,
+        "raw_markdown": raw_markdown,
+    })
+
+    state["heading_structure"] = result["headings"]
+
+    file_metadata = cast(dict, state.get("file_metadata", {}))
+    file_metadata.setdefault("file_id", file_id)
+    file_metadata["heading_levels"] = result["heading_levels"]
+    state["file_metadata"] = file_metadata
+
+    state.setdefault("logs", []).append(
+        f"analyze_heading_structure: {len(result['headings'])} headings"
+    )
+    state["last_node"] = "analyze_heading_structure"
+    return state
+```
+
+---
+
+### 1.6 `node_build_file_metadata`
+
+```python
+def node_build_file_metadata(state: AgentState) -> AgentState:
+    """
+    Reads:
+      - state["file_id"], state["source_path"], state["file_type"]
+      - state["md_file_id"], state["md_path"]
+      - state["images"]
+      - state["file_metadata"]["page_count"], ["word_count"], ["heading_levels"]
+    Writes:
+      - state["file_metadata"] (final aggregated)
+      - state["last_node"], state["logs"]
+    """
+    fm = cast(dict, state.get("file_metadata", {}))
+    payload = {
+        "file_id": state["file_id"],
+        "source_path": state["source_path"],
+        "file_type": state["file_type"],
+        "md_file_id": state["md_file_id"],
+        "md_path": state["md_path"],
+        "images": state.get("images", []),
+        "page_count": fm.get("page_count"),
+        "word_count": fm.get("word_count"),
+        "heading_levels": fm.get("heading_levels", []),
+    }
+
+    result = call_mcp("build_file_metadata", payload)
+    state["file_metadata"] = result["file_metadata"]
+
+    state.setdefault("logs", []).append("build_file_metadata: aggregated metadata")
+    state["last_node"] = "build_file_metadata"
+    return state
+```
+
+---
+
+## 2. Chunking & index nodes
+
+### 2.1 `node_decide_chunking_strategy`
+
+```python
+def node_decide_chunking_strategy(state: AgentState) -> AgentState:
+    """
+    Reads:
+      - state["file_metadata"]
+      - state["config"]["chunking"]
+    Writes:
+      - state["chunking_decision"]
+      - state["file_metadata"]["chunking"]
+      - state["last_node"], state["logs"]
+    """
+    file_metadata = cast(dict, state["file_metadata"])
+    chunk_cfg = cast(dict, state["config"].get("chunking", {}))
+
+    result = call_mcp("decide_chunking_strategy", {
+        "file_metadata": file_metadata,
+        "config": {
+            "page_threshold": chunk_cfg.get("page_threshold", 50),
+            "context_aware_level": chunk_cfg.get("context_aware_level", "h2"),
+            "force_chunk": chunk_cfg.get("force_chunk"),
+        },
+    })
+
+    state["chunking_decision"] = result
+
+    # Mirror into file_metadata
+    file_metadata = deepcopy(file_metadata)
+    file_metadata["chunking"] = {
+        "should_chunk": result["should_chunk"],
+        "strategy": result["strategy"],
+        "reason": result["reason"],
+        "max_chunk_tokens": chunk_cfg.get("max_chunk_tokens"),
+    }
+    state["file_metadata"] = file_metadata
+
+    state.setdefault("logs", []).append(
+        f"decide_chunking_strategy: {result['strategy']} should_chunk={result['should_chunk']}"
+    )
+    state["last_node"] = "decide_chunking_strategy"
+    return state
+```
+
+---
+
+### 2.2 `node_chunk_markdown`
+
+```python
+def node_chunk_markdown(state: AgentState) -> AgentState:
+    """
+    Reads:
+      - state["file_id"], state["md_file_id"], state["raw_markdown"]
+      - state["chunking_decision"]["strategy"]
+      - state["config"]["chunking"]["context_aware_level"]
+    Writes:
+      - state["chunks"]
+      - state["last_node"], state["logs"]
+    """
+    file_id = state["file_id"]
+    md_file_id = state["md_file_id"]
+    raw_markdown = state["raw_markdown"]
+    decision = cast(dict, state["chunking_decision"])
+    chunk_cfg = cast(dict, state["config"].get("chunking", {}))
+
+    result = call_mcp("chunk_markdown", {
+        "file_id": file_id,
+        "md_file_id": md_file_id,
+        "raw_markdown": raw_markdown,
+        "strategy": decision["strategy"],
+        "context_aware_level": chunk_cfg.get("context_aware_level", "h2"),
+    })
+
+    state["chunks"] = result["chunks"]
+    state.setdefault("logs", []).append(
+        f"chunk_markdown: {len(result['chunks'])} chunks using {decision['strategy']}"
+    )
+    state["last_node"] = "chunk_markdown"
+    return state
+```
+
+---
+
+### 2.3 `node_build_index`
+
+```python
+def node_build_index(state: AgentState) -> AgentState:
+    """
+    Reads:
+      - state["file_metadata"]
+      - state["chunks"]
+    Writes:
+      - state["index"]
+      - state["last_node"], state["logs"]
+    """
+    file_metadata = cast(dict, state["file_metadata"])
+    chunks = cast(list, state["chunks"])
+
+    result = call_mcp("build_index", {
+        "file_metadata": file_metadata,
+        "chunks": chunks,
+    })
+
+    state["index"] = result["index"]
+    state.setdefault("logs", []).append("build_index: index created")
+    state["last_node"] = "build_index"
+    return state
+```
+
+---
+
+## 3. Template loading node
+
+### 3.1 `node_load_outline_template`
+
+```python
+def node_load_outline_template(state: AgentState) -> AgentState:
+    """
+    Reads:
+      - state["config"]["template"]["template_id"]
+    Writes:
+      - state["template"]
+      - state["index"]["template_id"]
+      - state["last_node"], state["logs"]
+    """
+    template_cfg = cast(dict, state["config"].get("template", {}))
+    template_id = template_cfg["template_id"]
+
+    result = call_mcp("load_outline_template", {
+        "template_id": template_id,
+    })
+
+    state["template"] = result["template"]
+
+    # Also mirror into index if present
+    index = cast(dict, state.get("index", {}))
+    index["template_id"] = template_id
+    state["index"] = index
+
+    state.setdefault("logs", []).append(f"load_outline_template: {template_id}")
+    state["last_node"] = "load_outline_template"
+    return state
+```
+
+---
+
+## 4. LLM nodes (pure LangGraph, no MCP)
+
+### 4.1 `node_heading_mapping_llm`
+
+```python
+from langchain_core.messages import SystemMessage, HumanMessage
+from langgraph.types import Send
+
+# replace with your actual LLM client
+from .llm_client import llm_call_json
+
+
+def node_heading_mapping_llm(state: AgentState) -> AgentState:
+    """
+    Reads:
+      - state["template"]
+      - state["index"]["sections"]
+    Writes:
+      - state["index"]["sections"][i]["template_mapping"]
+      - state["index"]["sections"][i]["status"]
+      - state["last_node"], state["logs"]
+    """
+    template = cast(dict, state["template"])
+    index = cast(dict, state["index"])
+    sections = cast(list, index.get("sections", []))
+
+    # Prepare payload for the model
+    model_input_sections = [
+        {
+            "file_section_id": s["file_section_id"],
+            "heading_text": s["heading_text_original"],
+            "heading_path": s.get("heading_path", []),
+        }
+        for s in sections
+    ]
+
+    system_prompt = (
+        "You map document sections to a predefined outline template. "
+        "For each section, choose one template section id or return `unmapped`."
+    )
+
+    user_payload = {
+        "template": template,
+        "sections": model_input_sections,
+    }
+
+    mappings = llm_call_json(
+        system=system_prompt,
+        user=user_payload,
+        response_schema={
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["file_section_id", "mapped"],
+                "properties": {
+                    "file_section_id": {"type": "string"},
+                    "mapped": {"type": "boolean"},
+                    "template_section_id": {"type": ["string", "null"]},
+                    "template_path": {
+                        "type": ["array", "null"],
+                        "items": {"type": "string"},
+                    },
+                    "confidence": {"type": ["number", "null"]},
+                },
+            },
+        }
+    )
+
+    mapping_by_id = {m["file_section_id"]: m for m in mappings}
+
+    # Update index.sections in place
+    for s in sections:
+        sid = s["file_section_id"]
+        m = mapping_by_id.get(sid)
+        if not m:
+            continue
+        tm = s.get("template_mapping", {})
+        tm.update({
+            "mapped": m["mapped"],
+            "template_section_id": m.get("template_section_id"),
+            "template_path": m.get("template_path"),
+            "confidence": m.get("confidence"),
+        })
+        s["template_mapping"] = tm
+        s["status"] = "mapped" if m["mapped"] else "unmapped"
+
+    index["sections"] = sections
+    state["index"] = index
+
+    state.setdefault("logs", []).append(
+        f"heading_mapping_llm: mapped={sum(1 for s in sections if s.get('status')=='mapped')}"
+    )
+    state["last_node"] = "heading_mapping_llm"
+    return state
+```
+
+---
+
+### 4.2 `node_title_improver_llm`
+
+```python
+def node_title_improver_llm(state: AgentState) -> AgentState:
+    """
+    Reads:
+      - state["index"]["sections"] (only mapped ones)
+      - optionally excerpts from state["chunks"]
+    Writes:
+      - state["index"]["sections"][i]["heading_text_improved"]
+      - state["last_node"], state["logs"]
+    """
+    index = cast(dict, state["index"])
+    sections = cast(list, index.get("sections", []))
+
+    mapped_sections = [
+        s for s in sections
+        if s.get("status") == "mapped"
+    ]
+
+    # Prepare model input
+    model_sections = []
+    for s in mapped_sections:
+        model_sections.append({
+            "file_section_id": s["file_section_id"],
+            "heading_text_original": s["heading_text_original"],
+            "template_section_title": s["template_mapping"].get("template_section_id"),
+            # you can add a short content excerpt from chunks if needed
+        })
+
+    system_prompt = (
+        "You rewrite section titles for clarity and professionalism. "
+        "Return concise headings, same language, JSON only."
+    )
+
+    improvements = llm_call_json(
+        system=system_prompt,
+        user={"sections": model_sections},
+        response_schema={
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["file_section_id", "heading_text_improved"],
+                "properties": {
+                    "file_section_id": {"type": "string"},
+                    "heading_text_improved": {"type": "string"},
+                },
+            },
+        },
+    )
+
+    imp_by_id = {i["file_section_id"]: i["heading_text_improved"] for i in improvements}
+
+    for s in sections:
+        sid = s["file_section_id"]
+        if sid in imp_by_id:
+            s["heading_text_improved"] = imp_by_id[sid]
+
+    index["sections"] = sections
+    state["index"] = index
+
+    state.setdefault("logs", []).append(
+        f"title_improver_llm: improved={len(imp_by_id)}"
+    )
+    state["last_node"] = "title_improver_llm"
+    return state
+```
+
+---
+
+### 4.3 `node_relevancy_scoring_llm`
+
+```python
+def node_relevancy_scoring_llm(state: AgentState) -> AgentState:
+    """
+    Reads:
+      - state["index"]["sections"] (status == 'unmapped')
+      - state["chunks"] (for excerpts)
+    Writes:
+      - state["index"]["sections"][i]["relevancy_score_if_unmapped"]
+      - state["index"]["sections"][i]["template_mapping"]["relevancy_score"]
+      - state["last_node"], state["logs"]
+    """
+    index = cast(dict, state["index"])
+    sections = cast(list, index.get("sections", []))
+    chunks = cast(list, state.get("chunks", []))
+    chunk_by_id = {c["chunk_id"]: c for c in chunks}
+
+    unmapped = [s for s in sections if s.get("status") == "unmapped"]
+
+    payload_sections = []
+    for s in unmapped:
+        chunk = chunk_by_id.get(s["chunk_id"], {})
+        text = chunk.get("text", "")
+        excerpt = text[:1000]  # simple truncation
+        payload_sections.append({
+            "file_section_id": s["file_section_id"],
+            "heading_text": s["heading_text_original"],
+            "content_excerpt": excerpt,
+        })
+
+    system_prompt = (
+        "You rate how relevant an unmapped section is to the main document. "
+        "Return a score 0-1 and a rough category."
+    )
+
+    scores = llm_call_json(
+        system=system_prompt,
+        user={"sections": payload_sections},
+        response_schema={
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["file_section_id", "relevancy_score"],
+                "properties": {
+                    "file_section_id": {"type": "string"},
+                    "relevancy_score": {"type": "number"},
+                    "category": {
+                        "type": "string",
+                        "enum": ["maybe_append", "low_value", "append_anyway"]
+                    },
+                },
+            },
+        },
+    )
+
+    score_by_id = {s["file_section_id"]: s for s in scores}
+
+    for s in sections:
+        sid = s["file_section_id"]
+        sc = score_by_id.get(sid)
+        if not sc:
+            continue
+        s["relevancy_score_if_unmapped"] = sc["relevancy_score"]
+        tm = s.get("template_mapping", {})
+        tm["relevancy_score"] = sc["relevancy_score"]
+        s["template_mapping"] = tm
+
+    index["sections"] = sections
+    state["index"] = index
+
+    state.setdefault("logs", []).append(
+        f"relevancy_scoring_llm: scored={len(score_by_id)}"
+    )
+    state["last_node"] = "relevancy_scoring_llm"
+    return state
+```
+
+---
+
+### 4.4 `node_second_pass_mapping_llm`
+
+```python
+def node_second_pass_mapping_llm(state: AgentState) -> AgentState:
+    """
+    Reads:
+      - state["template"]
+      - state["index"]["sections"] (with relevancy scores)
+    Writes:
+      - state["index"]["sections"][i]["template_mapping"] (for some previously unmapped)
+      - state["index"]["sections"][i]["status"] (e.g., 'appended_late')
+      - state["last_node"], state["logs"]
+    """
+    template = cast(dict, state["template"])
+    index = cast(dict, state["index"])
+    sections = cast(list, index.get("sections", []))
+
+    candidates = [
+        s for s in sections
+        if s.get("status") == "unmapped"
+        and (s.get("relevancy_score_if_unmapped") or 0) >= 0.4
+    ]
+
+    payload_sections = [
+        {
+            "file_section_id": s["file_section_id"],
+            "heading_text": s["heading_text_original"],
+            "relevancy_score": s.get("relevancy_score_if_unmapped", 0),
+        }
+        for s in candidates
+    ]
+
+    system_prompt = (
+        "You get a subset of relevant but unmapped sections and must decide if they "
+        "can be matched to remaining template sections."
+    )
+
+    mappings = llm_call_json(
+        system=system_prompt,
+        user={"template": template, "sections": payload_sections},
+        response_schema={
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["file_section_id", "mapped"],
+                "properties": {
+                    "file_section_id": {"type": "string"},
+                    "mapped": {"type": "boolean"},
+                    "template_section_id": {"type": ["string", "null"]},
+                    "status": {
+                        "type": ["string", "null"],
+                        "enum": ["appended_late", "unmapped"]
+                    },
+                },
+            },
+        },
+    )
+
+    by_id = {m["file_section_id"]: m for m in mappings}
+
+    for s in sections:
+        sid = s["file_section_id"]
+        m = by_id.get(sid)
+        if not m:
+            continue
+        tm = s.get("template_mapping", {})
+        if m["mapped"]:
+            tm["mapped"] = True
+            tm["template_section_id"] = m.get("template_section_id")
+            s["status"] = "appended_late"
+        else:
+            s["status"] = "unmapped"
+        s["template_mapping"] = tm
+
+    index["sections"] = sections
+    state["index"] = index
+
+    state.setdefault("logs", []).append("second_pass_mapping_llm: applied")
+    state["last_node"] = "second_pass_mapping_llm"
+    return state
+```
+
+---
+
+## 5. Document construction & UI nodes
+
+### 5.1 `node_generate_toc_from_index`
+
+```python
+def node_generate_toc_from_index(state: AgentState) -> AgentState:
+    """
+    Reads:
+      - state["index"]
+      - state["config"]["template"]["toc_level"]
+    Writes:
+      - state["toc_markdown"]
+      - state["index"]["toc"]
+      - state["last_node"], state["logs"]
+    """
+    index = cast(dict, state["index"])
+    tmpl_cfg = cast(dict, state["config"].get("template", {}))
+
+    result = call_mcp("generate_toc_from_index", {
+        "index": index,
+        "config": {
+            "toc_level": tmpl_cfg.get("toc_level", "h2"),
+        },
+    })
+
+    state["toc_markdown"] = result["toc_markdown"]
+    # If MCP populates index.toc, you can also merge back into state["index"]
+
+    state.setdefault("logs", []).append("generate_toc_from_index: toc created")
+    state["last_node"] = "generate_toc_from_index"
+    return state
+```
+
+---
+
+### 5.2 `node_assemble_improved_markdown`
+
+```python
+def node_assemble_improved_markdown(state: AgentState) -> AgentState:
+    """
+    Reads:
+      - state["file_id"]
+      - state["chunks"]
+      - state["index"]
+      - state["toc_markdown"]
+    Writes:
+      - state["improved_md_file_id"]
+      - state["improved_markdown"]
+      - state["last_node"], state["logs"]
+    """
+    file_id = state["file_id"]
+    chunks = cast(list, state["chunks"])
+    index = cast(dict, state["index"])
+    toc_markdown = state["toc_markdown"]
+
+    result = call_mcp("assemble_improved_markdown", {
+        "file_id": file_id,
+        "chunks": chunks,
+        "index": index,
+        "toc_markdown": toc_markdown,
+    })
+
+    state["improved_md_file_id"] = result["improved_md_file_id"]
+    state["improved_markdown"] = result["markdown"]
+
+    state.setdefault("logs", []).append(
+        f"assemble_improved_markdown: improved_md_file_id={result['improved_md_file_id']}"
+    )
+    state["last_node"] = "assemble_improved_markdown"
+    return state
+```
+
+---
+
+### 5.3 `node_annotate_markdown_for_ui`
+
+```python
+def node_annotate_markdown_for_ui(state: AgentState) -> AgentState:
+    """
+    Reads:
+      - state["file_id"]
+      - state["improved_markdown"]
+      - state["index"]
+    Writes:
+      - state["ui_annotations"]
+      - state["last_node"], state["logs"]
+    """
+    file_id = state["file_id"]
+    markdown = state["improved_markdown"]
+    index = cast(dict, state["index"])
+
+    result = call_mcp("annotate_markdown_for_ui", {
+        "file_id": file_id,
+        "markdown": markdown,
+        "index": index,
+    })
+
+    # markdown may be same; we trust MCP output
+    state["improved_markdown"] = result["markdown"]
+    state["ui_annotations"] = result.get("annotations", [])
+
+    state.setdefault("logs", []).append(
+        f"annotate_markdown_for_ui: {len(state['ui_annotations'])} annotations"
+    )
+    state["last_node"] = "annotate_markdown_for_ui"
+    return state
+```
+
+---
+
+This gives you:
+
+* Deterministic MCP-backed nodes for all infra steps.
+* Pure LangGraph LLM nodes for mapping, title improvement, and relevancy logic.
+* Clear read/write contracts per node against `AgentState`.
+
+Once you’re ready, we can sketch the actual `StateGraph` wiring (nodes + edges, including a simple controller function that sets `state["control"]` to choose whether to run LLM nodes or stop early).

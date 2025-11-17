@@ -1,0 +1,10 @@
+{
+  "name": "analyze_heading_structure",
+  "description": "Doc review tool: Analyze Heading Structure",
+  "enabled": true,
+  "version": "1.0.0",
+  "metadata": {
+    "category": "doc_review"
+  },
+  "implementation": "external.tools.doc_processing.analyze_heading_structure.AnalyzeHeadingStructureTool"
+}

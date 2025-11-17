@@ -1,0 +1,9 @@
+{
+  "name": "pattern_match_entity_column",
+  "implementation": "tools.impl.pattern_match_tool.PatternMatchEntityColumnTool",
+  "description": "Pattern-based entity to column matcher (placeholder)",
+  "version": "0.0.1",
+  "enabled": false,
+  "inputSchema": {},
+  "outputSchema": {}
+}

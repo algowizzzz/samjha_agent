@@ -1,0 +1,49 @@
+{
+  "document": {
+    "file": "CAR_Chapter_1_Overview.pdf",
+    "file_id": "car-chapter-1-overview",
+    "pages": 24,
+    "words": 10354,
+    "heading_levels": ["h1", "h2"],
+    "total_headings": 62,
+    "h1_headings": 5,
+    "h2_headings": 57
+  },
+  "configuration": {
+    "page_threshold": 10,
+    "context_aware_level": "h1",
+    "default_strategy": "by_h2"
+  },
+  "expected_results": {
+    "decide_chunking_strategy": {
+      "should_chunk": true,
+      "strategy": "by_h1",
+      "reason": "page_count>=threshold",
+      "context_aware_level": "h1"
+    },
+    "chunk_markdown": {
+      "chunks_count": 5,
+      "strategy": "by_h1",
+      "expected_h1_headings": [
+        "Guideline",
+        "Chapter 1 - Overview of risk-based capital",
+        "requirements",
+        "Chapter 1 – Overview of Risk-based Capital",
+        "Requirements"
+      ]
+    },
+    "build_index": {
+      "sections_count": 5,
+      "should_chunk": true,
+      "strategy": "by_h1",
+      "total_sections": 5,
+      "mapped_sections": 0,
+      "unmapped_sections": 5
+    },
+    "load_outline_template": {
+      "optional": true,
+      "may_be_skipped": true
+    }
+  }
+}
+

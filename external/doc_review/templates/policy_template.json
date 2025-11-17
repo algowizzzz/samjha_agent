@@ -1,0 +1,20 @@
+{
+  "template_id": "policy_template",
+  "title": "Policy Template",
+  "sections": [
+    { "id": "toc", "title": "Table of Contents", "level": "h1" },
+    { "id": "overview", "title": "Overview", "level": "h1", "description": "States purpose and intent." },
+    { "id": "scope", "title": "Scope", "level": "h1", "description": "Identifies users, systems, and documents covered." },
+    { "id": "definitions", "title": "Definitions", "level": "h1" },
+    { "id": "requirements", "title": "Requirements", "level": "h1", "description": "Defines mandatory controls, processes, and standards." },
+    { "id": "roles_responsibilities", "title": "Roles and Responsibilities", "level": "h1" },
+    { "id": "data_security", "title": "Data Handling and Security", "level": "h1" },
+    { "id": "quality_assurance", "title": "Quality Assurance", "level": "h1" },
+    { "id": "monitoring_reporting", "title": "Monitoring and Reporting", "level": "h1" },
+    { "id": "exceptions_escalations", "title": "Exceptions and Escalations", "level": "h1", "description": "Outlines approval paths and incident handling." },
+    { "id": "compliance_auditing", "title": "Compliance and Auditing", "level": "h1" },
+    { "id": "review_cycle", "title": "Review Cycle", "level": "h1" },
+    { "id": "appendix", "title": "Appendix", "level": "h1", "description": "Includes references, forms, and supplemental materials." }
+  ]
+}
+

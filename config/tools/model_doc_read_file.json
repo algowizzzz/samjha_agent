@@ -1,0 +1,13 @@
+{
+  "name": "model_doc_read_file",
+  "implementation": "tools.impl.model_doc_read_file_tool.ModelDocReadFileTool",
+  "description": "Read a code file, detect encoding, and return content with metadata.",
+  "version": "1.0.0",
+  "enabled": true,
+  "metadata": {
+    "author": "Ashutosh Sinha",
+    "category": "Model Documentation",
+    "tags": ["model-doc", "file-reading", "encoding"]
+  }
+}
+

@@ -1,0 +1,251 @@
+Got it—that’s a helpful constraint. Let’s separate things cleanly:
+
+* **MCP tools = pure infra / deterministic transforms only**
+* **LLM work = LangGraph nodes that read/write `AgentState`, not tools**
+
+I’ll keep the `AgentState` we defined and now refactor the architecture around it.
+
+---
+
+## 1. Clear separation: MCP tools vs LLM nodes
+
+### MCP tools (no LLM, no prompts)
+
+These are the only things that go into your MCP `config.json`:
+
+1. `detect_file_type`
+2. `convert_to_markdown`
+3. `extract_images`
+4. `compute_file_stats`
+5. `analyze_heading_structure`
+6. `build_file_metadata`
+7. `decide_chunking_strategy`
+8. `chunk_markdown`
+9. `build_index`
+10. `load_outline_template`
+11. `generate_toc_from_index`  *(optional as MCP; can also be a node)*
+12. `assemble_improved_markdown`
+13. `annotate_markdown_for_ui`  *(purely structural; no LLM)*
+
+Everything below is **deterministic** string/JSON processing. Any “intelligent” mapping / scoring / rewriting is moved to **LLM nodes**, not MCP.
+
+---
+
+## 2. MCP tool layer (refactored, deterministic only)
+
+I’ll just give tight summaries of each; the JSON Schemas are essentially what we already had, minus anything LLM-ish.
+
+### 2.1. Ingestion & normalisation
+
+**1) `detect_file_type`**
+Input: `file_id`, `source_path`
+Output: `file_id`, `file_type`
+Logic: sniff extension / mime-type; no LLM.
+
+**2) `convert_to_markdown`**
+Input: `file_id`, `source_path`, `file_type`
+Output: `file_id`, `md_file_id`, `md_path`, `raw_markdown`
+Logic: call pandoc / pdf2md / your converter of choice.
+
+**3) `extract_images`**
+Input: `file_id`, `source_path`
+Output: `file_id`, `images[]` with `image_id`, `path`, `page_number?`, `caption?`
+Logic: extract and save under `/images/<file_id>/…`.
+
+**4) `compute_file_stats`**
+Input: `file_id`, `md_file_id`, `raw_markdown`
+Output: `file_id`, `page_count`, `word_count`
+Logic: deterministic word count; page_count from converter or heuristic.
+
+**5) `analyze_heading_structure`**
+Input: `file_id`, `md_file_id`, `raw_markdown`
+Output:
+
+* `heading_levels` (e.g., `["h1","h2","h3"]`)
+* `headings[]` with `level`, `text`, `position`, `heading_path`
+  Logic: parse Markdown headings and build hierarchy.
+
+**6) `build_file_metadata`**
+Input: aggregated data from (1)–(5)
+Output: `file_metadata` object (same structure we defined)
+Logic: just packages data; no LLM.
+
+---
+
+### 2.2. Chunking & indexing
+
+**7) `decide_chunking_strategy`**
+Input: `file_metadata`, `config.chunking`
+Output: `file_id`, `should_chunk`, `strategy`, `reason`
+Logic:
+
+* if `force_chunk` set → obey
+* else `page_count > threshold` → chunk; otherwise maybe not
+* choose default strategy (`by_h2`, etc.) deterministically from config/metadata.
+
+**8) `chunk_markdown`**
+Input: `file_id`, `md_file_id`, `raw_markdown`, `strategy`, `context_aware_level`
+Output: `chunks[]` (with `chunk_id`, `order`, `text`, `heading_path`, etc.)
+Logic: pure parsing and slicing by headings/pages/tokens; no semantic understanding.
+
+**9) `build_index`**
+Input: `file_metadata`, `chunks[]`
+Output: `index`
+Logic:
+
+* Give each section a `file_section_id`
+* Map `chunk_id → heading info`
+* Initialise `template_mapping` as empty / `mapped=false`
+* Fill `stats` (counts, etc.).
+
+---
+
+### 2.3. Template, TOC, assembly, UI
+
+**10) `load_outline_template`**
+Input: `template_id`
+Output: `template` JSON
+Logic: load static JSON from disk / DB; no LLM.
+
+**11) `generate_toc_from_index`** *(optional to keep as MCP)*
+Input: `index`, `config.template.toc_level`
+Output: `toc_markdown`
+Logic: purely uses index’s sections + heading hierarchy to produce anchor list.
+
+**12) `assemble_improved_markdown`**
+Input: `file_id`, `chunks[]`, `index`, `toc_markdown`
+Output: `improved_md_file_id`, full `markdown`
+Logic (deterministic):
+
+* Use `heading_text_improved` if present in `index.sections`; else fallback to original.
+* Insert TOC at top.
+* Order sections by template path & `order` values already in index.
+* Append late-mapped sections, then truly unmapped sections under config-defined heading (e.g. “Additional Sections”).
+* **Important:** no LLM; it just concatenates and renames headings based on what **nodes** already wrote into `index`.
+
+**13) `annotate_markdown_for_ui`**
+Input: `file_id`, `markdown`, `index`
+Output: `markdown` (unchanged) + `annotations[]`
+Logic:
+
+* For each heading in `index.sections` where `heading_text_improved != heading_text_original` → mark spans as `provenance="ai_title"`.
+* All other text spans default to `provenance="original"`.
+* If AI comments were stored by nodes into index, generate `span_type="comment"` entries.
+
+No model calls here; just structural diffing and annotation.
+
+---
+
+## 3. LLM-based LangGraph nodes (no MCP)
+
+These **are not tools**. They are nodes in the workflow graph that:
+
+* Take `AgentState` as input
+* Call the model with a prompt
+* Update `AgentState.index` / `AgentState.chunks` / `AgentState.toc_markdown` / etc.
+* Never appear in the MCP config
+
+### 3.1. `HeadingMappingNode`
+
+**Purpose:** Map headings to template sections.
+
+* **Reads from state:**
+
+  * `state.template`
+  * `state.index.sections` (with `heading_text_original`, `heading_path`)
+* **Writes to state:**
+
+  * `state.index.sections[i].template_mapping.mapped`
+  * `state.index.sections[i].template_mapping.template_section_id`
+  * `state.index.sections[i].template_mapping.template_path`
+  * `state.index.sections[i].template_mapping.confidence`
+  * `state.index.sections[i].status = "mapped" | "unmapped"`
+
+**Prompt IO (conceptually):**
+
+* System: “You map document sections to a predefined outline template. You must decide the best matching template section or ‘unmapped’.”
+* User: JSON payload of `template.sections` and list of `sections[{file_section_id, heading_text, heading_path}]`.
+* Model Output (parsed): list of `{file_section_id, mapped, template_section_id?, confidence}`.
+
+### 3.2. `TitleImproverNode`
+
+**Purpose:** Suggest better section titles for mapped sections.
+
+* **Reads:**
+
+  * `state.index.sections` (only those with `status="mapped"`)
+  * Optionally short excerpts from `state.chunks` for context.
+* **Writes:**
+
+  * `state.index.sections[i].heading_text_improved`
+
+**Prompt IO:**
+Ask model: “Given original heading and template section title, propose a clearer, concise title suitable for a professional doc; in the same language; return JSON.”
+
+### 3.3. `RelevancyScoringNode`
+
+**Purpose:** Score unmapped sections.
+
+* **Reads:**
+
+  * `state.index.sections` where `status="unmapped"`
+  * excerpts from `state.chunks`
+* **Writes:**
+
+  * `state.index.sections[i].relevancy_score_if_unmapped`
+  * `state.index.sections[i].template_mapping.relevancy_score`
+  * optional categorisation flags.
+
+### 3.4. `SecondPassMappingNode`
+
+**Purpose:** Try to place high-relevancy unmapped sections into remaining template slots.
+
+* **Reads:**
+
+  * `state.template`
+  * `state.index.sections` (with relevancy scores & current mappings)
+* **Writes:**
+
+  * updated `template_mapping` for some previously unmapped sections
+  * `status = "appended_late"` for those now mapped, else remains `"unmapped"`.
+
+### 3.5. `AICommentsNode` *(optional)*
+
+If you ever want comments/notes:
+
+* **Reads:** improved document or sections
+* **Writes:** comments back into `state.index.sections[i].template_mapping` or a separate `comments[]` list, which `annotate_markdown_for_ui` later converts into UI spans.
+
+---
+
+## 4. Updated high-level flow with this separation
+
+End-to-end:
+
+1. **Ingestion (MCP tools)**
+   `detect_file_type` → `convert_to_markdown` → `extract_images` →
+   `compute_file_stats` → `analyze_heading_structure` → `build_file_metadata`
+
+2. **Chunking & Index (MCP tools)**
+   `decide_chunking_strategy` → `chunk_markdown` → `build_index` → `load_outline_template`
+
+3. **LLM nodes (no MCP)**
+
+   * `HeadingMappingNode`
+   * `TitleImproverNode`
+   * `RelevancyScoringNode`
+   * `SecondPassMappingNode`
+     (all modify `state.index` in-place)
+
+4. **Document construction (MCP tools)**
+   `generate_toc_from_index` → `assemble_improved_markdown`
+
+5. **UI preparation (MCP tool)**
+   `annotate_markdown_for_ui` → UI renders coloured editable MD canvas.
+
+---
+
+If you want, next I can:
+
+* Draft concrete **node definitions** for LangGraph (Python signatures + what they read/write from `AgentState`), or
+* Produce a **minimal MCP `config.json` skeleton** listing just the deterministic tools you’ll register.

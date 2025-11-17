@@ -1,0 +1,58 @@
+[
+  {
+    "block_id": "p1_b1_433f678c",
+    "original": "The purpose of this draft policy is to outline how the lending desk handles collateral. It loosely aligns with internal credit practices but requires refinement to ensure full regulatory and governance alignment.",
+    "suggested": "The purpose of this draft policy is to outline how the lending desk handles collateral. It loosely aligns with internal credit practices but requires refinement to ensure full regulatory and governance alignment.",
+    "reason": "No issues found",
+    "confidence": "high"
+  },
+  {
+    "block_id": "p1_b2_3ae7ef97",
+    "original": "Applies broadly to lending activities in capital markets. More detail is needed on covered products, counterparties, and regional applicability. Exclusions are not clearly defined and require expansion.",
+    "suggested": "Applies broadly to lending activities in capital markets. More detail is needed on covered products, counterparties, and regional applicability. Exclusions are not clearly defined and require expansion.",
+    "reason": "No issues found",
+    "confidence": "high"
+  },
+  {
+    "block_id": "p1_b3_939665d3",
+    "original": "- Collateral should usually be acceptable based on internal rules.\n- Valuations are performed, but the methodology and frequency are not clearly stated.\n- Haircuts apply, but schedules and exceptions are not listed.\n- Legal review happens in most cases, but requirements need clarity.\n- Requirements lack measurable criteria and traceability.",
+    "suggested": "- Collateral should usually be acceptable based on internal rules.\n- Valuations are performed, but the methodology and frequency are not clearly stated.\n- Haircuts apply, but schedules and exceptions are not listed.\n- Legal review happens in most cases, but requirements need clarity.\n- Requirements lack measurable criteria and traceability.",
+    "reason": "No issues found",
+    "confidence": "high"
+  },
+  {
+    "block_id": "p1_b4_194d6c79",
+    "original": "Roles are partially defined:\n- Lending Desk: Handles onboarding.\n- Credit and Risk: Provide oversight.\nNeeds: clearer division of authority, escalation rights, and decision-making boundaries.",
+    "suggested": "Roles are partially defined:\n- Lending Desk: Handles onboarding.\n- Credit and Risk: Provide oversight.\nNeeds: clearer division of authority, escalation rights, and decision-making boundaries.",
+    "reason": "No issues found",
+    "confidence": "high"
+  },
+  {
+    "block_id": "p1_b5_2e1b1bf2",
+    "original": "Some steps are mentioned but lack structure:\n- Check collateral.\n- Get valuation.\n- Review exceptions.\nNeeds: reference to SOPs, standard workflows, and alignment with enterprise controls.",
+    "suggested": "Some steps are mentioned but lack structure:\n- Check collateral.\n- Get valuation.\n- Review exceptions.\nNeeds: reference to SOPs, standard workflows, and alignment with enterprise controls.",
+    "reason": "No issues found",
+    "confidence": "high"
+  },
+  {
+    "block_id": "p1_b0_81f561c7",
+    "original": "# Collateral Acceptance Policy Draft \u2013 Needs Improvement",
+    "suggested": "# Collateral Acceptance Policy Draft \u2013 Needs Improvement",
+    "reason": "Corrected hyphen in the title",
+    "confidence": "high"
+  },
+  {
+    "block_id": "p2_b1_c23ff8c2",
+    "original": "## 7. Compliance, Monitoring & Reporting\nMonitoring exists informally. Reporting cadence, evidence standards, and escalation rules need definition.",
+    "suggested": "## 7. Compliance, Monitoring & Reporting\nMonitoring exists informally. Reporting cadence, evidence standards, and escalation rules need\ndefinition.",
+    "reason": "Missing line break in raw text",
+    "confidence": "high"
+  },
+  {
+    "block_id": "p2_b3_98153955",
+    "original": "## 9. Appendix\nAppendix materials need to be added.",
+    "suggested": "## 9. Appendix\nAppendix materials need to be added.",
+    "reason": "No issues found",
+    "confidence": "high"
+  }
+]

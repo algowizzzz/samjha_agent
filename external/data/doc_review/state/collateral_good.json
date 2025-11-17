@@ -1,0 +1,2276 @@
+{
+  "file_id": "collateral_good",
+  "source_path": "/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/d5ea4c187aad42848268814d102c2a59_collateral_good.pdf",
+  "status": "ready",
+  "updated_at": "2025-11-16T23:55:24.312110Z",
+  "state": {
+    "run_id": "collateral_good",
+    "doc_id": "d5ea4c187aad42848268814d102c2a59_collateral_good",
+    "control": "await_section_strategy_confirmation",
+    "last_node": "phase1_section_strategy",
+    "errors": [],
+    "phase1_status": "success",
+    "phase2_status": "pending",
+    "phase3_status": "pending",
+    "locked_by": null,
+    "lock_timestamp": null,
+    "doc_meta": {
+      "doc_title": "d5ea4c187aad42848268814d102c2a59 collateral good",
+      "doc_source": "upload",
+      "source_path": "/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/d5ea4c187aad42848268814d102c2a59_collateral_good.pdf",
+      "file_type": "pdf",
+      "page_count": 2,
+      "word_count": 453,
+      "md_file_id": "d5ea4c187aad42848268814d102c2a59_collateral_good_md_9bfa0c65",
+      "md_path": "external/data/doc_review/markdown/d5ea4c187aad42848268814d102c2a59_collateral_good_md_9bfa0c65.md",
+      "version": 1
+    },
+    "structure": {
+      "raw_text": "# Collateral Acceptance Policy \u2013 Capital Markets Lending Desk\n\n## 1. Overview\n\nThis policy establishes the standards governing the evaluation, eligibility, and acceptance of collateral for secured financing within the Capital Markets Lending Desk. It ensures alignment with regulatory expectations, internal credit risk frameworks, and enterprise-wide collateral management standards. The policy aims to maintain high-quality collateral pools, protect the institution from counterparty default, and promote consistent decision-making.\n\n## 2. Scope\n\nThis policy applies to all secured financing transactions originated, renewed, or amended by the Capital Markets Lending Desk. It covers all client types\u2014including financial institutions, corporates, and asset managers\u2014across the U.S. and Canada. Exclusions include retail lending, margin lending administered by the Prime Brokerage unit, and collateral processes governed by bilateral derivative agreements.\n\n## 3. Policy Requirements\n\n- All collateral must meet eligibility criteria defined by Credit Risk Management.\n- Collateral must be independently valued using approved pricing sources.\n- Haircuts must follow enterprise-approved schedules and be applied consistently.\n- Legal enforceability must be validated through internal or external counsel prior to transaction onboarding.\n- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.\n- Documentation must include collateral schedules, valuation statements, and legal opinions.\n\n## 4. Roles & Responsibilities\n\n- **Capital Markets Lending Desk:** Ensures compliance with all requirements during transaction onboarding and ongoing monitoring.\n- **Credit Risk Management:** Defines eligibility, reviews collateral profiles, and approves exceptions.\n- **Market Risk:** Provides valuation oversight, stress testing guidance, and concentration monitoring.\n- **Legal:** Confirms enforceability of collateral rights and reviews all non-standard arrangements.\n- **Operations:** Performs daily margining, valuation updates, and reporting.\n\n## 5. Operational Procedures\n\nA high-level collateral workflow includes:\n\n---\n\n# 1. Eligibility screening aligned with internal criteria.\n\n2. Legal enforceability confirmation.\n\n3. Valuation and haircut application using enterprise models.\n\n4. Daily margining, substitution monitoring, and dispute resolution. \n\n5. Ongoing compliance review and reporting.\n\nDetailed operational steps are maintained in SOP-LND-004 and Collateral Ops Playbook.\n\n## #6. Exceptions & Escalations\n\nExceptions may be granted only for strategic clients subject to:\n\n- Prior approval by Credit Risk and Legal.\n- Documented justification, including risk assessment.\n- Quarterly review and revalidation.\n\nEscalations follow the desk's three-tier hierarchy, culminating with the Head of Global Lending.\n\n## #7. Compliance, Monitoring & Reporting\n\nCompliance is monitored via:\n\n- Monthly collateral quality reviews.\n- Daily exception reports.\n- Quarterly regulatory alignment checks.\n- Annual policy attestation.\n\nBreaches require immediate remediation and root-cause analysis.\n\n## #8. Definitions & Interpretation\n\n- **Eligible Collateral:** Assets meeting enterprise criteria.\n- **Haircut:** A valuation discount applied to mitigate risk.\n- **Wrong-Way Risk:** Exposure increasing when counterparty and collateral value are correlated.\n\n## #9. Appendix\n\n- Enterprise Collateral Standards\n\n---\n\n# - Credit Risk Haircut Schedule\n# - Sample Collateral Agreement",
+      "pages": [],
+      "headings": [
+        {
+          "level": "h1",
+          "title": "Collateral Acceptance Policy \u2013 Capital Markets Lending Desk",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 1
+        },
+        {
+          "level": "h2",
+          "title": "1. Overview",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 3
+        },
+        {
+          "level": "h2",
+          "title": "2. Scope",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 7
+        },
+        {
+          "level": "h2",
+          "title": "3. Policy Requirements",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 11
+        },
+        {
+          "level": "h2",
+          "title": "4. Roles & Responsibilities",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 20
+        },
+        {
+          "level": "h2",
+          "title": "5. Operational Procedures",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 28
+        },
+        {
+          "level": "h1",
+          "title": "1. Eligibility screening aligned with internal criteria.",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 34
+        },
+        {
+          "level": "h2",
+          "title": "#6. Exceptions & Escalations",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 46
+        },
+        {
+          "level": "h2",
+          "title": "#7. Compliance, Monitoring & Reporting",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 56
+        },
+        {
+          "level": "h2",
+          "title": "#8. Definitions & Interpretation",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 67
+        },
+        {
+          "level": "h2",
+          "title": "#9. Appendix",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 73
+        },
+        {
+          "level": "h1",
+          "title": "- Credit Risk Haircut Schedule",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 79
+        },
+        {
+          "level": "h1",
+          "title": "- Sample Collateral Agreement",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 80
+        }
+      ],
+      "toc_detected": true,
+      "toc_entries": [
+        {
+          "title": "Collateral Acceptance Policy \u2013 Capital Markets Lending Desk",
+          "level": 1,
+          "page_number": null,
+          "notes": null,
+          "confidence": "high"
+        },
+        {
+          "title": "1. Overview",
+          "level": 2,
+          "page_number": null,
+          "notes": "This policy establishes the standards governing the evaluation, eligibility, and acceptance of collateral for secured financing within the Capital Markets Lending Desk.",
+          "confidence": "high"
+        },
+        {
+          "title": "2. Scope",
+          "level": 2,
+          "page_number": null,
+          "notes": "This policy applies to all secured financing transactions originated, renewed, or amended by the Capital Markets Lending Desk.",
+          "confidence": "high"
+        },
+        {
+          "title": "3. Policy Requirements",
+          "level": 2,
+          "page_number": null,
+          "notes": "Lists the key requirements for collateral, including eligibility, valuation, haircuts, legal enforceability, and other controls.",
+          "confidence": "high"
+        },
+        {
+          "title": "4. Roles & Responsibilities",
+          "level": 2,
+          "page_number": null,
+          "notes": "Outlines the responsibilities of different teams in the collateral management process.",
+          "confidence": "high"
+        },
+        {
+          "title": "5. Operational Procedures",
+          "level": 2,
+          "page_number": null,
+          "notes": "Provides a high-level overview of the collateral workflow.",
+          "confidence": "high"
+        },
+        {
+          "title": "6. Exceptions & Escalations",
+          "level": 2,
+          "page_number": null,
+          "notes": "Describes the process for granting exceptions and escalating issues.",
+          "confidence": "high"
+        },
+        {
+          "title": "7. Compliance, Monitoring & Reporting",
+          "level": 2,
+          "page_number": null,
+          "notes": "Outlines the mechanisms for monitoring compliance and reporting on collateral-related activities.",
+          "confidence": "high"
+        },
+        {
+          "title": "8. Definitions & Interpretation",
+          "level": 2,
+          "page_number": null,
+          "notes": "Provides definitions for key terms used in the policy.",
+          "confidence": "high"
+        },
+        {
+          "title": "9. Appendix",
+          "level": 2,
+          "page_number": null,
+          "notes": "Lists additional reference materials.",
+          "confidence": "high"
+        }
+      ],
+      "images": [],
+      "block_metadata": [
+        {
+          "id": "p1_b0_ab0f87f0",
+          "page": 1,
+          "block_num": 0,
+          "start_line": 0,
+          "end_line": 1,
+          "content": "# Collateral Acceptance Policy \u2013 Capital Markets Lending Desk",
+          "type": "heading1"
+        },
+        {
+          "id": "p1_b1_2e161b00",
+          "page": 1,
+          "block_num": 1,
+          "start_line": 2,
+          "end_line": 5,
+          "content": "This policy establishes the standards governing the evaluation, eligibility, and acceptance of collateral for secured financing within the Capital Markets Lending Desk. It ensures alignment with regulatory expectations, internal credit risk frameworks, and enterprise-wide collateral management standards. The policy aims to maintain high-quality collateral pools, protect the institution from counterparty default, and promote consistent decision-making.",
+          "type": "paragraph"
+        },
+        {
+          "id": "p1_b2_3bdc6c3a",
+          "page": 1,
+          "block_num": 2,
+          "start_line": 6,
+          "end_line": 10,
+          "content": "This policy applies to all secured financing transactions originated, renewed, or amended by the Capital Markets Lending Desk. It covers all client types\u2014including financial institutions, corporates, and asset managers\u2014across the U.S. and Canada. Exclusions include retail lending, margin lending administered by the Prime Brokerage unit, and collateral processes governed by bilateral derivative agreements.",
+          "type": "paragraph"
+        },
+        {
+          "id": "p1_b3_a21bded1",
+          "page": 1,
+          "block_num": 3,
+          "start_line": 11,
+          "end_line": 16,
+          "content": "- All collateral must meet eligibility criteria defined by Credit Risk Management.\n- Collateral must be independently valued using approved pricing sources.\n- Haircuts must follow enterprise-approved schedules and be applied consistently.\n- Legal enforceability must be validated through internal or external counsel prior to transaction onboarding.\n- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.\n- Documentation must include collateral schedules, valuation statements, and legal opinions.",
+          "type": "bullet"
+        },
+        {
+          "id": "p1_b4_71017417",
+          "page": 1,
+          "block_num": 4,
+          "start_line": 17,
+          "end_line": 22,
+          "content": "- **Capital Markets Lending Desk:** Ensures compliance with all requirements during transaction onboarding and ongoing monitoring.\n- **Credit Risk Management:** Defines eligibility, reviews collateral profiles, and approves exceptions.\n- **Market Risk:** Provides valuation oversight, stress testing guidance, and concentration monitoring.\n- **Legal:** Confirms enforceability of collateral rights and reviews all non-standard arrangements.\n- **Operations:** Performs daily margining, valuation updates, and reporting.",
+          "type": "bullet"
+        },
+        {
+          "id": "p1_b5_3feb68c3",
+          "page": 1,
+          "block_num": 5,
+          "start_line": 23,
+          "end_line": 24,
+          "content": "A high-level collateral workflow includes:",
+          "type": "paragraph"
+        },
+        {
+          "id": "p2_b0_2d39828a",
+          "page": 2,
+          "block_num": 0,
+          "start_line": 0,
+          "end_line": 0,
+          "content": "# 1. Eligibility screening aligned with internal criteria.",
+          "type": "heading1"
+        },
+        {
+          "id": "p2_b1_f46720a6",
+          "page": 2,
+          "block_num": 1,
+          "start_line": 1,
+          "end_line": 1,
+          "content": "2. Legal enforceability confirmation.",
+          "type": "paragraph"
+        },
+        {
+          "id": "p2_b2_0876f31f",
+          "page": 2,
+          "block_num": 2,
+          "start_line": 2,
+          "end_line": 2,
+          "content": "3. Valuation and haircut application using enterprise models.",
+          "type": "paragraph"
+        },
+        {
+          "id": "p2_b3_5f750a38",
+          "page": 2,
+          "block_num": 3,
+          "start_line": 3,
+          "end_line": 3,
+          "content": "4. Daily margining, substitution monitoring, and dispute resolution.",
+          "type": "paragraph"
+        },
+        {
+          "id": "p2_b4_ede15c91",
+          "page": 2,
+          "block_num": 4,
+          "start_line": 4,
+          "end_line": 4,
+          "content": "5. Ongoing compliance review and reporting.",
+          "type": "paragraph"
+        },
+        {
+          "id": "p2_b5_a161d0fd",
+          "page": 2,
+          "block_num": 5,
+          "start_line": 5,
+          "end_line": 5,
+          "content": "Detailed operational steps are maintained in SOP-LND-004 and Collateral Ops Playbook.",
+          "type": "paragraph"
+        },
+        {
+          "id": "p2_b6_d41d8cd9",
+          "page": 2,
+          "block_num": 6,
+          "start_line": 6,
+          "end_line": 6,
+          "content": "",
+          "type": "empty"
+        },
+        {
+          "id": "p2_b7_2120f834",
+          "page": 2,
+          "block_num": 7,
+          "start_line": 7,
+          "end_line": 9,
+          "content": "## #6. Exceptions & Escalations\n\nExceptions may be granted only for strategic clients subject to:\n\n- Prior approval by Credit Risk and Legal.\n- Documented justification, including risk assessment.\n- Quarterly review and revalidation.",
+          "type": "heading2"
+        },
+        {
+          "id": "p2_b8_67b245f4",
+          "page": 2,
+          "block_num": 8,
+          "start_line": 10,
+          "end_line": 10,
+          "content": "Escalations follow the desk's three-tier hierarchy, culminating with the Head of Global Lending.",
+          "type": "paragraph"
+        },
+        {
+          "id": "p2_b9_d41d8cd9",
+          "page": 2,
+          "block_num": 9,
+          "start_line": 11,
+          "end_line": 11,
+          "content": "",
+          "type": "empty"
+        },
+        {
+          "id": "p2_b10_722e47e8",
+          "page": 2,
+          "block_num": 10,
+          "start_line": 12,
+          "end_line": 16,
+          "content": "## #7. Compliance, Monitoring & Reporting\n\nCompliance is monitored via:\n\n- Monthly collateral quality reviews.\n- Daily exception reports.\n- Quarterly regulatory alignment checks.\n- Annual policy attestation.\n\nBreaches require immediate remediation and root-cause analysis.",
+          "type": "heading2"
+        },
+        {
+          "id": "p2_b11_d41d8cd9",
+          "page": 2,
+          "block_num": 11,
+          "start_line": 17,
+          "end_line": 17,
+          "content": "",
+          "type": "empty"
+        },
+        {
+          "id": "p2_b12_4e6a5415",
+          "page": 2,
+          "block_num": 12,
+          "start_line": 18,
+          "end_line": 21,
+          "content": "## #8. Definitions & Interpretation\n\n- **Eligible Collateral:** Assets meeting enterprise criteria.\n- **Haircut:** A valuation discount applied to mitigate risk.\n- **Wrong-Way Risk:** Exposure increasing when counterparty and collateral value are correlated.",
+          "type": "heading2"
+        },
+        {
+          "id": "p2_b13_d41d8cd9",
+          "page": 2,
+          "block_num": 13,
+          "start_line": 22,
+          "end_line": 22,
+          "content": "",
+          "type": "empty"
+        },
+        {
+          "id": "p2_b14_74f25350",
+          "page": 2,
+          "block_num": 14,
+          "start_line": 23,
+          "end_line": 23,
+          "content": "## #9. Appendix",
+          "type": "heading2"
+        },
+        {
+          "id": "p2_b15_0b301dcd",
+          "page": 2,
+          "block_num": 15,
+          "start_line": 24,
+          "end_line": 24,
+          "content": "- Enterprise Collateral Standards",
+          "type": "bullet"
+        },
+        {
+          "id": "p3_b0_0dfd09a5",
+          "page": 3,
+          "block_num": 0,
+          "start_line": 0,
+          "end_line": 0,
+          "content": "# - Credit Risk Haircut Schedule",
+          "type": "heading1"
+        },
+        {
+          "id": "p3_b1_7a1cf96f",
+          "page": 3,
+          "block_num": 1,
+          "start_line": 1,
+          "end_line": 1,
+          "content": "# - Sample Collateral Agreement",
+          "type": "heading1"
+        }
+      ],
+      "verification_suggestions": [
+        {
+          "block_id": "p1_b3_a21bded1",
+          "original": "- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.",
+          "suggested": "- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.",
+          "reason": "The vision transcription and raw text match exactly for this block.",
+          "confidence": "high"
+        },
+        {
+          "block_id": "p2_b6_d41d8cd9",
+          "original": "",
+          "suggested": "6. Exceptions & Escalations",
+          "reason": "Missing text - raw text shows this section header",
+          "confidence": "high"
+        },
+        {
+          "block_id": "p2_b11_d41d8cd9",
+          "original": "",
+          "suggested": "7. Compliance, Monitoring & Reporting",
+          "reason": "Missing text - raw text shows this section header",
+          "confidence": "high"
+        },
+        {
+          "block_id": "p2_b13_d41d8cd9",
+          "original": "",
+          "suggested": "8. Definitions & Interpretation",
+          "reason": "Missing text - raw text shows this section header",
+          "confidence": "high"
+        },
+        {
+          "block_id": "p3_b0_0dfd09a5",
+          "original": "# - Credit Risk Haircut Schedule",
+          "suggested": "- Credit Risk Haircut Schedule",
+          "reason": "The raw text is missing the '#' character at the beginning of the line",
+          "confidence": "medium"
+        },
+        {
+          "block_id": "p3_b1_7a1cf96f",
+          "original": "# - Sample Collateral Agreement",
+          "suggested": "- Sample Collateral Agreement",
+          "reason": "The raw text is missing the '#' character at the beginning of the line",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "template_meta": {
+      "template_id": "policy_template",
+      "template_label": "Policy Template",
+      "template_text": "{\"template_id\": \"policy_template\", \"title\": \"Policy Template\", \"sections\": [{\"id\": \"toc\", \"title\": \"Table of Contents\", \"level\": \"h1\"}, {\"id\": \"overview\", \"title\": \"Overview\", \"level\": \"h1\", \"description\": \"States purpose and intent.\"}, {\"id\": \"scope\", \"title\": \"Scope\", \"level\": \"h1\", \"description\": \"Identifies users, systems, and documents covered.\"}, {\"id\": \"definitions\", \"title\": \"Definitions\", \"level\": \"h1\"}, {\"id\": \"requirements\", \"title\": \"Requirements\", \"level\": \"h1\", \"description\": \"Defines mandatory controls, processes, and standards.\"}, {\"id\": \"roles_responsibilities\", \"title\": \"Roles and Responsibilities\", \"level\": \"h1\"}, {\"id\": \"data_security\", \"title\": \"Data Handling and Security\", \"level\": \"h1\"}, {\"id\": \"quality_assurance\", \"title\": \"Quality Assurance\", \"level\": \"h1\"}, {\"id\": \"monitoring_reporting\", \"title\": \"Monitoring and Reporting\", \"level\": \"h1\"}, {\"id\": \"exceptions_escalations\", \"title\": \"Exceptions and Escalations\", \"level\": \"h1\", \"description\": \"Outlines approval paths and incident handling.\"}, {\"id\": \"compliance_auditing\", \"title\": \"Compliance and Auditing\", \"level\": \"h1\"}, {\"id\": \"review_cycle\", \"title\": \"Review Cycle\", \"level\": \"h1\"}, {\"id\": \"appendix\", \"title\": \"Appendix\", \"level\": \"h1\", \"description\": \"Includes references, forms, and supplemental materials.\"}]}",
+      "template_categories": [
+        "Table of Contents",
+        "Overview",
+        "Scope",
+        "Definitions",
+        "Requirements",
+        "Roles and Responsibilities",
+        "Data Handling and Security",
+        "Quality Assurance",
+        "Monitoring and Reporting",
+        "Exceptions and Escalations",
+        "Compliance and Auditing",
+        "Review Cycle",
+        "Appendix"
+      ],
+      "max_section_words": 500
+    },
+    "phase1": {
+      "stats": {
+        "word_count": 453,
+        "page_count": 2,
+        "heading_count": 13,
+        "image_count": 0
+      },
+      "doc_summary": {
+        "summary": "This policy establishes the standards for evaluating, accepting, and managing collateral for secured financing transactions within the Capital Markets Lending Desk. It ensures alignment with regulatory expectations, internal credit risk frameworks, and enterprise-wide collateral management practices. The policy aims to maintain high-quality collateral pools, protect the institution from counterparty default, and promote consistent decision-making. It covers all client types and secured financing transactions, with exclusions for retail lending, margin lending, and collateral processes governed by bilateral derivative agreements.",
+        "document_type": "Policy",
+        "purpose": "To establish standards for collateral evaluation, eligibility, and acceptance in secured financing transactions",
+        "audience": "Capital Markets Lending Desk",
+        "themes": [
+          "Collateral eligibility and quality",
+          "Valuation and haircut application",
+          "Legal enforceability and documentation",
+          "Roles and responsibilities",
+          "Exceptions and escalations",
+          "Compliance monitoring and reporting"
+        ],
+        "confidence": "high"
+      },
+      "toc_review": {
+        "toc_present": true,
+        "toc_label": "Collateral Acceptance Policy \u2013 Capital Markets Lending Desk",
+        "structure_score": "excellent",
+        "entries": [
+          {
+            "title": "Collateral Acceptance Policy \u2013 Capital Markets Lending Desk",
+            "level": 1,
+            "page_number": null,
+            "notes": null,
+            "confidence": "high"
+          },
+          {
+            "title": "1. Overview",
+            "level": 2,
+            "page_number": null,
+            "notes": "This policy establishes the standards governing the evaluation, eligibility, and acceptance of collateral for secured financing within the Capital Markets Lending Desk.",
+            "confidence": "high"
+          },
+          {
+            "title": "2. Scope",
+            "level": 2,
+            "page_number": null,
+            "notes": "This policy applies to all secured financing transactions originated, renewed, or amended by the Capital Markets Lending Desk.",
+            "confidence": "high"
+          },
+          {
+            "title": "3. Policy Requirements",
+            "level": 2,
+            "page_number": null,
+            "notes": "Lists the key requirements for collateral, including eligibility, valuation, haircuts, legal enforceability, and other controls.",
+            "confidence": "high"
+          },
+          {
+            "title": "4. Roles & Responsibilities",
+            "level": 2,
+            "page_number": null,
+            "notes": "Outlines the responsibilities of different teams in the collateral management process.",
+            "confidence": "high"
+          },
+          {
+            "title": "5. Operational Procedures",
+            "level": 2,
+            "page_number": null,
+            "notes": "Provides a high-level overview of the collateral workflow.",
+            "confidence": "high"
+          },
+          {
+            "title": "6. Exceptions & Escalations",
+            "level": 2,
+            "page_number": null,
+            "notes": "Describes the process for granting exceptions and escalating issues.",
+            "confidence": "high"
+          },
+          {
+            "title": "7. Compliance, Monitoring & Reporting",
+            "level": 2,
+            "page_number": null,
+            "notes": "Outlines the mechanisms for monitoring compliance and reporting on collateral-related activities.",
+            "confidence": "high"
+          },
+          {
+            "title": "8. Definitions & Interpretation",
+            "level": 2,
+            "page_number": null,
+            "notes": "Provides definitions for key terms used in the policy.",
+            "confidence": "high"
+          },
+          {
+            "title": "9. Appendix",
+            "level": 2,
+            "page_number": null,
+            "notes": "Lists additional reference materials.",
+            "confidence": "high"
+          }
+        ],
+        "observations": [
+          "The document has a clear and comprehensive table of contents that covers all the key aspects of the collateral acceptance policy.",
+          "The structure and hierarchy of the sections are well-organized, making it easy to navigate and understand the policy requirements.",
+          "The level of detail provided in the notes for each section is appropriate and helpful in understanding the content."
+        ],
+        "gaps": [
+          "No significant gaps were identified in the table of contents or the structure of the document."
+        ]
+      },
+      "template_fitness_report": {
+        "template_id": "policy_template",
+        "template_label": "Policy Template",
+        "overall_alignment": "good",
+        "categories": [
+          {
+            "name": "Table of Contents",
+            "coverage": "complete",
+            "effort": "none",
+            "gaps": [],
+            "actions": []
+          },
+          {
+            "name": "Overview",
+            "coverage": "complete",
+            "effort": "none",
+            "gaps": [],
+            "actions": []
+          },
+          {
+            "name": "Scope",
+            "coverage": "complete",
+            "effort": "none",
+            "gaps": [],
+            "actions": []
+          },
+          {
+            "name": "Definitions",
+            "coverage": "complete",
+            "effort": "none",
+            "gaps": [],
+            "actions": []
+          },
+          {
+            "name": "Requirements",
+            "coverage": "complete",
+            "effort": "none",
+            "gaps": [],
+            "actions": []
+          },
+          {
+            "name": "Roles and Responsibilities",
+            "coverage": "complete",
+            "effort": "none",
+            "gaps": [],
+            "actions": []
+          },
+          {
+            "name": "Data Handling and Security",
+            "coverage": "missing",
+            "effort": "medium",
+            "gaps": [
+              "The policy does not address data handling and security requirements for collateral information."
+            ],
+            "actions": [
+              "Add a section on data handling and security, including requirements for data access, storage, and protection."
+            ]
+          },
+          {
+            "name": "Quality Assurance",
+            "coverage": "missing",
+            "effort": "medium",
+            "gaps": [
+              "The policy does not outline quality assurance processes for collateral management."
+            ],
+            "actions": [
+              "Add a section on quality assurance, including requirements for collateral data validation, reconciliation, and auditing."
+            ]
+          },
+          {
+            "name": "Monitoring and Reporting",
+            "coverage": "complete",
+            "effort": "none",
+            "gaps": [],
+            "actions": []
+          },
+          {
+            "name": "Exceptions and Escalations",
+            "coverage": "complete",
+            "effort": "none",
+            "gaps": [],
+            "actions": []
+          },
+          {
+            "name": "Compliance and Auditing",
+            "coverage": "partial",
+            "effort": "low",
+            "gaps": [
+              "The policy does not provide details on compliance monitoring and auditing processes."
+            ],
+            "actions": [
+              "Expand the compliance and auditing section to include more details on monitoring, reporting, and audit requirements."
+            ]
+          },
+          {
+            "name": "Review Cycle",
+            "coverage": "missing",
+            "effort": "low",
+            "gaps": [
+              "The policy does not specify a review cycle or update process."
+            ],
+            "actions": [
+              "Add a section on the policy review cycle, including requirements for periodic review and update."
+            ]
+          },
+          {
+            "name": "Appendix",
+            "coverage": "complete",
+            "effort": "none",
+            "gaps": [],
+            "actions": []
+          }
+        ],
+        "narrative": "The policy document provides a comprehensive overview of the collateral acceptance standards and processes for the Capital Markets Lending Desk. It covers key areas such as eligibility criteria, valuation, haircuts, legal enforceability, and operational workflows. The roles and responsibilities of various stakeholders are also clearly defined.\n\nHowever, the policy lacks some important elements, such as data handling and security requirements, quality assurance processes, and a formal review cycle. Addressing these gaps would help strengthen the overall policy and ensure a more robust collateral management framework.\n\nThe tone and style of the document are appropriate for a policy-level document, with a clear and concise presentation of the requirements. The level of detail is sufficient to provide guidance to the relevant teams, while leaving room for more granular operational procedures.\n\nOverall, the policy is well-aligned with the template and provides a solid foundation for collateral management. Incorporating the missing elements would further enhance the policy and ensure a more comprehensive approach to collateral acceptance and monitoring."
+      },
+      "section_strategy": {
+        "verdict": "needs_improvement",
+        "rationale": "The policy document is well-structured and comprehensive, but it lacks some key elements such as data handling and security requirements, quality assurance processes, and a formal review cycle. Addressing these gaps would help strengthen the overall policy and ensure a more robust collateral management framework.",
+        "recommended_section_level": "h2",
+        "fallback_levels": [
+          "h3",
+          "h4"
+        ],
+        "estimated_sections": 12,
+        "next_steps": [
+          "Add a new section on 'Data Handling and Security' that outlines requirements for data access, storage, and protection.",
+          "Incorporate a new section on 'Quality Assurance' that includes requirements for collateral data validation, reconciliation, and auditing.",
+          "Expand the 'Compliance and Auditing' section to provide more details on monitoring, reporting, and audit requirements.",
+          "Add a new section on the 'Review Cycle' that specifies the frequency and process for periodic policy review and update."
+        ]
+      }
+    },
+    "phase2": {
+      "chunks": {},
+      "reviews": {},
+      "summary_report": null
+    },
+    "changes": {
+      "suggested_changes": [],
+      "applied_change_ids": [],
+      "failed_changes": [],
+      "change_selection_plan": null,
+      "skipped_changes": [],
+      "new_raw_text": null
+    },
+    "user_interaction": {
+      "user_selected_section_strategy": false,
+      "selected_section_scope": null,
+      "user_change_instruction": null
+    },
+    "file_metadata": {
+      "file_id": "d5ea4c187aad42848268814d102c2a59_collateral_good",
+      "source_path": "/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/d5ea4c187aad42848268814d102c2a59_collateral_good.pdf",
+      "file_type": "pdf",
+      "md_file_id": "d5ea4c187aad42848268814d102c2a59_collateral_good_md_9bfa0c65",
+      "md_path": "external/data/doc_review/markdown/d5ea4c187aad42848268814d102c2a59_collateral_good_md_9bfa0c65.md",
+      "images": [],
+      "page_count": 2,
+      "word_count": 453,
+      "heading_levels": [
+        "h1",
+        "h2"
+      ],
+      "chunking": {
+        "should_chunk": null,
+        "strategy": null,
+        "reason": null,
+        "max_chunk_tokens": null
+      },
+      "stats": {
+        "created_at": "2025-11-16T22:00:20.581808Z",
+        "ingestion_version": "v1"
+      }
+    },
+    "vfs_artifacts": [
+      {
+        "path": "/original/d5ea4c187aad42848268814d102c2a59_collateral_good.pdf",
+        "label": "Original upload",
+        "last_updated": "2025-11-16T22:00:15.353034Z"
+      },
+      {
+        "path": "/original/document.md",
+        "label": "Normalised Markdown",
+        "last_updated": "2025-11-16T22:00:15.353062Z"
+      },
+      {
+        "path": "/phase1/doc_summary.json",
+        "label": "Phase 1 Doc Summary",
+        "last_updated": "2025-11-16T22:00:22.432912Z"
+      },
+      {
+        "path": "/phase1/toc_review.json",
+        "label": "Phase 1 TOC Review",
+        "last_updated": "2025-11-16T22:00:28.448022Z"
+      },
+      {
+        "path": "/phase1/template_fitness.json",
+        "label": "Template Fitness",
+        "last_updated": "2025-11-16T22:00:35.269251Z"
+      },
+      {
+        "path": "/phase1/section_strategy.json",
+        "label": "Section Strategy",
+        "last_updated": "2025-11-16T22:00:37.366311Z"
+      }
+    ],
+    "logs": [],
+    "agent_transcript": [
+      {
+        "timestamp": "2025-11-16T22:00:20.581596Z",
+        "prompt": "phase1_toc_extraction.md",
+        "payload_preview": {
+          "doc_title": "d5ea4c187aad42848268814d102c2a59 collateral good",
+          "page_count": 2,
+          "document_excerpt": "# Collateral Acceptance Policy \u2013 Capital Markets Lending Desk\n\n## 1. Overview\n\nThis policy establishes the standards governing the evaluation, eligibility, and acceptance of collateral for secured financing within the Capital Markets Lending Desk. It ensures alignment with regulatory expectations, internal credit risk frameworks, and enterprise-wide collateral management standards. The policy aims to maintain high-quality collateral pools, protect the institution from counterparty default, and promote consistent decision-making.\n\n## 2. Scope\n\nThis policy applies to all secured financing transactions originated, renewed, or amended by the Capital Markets Lending Desk. It covers all client types\u2014including financial institutions, corporates, and asset managers\u2014across the U.S. and Canada. Exclusions include retail lending, margin lending administered by the Prime Brokerage unit, and collateral processes governed by bilateral derivative agreements.\n\n## 3. Policy Requirements\n\n- All collateral must meet eligibility criteria defined by Credit Risk Management.\n- Collateral must be independently valued using approved pricing sources.\n- Haircuts must follow enterprise-approved schedules and be applied consistently.\n- Legal enforceability must be validated through internal or external counsel prior to transaction onboarding.\n- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.\n- Documentation must include collateral schedules, valuation statements, and legal opinions.\n\n## 4. Roles & Responsibilities\n\n- **Capital Markets Lending Desk:** Ensures compliance with all requirements during transaction onboarding and ongoing monitoring.\n- **Credit Risk Management:** Defines eligibility, reviews collateral profiles, and approves exceptions.\n- **Market Risk:** Provides valuation oversight, stress testing guidance, and concentration monitoring.\n- **Legal:** Confirms enforceability of collateral rights and reviews all non-standard arrangements.\n- **Operations:** Performs daily margining, valuation updates, and reporting.\n\n## 5. Operational Procedures\n\nA high-level collateral workflow includes:\n\n---\n\n# 1. Eligibility screening aligned with internal criteria.\n\n2. Legal enforceability confirmation.\n\n3. Valuation and haircut application using enterprise models.\n\n4. Daily margining, substitution monitoring, and dispute resolution. \n\n5. Ongoing compliance review and reporting.\n\nDetailed operational steps are maintained in SOP-LND-004 and Collateral Ops Playbook.\n\n## #6. Exceptions & Escalations\n\nExceptions may be granted only for strategic clients subject to:\n\n- Prior approval by Credit Risk and Legal.\n- Documented justification, including risk assessment.\n- Quarterly review and revalidation.\n\nEscalations follow the desk's three-tier hierarchy, culminating with the Head of Global Lending.\n\n## #7. Compliance, Monitoring & Reporting\n\nCompliance is monitored via:\n\n- Monthly collateral quality reviews.\n- Daily exception reports.\n- Quarterly regulatory alignment checks.\n- Annual policy attestation.\n\nBreaches require immediate remediation and root-cause analysis.\n\n## #8. Definitions & Interpretation\n\n- **Eligible Collateral:** Assets meeting enterprise criteria.\n- **Haircut:** A valuation discount applied to mitigate risk.\n- **Wrong-Way Risk:** Exposure increasing when counterparty and collateral value are correlated.\n\n## #9. Appendix\n\n- Enterprise Collateral Standards\n\n---\n\n# - Credit Risk Haircut Schedule\n# - Sample Collateral Agreement"
+        },
+        "response_preview": {
+          "entries": [
+            {
+              "title": "Collateral Acceptance Policy \u2013 Capital Markets Lending Desk",
+              "level": 1,
+              "page_number": null,
+              "notes": null,
+              "confidence": "high"
+            },
+            {
+              "title": "1. Overview",
+              "level": 2,
+              "page_number": null,
+              "notes": "This policy establishes the standards governing the evaluation, eligibility, and acceptance of collateral for secured financing within the Capital Markets Lending Desk.",
+              "confidence": "high"
+            },
+            {
+              "title": "2. Scope",
+              "level": 2,
+              "page_number": null,
+              "notes": "This policy applies to all secured financing transactions originated, renewed, or amended by the Capital Markets Lending Desk.",
+              "confidence": "high"
+            },
+            {
+              "title": "3. Policy Requirements",
+              "level": 2,
+              "page_number": null,
+              "notes": "Lists the key requirements for collateral, including eligibility, valuation, haircuts, legal enforceability, and other controls.",
+              "confidence": "high"
+            },
+            {
+              "title": "4. Roles & Responsibilities",
+              "level": 2,
+              "page_number": null,
+              "notes": "Outlines the responsibilities of different teams in the collateral management process.",
+              "confidence": "high"
+            },
+            {
+              "title": "5. Operational Procedures",
+              "level": 2,
+              "page_number": null,
+              "notes": "Provides a high-level overview of the collateral workflow.",
+              "confidence": "high"
+            },
+            {
+              "title": "6. Exceptions & Escalations",
+              "level": 2,
+              "page_number": null,
+              "notes": "Describes the process for granting exceptions and escalating issues.",
+              "confidence": "high"
+            },
+            {
+              "title": "7. Compliance, Monitoring & Reporting",
+              "level": 2,
+              "page_number": null,
+              "notes": "Outlines the mechanisms for monitoring compliance and reporting on collateral-related activities.",
+              "confidence": "high"
+            },
+            {
+              "title": "8. Definitions & Interpretation",
+              "level": 2,
+              "page_number": null,
+              "notes": "Provides definitions for key terms used in the policy.",
+              "confidence": "high"
+            },
+            {
+              "title": "9. Appendix",
+              "level": 2,
+              "page_number": null,
+              "notes": "Lists additional reference materials.",
+              "confidence": "high"
+            }
+          ],
+          "source": "first_five_pages",
+          "truncated": false,
+          "warnings": []
+        }
+      },
+      {
+        "timestamp": "2025-11-16T22:00:22.432878Z",
+        "prompt": "phase1_doc_summary.md",
+        "payload_preview": {
+          "doc_title": "d5ea4c187aad42848268814d102c2a59 collateral good",
+          "page_count": 2,
+          "word_count": 453,
+          "document_excerpt": "# Collateral Acceptance Policy \u2013 Capital Markets Lending Desk\n\n## 1. Overview\n\nThis policy establishes the standards governing the evaluation, eligibility, and acceptance of collateral for secured financing within the Capital Markets Lending Desk. It ensures alignment with regulatory expectations, internal credit risk frameworks, and enterprise-wide collateral management standards. The policy aims to maintain high-quality collateral pools, protect the institution from counterparty default, and promote consistent decision-making.\n\n## 2. Scope\n\nThis policy applies to all secured financing transactions originated, renewed, or amended by the Capital Markets Lending Desk. It covers all client types\u2014including financial institutions, corporates, and asset managers\u2014across the U.S. and Canada. Exclusions include retail lending, margin lending administered by the Prime Brokerage unit, and collateral processes governed by bilateral derivative agreements.\n\n## 3. Policy Requirements\n\n- All collateral must meet eligibility criteria defined by Credit Risk Management.\n- Collateral must be independently valued using approved pricing sources.\n- Haircuts must follow enterprise-approved schedules and be applied consistently.\n- Legal enforceability must be validated through internal or external counsel prior to transaction onboarding.\n- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.\n- Documentation must include collateral schedules, valuation statements, and legal opinions.\n\n## 4. Roles & Responsibilities\n\n- **Capital Markets Lending Desk:** Ensures compliance with all requirements during transaction onboarding and ongoing monitoring.\n- **Credit Risk Management:** Defines eligibility, reviews collateral profiles, and approves exceptions.\n- **Market Risk:** Provides valuation oversight, stress testing guidance, and concentration monitoring.\n- **Legal:** Confirms enforceability of collateral rights and reviews all non-standard arrangements.\n- **Operations:** Performs daily margining, valuation updates, and reporting.\n\n## 5. Operational Procedures\n\nA high-level collateral workflow includes:\n\n---\n\n# 1. Eligibility screening aligned with internal criteria.\n\n2. Legal enforceability confirmation.\n\n3. Valuation and haircut application using enterprise models.\n\n4. Daily margining, substitution monitoring, and dispute resolution. \n\n5. Ongoing compliance review and reporting.\n\nDetailed operational steps are maintained in SOP-LND-004 and Collateral Ops Playbook.\n\n## #6. Exceptions & Escalations\n\nExceptions may be granted only for strategic clients subject to:\n\n- Prior approval by Credit Risk and Legal.\n- Documented justification, including risk assessment.\n- Quarterly review and revalidation.\n\nEscalations follow the desk's three-tier hierarchy, culminating with the Head of Global Lending.\n\n## #7. Compliance, Monitoring & Reporting\n\nCompliance is monitored via:\n\n- Monthly collateral quality reviews.\n- Daily exception reports.\n- Quarterly regulatory alignment checks.\n- Annual policy attestation.\n\nBreaches require immediate remediation and root-cause analysis.\n\n## #8. Definitions & Interpretation\n\n- **Eligible Collateral:** Assets meeting enterprise criteria.\n- **Haircut:** A valuation discount applied to mitigate risk.\n- **Wrong-Way Risk:** Exposure increasing when counterparty and collateral value are correlated.\n\n## #9. Appendix\n\n- Enterprise Collateral Standards\n\n---\n\n# - Credit Risk Haircut Schedule\n# - Sample Collateral Agreement"
+        },
+        "response_preview": {
+          "summary": "This policy establishes the standards for evaluating, accepting, and managing collateral for secured financing transactions within the Capital Markets Lending Desk. It ensures alignment with regulatory expectations, internal credit risk frameworks, and enterprise-wide collateral management practices. The policy aims to maintain high-quality collateral pools, protect the institution from counterparty default, and promote consistent decision-making. It covers all client types and secured financing transactions, with exclusions for retail lending, margin lending, and collateral processes governed by bilateral derivative agreements.",
+          "document_type": "Policy",
+          "purpose": "To establish standards for collateral evaluation, eligibility, and acceptance in secured financing transactions",
+          "audience": "Capital Markets Lending Desk",
+          "themes": [
+            "Collateral eligibility and quality",
+            "Valuation and haircut application",
+            "Legal enforceability and documentation",
+            "Roles and responsibilities",
+            "Exceptions and escalations",
+            "Compliance monitoring and reporting"
+          ]
+        }
+      },
+      {
+        "timestamp": "2025-11-16T22:00:28.447968Z",
+        "prompt": "phase1_toc_review.md",
+        "payload_preview": {
+          "doc_title": "d5ea4c187aad42848268814d102c2a59 collateral good",
+          "page_count": 2,
+          "toc_entries": [
+            {
+              "title": "Collateral Acceptance Policy \u2013 Capital Markets Lending Desk",
+              "level": 1,
+              "page_number": null,
+              "notes": null,
+              "confidence": "high"
+            },
+            {
+              "title": "1. Overview",
+              "level": 2,
+              "page_number": null,
+              "notes": "This policy establishes the standards governing the evaluation, eligibility, and acceptance of collateral for secured financing within the Capital Markets Lending Desk.",
+              "confidence": "high"
+            },
+            {
+              "title": "2. Scope",
+              "level": 2,
+              "page_number": null,
+              "notes": "This policy applies to all secured financing transactions originated, renewed, or amended by the Capital Markets Lending Desk.",
+              "confidence": "high"
+            },
+            {
+              "title": "3. Policy Requirements",
+              "level": 2,
+              "page_number": null,
+              "notes": "Lists the key requirements for collateral, including eligibility, valuation, haircuts, legal enforceability, and other controls.",
+              "confidence": "high"
+            },
+            {
+              "title": "4. Roles & Responsibilities",
+              "level": 2,
+              "page_number": null,
+              "notes": "Outlines the responsibilities of different teams in the collateral management process.",
+              "confidence": "high"
+            },
+            {
+              "title": "5. Operational Procedures",
+              "level": 2,
+              "page_number": null,
+              "notes": "Provides a high-level overview of the collateral workflow.",
+              "confidence": "high"
+            },
+            {
+              "title": "6. Exceptions & Escalations",
+              "level": 2,
+              "page_number": null,
+              "notes": "Describes the process for granting exceptions and escalating issues.",
+              "confidence": "high"
+            },
+            {
+              "title": "7. Compliance, Monitoring & Reporting",
+              "level": 2,
+              "page_number": null,
+              "notes": "Outlines the mechanisms for monitoring compliance and reporting on collateral-related activities.",
+              "confidence": "high"
+            },
+            {
+              "title": "8. Definitions & Interpretation",
+              "level": 2,
+              "page_number": null,
+              "notes": "Provides definitions for key terms used in the policy.",
+              "confidence": "high"
+            },
+            {
+              "title": "9. Appendix",
+              "level": 2,
+              "page_number": null,
+              "notes": "Lists additional reference materials.",
+              "confidence": "high"
+            }
+          ],
+          "headings": [
+            {
+              "level": "h1",
+              "title": "Collateral Acceptance Policy \u2013 Capital Markets Lending Desk",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 1
+            },
+            {
+              "level": "h2",
+              "title": "1. Overview",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 3
+            },
+            {
+              "level": "h2",
+              "title": "2. Scope",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 7
+            },
+            {
+              "level": "h2",
+              "title": "3. Policy Requirements",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 11
+            },
+            {
+              "level": "h2",
+              "title": "4. Roles & Responsibilities",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 20
+            },
+            {
+              "level": "h2",
+              "title": "5. Operational Procedures",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 28
+            },
+            {
+              "level": "h1",
+              "title": "1. Eligibility screening aligned with internal criteria.",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 34
+            },
+            {
+              "level": "h2",
+              "title": "#6. Exceptions & Escalations",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 46
+            },
+            {
+              "level": "h2",
+              "title": "#7. Compliance, Monitoring & Reporting",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 56
+            },
+            {
+              "level": "h2",
+              "title": "#8. Definitions & Interpretation",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 67
+            },
+            {
+              "level": "h2",
+              "title": "#9. Appendix",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 73
+            },
+            {
+              "level": "h1",
+              "title": "- Credit Risk Haircut Schedule",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 79
+            },
+            {
+              "level": "h1",
+              "title": "- Sample Collateral Agreement",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 80
+            }
+          ],
+          "document_excerpt": "# Collateral Acceptance Policy \u2013 Capital Markets Lending Desk\n\n## 1. Overview\n\nThis policy establishes the standards governing the evaluation, eligibility, and acceptance of collateral for secured financing within the Capital Markets Lending Desk. It ensures alignment with regulatory expectations, internal credit risk frameworks, and enterprise-wide collateral management standards. The policy aims to maintain high-quality collateral pools, protect the institution from counterparty default, and promote consistent decision-making.\n\n## 2. Scope\n\nThis policy applies to all secured financing transactions originated, renewed, or amended by the Capital Markets Lending Desk. It covers all client types\u2014including financial institutions, corporates, and asset managers\u2014across the U.S. and Canada. Exclusions include retail lending, margin lending administered by the Prime Brokerage unit, and collateral processes governed by bilateral derivative agreements.\n\n## 3. Policy Requirements\n\n- All collateral must meet eligibility criteria defined by Credit Risk Management.\n- Collateral must be independently valued using approved pricing sources.\n- Haircuts must follow enterprise-approved schedules and be applied consistently.\n- Legal enforceability must be validated through internal or external counsel prior to transaction onboarding.\n- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.\n- Documentation must include collateral schedules, valuation statements, and legal opinions.\n\n## 4. Roles & Responsibilities\n\n- **Capital Markets Lending Desk:** Ensures compliance with all requirements during transaction onboarding and ongoing monitoring.\n- **Credit Risk Management:** Defines eligibility, reviews collateral profiles, and approves exceptions.\n- **Market Risk:** Provides valuation oversight, stress testing guidance, and concentration monitoring.\n- **Legal:** Confirms enforceability of collateral rights and reviews all non-standard arrangements.\n- **Operations:** Performs daily margining, valuation updates, and reporting.\n\n## 5. Operational Procedures\n\nA high-level collateral workflow includes:\n\n---\n\n# 1. Eligibility screening aligned with internal criteria.\n\n2. Legal enforceability confirmation.\n\n3. Valuation and haircut application using enterprise models.\n\n4. Daily margining, substitution monitoring, and dispute resolution. \n\n5. Ongoing compliance review and reporting.\n\nDetailed operational steps are maintained in SOP-LND-004 and Collateral Ops Playbook.\n\n## #6. Exceptions & Escalations\n\nExceptions may be granted only for strategic clients subject to:\n\n- Prior approval by Credit Risk and Legal.\n- Documented justification, including risk assessment.\n- Quarterly review and revalidation.\n\nEscalations follow the desk's three-tier hierarchy, culminating with the Head of Global Lending.\n\n## #7. Compliance, Monitoring & Reporting\n\nCompliance is monitored via:\n\n- Monthly collateral quality reviews.\n- Daily exception reports.\n- Quarterly regulatory alignment checks.\n- Annual policy attestation.\n\nBreaches require immediate remediation and root-cause analysis.\n\n## #8. Definitions & Interpretation\n\n- **Eligible Collateral:** Assets meeting enterprise criteria.\n- **Haircut:** A valuation discount applied to mitigate risk.\n- **Wrong-Way Risk:** Exposure increasing when counterparty and collateral value are correlated.\n\n## #9. Appendix\n\n- Enterprise Collateral Standards\n\n---\n\n# - Credit Risk Haircut Schedule\n# - Sample Collateral Agreement"
+        },
+        "response_preview": {
+          "toc_present": true,
+          "toc_label": "Collateral Acceptance Policy \u2013 Capital Markets Lending Desk",
+          "structure_score": "excellent",
+          "entries": [
+            {
+              "title": "Collateral Acceptance Policy \u2013 Capital Markets Lending Desk",
+              "level": 1,
+              "page_number": null,
+              "notes": null,
+              "confidence": "high"
+            },
+            {
+              "title": "1. Overview",
+              "level": 2,
+              "page_number": null,
+              "notes": "This policy establishes the standards governing the evaluation, eligibility, and acceptance of collateral for secured financing within the Capital Markets Lending Desk.",
+              "confidence": "high"
+            },
+            {
+              "title": "2. Scope",
+              "level": 2,
+              "page_number": null,
+              "notes": "This policy applies to all secured financing transactions originated, renewed, or amended by the Capital Markets Lending Desk.",
+              "confidence": "high"
+            },
+            {
+              "title": "3. Policy Requirements",
+              "level": 2,
+              "page_number": null,
+              "notes": "Lists the key requirements for collateral, including eligibility, valuation, haircuts, legal enforceability, and other controls.",
+              "confidence": "high"
+            },
+            {
+              "title": "4. Roles & Responsibilities",
+              "level": 2,
+              "page_number": null,
+              "notes": "Outlines the responsibilities of different teams in the collateral management process.",
+              "confidence": "high"
+            },
+            {
+              "title": "5. Operational Procedures",
+              "level": 2,
+              "page_number": null,
+              "notes": "Provides a high-level overview of the collateral workflow.",
+              "confidence": "high"
+            },
+            {
+              "title": "6. Exceptions & Escalations",
+              "level": 2,
+              "page_number": null,
+              "notes": "Describes the process for granting exceptions and escalating issues.",
+              "confidence": "high"
+            },
+            {
+              "title": "7. Compliance, Monitoring & Reporting",
+              "level": 2,
+              "page_number": null,
+              "notes": "Outlines the mechanisms for monitoring compliance and reporting on collateral-related activities.",
+              "confidence": "high"
+            },
+            {
+              "title": "8. Definitions & Interpretation",
+              "level": 2,
+              "page_number": null,
+              "notes": "Provides definitions for key terms used in the policy.",
+              "confidence": "high"
+            },
+            {
+              "title": "9. Appendix",
+              "level": 2,
+              "page_number": null,
+              "notes": "Lists additional reference materials.",
+              "confidence": "high"
+            }
+          ],
+          "observations": [
+            "The document has a clear and comprehensive table of contents that covers all the key aspects of the collateral acceptance policy.",
+            "The structure and hierarchy of the sections are well-organized, making it easy to navigate and understand the policy requirements.",
+            "The level of detail provided in the notes for each section is appropriate and helpful in understanding the content."
+          ]
+        }
+      },
+      {
+        "timestamp": "2025-11-16T22:00:35.269142Z",
+        "prompt": "phase1_template_fitness.md",
+        "payload_preview": {
+          "doc_title": "d5ea4c187aad42848268814d102c2a59 collateral good",
+          "document_excerpt": "# Collateral Acceptance Policy \u2013 Capital Markets Lending Desk\n\n## 1. Overview\n\nThis policy establishes the standards governing the evaluation, eligibility, and acceptance of collateral for secured financing within the Capital Markets Lending Desk. It ensures alignment with regulatory expectations, internal credit risk frameworks, and enterprise-wide collateral management standards. The policy aims to maintain high-quality collateral pools, protect the institution from counterparty default, and promote consistent decision-making.\n\n## 2. Scope\n\nThis policy applies to all secured financing transactions originated, renewed, or amended by the Capital Markets Lending Desk. It covers all client types\u2014including financial institutions, corporates, and asset managers\u2014across the U.S. and Canada. Exclusions include retail lending, margin lending administered by the Prime Brokerage unit, and collateral processes governed by bilateral derivative agreements.\n\n## 3. Policy Requirements\n\n- All collateral must meet eligibility criteria defined by Credit Risk Management.\n- Collateral must be independently valued using approved pricing sources.\n- Haircuts must follow enterprise-approved schedules and be applied consistently.\n- Legal enforceability must be validated through internal or external counsel prior to transaction onboarding.\n- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.\n- Documentation must include collateral schedules, valuation statements, and legal opinions.\n\n## 4. Roles & Responsibilities\n\n- **Capital Markets Lending Desk:** Ensures compliance with all requirements during transaction onboarding and ongoing monitoring.\n- **Credit Risk Management:** Defines eligibility, reviews collateral profiles, and approves exceptions.\n- **Market Risk:** Provides valuation oversight, stress testing guidance, and concentration monitoring.\n- **Legal:** Confirms enforceability of collateral rights and reviews all non-standard arrangements.\n- **Operations:** Performs daily margining, valuation updates, and reporting.\n\n## 5. Operational Procedures\n\nA high-level collateral workflow includes:\n\n---\n\n# 1. Eligibility screening aligned with internal criteria.\n\n2. Legal enforceability confirmation.\n\n3. Valuation and haircut application using enterprise models.\n\n4. Daily margining, substitution monitoring, and dispute resolution. \n\n5. Ongoing compliance review and reporting.\n\nDetailed operational steps are maintained in SOP-LND-004 and Collateral Ops Playbook.\n\n## #6. Exceptions & Escalations\n\nExceptions may be granted only for strategic clients subject to:\n\n- Prior approval by Credit Risk and Legal.\n- Documented justification, including risk assessment.\n- Quarterly review and revalidation.\n\nEscalations follow the desk's three-tier hierarchy, culminating with the Head of Global Lending.\n\n## #7. Compliance, Monitoring & Reporting\n\nCompliance is monitored via:\n\n- Monthly collateral quality reviews.\n- Daily exception reports.\n- Quarterly regulatory alignment checks.\n- Annual policy attestation.\n\nBreaches require immediate remediation and root-cause analysis.\n\n## #8. Definitions & Interpretation\n\n- **Eligible Collateral:** Assets meeting enterprise criteria.\n- **Haircut:** A valuation discount applied to mitigate risk.\n- **Wrong-Way Risk:** Exposure increasing when counterparty and collateral value are correlated.\n\n## #9. Appendix\n\n- Enterprise Collateral Standards\n\n---\n\n# - Credit Risk Haircut Schedule\n# - Sample Collateral Agreement",
+          "template": {
+            "template_id": "policy_template",
+            "template_label": "Policy Template",
+            "template_text": "{\"template_id\": \"policy_template\", \"title\": \"Policy Template\", \"sections\": [{\"id\": \"toc\", \"title\": \"Table of Contents\", \"level\": \"h1\"}, {\"id\": \"overview\", \"title\": \"Overview\", \"level\": \"h1\", \"description\": \"States purpose and intent.\"}, {\"id\": \"scope\", \"title\": \"Scope\", \"level\": \"h1\", \"description\": \"Identifies users, systems, and documents covered.\"}, {\"id\": \"definitions\", \"title\": \"Definitions\", \"level\": \"h1\"}, {\"id\": \"requirements\", \"title\": \"Requirements\", \"level\": \"h1\", \"description\": \"Defines mandatory controls, processes, and standards.\"}, {\"id\": \"roles_responsibilities\", \"title\": \"Roles and Responsibilities\", \"level\": \"h1\"}, {\"id\": \"data_security\", \"title\": \"Data Handling and Security\", \"level\": \"h1\"}, {\"id\": \"quality_assurance\", \"title\": \"Quality Assurance\", \"level\": \"h1\"}, {\"id\": \"monitoring_reporting\", \"title\": \"Monitoring and Reporting\", \"level\": \"h1\"}, {\"id\": \"exceptions_escalations\", \"title\": \"Exceptions and Escalations\", \"level\": \"h1\", \"description\": \"Outlines approval paths and incident handling.\"}, {\"id\": \"compliance_auditing\", \"title\": \"Compliance and Auditing\", \"level\": \"h1\"}, {\"id\": \"review_cycle\", \"title\": \"Review Cycle\", \"level\": \"h1\"}, {\"id\": \"appendix\", \"title\": \"Appendix\", \"level\": \"h1\", \"description\": \"Includes references, forms, and supplemental materials.\"}]}",
+            "template_categories": [
+              "Table of Contents",
+              "Overview",
+              "Scope",
+              "Definitions",
+              "Requirements",
+              "Roles and Responsibilities",
+              "Data Handling and Security",
+              "Quality Assurance",
+              "Monitoring and Reporting",
+              "Exceptions and Escalations",
+              "Compliance and Auditing",
+              "Review Cycle",
+              "Appendix"
+            ]
+          }
+        },
+        "response_preview": {
+          "template_id": "policy_template",
+          "template_label": "Policy Template",
+          "overall_alignment": "good",
+          "categories": [
+            {
+              "name": "Table of Contents",
+              "coverage": "complete",
+              "effort": "none",
+              "gaps": [],
+              "actions": []
+            },
+            {
+              "name": "Overview",
+              "coverage": "complete",
+              "effort": "none",
+              "gaps": [],
+              "actions": []
+            },
+            {
+              "name": "Scope",
+              "coverage": "complete",
+              "effort": "none",
+              "gaps": [],
+              "actions": []
+            },
+            {
+              "name": "Definitions",
+              "coverage": "complete",
+              "effort": "none",
+              "gaps": [],
+              "actions": []
+            },
+            {
+              "name": "Requirements",
+              "coverage": "complete",
+              "effort": "none",
+              "gaps": [],
+              "actions": []
+            },
+            {
+              "name": "Roles and Responsibilities",
+              "coverage": "complete",
+              "effort": "none",
+              "gaps": [],
+              "actions": []
+            },
+            {
+              "name": "Data Handling and Security",
+              "coverage": "missing",
+              "effort": "medium",
+              "gaps": [
+                "The policy does not address data handling and security requirements for collateral information."
+              ],
+              "actions": [
+                "Add a section on data handling and security, including requirements for data access, storage, and protection."
+              ]
+            },
+            {
+              "name": "Quality Assurance",
+              "coverage": "missing",
+              "effort": "medium",
+              "gaps": [
+                "The policy does not outline quality assurance processes for collateral management."
+              ],
+              "actions": [
+                "Add a section on quality assurance, including requirements for collateral data validation, reconciliation, and auditing."
+              ]
+            },
+            {
+              "name": "Monitoring and Reporting",
+              "coverage": "complete",
+              "effort": "none",
+              "gaps": [],
+              "actions": []
+            },
+            {
+              "name": "Exceptions and Escalations",
+              "coverage": "complete",
+              "effort": "none",
+              "gaps": [],
+              "actions": []
+            },
+            {
+              "name": "Compliance and Auditing",
+              "coverage": "partial",
+              "effort": "low",
+              "gaps": [
+                "The policy does not provide details on compliance monitoring and auditing processes."
+              ],
+              "actions": [
+                "Expand the compliance and auditing section to include more details on monitoring, reporting, and audit requirements."
+              ]
+            },
+            {
+              "name": "Review Cycle",
+              "coverage": "missing",
+              "effort": "low",
+              "gaps": [
+                "The policy does not specify a review cycle or update process."
+              ],
+              "actions": [
+                "Add a section on the policy review cycle, including requirements for periodic review and update."
+              ]
+            },
+            {
+              "name": "Appendix",
+              "coverage": "complete",
+              "effort": "none",
+              "gaps": [],
+              "actions": []
+            }
+          ],
+          "narrative": "The policy document provides a comprehensive overview of the collateral acceptance standards and processes for the Capital Markets Lending Desk. It covers key areas such as eligibility criteria, valuation, haircuts, legal enforceability, and operational workflows. The roles and responsibilities of various stakeholders are also clearly defined.\n\nHowever, the policy lacks some important elements, such as data handling and security requirements, quality assurance processes, and a formal review cycle. Addressing these gaps would help strengthen the overall policy and ensure a more robust collateral management framework.\n\nThe tone and style of the document are appropriate for a policy-level document, with a clear and concise presentation of the requirements. The level of detail is sufficient to provide guidance to the relevant teams, while leaving room for more granular operational procedures.\n\nOverall, the policy is well-aligned with the template and provides a solid foundation for collateral management. Incorporating the missing elements would further enhance the policy and ensure a more comprehensive approach to collateral acceptance and monitoring."
+        }
+      },
+      {
+        "timestamp": "2025-11-16T22:00:37.366232Z",
+        "prompt": "phase1_section_strategy.md",
+        "payload_preview": {
+          "doc_summary": {
+            "summary": "This policy establishes the standards for evaluating, accepting, and managing collateral for secured financing transactions within the Capital Markets Lending Desk. It ensures alignment with regulatory expectations, internal credit risk frameworks, and enterprise-wide collateral management practices. The policy aims to maintain high-quality collateral pools, protect the institution from counterparty default, and promote consistent decision-making. It covers all client types and secured financing transactions, with exclusions for retail lending, margin lending, and collateral processes governed by bilateral derivative agreements.",
+            "document_type": "Policy",
+            "purpose": "To establish standards for collateral evaluation, eligibility, and acceptance in secured financing transactions",
+            "audience": "Capital Markets Lending Desk",
+            "themes": [
+              "Collateral eligibility and quality",
+              "Valuation and haircut application",
+              "Legal enforceability and documentation",
+              "Roles and responsibilities",
+              "Exceptions and escalations",
+              "Compliance monitoring and reporting"
+            ],
+            "confidence": "high"
+          },
+          "toc_review": {
+            "toc_present": true,
+            "toc_label": "Collateral Acceptance Policy \u2013 Capital Markets Lending Desk",
+            "structure_score": "excellent",
+            "entries": [
+              {
+                "title": "Collateral Acceptance Policy \u2013 Capital Markets Lending Desk",
+                "level": 1,
+                "page_number": null,
+                "notes": null,
+                "confidence": "high"
+              },
+              {
+                "title": "1. Overview",
+                "level": 2,
+                "page_number": null,
+                "notes": "This policy establishes the standards governing the evaluation, eligibility, and acceptance of collateral for secured financing within the Capital Markets Lending Desk.",
+                "confidence": "high"
+              },
+              {
+                "title": "2. Scope",
+                "level": 2,
+                "page_number": null,
+                "notes": "This policy applies to all secured financing transactions originated, renewed, or amended by the Capital Markets Lending Desk.",
+                "confidence": "high"
+              },
+              {
+                "title": "3. Policy Requirements",
+                "level": 2,
+                "page_number": null,
+                "notes": "Lists the key requirements for collateral, including eligibility, valuation, haircuts, legal enforceability, and other controls.",
+                "confidence": "high"
+              },
+              {
+                "title": "4. Roles & Responsibilities",
+                "level": 2,
+                "page_number": null,
+                "notes": "Outlines the responsibilities of different teams in the collateral management process.",
+                "confidence": "high"
+              },
+              {
+                "title": "5. Operational Procedures",
+                "level": 2,
+                "page_number": null,
+                "notes": "Provides a high-level overview of the collateral workflow.",
+                "confidence": "high"
+              },
+              {
+                "title": "6. Exceptions & Escalations",
+                "level": 2,
+                "page_number": null,
+                "notes": "Describes the process for granting exceptions and escalating issues.",
+                "confidence": "high"
+              },
+              {
+                "title": "7. Compliance, Monitoring & Reporting",
+                "level": 2,
+                "page_number": null,
+                "notes": "Outlines the mechanisms for monitoring compliance and reporting on collateral-related activities.",
+                "confidence": "high"
+              },
+              {
+                "title": "8. Definitions & Interpretation",
+                "level": 2,
+                "page_number": null,
+                "notes": "Provides definitions for key terms used in the policy.",
+                "confidence": "high"
+              },
+              {
+                "title": "9. Appendix",
+                "level": 2,
+                "page_number": null,
+                "notes": "Lists additional reference materials.",
+                "confidence": "high"
+              }
+            ],
+            "observations": [
+              "The document has a clear and comprehensive table of contents that covers all the key aspects of the collateral acceptance policy.",
+              "The structure and hierarchy of the sections are well-organized, making it easy to navigate and understand the policy requirements.",
+              "The level of detail provided in the notes for each section is appropriate and helpful in understanding the content."
+            ],
+            "gaps": [
+              "No significant gaps were identified in the table of contents or the structure of the document."
+            ]
+          },
+          "template_fitness": {
+            "template_id": "policy_template",
+            "template_label": "Policy Template",
+            "overall_alignment": "good",
+            "categories": [
+              {
+                "name": "Table of Contents",
+                "coverage": "complete",
+                "effort": "none",
+                "gaps": [],
+                "actions": []
+              },
+              {
+                "name": "Overview",
+                "coverage": "complete",
+                "effort": "none",
+                "gaps": [],
+                "actions": []
+              },
+              {
+                "name": "Scope",
+                "coverage": "complete",
+                "effort": "none",
+                "gaps": [],
+                "actions": []
+              },
+              {
+                "name": "Definitions",
+                "coverage": "complete",
+                "effort": "none",
+                "gaps": [],
+                "actions": []
+              },
+              {
+                "name": "Requirements",
+                "coverage": "complete",
+                "effort": "none",
+                "gaps": [],
+                "actions": []
+              },
+              {
+                "name": "Roles and Responsibilities",
+                "coverage": "complete",
+                "effort": "none",
+                "gaps": [],
+                "actions": []
+              },
+              {
+                "name": "Data Handling and Security",
+                "coverage": "missing",
+                "effort": "medium",
+                "gaps": [
+                  "The policy does not address data handling and security requirements for collateral information."
+                ],
+                "actions": [
+                  "Add a section on data handling and security, including requirements for data access, storage, and protection."
+                ]
+              },
+              {
+                "name": "Quality Assurance",
+                "coverage": "missing",
+                "effort": "medium",
+                "gaps": [
+                  "The policy does not outline quality assurance processes for collateral management."
+                ],
+                "actions": [
+                  "Add a section on quality assurance, including requirements for collateral data validation, reconciliation, and auditing."
+                ]
+              },
+              {
+                "name": "Monitoring and Reporting",
+                "coverage": "complete",
+                "effort": "none",
+                "gaps": [],
+                "actions": []
+              },
+              {
+                "name": "Exceptions and Escalations",
+                "coverage": "complete",
+                "effort": "none",
+                "gaps": [],
+                "actions": []
+              },
+              {
+                "name": "Compliance and Auditing",
+                "coverage": "partial",
+                "effort": "low",
+                "gaps": [
+                  "The policy does not provide details on compliance monitoring and auditing processes."
+                ],
+                "actions": [
+                  "Expand the compliance and auditing section to include more details on monitoring, reporting, and audit requirements."
+                ]
+              },
+              {
+                "name": "Review Cycle",
+                "coverage": "missing",
+                "effort": "low",
+                "gaps": [
+                  "The policy does not specify a review cycle or update process."
+                ],
+                "actions": [
+                  "Add a section on the policy review cycle, including requirements for periodic review and update."
+                ]
+              },
+              {
+                "name": "Appendix",
+                "coverage": "complete",
+                "effort": "none",
+                "gaps": [],
+                "actions": []
+              }
+            ],
+            "narrative": "The policy document provides a comprehensive overview of the collateral acceptance standards and processes for the Capital Markets Lending Desk. It covers key areas such as eligibility criteria, valuation, haircuts, legal enforceability, and operational workflows. The roles and responsibilities of various stakeholders are also clearly defined.\n\nHowever, the policy lacks some important elements, such as data handling and security requirements, quality assurance processes, and a formal review cycle. Addressing these gaps would help strengthen the overall policy and ensure a more robust collateral management framework.\n\nThe tone and style of the document are appropriate for a policy-level document, with a clear and concise presentation of the requirements. The level of detail is sufficient to provide guidance to the relevant teams, while leaving room for more granular operational procedures.\n\nOverall, the policy is well-aligned with the template and provides a solid foundation for collateral management. Incorporating the missing elements would further enhance the policy and ensure a more comprehensive approach to collateral acceptance and monitoring."
+          },
+          "stats": {
+            "word_count": 453,
+            "page_count": 2,
+            "heading_count": 13,
+            "image_count": 0
+          }
+        },
+        "response_preview": {
+          "verdict": "needs_improvement",
+          "rationale": "The policy document is well-structured and comprehensive, but it lacks some key elements such as data handling and security requirements, quality assurance processes, and a formal review cycle. Addressing these gaps would help strengthen the overall policy and ensure a more robust collateral management framework.",
+          "recommended_section_level": "h2",
+          "fallback_levels": [
+            "h3",
+            "h4"
+          ],
+          "estimated_sections": 12
+        }
+      }
+    ],
+    "raw_markdown": "# Collateral Acceptance Policy \u2013 Capital Markets Lending Desk\n\n## 1. Overview\n\nThis policy establishes the standards governing the evaluation, eligibility, and acceptance of collateral for secured financing within the Capital Markets Lending Desk. It ensures alignment with regulatory expectations, internal credit risk frameworks, and enterprise-wide collateral management standards. The policy aims to maintain high-quality collateral pools, protect the institution from counterparty default, and promote consistent decision-making.\n\n## 2. Scope\n\nThis policy applies to all secured financing transactions originated, renewed, or amended by the Capital Markets Lending Desk. It covers all client types\u2014including financial institutions, corporates, and asset managers\u2014across the U.S. and Canada. Exclusions include retail lending, margin lending administered by the Prime Brokerage unit, and collateral processes governed by bilateral derivative agreements.\n\n## 3. Policy Requirements\n\n- All collateral must meet eligibility criteria defined by Credit Risk Management.\n- Collateral must be independently valued using approved pricing sources.\n- Haircuts must follow enterprise-approved schedules and be applied consistently.\n- Legal enforceability must be validated through internal or external counsel prior to transaction onboarding.\n- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.\n- Documentation must include collateral schedules, valuation statements, and legal opinions.\n\n## 4. Roles & Responsibilities\n\n- **Capital Markets Lending Desk:** Ensures compliance with all requirements during transaction onboarding and ongoing monitoring.\n- **Credit Risk Management:** Defines eligibility, reviews collateral profiles, and approves exceptions.\n- **Market Risk:** Provides valuation oversight, stress testing guidance, and concentration monitoring.\n- **Legal:** Confirms enforceability of collateral rights and reviews all non-standard arrangements.\n- **Operations:** Performs daily margining, valuation updates, and reporting.\n\n## 5. Operational Procedures\n\nA high-level collateral workflow includes:\n\n---\n\n# 1. Eligibility screening aligned with internal criteria.\n\n2. Legal enforceability confirmation.\n\n3. Valuation and haircut application using enterprise models.\n\n4. Daily margining, substitution monitoring, and dispute resolution. \n\n5. Ongoing compliance review and reporting.\n\nDetailed operational steps are maintained in SOP-LND-004 and Collateral Ops Playbook.\n\n## #6. Exceptions & Escalations\n\nExceptions may be granted only for strategic clients subject to:\n\n- Prior approval by Credit Risk and Legal.\n- Documented justification, including risk assessment.\n- Quarterly review and revalidation.\n\nEscalations follow the desk's three-tier hierarchy, culminating with the Head of Global Lending.\n\n## #7. Compliance, Monitoring & Reporting\n\nCompliance is monitored via:\n\n- Monthly collateral quality reviews.\n- Daily exception reports.\n- Quarterly regulatory alignment checks.\n- Annual policy attestation.\n\nBreaches require immediate remediation and root-cause analysis.\n\n## #8. Definitions & Interpretation\n\n- **Eligible Collateral:** Assets meeting enterprise criteria.\n- **Haircut:** A valuation discount applied to mitigate risk.\n- **Wrong-Way Risk:** Exposure increasing when counterparty and collateral value are correlated.\n\n## #9. Appendix\n\n- Enterprise Collateral Standards\n\n---\n\n# - Credit Risk Haircut Schedule\n# - Sample Collateral Agreement",
+    "block_metadata": [
+      {
+        "block_num": 0,
+        "content": "# Collateral Acceptance Policy",
+        "end_line": 1,
+        "id": "p1_b0_ab0f87f0",
+        "page": 1,
+        "start_line": 0,
+        "type": "heading1"
+      },
+      {
+        "block_num": 1,
+        "content": "1.1 Purpose\nThis policy establishes the standards and requirements for the evaluation, eligibility, and acceptance of collateral for secured financing transactions within the organization. The purpose of this policy is to:\n- Ensure alignment with regulatory expectations and internal credit risk frameworks\n- Maintain high-quality collateral pools to protect the institution from counterparty default\n- Promote consistent decision-making and collateral management practices across the organization",
+        "end_line": 5,
+        "id": "p1_b1_2e161b00",
+        "page": 1,
+        "start_line": 2,
+        "type": "paragraph"
+      },
+      {
+        "block_num": 2,
+        "content": "1.2 Scope\nThis policy applies to all secured financing transactions originated, renewed, or amended by the organization, regardless of client type (e.g., financial institutions, corporates, asset managers) or geographic location (U.S. and Canada). Exclusions include retail lending, margin lending administered by the Prime Brokerage unit, and collateral processes governed by bilateral derivative agreements.\n\n1.3 Effective Date\nThis policy is effective as of [DATE].",
+        "end_line": 10,
+        "id": "p1_b2_3bdc6c3a",
+        "page": 1,
+        "start_line": 6,
+        "type": "paragraph"
+      },
+      {
+        "block_num": 3,
+        "content": "3.2 Specific Requirements\n- All collateral must meet eligibility criteria defined by Credit Risk Management.\n- Collateral must be independently valued using approved pricing sources.\n- Haircuts must follow enterprise-approved schedules and be applied consistently.\n- Legal enforceability must be validated through internal or external counsel prior to transaction onboarding.\n- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.\n- Documentation must include collateral schedules, valuation statements, and legal opinions.",
+        "end_line": 16,
+        "id": "p1_b3_a21bded1",
+        "page": 1,
+        "start_line": 11,
+        "type": "bullet"
+      },
+      {
+        "block_num": 4,
+        "content": "4.1 Management\n- **Capital Markets Lending Desk:** Ensures compliance with all requirements during transaction onboarding and ongoing monitoring.\n- **Credit Risk Management:** Defines eligibility, reviews collateral profiles, and approves exceptions.\n- **Market Risk:** Provides valuation oversight, stress testing guidance, and concentration monitoring.\n- **Legal:** Confirms enforceability of collateral rights and reviews all non-standard arrangements.\n\n4.2 Staff\n- **Operations:** Performs daily margining, valuation updates, and reporting.\n\n4.3 Oversight\n- [Describe the roles and responsibilities of the oversight function, such as policy governance, review, and monitoring]",
+        "end_line": 22,
+        "id": "p1_b4_71017417",
+        "page": 1,
+        "start_line": 17,
+        "type": "bullet"
+      },
+      {
+        "block_num": 5,
+        "content": "5.1 Implementation Procedures\nThe high-level collateral workflow includes the following steps:\n\n1. Eligibility screening aligned with internal criteria.\n2. Legal enforceability confirmation.\n3. Valuation and haircut application using enterprise models.\n4. Daily margining, substitution monitoring, and dispute resolution.\n5. Ongoing compliance review and reporting.\n\nDetailed operational steps are maintained in SOP-LND-004 and Collateral Ops Playbook.",
+        "end_line": 24,
+        "id": "p1_b5_3feb68c3",
+        "page": 1,
+        "start_line": 23,
+        "type": "paragraph"
+      },
+      {
+        "block_num": 0,
+        "content": "## 5.1 Eligibility and Onboarding Procedures",
+        "end_line": 0,
+        "id": "p2_b0_2d39828a",
+        "page": 2,
+        "start_line": 0,
+        "type": "heading1"
+      },
+      {
+        "block_num": 1,
+        "content": "The Capital Markets Lending Desk must confirm the legal enforceability of all collateral prior to transaction onboarding. This includes an internal or external legal review to validate the collateral rights and associated documentation.",
+        "end_line": 1,
+        "id": "p2_b1_f46720a6",
+        "page": 2,
+        "start_line": 1,
+        "type": "paragraph"
+      },
+      {
+        "block_num": 2,
+        "content": "All collateral must be independently valued using approved pricing sources. Haircuts will be applied consistently based on the enterprise-approved haircut schedule to mitigate risk. The Market Risk team provides oversight on the valuation process and monitors adherence to the haircut requirements.",
+        "end_line": 2,
+        "id": "p2_b2_0876f31f",
+        "page": 2,
+        "start_line": 2,
+        "type": "paragraph"
+      },
+      {
+        "block_num": 3,
+        "content": "The Capital Markets Lending Desk performs daily margining, substitution monitoring, and dispute resolution activities. The results of these operational processes are reported to the Credit Risk and Operations teams as part of the regular compliance reporting.",
+        "end_line": 3,
+        "id": "p2_b3_5f750a38",
+        "page": 2,
+        "start_line": 3,
+        "type": "paragraph"
+      },
+      {
+        "block_num": 4,
+        "content": "The Capital Markets Lending Desk must adhere to the compliance requirements outlined in this policy. Compliance is monitored through monthly collateral quality reviews, daily exception reports, quarterly regulatory alignment checks, and annual policy attestation. Any breaches of the policy requirements must be immediately remediated, and a root-cause analysis must be conducted.",
+        "end_line": 4,
+        "id": "p2_b4_ede15c91",
+        "page": 2,
+        "start_line": 4,
+        "type": "paragraph"
+      },
+      {
+        "block_num": 5,
+        "content": "Detailed operational steps are maintained in SOP-LND-004 and Collateral Ops Playbook.",
+        "end_line": 5,
+        "id": "p2_b5_a161d0fd",
+        "page": 2,
+        "start_line": 5,
+        "type": "paragraph"
+      },
+      {
+        "block_num": 6,
+        "content": "## 3.3 Exceptions",
+        "end_line": 6,
+        "id": "p2_b6_d41d8cd9",
+        "page": 2,
+        "start_line": 6,
+        "type": "empty"
+      },
+      {
+        "block_num": 7,
+        "content": "### 3.3.1 Exceptions Monitoring and Review\n\nAll exceptions granted under this policy will be subject to quarterly review and revalidation by the Credit Risk and Legal teams. The rationale and risk assessment for each exception will be documented and maintained.",
+        "end_line": 9,
+        "id": "p2_b7_2120f834",
+        "page": 2,
+        "start_line": 7,
+        "type": "heading2"
+      },
+      {
+        "block_num": 8,
+        "content": "Escalations for any policy exceptions or non-compliance issues will follow the Capital Markets Lending Desk's three-tier hierarchy, culminating with the Head of Global Lending.",
+        "end_line": 10,
+        "id": "p2_b8_67b245f4",
+        "page": 2,
+        "start_line": 10,
+        "type": "paragraph"
+      },
+      {
+        "block_num": 9,
+        "content": "",
+        "end_line": 11,
+        "id": "p2_b9_d41d8cd9",
+        "page": 2,
+        "start_line": 11,
+        "type": "empty"
+      },
+      {
+        "block_num": 10,
+        "content": "## 6. Compliance and Enforcement\n\n### 6.1 Compliance Requirements\nThe Capital Markets Lending Desk must adhere to all requirements outlined in this policy. Any breaches of the policy will require immediate remediation and a root-cause analysis.\n\n### 6.2 Consequences of Non-Compliance\nFailure to comply with the policy may result in disciplinary action, up to and including termination of employment, in accordance with the company's HR policies.",
+        "end_line": 16,
+        "id": "p2_b10_722e47e8",
+        "page": 2,
+        "start_line": 12,
+        "type": "heading2"
+      },
+      {
+        "block_num": 11,
+        "content": "7. Compliance, Monitoring & Reporting",
+        "end_line": 17,
+        "id": "p2_b11_d41d8cd9",
+        "page": 2,
+        "start_line": 17,
+        "type": "empty"
+      },
+      {
+        "block_num": 12,
+        "content": "## 2. Definitions\n\n**Eligible Collateral:** Assets that meet the enterprise-defined criteria for collateral acceptance.\n\n**Haircut:** A valuation discount applied to collateral to mitigate risk.\n\n**Wrong-Way Risk:** A risk scenario where the exposure to a counterparty is adversely correlated with the credit quality of that counterparty.",
+        "end_line": 21,
+        "id": "p2_b12_4e6a5415",
+        "page": 2,
+        "start_line": 18,
+        "type": "heading2"
+      },
+      {
+        "block_num": 13,
+        "content": "8. Definitions & Interpretation",
+        "end_line": 22,
+        "id": "p2_b13_d41d8cd9",
+        "page": 2,
+        "start_line": 22,
+        "type": "empty"
+      },
+      {
+        "block_num": 14,
+        "content": "## 8. References\n\nThe following documents are referenced in this policy:\n\n- Enterprise Collateral Standards\n- Credit Risk Haircut Schedule\n- Sample Collateral Agreement",
+        "end_line": 23,
+        "id": "p2_b14_74f25350",
+        "page": 2,
+        "start_line": 23,
+        "type": "heading2"
+      },
+      {
+        "block_num": 15,
+        "content": "- Enterprise Collateral Standards",
+        "end_line": 24,
+        "id": "p2_b15_0b301dcd",
+        "page": 2,
+        "start_line": 24,
+        "type": "bullet"
+      },
+      {
+        "block_num": 0,
+        "content": "These details are maintained in the Enterprise Collateral Standards, which are referenced in Section 8: References.",
+        "end_line": 0,
+        "id": "p3_b0_0dfd09a5",
+        "page": 3,
+        "start_line": 0,
+        "type": "heading1"
+      },
+      {
+        "block_num": 1,
+        "content": "Sample collateral agreements are maintained in the Collateral Operations Playbook, which is referenced in Section 5: Procedures and Controls.",
+        "end_line": 1,
+        "id": "p3_b1_7a1cf96f",
+        "page": 3,
+        "start_line": 1,
+        "type": "heading1"
+      }
+    ],
+    "verification_suggestions": [
+      {
+        "block_id": "p1_b3_a21bded1",
+        "original": "- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.",
+        "suggested": "- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.",
+        "reason": "The vision transcription and raw text match exactly for this block.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b6_d41d8cd9",
+        "original": "",
+        "suggested": "6. Exceptions & Escalations",
+        "reason": "Missing text - raw text shows this section header",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b11_d41d8cd9",
+        "original": "",
+        "suggested": "7. Compliance, Monitoring & Reporting",
+        "reason": "Missing text - raw text shows this section header",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b13_d41d8cd9",
+        "original": "",
+        "suggested": "8. Definitions & Interpretation",
+        "reason": "Missing text - raw text shows this section header",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p3_b0_0dfd09a5",
+        "original": "# - Credit Risk Haircut Schedule",
+        "suggested": "- Credit Risk Haircut Schedule",
+        "reason": "The raw text is missing the '#' character at the beginning of the line",
+        "confidence": "medium"
+      },
+      {
+        "block_id": "p3_b1_7a1cf96f",
+        "original": "# - Sample Collateral Agreement",
+        "suggested": "- Sample Collateral Agreement",
+        "reason": "The raw text is missing the '#' character at the beginning of the line",
+        "confidence": "medium"
+      }
+    ],
+    "vfs": {
+      "files": {
+        "/raw.md": {
+          "type": "file",
+          "content": "# Collateral Acceptance Policy \u2013 Capital Markets Lending Desk\n\n## 1. Overview\n\nThis policy establishes the standards governing the evaluation, eligibility, and acceptance of collateral for secured financing within the Capital Markets Lending Desk. It ensures alignment with regulatory expectations, internal credit risk frameworks, and enterprise-wide collateral management standards. The policy aims to maintain high-quality collateral pools, protect the institution from counterparty default, and promote consistent decision-making.\n\n## 2. Scope\n\nThis policy applies to all secured financing transactions originated, renewed, or amended by the Capital Markets Lending Desk. It covers all client types\u2014including financial institutions, corporates, and asset managers\u2014across the U.S. and Canada. Exclusions include retail lending, margin lending administered by the Prime Brokerage unit, and collateral processes governed by bilateral derivative agreements.\n\n## 3. Policy Requirements\n\n- All collateral must meet eligibility criteria defined by Credit Risk Management.\n- Collateral must be independently valued using approved pricing sources.\n- Haircuts must follow enterprise-approved schedules and be applied consistently.\n- Legal enforceability must be validated through internal or external counsel prior to transaction onboarding.\n- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.\n- Documentation must include collateral schedules, valuation statements, and legal opinions.\n\n## 4. Roles & Responsibilities\n\n- **Capital Markets Lending Desk:** Ensures compliance with all requirements during transaction onboarding and ongoing monitoring.\n- **Credit Risk Management:** Defines eligibility, reviews collateral profiles, and approves exceptions.\n- **Market Risk:** Provides valuation oversight, stress testing guidance, and concentration monitoring.\n- **Legal:** Confirms enforceability of collateral rights and reviews all non-standard arrangements.\n- **Operations:** Performs daily margining, valuation updates, and reporting.\n\n## 5. Operational Procedures\n\nA high-level collateral workflow includes:\n\n---\n\n# 1. Eligibility screening aligned with internal criteria.\n\n2. Legal enforceability confirmation.\n\n3. Valuation and haircut application using enterprise models.\n\n4. Daily margining, substitution monitoring, and dispute resolution. \n\n5. Ongoing compliance review and reporting.\n\nDetailed operational steps are maintained in SOP-LND-004 and Collateral Ops Playbook.\n\n## #6. Exceptions & Escalations\n\nExceptions may be granted only for strategic clients subject to:\n\n- Prior approval by Credit Risk and Legal.\n- Documented justification, including risk assessment.\n- Quarterly review and revalidation.\n\nEscalations follow the desk's three-tier hierarchy, culminating with the Head of Global Lending.\n\n## #7. Compliance, Monitoring & Reporting\n\nCompliance is monitored via:\n\n- Monthly collateral quality reviews.\n- Daily exception reports.\n- Quarterly regulatory alignment checks.\n- Annual policy attestation.\n\nBreaches require immediate remediation and root-cause analysis.\n\n## #8. Definitions & Interpretation\n\n- **Eligible Collateral:** Assets meeting enterprise criteria.\n- **Haircut:** A valuation discount applied to mitigate risk.\n- **Wrong-Way Risk:** Exposure increasing when counterparty and collateral value are correlated.\n\n## #9. Appendix\n\n- Enterprise Collateral Standards\n\n---\n\n# - Credit Risk Haircut Schedule\n# - Sample Collateral Agreement",
+          "mime": "text/markdown"
+        },
+        "/blocks.json": {
+          "type": "file",
+          "content": "[\n  {\n    \"id\": \"p1_b0_ab0f87f0\",\n    \"page\": 1,\n    \"block_num\": 0,\n    \"start_line\": 0,\n    \"end_line\": 1,\n    \"content\": \"# Collateral Acceptance Policy \\u2013 Capital Markets Lending Desk\",\n    \"type\": \"heading1\"\n  },\n  {\n    \"id\": \"p1_b1_2e161b00\",\n    \"page\": 1,\n    \"block_num\": 1,\n    \"start_line\": 2,\n    \"end_line\": 5,\n    \"content\": \"This policy establishes the standards governing the evaluation, eligibility, and acceptance of collateral for secured financing within the Capital Markets Lending Desk. It ensures alignment with regulatory expectations, internal credit risk frameworks, and enterprise-wide collateral management standards. The policy aims to maintain high-quality collateral pools, protect the institution from counterparty default, and promote consistent decision-making.\",\n    \"type\": \"paragraph\"\n  },\n  {\n    \"id\": \"p1_b2_3bdc6c3a\",\n    \"page\": 1,\n    \"block_num\": 2,\n    \"start_line\": 6,\n    \"end_line\": 10,\n    \"content\": \"This policy applies to all secured financing transactions originated, renewed, or amended by the Capital Markets Lending Desk. It covers all client types\\u2014including financial institutions, corporates, and asset managers\\u2014across the U.S. and Canada. Exclusions include retail lending, margin lending administered by the Prime Brokerage unit, and collateral processes governed by bilateral derivative agreements.\",\n    \"type\": \"paragraph\"\n  },\n  {\n    \"id\": \"p1_b3_a21bded1\",\n    \"page\": 1,\n    \"block_num\": 3,\n    \"start_line\": 11,\n    \"end_line\": 16,\n    \"content\": \"- All collateral must meet eligibility criteria defined by Credit Risk Management.\\n- Collateral must be independently valued using approved pricing sources.\\n- Haircuts must follow enterprise-approved schedules and be applied consistently.\\n- Legal enforceability must be validated through internal or external counsel prior to transaction onboarding.\\n- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.\\n- Documentation must include collateral schedules, valuation statements, and legal opinions.\",\n    \"type\": \"bullet\"\n  },\n  {\n    \"id\": \"p1_b4_71017417\",\n    \"page\": 1,\n    \"block_num\": 4,\n    \"start_line\": 17,\n    \"end_line\": 22,\n    \"content\": \"- **Capital Markets Lending Desk:** Ensures compliance with all requirements during transaction onboarding and ongoing monitoring.\\n- **Credit Risk Management:** Defines eligibility, reviews collateral profiles, and approves exceptions.\\n- **Market Risk:** Provides valuation oversight, stress testing guidance, and concentration monitoring.\\n- **Legal:** Confirms enforceability of collateral rights and reviews all non-standard arrangements.\\n- **Operations:** Performs daily margining, valuation updates, and reporting.\",\n    \"type\": \"bullet\"\n  },\n  {\n    \"id\": \"p1_b5_3feb68c3\",\n    \"page\": 1,\n    \"block_num\": 5,\n    \"start_line\": 23,\n    \"end_line\": 24,\n    \"content\": \"A high-level collateral workflow includes:\",\n    \"type\": \"paragraph\"\n  },\n  {\n    \"id\": \"p2_b0_2d39828a\",\n    \"page\": 2,\n    \"block_num\": 0,\n    \"start_line\": 0,\n    \"end_line\": 0,\n    \"content\": \"# 1. Eligibility screening aligned with internal criteria.\",\n    \"type\": \"heading1\"\n  },\n  {\n    \"id\": \"p2_b1_f46720a6\",\n    \"page\": 2,\n    \"block_num\": 1,\n    \"start_line\": 1,\n    \"end_line\": 1,\n    \"content\": \"2. Legal enforceability confirmation.\",\n    \"type\": \"paragraph\"\n  },\n  {\n    \"id\": \"p2_b2_0876f31f\",\n    \"page\": 2,\n    \"block_num\": 2,\n    \"start_line\": 2,\n    \"end_line\": 2,\n    \"content\": \"3. Valuation and haircut application using enterprise models.\",\n    \"type\": \"paragraph\"\n  },\n  {\n    \"id\": \"p2_b3_5f750a38\",\n    \"page\": 2,\n    \"block_num\": 3,\n    \"start_line\": 3,\n    \"end_line\": 3,\n    \"content\": \"4. Daily margining, substitution monitoring, and dispute resolution.\",\n    \"type\": \"paragraph\"\n  },\n  {\n    \"id\": \"p2_b4_ede15c91\",\n    \"page\": 2,\n    \"block_num\": 4,\n    \"start_line\": 4,\n    \"end_line\": 4,\n    \"content\": \"5. Ongoing compliance review and reporting.\",\n    \"type\": \"paragraph\"\n  },\n  {\n    \"id\": \"p2_b5_a161d0fd\",\n    \"page\": 2,\n    \"block_num\": 5,\n    \"start_line\": 5,\n    \"end_line\": 5,\n    \"content\": \"Detailed operational steps are maintained in SOP-LND-004 and Collateral Ops Playbook.\",\n    \"type\": \"paragraph\"\n  },\n  {\n    \"id\": \"p2_b6_d41d8cd9\",\n    \"page\": 2,\n    \"block_num\": 6,\n    \"start_line\": 6,\n    \"end_line\": 6,\n    \"content\": \"\",\n    \"type\": \"empty\"\n  },\n  {\n    \"id\": \"p2_b7_2120f834\",\n    \"page\": 2,\n    \"block_num\": 7,\n    \"start_line\": 7,\n    \"end_line\": 9,\n    \"content\": \"## #6. Exceptions & Escalations\\n\\nExceptions may be granted only for strategic clients subject to:\\n\\n- Prior approval by Credit Risk and Legal.\\n- Documented justification, including risk assessment.\\n- Quarterly review and revalidation.\",\n    \"type\": \"heading2\"\n  },\n  {\n    \"id\": \"p2_b8_67b245f4\",\n    \"page\": 2,\n    \"block_num\": 8,\n    \"start_line\": 10,\n    \"end_line\": 10,\n    \"content\": \"Escalations follow the desk's three-tier hierarchy, culminating with the Head of Global Lending.\",\n    \"type\": \"paragraph\"\n  },\n  {\n    \"id\": \"p2_b9_d41d8cd9\",\n    \"page\": 2,\n    \"block_num\": 9,\n    \"start_line\": 11,\n    \"end_line\": 11,\n    \"content\": \"\",\n    \"type\": \"empty\"\n  },\n  {\n    \"id\": \"p2_b10_722e47e8\",\n    \"page\": 2,\n    \"block_num\": 10,\n    \"start_line\": 12,\n    \"end_line\": 16,\n    \"content\": \"## #7. Compliance, Monitoring & Reporting\\n\\nCompliance is monitored via:\\n\\n- Monthly collateral quality reviews.\\n- Daily exception reports.\\n- Quarterly regulatory alignment checks.\\n- Annual policy attestation.\\n\\nBreaches require immediate remediation and root-cause analysis.\",\n    \"type\": \"heading2\"\n  },\n  {\n    \"id\": \"p2_b11_d41d8cd9\",\n    \"page\": 2,\n    \"block_num\": 11,\n    \"start_line\": 17,\n    \"end_line\": 17,\n    \"content\": \"\",\n    \"type\": \"empty\"\n  },\n  {\n    \"id\": \"p2_b12_4e6a5415\",\n    \"page\": 2,\n    \"block_num\": 12,\n    \"start_line\": 18,\n    \"end_line\": 21,\n    \"content\": \"## #8. Definitions & Interpretation\\n\\n- **Eligible Collateral:** Assets meeting enterprise criteria.\\n- **Haircut:** A valuation discount applied to mitigate risk.\\n- **Wrong-Way Risk:** Exposure increasing when counterparty and collateral value are correlated.\",\n    \"type\": \"heading2\"\n  },\n  {\n    \"id\": \"p2_b13_d41d8cd9\",\n    \"page\": 2,\n    \"block_num\": 13,\n    \"start_line\": 22,\n    \"end_line\": 22,\n    \"content\": \"\",\n    \"type\": \"empty\"\n  },\n  {\n    \"id\": \"p2_b14_74f25350\",\n    \"page\": 2,\n    \"block_num\": 14,\n    \"start_line\": 23,\n    \"end_line\": 23,\n    \"content\": \"## #9. Appendix\",\n    \"type\": \"heading2\"\n  },\n  {\n    \"id\": \"p2_b15_0b301dcd\",\n    \"page\": 2,\n    \"block_num\": 15,\n    \"start_line\": 24,\n    \"end_line\": 24,\n    \"content\": \"- Enterprise Collateral Standards\",\n    \"type\": \"bullet\"\n  },\n  {\n    \"id\": \"p3_b0_0dfd09a5\",\n    \"page\": 3,\n    \"block_num\": 0,\n    \"start_line\": 0,\n    \"end_line\": 0,\n    \"content\": \"# - Credit Risk Haircut Schedule\",\n    \"type\": \"heading1\"\n  },\n  {\n    \"id\": \"p3_b1_7a1cf96f\",\n    \"page\": 3,\n    \"block_num\": 1,\n    \"start_line\": 1,\n    \"end_line\": 1,\n    \"content\": \"# - Sample Collateral Agreement\",\n    \"type\": \"heading1\"\n  }\n]",
+          "mime": "application/json"
+        },
+        "/suggestions.json": {
+          "type": "file",
+          "content": "[\n  {\n    \"block_id\": \"p1_b3_a21bded1\",\n    \"original\": \"- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.\",\n    \"suggested\": \"- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.\",\n    \"reason\": \"The vision transcription and raw text match exactly for this block.\",\n    \"confidence\": \"high\"\n  },\n  {\n    \"block_id\": \"p2_b6_d41d8cd9\",\n    \"original\": \"\",\n    \"suggested\": \"6. Exceptions & Escalations\",\n    \"reason\": \"Missing text - raw text shows this section header\",\n    \"confidence\": \"high\"\n  },\n  {\n    \"block_id\": \"p2_b11_d41d8cd9\",\n    \"original\": \"\",\n    \"suggested\": \"7. Compliance, Monitoring & Reporting\",\n    \"reason\": \"Missing text - raw text shows this section header\",\n    \"confidence\": \"high\"\n  },\n  {\n    \"block_id\": \"p2_b13_d41d8cd9\",\n    \"original\": \"\",\n    \"suggested\": \"8. Definitions & Interpretation\",\n    \"reason\": \"Missing text - raw text shows this section header\",\n    \"confidence\": \"high\"\n  },\n  {\n    \"block_id\": \"p3_b0_0dfd09a5\",\n    \"original\": \"# - Credit Risk Haircut Schedule\",\n    \"suggested\": \"- Credit Risk Haircut Schedule\",\n    \"reason\": \"The raw text is missing the '#' character at the beginning of the line\",\n    \"confidence\": \"medium\"\n  },\n  {\n    \"block_id\": \"p3_b1_7a1cf96f\",\n    \"original\": \"# - Sample Collateral Agreement\",\n    \"suggested\": \"- Sample Collateral Agreement\",\n    \"reason\": \"The raw text is missing the '#' character at the beginning of the line\",\n    \"confidence\": \"medium\"\n  }\n]",
+          "mime": "application/json"
+        }
+      }
+    },
+    "template_applied": "policy_template",
+    "template_gap_analysis": [
+      {
+        "block_id": "p1_b0_ab0f87f0",
+        "gaps": [
+          "Missing policy title as required by template section 1.1"
+        ],
+        "severity": "high",
+        "template_section": "1.1 Purpose",
+        "reasoning": "The template requires the policy title to be clearly stated, but it is missing from the current content."
+      },
+      {
+        "block_id": "p1_b1_2e161b00",
+        "gaps": [
+          "Purpose statement is present but lacks specificity required by template",
+          "Objectives of the policy are not clearly defined"
+        ],
+        "severity": "medium",
+        "template_section": "1.1 Purpose",
+        "reasoning": "The template requires a clear and detailed purpose statement that outlines the specific objectives of the policy. The current content provides a general overview but does not meet the level of detail expected."
+      },
+      {
+        "block_id": "p1_b2_3bdc6c3a",
+        "gaps": [
+          "Scope definition is present but lacks information on effective date as required by template"
+        ],
+        "severity": "medium",
+        "template_section": "1.2 Scope, 1.3 Effective Date",
+        "reasoning": "The template requires the scope to be clearly defined, including the effective date of the policy. The current content only partially meets this requirement by defining the scope but omitting the effective date."
+      },
+      {
+        "block_id": "p1_b3_a21bded1",
+        "gaps": [
+          "This content should be categorized under a relevant policy statement section as per the template structure"
+        ],
+        "severity": "low",
+        "template_section": "3. Policy Statement",
+        "reasoning": "The template organizes policy content into specific sections like General Principles and Specific Requirements. The current bullet point would fit better under a relevant policy statement section rather than being standalone."
+      },
+      {
+        "block_id": "p1_b4_71017417",
+        "gaps": [
+          "Roles and responsibilities are defined but missing oversight responsibilities as per template"
+        ],
+        "severity": "medium",
+        "template_section": "4. Roles and Responsibilities",
+        "reasoning": "The template requires the policy to define responsibilities for management, staff, and oversight. The current content covers management and staff responsibilities but is missing the oversight component."
+      },
+      {
+        "block_id": "p1_b5_3feb68c3",
+        "gaps": [
+          "This content should be categorized under a relevant procedures and controls section as per the template structure"
+        ],
+        "severity": "low",
+        "template_section": "5. Procedures and Controls",
+        "reasoning": "The template organizes policy content into specific sections like Implementation Procedures and Control Mechanisms. The current paragraph would fit better under a relevant procedures and controls section rather than being standalone."
+      },
+      {
+        "block_id": "p2_b0_2d39828a",
+        "gaps": [
+          "The section title 'Eligibility screening aligned with internal criteria' does not match the template structure."
+        ],
+        "severity": "medium",
+        "template_section": "5.1 Implementation Procedures",
+        "reasoning": "The template requires the policy to describe the implementation procedures, but the current content uses a different structure and title."
+      },
+      {
+        "block_id": "p2_b1_f46720a6",
+        "gaps": [
+          "The 'Legal enforceability confirmation' section does not have a clear description of the procedures or controls."
+        ],
+        "severity": "medium",
+        "template_section": "5.1 Implementation Procedures",
+        "reasoning": "The template expects the policy to detail the specific implementation procedures, but the current content only provides a high-level statement without explaining the process."
+      },
+      {
+        "block_id": "p2_b2_0876f31f",
+        "gaps": [
+          "The 'Valuation and haircut application using enterprise models' section does not specify the control mechanisms or monitoring procedures."
+        ],
+        "severity": "medium",
+        "template_section": "5.2 Control Mechanisms",
+        "reasoning": "The template requires the policy to describe the control mechanisms and monitoring processes, but the current content only states the requirements without explaining the controls."
+      },
+      {
+        "block_id": "p2_b3_5f750a38",
+        "gaps": [
+          "The 'Daily margining, substitution monitoring, and dispute resolution' section does not mention the reporting requirements."
+        ],
+        "severity": "low",
+        "template_section": "5.3 Reporting Requirements",
+        "reasoning": "The template expects the policy to define the reporting obligations, but the current content does not specify the reporting requirements for these operational activities."
+      },
+      {
+        "block_id": "p2_b4_ede15c91",
+        "gaps": [
+          "The 'Ongoing compliance review and reporting' section does not provide details on the compliance requirements or consequences of non-compliance."
+        ],
+        "severity": "medium",
+        "template_section": "6.1 Compliance Requirements",
+        "reasoning": "The template requires the policy to specify the compliance obligations and consequences, but the current content only states the compliance review activities without addressing the full compliance framework."
+      },
+      {
+        "block_id": "p2_b6_d41d8cd9",
+        "gaps": [
+          "The 'Exceptions & Escalations' section is not structured according to the template."
+        ],
+        "severity": "medium",
+        "template_section": "3.3 Exceptions",
+        "reasoning": "The template expects the policy to document any exceptions or special circumstances, but the current content uses a different structure and heading."
+      },
+      {
+        "block_id": "p2_b7_2120f834",
+        "gaps": [
+          "The 'Exceptions & Escalations' section does not specify the monitoring and review process for the exceptions."
+        ],
+        "severity": "medium",
+        "template_section": "6.2 Monitoring and Review",
+        "reasoning": "The template requires the policy to describe the monitoring and review processes, but the current content only explains the exception criteria without addressing the ongoing oversight."
+      },
+      {
+        "block_id": "p2_b10_722e47e8",
+        "gaps": [
+          "The 'Compliance, Monitoring & Reporting' section does not mention the consequences for non-compliance."
+        ],
+        "severity": "medium",
+        "template_section": "6.3 Consequences of Non-Compliance",
+        "reasoning": "The template expects the policy to define the consequences for policy violations, but the current content only covers the compliance monitoring activities without addressing the enforcement procedures."
+      },
+      {
+        "block_id": "p2_b12_4e6a5415",
+        "gaps": [
+          "The 'Definitions & Interpretation' section is not structured according to the template."
+        ],
+        "severity": "medium",
+        "template_section": "2. Definitions",
+        "reasoning": "The template requires the policy to define key terms and acronyms used, but the current content uses a different structure and heading."
+      },
+      {
+        "block_id": "p2_b14_74f25350",
+        "gaps": [
+          "The 'Appendix' section does not specify the contents or purpose of the appendix."
+        ],
+        "severity": "low",
+        "template_section": "8. References",
+        "reasoning": "The template expects the policy to list any related policies, regulations, or standards, but the current content only provides a placeholder for the appendix without details."
+      },
+      {
+        "block_id": "p3_b0_0dfd09a5",
+        "gaps": [
+          "This section is not part of the template structure. The template does not include a section for credit risk haircut schedules or sample agreements."
+        ],
+        "severity": "medium",
+        "template_section": "N/A",
+        "reasoning": "The template does not have a dedicated section for credit risk haircut schedules or sample agreements. This content would be better placed in an appendix section or referenced in the appropriate policy sections."
+      },
+      {
+        "block_id": "p3_b1_7a1cf96f",
+        "gaps": [
+          "This section is not part of the template structure. The template does not include a section for credit risk haircut schedules or sample agreements."
+        ],
+        "severity": "medium",
+        "template_section": "N/A",
+        "reasoning": "The template does not have a dedicated section for credit risk haircut schedules or sample agreements. This content would be better placed in an appendix section or referenced in the appropriate policy sections."
+      }
+    ],
+    "template_improvements": [
+      {
+        "block_id": "p1_b0_ab0f87f0",
+        "original": "# Collateral Acceptance Policy \u2013 Capital Markets Lending Desk",
+        "improved": "# Collateral Acceptance Policy",
+        "changes_made": [
+          "Removed the sub-title 'Capital Markets Lending Desk' to align with the template requirement for the policy title in section 1.1"
+        ],
+        "reasoning": "The template requires the policy title to be clearly stated in section 1.1, so the sub-title has been removed to meet this requirement.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p1_b1_2e161b00",
+        "original": "This policy establishes the standards governing the evaluation, eligibility, and acceptance of collateral for secured financing within the Capital Markets Lending Desk. It ensures alignment with regulatory expectations, internal credit risk frameworks, and enterprise-wide collateral management standards. The policy aims to maintain high-quality collateral pools, protect the institution from counterparty default, and promote consistent decision-making.",
+        "improved": "1.1 Purpose\nThis policy establishes the standards and requirements for the evaluation, eligibility, and acceptance of collateral for secured financing transactions within the organization. The purpose of this policy is to:\n- Ensure alignment with regulatory expectations and internal credit risk frameworks\n- Maintain high-quality collateral pools to protect the institution from counterparty default\n- Promote consistent decision-making and collateral management practices across the organization",
+        "changes_made": [
+          "Added a clear 'Purpose' section header to align with template structure",
+          "Expanded the purpose statement to explicitly state the key objectives of the policy, as required by the template",
+          "Reorganized the content into a more structured format with bullet points for the key purposes"
+        ],
+        "reasoning": "The template requires a detailed purpose statement in section 1.1 that clearly outlines the specific objectives of the policy. The improved content addresses this gap by adding a dedicated 'Purpose' section and expanding the statement to include the key aims of the policy.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p1_b2_3bdc6c3a",
+        "original": "This policy applies to all secured financing transactions originated, renewed, or amended by the Capital Markets Lending Desk. It covers all client types\u2014including financial institutions, corporates, and asset managers\u2014across the U.S. and Canada. Exclusions include retail lending, margin lending administered by the Prime Brokerage unit, and collateral processes governed by bilateral derivative agreements.",
+        "improved": "1.2 Scope\nThis policy applies to all secured financing transactions originated, renewed, or amended by the organization, regardless of client type (e.g., financial institutions, corporates, asset managers) or geographic location (U.S. and Canada). Exclusions include retail lending, margin lending administered by the Prime Brokerage unit, and collateral processes governed by bilateral derivative agreements.\n\n1.3 Effective Date\nThis policy is effective as of [DATE].",
+        "changes_made": [
+          "Added a clear 'Scope' section header to align with template structure",
+          "Clarified the scope statement to remove the specific reference to the 'Capital Markets Lending Desk' and make it more broadly applicable to the organization",
+          "Added a new 'Effective Date' section as required by the template"
+        ],
+        "reasoning": "The template requires the scope to be clearly defined in section 1.2, including the effective date in section 1.3. The improved content addresses these gaps by adding dedicated scope and effective date sections and expanding the scope statement to be more broadly applicable.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p1_b3_a21bded1",
+        "original": "- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.",
+        "improved": "3.2 Specific Requirements\n- All collateral must meet eligibility criteria defined by Credit Risk Management.\n- Collateral must be independently valued using approved pricing sources.\n- Haircuts must follow enterprise-approved schedules and be applied consistently.\n- Legal enforceability must be validated through internal or external counsel prior to transaction onboarding.\n- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.\n- Documentation must include collateral schedules, valuation statements, and legal opinions.",
+        "changes_made": [
+          "Categorized the content under the 'Specific Requirements' subsection of the 'Policy Statement' section, as per the template structure",
+          "Integrated the original bullet point with the other policy requirements for a more comprehensive and structured presentation"
+        ],
+        "reasoning": "The template organizes policy content into specific sections like General Principles and Specific Requirements under the 'Policy Statement' section. The improved content moves the original bullet point into the 'Specific Requirements' subsection to better align with the template structure.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p1_b4_71017417",
+        "original": "- **Capital Markets Lending Desk:** Ensures compliance with all requirements during transaction onboarding and ongoing monitoring.\n- **Credit Risk Management:** Defines eligibility, reviews collateral profiles, and approves exceptions.\n- **Market Risk:** Provides valuation oversight, stress testing guidance, and concentration monitoring.\n- **Legal:** Confirms enforceability of collateral rights and reviews all non-standard arrangements.\n- **Operations:** Performs daily margining, valuation updates, and reporting.",
+        "improved": "4.1 Management\n- **Capital Markets Lending Desk:** Ensures compliance with all requirements during transaction onboarding and ongoing monitoring.\n- **Credit Risk Management:** Defines eligibility, reviews collateral profiles, and approves exceptions.\n- **Market Risk:** Provides valuation oversight, stress testing guidance, and concentration monitoring.\n- **Legal:** Confirms enforceability of collateral rights and reviews all non-standard arrangements.\n\n4.2 Staff\n- **Operations:** Performs daily margining, valuation updates, and reporting.\n\n4.3 Oversight\n- [Describe the roles and responsibilities of the oversight function, such as policy governance, review, and monitoring]",
+        "changes_made": [
+          "Categorized the content under the 'Management', 'Staff', and 'Oversight' subsections of the 'Roles and Responsibilities' section, as per the template structure",
+          "Added a new 'Oversight' subsection to cover the oversight responsibilities, as required by the template"
+        ],
+        "reasoning": "The template requires the policy to define responsibilities for management, staff, and oversight. The improved content addresses this gap by reorganizing the original content into the appropriate subsections and adding a new 'Oversight' subsection to cover the missing element.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p1_b5_3feb68c3",
+        "original": "A high-level collateral workflow includes:",
+        "improved": "5.1 Implementation Procedures\nThe high-level collateral workflow includes the following steps:\n\n1. Eligibility screening aligned with internal criteria.\n2. Legal enforceability confirmation.\n3. Valuation and haircut application using enterprise models.\n4. Daily margining, substitution monitoring, and dispute resolution.\n5. Ongoing compliance review and reporting.\n\nDetailed operational steps are maintained in SOP-LND-004 and Collateral Ops Playbook.",
+        "changes_made": [
+          "Categorized the content under the 'Implementation Procedures' subsection of the 'Procedures and Controls' section, as per the template structure",
+          "Reorganized the content into a numbered list to better align with the template format",
+          "Added a concluding sentence to reference the detailed operational procedures in other documents"
+        ],
+        "reasoning": "The template organizes policy content into specific sections like Implementation Procedures and Control Mechanisms under the 'Procedures and Controls' section. The improved content moves the original paragraph into the 'Implementation Procedures' subsection and adds additional structure to align with the template requirements.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b0_2d39828a",
+        "original": "# 1. Eligibility screening aligned with internal criteria.",
+        "improved": "## 5.1 Eligibility and Onboarding Procedures",
+        "changes_made": [
+          "Changed the section title to align with the 'Implementation Procedures' requirement in the template",
+          "Added a section header to match the template structure"
+        ],
+        "reasoning": "The improvements change the section title to better align with the template's 'Implementation Procedures' requirement and add a section header to maintain the proper structure.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b1_f46720a6",
+        "original": "2. Legal enforceability confirmation.",
+        "improved": "The Capital Markets Lending Desk must confirm the legal enforceability of all collateral prior to transaction onboarding. This includes an internal or external legal review to validate the collateral rights and associated documentation.",
+        "changes_made": [
+          "Added details on the legal enforceability confirmation process to address the gap in providing a clear description of the procedures"
+        ],
+        "reasoning": "The improvements provide a more detailed description of the legal enforceability confirmation procedures to align with the template's 'Implementation Procedures' requirement.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b2_0876f31f",
+        "original": "3. Valuation and haircut application using enterprise models.",
+        "improved": "All collateral must be independently valued using approved pricing sources. Haircuts will be applied consistently based on the enterprise-approved haircut schedule to mitigate risk. The Market Risk team provides oversight on the valuation process and monitors adherence to the haircut requirements.",
+        "changes_made": [
+          "Expanded the content to describe the control mechanisms and monitoring procedures for the valuation and haircut application process"
+        ],
+        "reasoning": "The improvements add details on the control mechanisms and monitoring procedures for the valuation and haircut application, addressing the gap identified in the template's 'Control Mechanisms' section.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b3_5f750a38",
+        "original": "4. Daily margining, substitution monitoring, and dispute resolution.",
+        "improved": "The Capital Markets Lending Desk performs daily margining, substitution monitoring, and dispute resolution activities. The results of these operational processes are reported to the Credit Risk and Operations teams as part of the regular compliance reporting.",
+        "changes_made": [
+          "Added information about the reporting requirements for the daily marginal, substitution monitoring, and dispute resolution activities"
+        ],
+        "reasoning": "The improvements address the gap by specifying the reporting requirements for the daily operational activities, aligning with the template's 'Reporting Requirements' section.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b4_ede15c91",
+        "original": "5. Ongoing compliance review and reporting.",
+        "improved": "The Capital Markets Lending Desk must adhere to the compliance requirements outlined in this policy. Compliance is monitored through monthly collateral quality reviews, daily exception reports, quarterly regulatory alignment checks, and annual policy attestation. Any breaches of the policy requirements must be immediately remediated, and a root-cause analysis must be conducted.",
+        "changes_made": [
+          "Expanded the content to specify the compliance requirements and the consequences of non-compliance"
+        ],
+        "reasoning": "The improvements address the gap by detailing the compliance requirements and the consequences of non-compliance, aligning with the template's 'Compliance Requirements' section.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b6_d41d8cd9",
+        "original": "6. Exceptions & Escalations",
+        "improved": "## 3.3 Exceptions",
+        "changes_made": [
+          "Changed the section title to align with the 'Exceptions' requirement in the template"
+        ],
+        "reasoning": "The improvement changes the section title to match the 'Exceptions' requirement in the template, addressing the structural gap.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b7_2120f834",
+        "original": "## #6. Exceptions & Escalations\n\nExceptions may be granted only for strategic clients subject to:\n\n- Prior approval by Credit Risk and Legal.\n- Documented justification, including risk assessment.\n- Quarterly review and revalidation.",
+        "improved": "### 3.3.1 Exceptions Monitoring and Review\n\nAll exceptions granted under this policy will be subject to quarterly review and revalidation by the Credit Risk and Legal teams. The rationale and risk assessment for each exception will be documented and maintained.",
+        "changes_made": [
+          "Added a new section header to align with the 'Monitoring and Review' requirement in the template",
+          "Expanded the content to describe the monitoring and review process for the exceptions"
+        ],
+        "reasoning": "The improvements add a new section header and expand the content to address the gap in specifying the monitoring and review process for the exceptions, as required by the template.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b8_67b245f4",
+        "original": "Escalations follow the desk's three-tier hierarchy, culminating with the Head of Global Lending.",
+        "improved": "Escalations for any policy exceptions or non-compliance issues will follow the Capital Markets Lending Desk's three-tier hierarchy, culminating with the Head of Global Lending.",
+        "changes_made": [
+          "Clarified that the escalation process applies to both policy exceptions and non-compliance issues"
+        ],
+        "reasoning": "The improvement clarifies that the escalation process applies to both policy exceptions and non-compliance issues, providing more complete information.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b10_722e47e8",
+        "original": "## #7. Compliance, Monitoring & Reporting\n\nCompliance is monitored via:\n\n- Monthly collateral quality reviews.\n- Daily exception reports.\n- Quarterly regulatory alignment checks.\n- Annual policy attestation.\n\nBreaches require immediate remediation and root-cause analysis.",
+        "improved": "## 6. Compliance and Enforcement\n\n### 6.1 Compliance Requirements\nThe Capital Markets Lending Desk must adhere to all requirements outlined in this policy. Any breaches of the policy will require immediate remediation and a root-cause analysis.\n\n### 6.2 Consequences of Non-Compliance\nFailure to comply with the policy may result in disciplinary action, up to and including termination of employment, in accordance with the company's HR policies.",
+        "changes_made": [
+          "Changed the section header to align with the 'Compliance and Enforcement' requirement in the template",
+          "Added a new section for 'Consequences of Non-Compliance' to address the gap in the original content"
+        ],
+        "reasoning": "The improvements change the section header to match the template's 'Compliance and Enforcement' requirement and add a new section to specify the consequences for non-compliance, addressing the identified gap.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b12_4e6a5415",
+        "original": "## #8. Definitions & Interpretation\n\n- **Eligible Collateral:** Assets meeting enterprise criteria.\n- **Haircut:** A valuation discount applied to mitigate risk.\n- **Wrong-Way Risk:** Exposure increasing when counterparty and collateral value are correlated.",
+        "improved": "## 2. Definitions\n\n**Eligible Collateral:** Assets that meet the enterprise-defined criteria for collateral acceptance.\n\n**Haircut:** A valuation discount applied to collateral to mitigate risk.\n\n**Wrong-Way Risk:** A risk scenario where the exposure to a counterparty is adversely correlated with the credit quality of that counterparty.",
+        "changes_made": [
+          "Changed the section header to align with the 'Definitions' requirement in the template",
+          "Expanded the definitions to provide more clarity and context"
+        ],
+        "reasoning": "The improvements change the section header to match the template's 'Definitions' requirement and expand the definitions to provide more clarity and context, addressing the identified gap.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p2_b14_74f25350",
+        "original": "## #9. Appendix",
+        "improved": "## 8. References\n\nThe following documents are referenced in this policy:\n\n- Enterprise Collateral Standards\n- Credit Risk Haircut Schedule\n- Sample Collateral Agreement",
+        "changes_made": [
+          "Changed the section header to align with the 'References' requirement in the template",
+          "Added a description of the appendix contents"
+        ],
+        "reasoning": "The improvements change the section header to match the template's 'References' requirement and provide a description of the appendix contents, addressing the identified gap.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p3_b0_0dfd09a5",
+        "original": "- Credit Risk Haircut Schedule",
+        "improved": "These details are maintained in the Enterprise Collateral Standards, which are referenced in Section 8: References.",
+        "changes_made": [
+          "Removed the standalone heading for 'Credit Risk Haircut Schedule' as it is not part of the template structure.",
+          "Provided a reference to where the details on the Enterprise Collateral Standards can be found, which is the appropriate place for this information."
+        ],
+        "reasoning": "The template does not have a dedicated section for credit risk haircut schedules or sample agreements. This content would be better placed in an appendix section or referenced in the appropriate policy sections, which is what the improved content does.",
+        "confidence": "high"
+      },
+      {
+        "block_id": "p3_b1_7a1cf96f",
+        "original": "- Sample Collateral Agreement",
+        "improved": "Sample collateral agreements are maintained in the Collateral Operations Playbook, which is referenced in Section 5: Procedures and Controls.",
+        "changes_made": [
+          "Removed the standalone heading for 'Sample Collateral Agreement' as it is not part of the template structure.",
+          "Provided a reference to where the sample collateral agreements can be found, which is the appropriate place for this information."
+        ],
+        "reasoning": "The template does not have a dedicated section for credit risk haircut schedules or sample agreements. This content would be better placed in an appendix section or referenced in the appropriate policy sections, which is what the improved content does.",
+        "confidence": "high"
+      }
+    ],
+    "improved_md_file_id": "collateral_good_manual_md_75c0b544",
+    "improved_markdown": "# Collateral Acceptance Policy\n1.1 Purpose\nThis policy establishes the standards and requirements for the evaluation, eligibility, and acceptance of collateral for secured financing transactions within the organization. The purpose of this policy is to:\n- Ensure alignment with regulatory expectations and internal credit risk frameworks\n- Maintain high-quality collateral pools to protect the institution from counterparty default\n- Promote consistent decision-making and collateral management practices across the organization\n1.2 Scope\nThis policy applies to all secured financing transactions originated, renewed, or amended by the organization, regardless of client type (e.g., financial institutions, corporates, asset managers) or geographic location (U.S. and Canada). Exclusions include retail lending, margin lending administered by the Prime Brokerage unit, and collateral processes governed by bilateral derivative agreements.\n\n1.3 Effective Date\nThis policy is effective as of [DATE].\n3.2 Specific Requirements\n- All collateral must meet eligibility criteria defined by Credit Risk Management.\n- Collateral must be independently valued using approved pricing sources.\n- Haircuts must follow enterprise-approved schedules and be applied consistently.\n- Legal enforceability must be validated through internal or external counsel prior to transaction onboarding.\n- Concentration limits, wrong-way risk controls, and re-hypothecation restrictions must be adhered to.\n- Documentation must include collateral schedules, valuation statements, and legal opinions.\n4.1 Management\n- **Capital Markets Lending Desk:** Ensures compliance with all requirements during transaction onboarding and ongoing monitoring.\n- **Credit Risk Management:** Defines eligibility, reviews collateral profiles, and approves exceptions.\n- **Market Risk:** Provides valuation oversight, stress testing guidance, and concentration monitoring.\n- **Legal:** Confirms enforceability of collateral rights and reviews all non-standard arrangements.\n\n4.2 Staff\n- **Operations:** Performs daily margining, valuation updates, and reporting.\n\n4.3 Oversight\n- [Describe the roles and responsibilities of the oversight function, such as policy governance, review, and monitoring]\n5.1 Implementation Procedures\nThe high-level collateral workflow includes the following steps:\n\n1. Eligibility screening aligned with internal criteria.\n2. Legal enforceability confirmation.\n3. Valuation and haircut application using enterprise models.\n4. Daily margining, substitution monitoring, and dispute resolution.\n5. Ongoing compliance review and reporting.\n\nDetailed operational steps are maintained in SOP-LND-004 and Collateral Ops Playbook.\n## 5.1 Eligibility and Onboarding Procedures\nThe Capital Markets Lending Desk must confirm the legal enforceability of all collateral prior to transaction onboarding. This includes an internal or external legal review to validate the collateral rights and associated documentation.\nAll collateral must be independently valued using approved pricing sources. Haircuts will be applied consistently based on the enterprise-approved haircut schedule to mitigate risk. The Market Risk team provides oversight on the valuation process and monitors adherence to the haircut requirements.\nThe Capital Markets Lending Desk performs daily margining, substitution monitoring, and dispute resolution activities. The results of these operational processes are reported to the Credit Risk and Operations teams as part of the regular compliance reporting.\nThe Capital Markets Lending Desk must adhere to the compliance requirements outlined in this policy. Compliance is monitored through monthly collateral quality reviews, daily exception reports, quarterly regulatory alignment checks, and annual policy attestation. Any breaches of the policy requirements must be immediately remediated, and a root-cause analysis must be conducted.\nDetailed operational steps are maintained in SOP-LND-004 and Collateral Ops Playbook.\n## 3.3 Exceptions\n### 3.3.1 Exceptions Monitoring and Review\n\nAll exceptions granted under this policy will be subject to quarterly review and revalidation by the Credit Risk and Legal teams. The rationale and risk assessment for each exception will be documented and maintained.\nEscalations for any policy exceptions or non-compliance issues will follow the Capital Markets Lending Desk's three-tier hierarchy, culminating with the Head of Global Lending.\n\n## 6. Compliance and Enforcement\n\n### 6.1 Compliance Requirements\nThe Capital Markets Lending Desk must adhere to all requirements outlined in this policy. Any breaches of the policy will require immediate remediation and a root-cause analysis.\n\n### 6.2 Consequences of Non-Compliance\nFailure to comply with the policy may result in disciplinary action, up to and including termination of employment, in accordance with the company's HR policies.\n7. Compliance, Monitoring & Reporting\n## 2. Definitions\n\n**Eligible Collateral:** Assets that meet the enterprise-defined criteria for collateral acceptance.\n\n**Haircut:** A valuation discount applied to collateral to mitigate risk.\n\n**Wrong-Way Risk:** A risk scenario where the exposure to a counterparty is adversely correlated with the credit quality of that counterparty.\n8. Definitions & Interpretation\n## 8. References\n\nThe following documents are referenced in this policy:\n\n- Enterprise Collateral Standards\n- Credit Risk Haircut Schedule\n- Sample Collateral Agreement\n- Enterprise Collateral Standards\nThese details are maintained in the Enterprise Collateral Standards, which are referenced in Section 8: References.\nSample collateral agreements are maintained in the Collateral Operations Playbook, which is referenced in Section 5: Procedures and Controls.",
+    "improved_md_path": "external/data/doc_review/improved/collateral_good_manual_md_75c0b544.md",
+    "accepted_suggestions": [
+      "p1_b3_a21bded1",
+      "p1_b4_71017417",
+      "p1_b5_3feb68c3",
+      "p2_b0_2d39828a",
+      "p2_b1_f46720a6",
+      "p2_b2_0876f31f",
+      "p2_b3_5f750a38",
+      "p2_b4_ede15c91",
+      "p2_b6_d41d8cd9",
+      "p2_b7_2120f834",
+      "p2_b8_67b245f4",
+      "p2_b10_722e47e8",
+      "p2_b12_4e6a5415",
+      "p2_b14_74f25350",
+      "p3_b0_0dfd09a5",
+      "p3_b1_7a1cf96f",
+      "p1_b2_3bdc6c3a",
+      "p1_b1_2e161b00"
+    ],
+    "rejected_suggestions": []
+  }
+}

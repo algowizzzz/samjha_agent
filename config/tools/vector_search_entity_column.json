@@ -1,0 +1,9 @@
+{
+  "name": "vector_search_entity_column",
+  "implementation": "tools.impl.vector_search_tool.VectorSearchEntityColumnTool",
+  "description": "Vector similarity entity to column mapping (placeholder)",
+  "version": "0.0.1",
+  "enabled": false,
+  "inputSchema": {},
+  "outputSchema": {}
+}

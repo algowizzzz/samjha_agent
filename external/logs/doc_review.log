@@ -1,0 +1,535 @@
+{"asctime": "2025-11-12T19:37:57", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You map document sections to a predefined outline template. For each section, re"}
+{"asctime": "2025-11-12T19:37:57", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You rate how relevant an unmapped document section is to the overall outline. Re"}
+{"asctime": "2025-11-12T19:37:57", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You map document sections to a predefined outline template. For each section, re"}
+{"asctime": "2025-11-12T19:37:57", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You rate how relevant an unmapped document section is to the overall outline. Re"}
+{"asctime": "2025-11-12T20:00:20", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You map document sections to a predefined outline template. For each section, re"}
+{"asctime": "2025-11-12T20:00:20", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You rate how relevant an unmapped document section is to the overall outline. Re"}
+{"asctime": "2025-11-12T20:00:20", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You map document sections to a predefined outline template. For each section, re"}
+{"asctime": "2025-11-12T20:00:20", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You rate how relevant an unmapped document section is to the overall outline. Re"}
+{"asctime": "2025-11-12T20:21:30", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You map document sections to a predefined outline template. For each section, re"}
+{"asctime": "2025-11-12T20:21:30", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You rate how relevant an unmapped document section is to the overall outline. Re"}
+{"asctime": "2025-11-12T20:21:30", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You map document sections to a predefined outline template. For each section, re"}
+{"asctime": "2025-11-12T20:21:30", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You rate how relevant an unmapped document section is to the overall outline. Re"}
+{"asctime": "2025-11-12T22:34:14", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Extra data: line 5 column 2 (char 97)"}
+{"asctime": "2025-11-12T22:34:22", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Extra data: line 5 column 2 (char 97)"}
+{"asctime": "2025-11-12T22:34:41", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Extra data: line 5 column 2 (char 97)"}
+{"asctime": "2025-11-12T22:34:45", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Extra data: line 5 column 2 (char 97)"}
+{"asctime": "2025-11-12T22:35:06", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Extra data: line 5 column 2 (char 97)"}
+{"asctime": "2025-11-12T22:35:30", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Extra data: line 5 column 2 (char 97)"}
+{"asctime": "2025-11-12T22:36:13", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Extra data: line 5 column 2 (char 97)"}
+{"asctime": "2025-11-13T21:04:02", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Expecting value: line 455 column 23 (char 11795)"}
+{"asctime": "2025-11-13T21:04:20", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Expecting value: line 455 column 23 (char 11795)"}
+{"asctime": "2025-11-13T21:12:30", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Expecting value: line 455 column 23 (char 11795)"}
+{"asctime": "2025-11-13T21:12:49", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Extra data: line 5 column 2 (char 154)"}
+{"asctime": "2025-11-13T21:22:13", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Unterminated string starting at: line 297 column 7 (char 12774)"}
+{"asctime": "2025-11-13T21:22:13", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): [\n  {\n    \"file_section_id\": \"sec_intermediate-developer-s-handbook-1-foundations-of-agentic-graphs-with-langgraph_0000\",\n    \"mapped\": true,\n    \"template_section_id\": \"intro\",\n    \"template_path\": [\n      \"Intermediate Developer's Handbook\",\n      \"1. Foundations of Agentic Graphs with LangGraph\"\n    ],\n    \"confidence\": 1\n  },\n  {\n    \"file_section_id\": \"sec_intermediate-developer-s-handbook-at-the-heart-of-langgraph-are-three-core-primitives_0001\",\n    \"mapped\": true,\n    \"template_section_i"}
+{"asctime": "2025-11-13T21:22:13", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-13T21:22:43", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Extra data: line 5 column 2 (char 171)"}
+{"asctime": "2025-11-13T21:22:43", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): {\n  \"file_section_id\": \"sec_intermediate-developer-s-handbook-1-foundations-of-agentic-graphs-with-langgraph_0000\",\n  \"relevancy_score\": 1,\n  \"category\": \"append_anyway\"\n},\n{\n  \"file_section_id\": \"sec_intermediate-developer-s-handbook-at-the-heart-of-langgraph-are-three-core-primitives_0001\",\n  \"relevancy_score\": 1,\n  \"category\": \"append_anyway\"\n},\n{\n  \"file_section_id\": \"sec_intermediate-developer-s-handbook-using-graphs-with-cycles-instead-of-a-simple-loop-brings-several-benefits_0002\",\n  \"rel"}
+{"asctime": "2025-11-13T21:22:43", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-13T21:27:34", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Extra data: line 5 column 2 (char 171)"}
+{"asctime": "2025-11-13T21:27:34", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): {\n  \"file_section_id\": \"sec_intermediate-developer-s-handbook-1-foundations-of-agentic-graphs-with-langgraph_0000\",\n  \"relevancy_score\": 1,\n  \"category\": \"append_anyway\"\n},\n{\n  \"file_section_id\": \"sec_intermediate-developer-s-handbook-at-the-heart-of-langgraph-are-three-core-primitives_0001\",\n  \"relevancy_score\": 1,\n  \"category\": \"append_anyway\"\n},\n{\n  \"file_section_id\": \"sec_intermediate-developer-s-handbook-using-graphs-with-cycles-instead-of-a-simple-loop-brings-several-benefits_0002\",\n  \"rel"}
+{"asctime": "2025-11-13T21:27:34", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-13T21:31:45", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Expecting property name enclosed in double quotes: line 294 column 20 (char 12735)"}
+{"asctime": "2025-11-13T21:31:45", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): [\n  {\n    \"file_section_id\": \"sec_intermediate-developer-s-handbook-1-foundations-of-agentic-graphs-with-langgraph_0000\",\n    \"mapped\": true,\n    \"template_section_id\": \"intro\",\n    \"template_path\": [\n      \"Intermediate Developer's Handbook\",\n      \"1. Foundations of Agentic Graphs with LangGraph\"\n    ],\n    \"confidence\": 1\n  },\n  {\n    \"file_section_id\": \"sec_intermediate-developer-s-handbook-at-the-heart-of-langgraph-are-three-core-primitives_0001\",\n    \"mapped\": true,\n    \"template_section_i"}
+{"asctime": "2025-11-13T21:31:45", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-13T21:32:15", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Extra data: line 5 column 2 (char 171)"}
+{"asctime": "2025-11-13T21:32:15", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): {\n  \"file_section_id\": \"sec_intermediate-developer-s-handbook-1-foundations-of-agentic-graphs-with-langgraph_0000\",\n  \"relevancy_score\": 1,\n  \"category\": \"append_anyway\"\n},\n{\n  \"file_section_id\": \"sec_intermediate-developer-s-handbook-at-the-heart-of-langgraph-are-three-core-primitives_0001\",\n  \"relevancy_score\": 1,\n  \"category\": \"append_anyway\"\n},\n{\n  \"file_section_id\": \"sec_intermediate-developer-s-handbook-using-graphs-with-cycles-instead-of-a-simple-loop-brings-several-benefits_0002\",\n  \"rel"}
+{"asctime": "2025-11-13T21:32:15", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-13T21:56:17", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Unterminated string starting at: line 297 column 7 (char 12774)"}
+{"asctime": "2025-11-13T21:56:17", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): [\n  {\n    \"file_section_id\": \"sec_intermediate-developer-s-handbook-1-foundations-of-agentic-graphs-with-langgraph_0000\",\n    \"mapped\": true,\n    \"template_section_id\": \"intro\",\n    \"template_path\": [\n      \"Intermediate Developer's Handbook\",\n      \"1. Foundations of Agentic Graphs with LangGraph\"\n    ],\n    \"confidence\": 1\n  },\n  {\n    \"file_section_id\": \"sec_intermediate-developer-s-handbook-at-the-heart-of-langgraph-are-three-core-primitives_0001\",\n    \"mapped\": true,\n    \"template_section_i"}
+{"asctime": "2025-11-13T21:56:17", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-13T21:56:49", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Extra data: line 5 column 2 (char 171)"}
+{"asctime": "2025-11-13T21:56:49", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): {\n  \"file_section_id\": \"sec_intermediate-developer-s-handbook-1-foundations-of-agentic-graphs-with-langgraph_0000\",\n  \"relevancy_score\": 1,\n  \"category\": \"append_anyway\"\n},\n{\n  \"file_section_id\": \"sec_intermediate-developer-s-handbook-at-the-heart-of-langgraph-are-three-core-primitives_0001\",\n  \"relevancy_score\": 1,\n  \"category\": \"append_anyway\"\n},\n{\n  \"file_section_id\": \"sec_intermediate-developer-s-handbook-using-graphs-with-cycles-instead-of-a-simple-loop-brings-several-benefits_0002\",\n  \"rel"}
+{"asctime": "2025-11-13T21:56:49", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-14T18:17:51", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Expecting value: line 85 column 139 (char 4738)"}
+{"asctime": "2025-11-14T18:17:51", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): {\n  \"template_id\": \"limits_guide_v1\",\n  \"template_label\": null,\n  \"overall_alignment\": \"good\",\n  \"sections\": [\n    {\n      \"section_id\": \"intro\",\n      \"section_title\": \"Executive Summary\",\n      \"coverage\": \"partial\",\n      \"extracted_points\": [\n        \"The document provides an overview of the Capital Adequacy Requirements (CAR) for banks, including the definition of operational risk and the measurement methodologies for calculating operational risk capital.\"\n      ],\n      \"effort\": \"light_ed"}
+{"asctime": "2025-11-14T18:17:51", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-14T18:19:07", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Invalid control character at: line 90 column 97 (char 4884)"}
+{"asctime": "2025-11-14T18:19:07", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): {\n  \"template_id\": \"limits_guide_v1\",\n  \"template_label\": null,\n  \"overall_alignment\": \"good\",\n  \"sections\": [\n    {\n      \"section_id\": \"intro\",\n      \"section_title\": \"Executive Summary\",\n      \"coverage\": \"partial\",\n      \"extracted_points\": [\n        \"The document provides an overview of the Capital Adequacy Requirements (CAR) for banks, including the definition of operational risk and the measurement methodologies for calculating operational risk capital.\"\n      ],\n      \"effort\": \"light_ed"}
+{"asctime": "2025-11-14T18:19:07", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-14T18:19:36", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Invalid control character at: line 88 column 261 (char 5079)"}
+{"asctime": "2025-11-14T18:19:36", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): {\n  \"template_id\": \"limits_guide_v1\",\n  \"template_label\": null,\n  \"overall_alignment\": \"good\",\n  \"sections\": [\n    {\n      \"section_id\": \"intro\",\n      \"section_title\": \"Executive Summary\",\n      \"coverage\": \"partial\",\n      \"extracted_points\": [\n        \"The document provides an overview of the Capital Adequacy Requirements (CAR) for banks, bank holding companies, federally regulated trust companies and federally regulated loan companies.\",\n        \"It covers the definition of operational risk "}
+{"asctime": "2025-11-14T18:19:36", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-14T18:39:35", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Invalid control character at: line 2 column 36 (char 37)"}
+{"asctime": "2025-11-14T18:39:35", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): {\n  \"markdown\": \"## Executive Summary\n\nThis document outlines the strategic policy for the deployment and use of AI-powered document review tools within the organization. It establishes standards, responsibilities, and continuous improvement measures to ensure safe, compliant, and effective use of these tools. The target audience is the executive leadership team and key stakeholders responsible for overseeing the implementation and governance of these critical systems.\n\n| Structural KPI | Justif"}
+{"asctime": "2025-11-14T18:39:35", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-14T18:39:38", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Invalid control character at: line 36 column 109 (char 1612)"}
+{"asctime": "2025-11-14T18:39:38", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): {\n  \"template_id\": \"limits_guide_v1\",\n  \"template_label\": null,\n  \"overall_alignment\": \"fair\",\n  \"sections\": [\n    {\n      \"section_id\": \"intro\",\n      \"section_title\": \"Executive Summary\",\n      \"coverage\": \"partial\",\n      \"extracted_points\": [\n        \"This policy aims to ensure safe, compliant, and effective deployment of AI-powered document review tools.\",\n        \"It covers organizational standards, staff responsibilities, and continuous improvement measures.\"\n      ],\n      \"effort\": \"lig"}
+{"asctime": "2025-11-14T18:39:38", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-14T20:30:13", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Unterminated string starting at: line 2 column 15 (char 16)"}
+{"asctime": "2025-11-14T20:30:13", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): {\n  \"markdown\": \"## Executive Summary\n\nThis document is a template for an AI Document Review Policy, providing a comprehensive outline of the required thematic sections including overview, scope, requirements, roles, escalation, monitoring, and maintenance. The template is designed to be used as a starting point for organizations looking to establish or update their AI document review policies, with each section described in conceptual depth and outlining expected processes.\n\n## Structural KPIs\n"}
+{"asctime": "2025-11-14T20:30:13", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-14T20:47:25", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Unterminated string starting at: line 2 column 15 (char 16)"}
+{"asctime": "2025-11-14T20:47:25", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): {\n  \"markdown\": \"## Executive Summary\n\nThis document is a middle draft of an AI Document Review Policy. It provides some structural elements but remains incomplete, lacking deeper requirements, governance clarity, and escalation details.\n\n| Structural KPI | Assessment | Justification |\n| --- | --- | --- |\n| Table of Contents Presence | Implicit | The document has some structure but no explicit table of contents. |\n| Structure Quality | Fair | The document has partial structure but significant ga"}
+{"asctime": "2025-11-14T20:47:25", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-14T20:50:17", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Unterminated string starting at: line 2 column 15 (char 16)"}
+{"asctime": "2025-11-14T20:50:17", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): {\n  \"markdown\": \"## Executive Summary\n\nThis document is an early draft of an AI Document Review Policy that lacks clarity and detail. The target audience is likely executive leadership, but the current state of the document would not provide sufficient information to inform strategic decision-making.\n\n| Structural KPI | Assessment | Justification |\n| --- | --- | --- |\n| Table of Contents Presence | Missing | The document lacks a clear table of contents, making it difficult to navigate and unders"}
+{"asctime": "2025-11-14T20:50:17", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You are extracting a table of contents from the first few pages of a document.\nU"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "phase1_toc_extraction.md skipped: LLM not configured"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You are reviewing a professional document. Using the supplied excerpt (full docu"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "phase1_doc_summary.md skipped: LLM not configured"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You are reviewing the document's table of contents and structure.\n- Identify whe"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "phase1_toc_review.md skipped: LLM not configured"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You evaluate how well a source document covers the concepts required by a target"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "phase1_template_fitness.md skipped: LLM not configured"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Section strategy skipped: missing upstream reports"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You are extracting a table of contents from the first few pages of a document.\nU"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "phase1_toc_extraction.md skipped: LLM not configured"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You are reviewing a professional document. Using the supplied excerpt (full docu"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "phase1_doc_summary.md skipped: LLM not configured"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You are reviewing the document's table of contents and structure.\n- Identify whe"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "phase1_toc_review.md skipped: LLM not configured"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "LLM not available; returning empty result for prompt: You evaluate how well a source document covers the concepts required by a target"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "phase1_template_fitness.md skipped: LLM not configured"}
+{"asctime": "2025-11-15T19:27:10", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Section strategy skipped: missing upstream reports"}
+{"asctime": "2025-11-15T21:12:21", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=middle_version doc_id=3daabcc2e38b4325a49f8f6dcf3d5dc5_Middle_Version"}
+{"asctime": "2025-11-15T21:12:41", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase2: run_id=middle_version"}
+{"asctime": "2025-11-15T21:12:41", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Table of Contents', using whole-doc fallback"}
+{"asctime": "2025-11-15T21:12:41", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Overview', using whole-doc fallback"}
+{"asctime": "2025-11-15T21:12:41", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Scope', using whole-doc fallback"}
+{"asctime": "2025-11-15T21:12:41", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Definitions', using whole-doc fallback"}
+{"asctime": "2025-11-15T21:12:41", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Requirements', using whole-doc fallback"}
+{"asctime": "2025-11-15T21:12:41", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Roles and Responsibilities', using whole-doc fallback"}
+{"asctime": "2025-11-15T21:12:41", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Data Handling and Security', using whole-doc fallback"}
+{"asctime": "2025-11-15T21:12:41", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Quality Assurance', using whole-doc fallback"}
+{"asctime": "2025-11-15T21:12:41", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Monitoring and Reporting', using whole-doc fallback"}
+{"asctime": "2025-11-15T21:12:41", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Exceptions and Escalations', using whole-doc fallback"}
+{"asctime": "2025-11-15T21:12:41", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Compliance and Auditing', using whole-doc fallback"}
+{"asctime": "2025-11-15T21:12:43", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Appendix', using whole-doc fallback"}
+{"asctime": "2025-11-15T21:12:43", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "All 12 sections used whole-doc fallback. Consolidating to single 'Full Document' chunk."}
+{"asctime": "2025-11-16T00:24:27", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T00:25:38", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase2: run_id=AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T00:25:38", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Table of Contents', using whole-doc fallback"}
+{"asctime": "2025-11-16T00:25:38", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Overview', using whole-doc fallback"}
+{"asctime": "2025-11-16T00:25:38", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Scope', using whole-doc fallback"}
+{"asctime": "2025-11-16T00:25:41", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Roles and Responsibilities', using whole-doc fallback"}
+{"asctime": "2025-11-16T00:25:51", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Appendix', using whole-doc fallback"}
+{"asctime": "2025-11-16T00:26:05", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Expecting ',' delimiter: line 19 column 81 (char 998)"}
+{"asctime": "2025-11-16T00:26:05", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): {\n  \"section_title\": \"Incident & Error Reporting\",\n  \"fit\": \"partial\",\n  \"severity\": \"medium\",\n  \"issues\": [\n    {\n      \"id\": \"SEC-001\",\n      \"title\": \"Lack of detail on reporting process\",\n      \"severity\": \"medium\",\n      \"type\": \"missing_content\",\n      \"location_instruction\": \"Expand on the escalation path and investigation/remediation steps\",\n      \"suggested_text\": \"The escalation path for reporting errors, misclassifications, or security incidents must be clearly defined, including the "}
+{"asctime": "2025-11-16T00:26:05", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-16T00:26:05", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "LLM prompt phase2_section_review.md returned empty result"}
+{"asctime": "2025-11-16T00:36:36", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T00:37:49", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T00:38:11", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase2: run_id=AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T00:38:11", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Table of Contents', using whole-doc fallback"}
+{"asctime": "2025-11-16T00:38:11", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Overview', using whole-doc fallback"}
+{"asctime": "2025-11-16T00:38:11", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Scope', using whole-doc fallback"}
+{"asctime": "2025-11-16T00:38:14", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Roles and Responsibilities', using whole-doc fallback"}
+{"asctime": "2025-11-16T00:38:23", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Appendix', using whole-doc fallback"}
+{"asctime": "2025-11-16T00:38:27", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Extra data: line 9 column 1 (char 116)"}
+{"asctime": "2025-11-16T00:38:27", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): {\n  \"section_title\": \"Scope\",\n  \"fit\": \"good\",\n  \"severity\": \"low\",\n  \"issues\": [],\n  \"improvement_guidance\": []\n}\n\nThe \"Scope\" section of the AI Document Review Tool Policy effectively fulfills the template's intent. It clearly identifies the users, systems, and documents covered by the policy. The section provides a concise introduction to the policy's purpose and scope, defining key terms such as \"AI Document Review Tool\" and \"Sensitive Data\". Overall, the section sets the appropriate context"}
+{"asctime": "2025-11-16T00:38:27", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-16T00:38:27", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "LLM prompt phase2_section_review.md returned empty result"}
+{"asctime": "2025-11-16T00:38:32", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T00:41:53", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T00:43:01", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T00:43:49", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T00:47:42", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T00:48:43", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T00:49:02", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T00:49:12", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T00:50:41", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T01:04:37", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=Building_AI_Agents_with_LangGraph__An_Intermediate_Developers_Handbook doc_id=27e65997a9f7429ca8e76813aec3ef92_Building_AI_Agents_with_LangGraph__An_Intermediate_Developers_Handbook"}
+{"asctime": "2025-11-16T01:11:16", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T01:11:53", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase2: run_id=AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T01:11:53", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Table of Contents', using whole-doc fallback"}
+{"asctime": "2025-11-16T01:11:53", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Overview', using whole-doc fallback"}
+{"asctime": "2025-11-16T01:11:53", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Scope', using whole-doc fallback"}
+{"asctime": "2025-11-16T01:11:57", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Roles and Responsibilities', using whole-doc fallback"}
+{"asctime": "2025-11-16T01:12:07", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Appendix', using whole-doc fallback"}
+{"asctime": "2025-11-16T01:16:55", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase2: run_id=AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T01:16:55", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Table of Contents', using whole-doc fallback"}
+{"asctime": "2025-11-16T01:16:55", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Overview', using whole-doc fallback"}
+{"asctime": "2025-11-16T01:16:55", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Scope', using whole-doc fallback"}
+{"asctime": "2025-11-16T01:16:59", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Roles and Responsibilities', using whole-doc fallback"}
+{"asctime": "2025-11-16T01:17:09", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Appendix', using whole-doc fallback"}
+{"asctime": "2025-11-16T01:17:35", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Expecting ',' delimiter: line 13 column 7 (char 789)"}
+{"asctime": "2025-11-16T01:17:35", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): {\n  \"section_title\": \"Review Cycle\",\n  \"fit\": \"partial\",\n  \"severity\": \"medium\",\n  \"issues\": [\n    {\n      \"id\": \"SEC-001\",\n      \"title\": \"Lack of detail on review cycle\",\n      \"severity\": \"medium\",\n      \"type\": \"missing_content\",\n      \"location_instruction\": \"Expand on the review process and quality assurance measures\",\n      \"suggested_text\": \"The review cycle includes the following key steps:\n1. Documents are processed through the AI review tool according to established workflows.\n2. Accu"}
+{"asctime": "2025-11-16T01:17:35", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-16T01:17:35", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "LLM prompt phase2_section_review.md returned empty result"}
+{"asctime": "2025-11-16T01:20:35", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase2: run_id=AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T01:20:35", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Table of Contents', using whole-doc fallback"}
+{"asctime": "2025-11-16T01:20:35", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Overview', using whole-doc fallback"}
+{"asctime": "2025-11-16T01:20:35", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Scope', using whole-doc fallback"}
+{"asctime": "2025-11-16T01:20:38", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Roles and Responsibilities', using whole-doc fallback"}
+{"asctime": "2025-11-16T01:20:47", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Both heading and TOC extraction failed for section 'Appendix', using whole-doc fallback"}
+{"asctime": "2025-11-16T01:21:14", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to decode LLM JSON response: Expecting ',' delimiter: line 13 column 7 (char 805)"}
+{"asctime": "2025-11-16T01:21:14", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Response preview (first 500 chars): {\n  \"section_title\": \"Review Cycle\",\n  \"fit\": \"partial\",\n  \"severity\": \"medium\",\n  \"issues\": [\n    {\n      \"id\": \"SEC-001\",\n      \"title\": \"Lack of detail on review cycle\",\n      \"severity\": \"medium\",\n      \"type\": \"missing_content\",\n      \"location_instruction\": \"Expand on the review process and quality assurance measures\",\n      \"suggested_text\": \"The review cycle includes the following key steps:\n1. Documents are processed through the AI review tool according to established workflows.\n2. Accu"}
+{"asctime": "2025-11-16T01:21:14", "name": "external.doc_review.llm", "levelname": "WARNING", "message": "Returning empty list due to JSON decode error"}
+{"asctime": "2025-11-16T01:21:14", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "LLM prompt phase2_section_review.md returned empty result"}
+{"asctime": "2025-11-16T02:04:21", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T02:05:56", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=Building_AI_Agents_with_LangGraph__An_Intermediate_Developers_Handbook doc_id=27e65997a9f7429ca8e76813aec3ef92_Building_AI_Agents_with_LangGraph__An_Intermediate_Developers_Handbook"}
+{"asctime": "2025-11-16T02:06:18", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=Building_AI_Agents_with_LangGraph__An_Intermediate_Developers_Handbook doc_id=27e65997a9f7429ca8e76813aec3ef92_Building_AI_Agents_with_LangGraph__An_Intermediate_Developers_Handbook"}
+{"asctime": "2025-11-16T02:06:35", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=Building_AI_Agents_with_LangGraph__An_Intermediate_Developers_Handbook doc_id=27e65997a9f7429ca8e76813aec3ef92_Building_AI_Agents_with_LangGraph__An_Intermediate_Developers_Handbook"}
+{"asctime": "2025-11-16T02:07:58", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=Building_AI_Agents_with_LangGraph__An_Intermediate_Developers_Handbook doc_id=27e65997a9f7429ca8e76813aec3ef92_Building_AI_Agents_with_LangGraph__An_Intermediate_Developers_Handbook"}
+{"asctime": "2025-11-16T02:14:06", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=CAR_Chapter_2_Definition_of_Capital doc_id=4de20a8c39b44525bf9252ab43166c7d_CAR_Chapter_2_Definition_of_Capital"}
+{"asctime": "2025-11-16T02:22:07", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T02:37:01", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T02:37:51", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=CAR_Chapter_1_Overview doc_id=56eb084714eb4fe7a18e902d462cdcca_CAR_Chapter_1_Overview"}
+{"asctime": "2025-11-16T02:44:52", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T02:48:44", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T02:56:19", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T02:57:09", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=CAR_Chapter_1_Overview doc_id=56eb084714eb4fe7a18e902d462cdcca_CAR_Chapter_1_Overview"}
+{"asctime": "2025-11-16T02:57:51", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=CAR_Chapter_2_Definition_of_Capital doc_id=4de20a8c39b44525bf9252ab43166c7d_CAR_Chapter_2_Definition_of_Capital"}
+{"asctime": "2025-11-16T11:03:51", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=CAR_Chapter_1_Overview doc_id=56eb084714eb4fe7a18e902d462cdcca_CAR_Chapter_1_Overview"}
+{"asctime": "2025-11-16T11:04:45", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=NETGEAR_WAX202-ui6qkd doc_id=7117e02c95db441b95a2f8d81d82c0b8_NETGEAR_WAX202"}
+{"asctime": "2025-11-16T11:31:05", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=AI_Document_Review_Tool_Policy doc_id=e5d9a0de25464c0089f451d5fbec2a91_AI_Document_Review_Tool_Policy"}
+{"asctime": "2025-11-16T11:31:15", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=Building_AI_Agents_with_LangGraph__An_Intermediate_Developers_Handbook doc_id=27e65997a9f7429ca8e76813aec3ef92_Building_AI_Agents_with_LangGraph__An_Intermediate_Developers_Handbook"}
+{"asctime": "2025-11-16T11:33:11", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=NETGEAR_WAX202 doc_id=898ffdd5e805459b8ec962199276e8ef_NETGEAR_WAX202"}
+{"asctime": "2025-11-16T11:34:22", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=car24_chpt1_0 doc_id=1416abadbfc642b39dd086287fde8a11_car24_chpt1_0"}
+{"asctime": "2025-11-16T11:38:34", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_middle doc_id=a6169227292b4aa38b41b394d1089c67_collateral_middle"}
+{"asctime": "2025-11-16T12:12:50", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_good doc_id=5f7d0635c18041efb52089c3e15493f7_collateral_good"}
+{"asctime": "2025-11-16T12:24:17", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_good doc_id=1caed52dc6ba4842b1063ca80f8fa0b9_collateral_good"}
+{"asctime": "2025-11-16T12:33:15", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_good doc_id=06d276918d794c7c917e8a1bb70acf15_collateral_good"}
+{"asctime": "2025-11-16T12:35:21", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=CAR_Chapter_1_First_5_Pages doc_id=9a03339ebb524ea3974d7d895d213122_CAR_Chapter_1_First_5_Pages"}
+{"asctime": "2025-11-16T12:47:10", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=CAR_Chapter_1_First_5_Pages doc_id=04f08a90b9bc4ba28900249c5592bb0f_CAR_Chapter_1_First_5_Pages"}
+{"asctime": "2025-11-16T13:08:27", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=CAR_Chapter_1_First_5_Pages doc_id=295f4d10642d4dd7a685aafec336f655_CAR_Chapter_1_First_5_Pages"}
+{"asctime": "2025-11-16T14:03:35", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=CAR_Chapter_1_First_5_Pages doc_id=4d8ce34acf754243b0cb327526a3970e_CAR_Chapter_1_First_5_Pages"}
+{"asctime": "2025-11-16T14:24:03", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=CAR_Chapter_1_First_5_Pages-k788ak doc_id=c65a793d2ac64434a962740991716de7_CAR_Chapter_1_First_5_Pages"}
+{"asctime": "2025-11-16T14:40:19", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=CAR_Chapter_1_First_5_Pages-pxcbj8 doc_id=4ccd1a4b29864c0183ef8cc31e6a25a6_CAR_Chapter_1_First_5_Pages"}
+{"asctime": "2025-11-16T15:04:16", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T15:12:29", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T15:22:47", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T15:59:57", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T16:02:44", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T16:03:04", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T16:03:41", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T16:14:01", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T16:14:31", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T16:31:37", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T16:32:01", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T16:33:13", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T16:33:59", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T16:35:15", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T16:37:25", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T16:41:41", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T16:59:47", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=collateral_good doc_id=d5ea4c187aad42848268814d102c2a59_collateral_good"}
+{"asctime": "2025-11-16T17:02:33", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T17:03:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T17:03:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T17:03:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T17:03:13", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Gap analysis failed for page 1: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKkT4APcddZiysLMf9d'}"}
+{"asctime": "2025-11-16T17:03:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T17:03:13", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 1: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKkTLmxUknr7FtBZkMG'}"}
+{"asctime": "2025-11-16T17:03:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T17:03:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T17:03:13", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Gap analysis failed for page 2: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKkTdeCvGof8fMwVfUD'}"}
+{"asctime": "2025-11-16T17:03:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T17:03:13", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 2: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKkTzxzmFUNcGUag8yu'}"}
+{"asctime": "2025-11-16T17:03:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T17:03:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T17:03:13", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Gap analysis failed for page 3: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKkULZU8qJ6ENtPBnd2'}"}
+{"asctime": "2025-11-16T17:03:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T17:03:13", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 3: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKkUduvu8BjjP9iMmJj'}"}
+{"asctime": "2025-11-16T17:03:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 0 gaps, 0 improvements"}
+{"asctime": "2025-11-16T17:03:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T17:03:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T17:03:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T17:03:16", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Gap analysis failed for page 1: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKkfxodPoCevv68JTGY'}"}
+{"asctime": "2025-11-16T17:03:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T17:03:16", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 1: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKkgHeLPjnzG6h6GFKA'}"}
+{"asctime": "2025-11-16T17:03:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T17:03:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T17:03:16", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Gap analysis failed for page 2: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKkgbFupe93GRsdimza'}"}
+{"asctime": "2025-11-16T17:03:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T17:03:16", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 2: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKkgtN5Dne5i5Q1Ww9p'}"}
+{"asctime": "2025-11-16T17:03:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T17:03:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T17:03:16", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Gap analysis failed for page 3: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKkhCxj4dLtxQz28VdG'}"}
+{"asctime": "2025-11-16T17:03:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T17:03:16", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 3: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKkhVpzFndpvSx2wPpC'}"}
+{"asctime": "2025-11-16T17:03:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 0 gaps, 0 improvements"}
+{"asctime": "2025-11-16T17:03:31", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T17:03:31", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T17:03:31", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T17:03:31", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Gap analysis failed for page 1: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKmnaSf8dRa7uc9iWbx'}"}
+{"asctime": "2025-11-16T17:03:31", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T17:03:31", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 1: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKmnsZ4MeVunQYHJhTa'}"}
+{"asctime": "2025-11-16T17:03:31", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T17:03:31", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T17:03:31", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Gap analysis failed for page 2: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKmoF8M5qmhAd8v1TiF'}"}
+{"asctime": "2025-11-16T17:03:31", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T17:03:31", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 2: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKmoeSiS6TTtM2pnkp8'}"}
+{"asctime": "2025-11-16T17:03:31", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T17:03:31", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T17:03:31", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Gap analysis failed for page 3: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKmoyHhpFcQhHeC9S12'}"}
+{"asctime": "2025-11-16T17:03:31", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T17:03:31", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 3: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKmpFuKkK5nWnkymDab'}"}
+{"asctime": "2025-11-16T17:03:31", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 0 gaps, 0 improvements"}
+{"asctime": "2025-11-16T17:03:46", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T17:03:46", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T17:03:46", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T17:03:47", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Gap analysis failed for page 1: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKnv2SieKwDaW89sKCJ'}"}
+{"asctime": "2025-11-16T17:03:47", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T17:03:47", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 1: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKny22njFNLpoqUHeKZ'}"}
+{"asctime": "2025-11-16T17:03:47", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T17:03:47", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T17:03:47", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Gap analysis failed for page 2: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKnyK8xwoQPiMc8cz2N'}"}
+{"asctime": "2025-11-16T17:03:47", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T17:03:47", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 2: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKnyck2efohKXLS6LfA'}"}
+{"asctime": "2025-11-16T17:03:47", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T17:03:47", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T17:03:47", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Gap analysis failed for page 3: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKnyx629sVWmHEBPFsK'}"}
+{"asctime": "2025-11-16T17:03:47", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T17:03:47", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 3: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVCKnzGSXrCKirShjqRTZ'}"}
+{"asctime": "2025-11-16T17:03:47", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 0 gaps, 0 improvements"}
+{"asctime": "2025-11-16T17:05:31", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T17:05:31", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T17:05:31", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T17:05:36", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 6 gaps"}
+{"asctime": "2025-11-16T17:05:36", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T17:05:50", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 6 improvements"}
+{"asctime": "2025-11-16T17:05:50", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T17:05:50", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T17:05:58", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Found 6 gaps"}
+{"asctime": "2025-11-16T17:05:58", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T17:06:11", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Generated 6 improvements"}
+{"asctime": "2025-11-16T17:06:11", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T17:06:11", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T17:06:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Found 2 gaps"}
+{"asctime": "2025-11-16T17:06:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T17:06:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Generated 2 improvements"}
+{"asctime": "2025-11-16T17:06:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 14 gaps, 14 improvements"}
+{"asctime": "2025-11-16T17:12:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T17:12:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T17:12:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T17:12:18", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 6 gaps"}
+{"asctime": "2025-11-16T17:12:18", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T17:12:25", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 1: Invalid control character at: line 28 column 120 (char 3414)"}
+{"asctime": "2025-11-16T17:12:25", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T17:12:25", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T17:12:36", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Found 12 gaps"}
+{"asctime": "2025-11-16T17:12:36", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T17:12:56", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Generated 12 improvements"}
+{"asctime": "2025-11-16T17:12:56", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T17:12:56", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T17:12:59", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Found 2 gaps"}
+{"asctime": "2025-11-16T17:12:59", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T17:13:03", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Generated 2 improvements"}
+{"asctime": "2025-11-16T17:13:03", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 20 gaps, 14 improvements"}
+{"asctime": "2025-11-16T17:17:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T17:17:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T17:17:04", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T17:17:07", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 3 gaps"}
+{"asctime": "2025-11-16T17:17:07", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T17:17:12", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 3 improvements"}
+{"asctime": "2025-11-16T17:17:12", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T17:17:12", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T17:17:20", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Found 12 gaps"}
+{"asctime": "2025-11-16T17:17:20", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T17:17:36", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Generated 12 improvements"}
+{"asctime": "2025-11-16T17:17:36", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T17:17:36", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T17:17:38", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Found 2 gaps"}
+{"asctime": "2025-11-16T17:17:38", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T17:17:41", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Generated 2 improvements"}
+{"asctime": "2025-11-16T17:17:41", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 17 gaps, 17 improvements"}
+{"asctime": "2025-11-16T17:18:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T17:18:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T17:18:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T17:18:17", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 6 gaps"}
+{"asctime": "2025-11-16T17:18:17", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T17:18:30", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 1: Invalid control character at: line 48 column 55 (char 5770)"}
+{"asctime": "2025-11-16T17:18:30", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T17:18:30", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T17:18:40", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Found 12 gaps"}
+{"asctime": "2025-11-16T17:18:40", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T17:18:57", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Generated 12 improvements"}
+{"asctime": "2025-11-16T17:18:57", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T17:18:57", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T17:19:01", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Found 2 gaps"}
+{"asctime": "2025-11-16T17:19:01", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T17:19:07", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Generated 2 improvements"}
+{"asctime": "2025-11-16T17:19:07", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 20 gaps, 14 improvements"}
+{"asctime": "2025-11-16T17:19:12", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T17:19:12", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T17:19:12", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T17:19:14", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 3 gaps"}
+{"asctime": "2025-11-16T17:19:14", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T17:19:21", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 3 improvements"}
+{"asctime": "2025-11-16T17:19:21", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T17:19:21", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T17:19:32", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Found 12 gaps"}
+{"asctime": "2025-11-16T17:19:32", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T17:19:52", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Generated 12 improvements"}
+{"asctime": "2025-11-16T17:19:52", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T17:19:52", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T17:19:54", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Found 2 gaps"}
+{"asctime": "2025-11-16T17:19:54", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T17:19:57", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Generated 2 improvements"}
+{"asctime": "2025-11-16T17:19:57", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 17 gaps, 17 improvements"}
+{"asctime": "2025-11-16T17:25:01", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T17:25:32", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T17:25:32", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T17:25:32", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T17:25:37", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 6 gaps"}
+{"asctime": "2025-11-16T17:25:37", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T17:25:51", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 6 improvements"}
+{"asctime": "2025-11-16T17:25:51", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T17:25:51", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T17:25:56", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Found 6 gaps"}
+{"asctime": "2025-11-16T17:25:56", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T17:26:11", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Generated 6 improvements"}
+{"asctime": "2025-11-16T17:26:11", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T17:26:11", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T17:26:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Found 2 gaps"}
+{"asctime": "2025-11-16T17:26:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T17:26:17", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Generated 2 improvements"}
+{"asctime": "2025-11-16T17:26:17", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 14 gaps, 14 improvements"}
+{"asctime": "2025-11-16T17:26:44", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to parse RiskGPT response: Invalid control character at: line 7 column 245 (char 1062)"}
+{"asctime": "2025-11-16T17:26:57", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T17:27:16", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T17:27:40", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT generated 1 suggestions for 1 blocks"}
+{"asctime": "2025-11-16T17:37:27", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T17:37:27", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T17:37:27", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T17:37:33", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 6 gaps"}
+{"asctime": "2025-11-16T17:37:33", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T17:37:46", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 1: Invalid control character at: line 37 column 128 (char 4336)"}
+{"asctime": "2025-11-16T17:37:46", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T17:37:46", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T17:37:54", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Found 10 gaps"}
+{"asctime": "2025-11-16T17:37:54", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T17:38:11", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Generated 10 improvements"}
+{"asctime": "2025-11-16T17:38:11", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T17:38:11", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T17:38:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Found 2 gaps"}
+{"asctime": "2025-11-16T17:38:13", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T17:38:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Generated 2 improvements"}
+{"asctime": "2025-11-16T17:38:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 18 gaps, 12 improvements"}
+{"asctime": "2025-11-16T17:38:31", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T17:38:31", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T17:38:31", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T17:38:33", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 3 gaps"}
+{"asctime": "2025-11-16T17:38:33", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T17:38:40", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 3 improvements"}
+{"asctime": "2025-11-16T17:38:40", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T17:38:40", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T17:38:48", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Found 12 gaps"}
+{"asctime": "2025-11-16T17:38:48", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T17:39:01", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Generated 12 improvements"}
+{"asctime": "2025-11-16T17:39:01", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T17:39:01", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T17:39:03", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Found 2 gaps"}
+{"asctime": "2025-11-16T17:39:03", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T17:39:06", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Generated 2 improvements"}
+{"asctime": "2025-11-16T17:39:06", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 17 gaps, 17 improvements"}
+{"asctime": "2025-11-16T18:47:52", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T18:47:52", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/3"}
+{"asctime": "2025-11-16T18:47:52", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T18:47:57", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 6 gaps"}
+{"asctime": "2025-11-16T18:47:57", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T18:48:12", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Generated 6 improvements"}
+{"asctime": "2025-11-16T18:48:12", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/3"}
+{"asctime": "2025-11-16T18:48:12", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T18:48:20", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Found 10 gaps"}
+{"asctime": "2025-11-16T18:48:20", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T18:48:36", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Generated 11 improvements"}
+{"asctime": "2025-11-16T18:48:36", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/3"}
+{"asctime": "2025-11-16T18:48:36", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T18:48:38", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Found 2 gaps"}
+{"asctime": "2025-11-16T18:48:38", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T18:48:41", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Generated 2 improvements"}
+{"asctime": "2025-11-16T18:48:41", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 18 gaps, 19 improvements"}
+{"asctime": "2025-11-16T18:55:50", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T18:56:28", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=CAR_Chapter_1_First_5_Pages-64h4yl doc_id=a81701c4f8db47eca3f8eb31c1389665_CAR_Chapter_1_First_5_Pages"}
+{"asctime": "2025-11-16T18:59:37", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Starting template processing with 'policy_template'"}
+{"asctime": "2025-11-16T18:59:37", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 1/5"}
+{"asctime": "2025-11-16T18:59:37", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 1"}
+{"asctime": "2025-11-16T18:59:48", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 1: Found 15 gaps"}
+{"asctime": "2025-11-16T18:59:48", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 1"}
+{"asctime": "2025-11-16T19:00:14", "name": "external.doc_review.template_processor", "levelname": "ERROR", "message": "Content improvement failed for page 1: Invalid control character at: line 56 column 130 (char 12462)"}
+{"asctime": "2025-11-16T19:00:14", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 2/5"}
+{"asctime": "2025-11-16T19:00:14", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 2"}
+{"asctime": "2025-11-16T19:00:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Found 2 gaps"}
+{"asctime": "2025-11-16T19:00:16", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 2"}
+{"asctime": "2025-11-16T19:00:22", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 2: Generated 2 improvements"}
+{"asctime": "2025-11-16T19:00:22", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 3/5"}
+{"asctime": "2025-11-16T19:00:22", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 3"}
+{"asctime": "2025-11-16T19:00:30", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Found 11 gaps"}
+{"asctime": "2025-11-16T19:00:30", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 3"}
+{"asctime": "2025-11-16T19:00:56", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 3: Generated 11 improvements"}
+{"asctime": "2025-11-16T19:00:56", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 4/5"}
+{"asctime": "2025-11-16T19:00:56", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 4"}
+{"asctime": "2025-11-16T19:01:00", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 4: Found 4 gaps"}
+{"asctime": "2025-11-16T19:01:00", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 4"}
+{"asctime": "2025-11-16T19:01:10", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 4: Generated 4 improvements"}
+{"asctime": "2025-11-16T19:01:10", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Processing page 5/5"}
+{"asctime": "2025-11-16T19:01:10", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Performing gap analysis for page 5"}
+{"asctime": "2025-11-16T19:01:15", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 5: Found 6 gaps"}
+{"asctime": "2025-11-16T19:01:15", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Generating improvements for page 5"}
+{"asctime": "2025-11-16T19:01:30", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Page 5: Generated 6 improvements"}
+{"asctime": "2025-11-16T19:01:30", "name": "external.doc_review.template_processor", "levelname": "INFO", "message": "Template processing complete: 38 gaps, 23 improvements"}
+{"asctime": "2025-11-16T19:05:51", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to parse RiskGPT response: Invalid control character at: line 28 column 273 (char 3594)"}
+{"asctime": "2025-11-16T19:10:25", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT answered general question"}
+{"asctime": "2025-11-16T19:12:17", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT answered general question"}
+{"asctime": "2025-11-16T19:14:39", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT answered general question"}
+{"asctime": "2025-11-16T19:17:34", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT answered general question"}
+{"asctime": "2025-11-16T19:21:18", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T19:21:32", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T19:23:38", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T19:24:02", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T19:24:13", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T19:24:25", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T19:24:42", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T19:26:08", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to parse RiskGPT response: Expecting value: line 1 column 1 (char 0)"}
+{"asctime": "2025-11-16T19:29:23", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT raw response length: 261 chars"}
+{"asctime": "2025-11-16T19:29:23", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T19:29:37", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT raw response length: 950 chars"}
+{"asctime": "2025-11-16T19:29:37", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to parse RiskGPT response: Expecting value: line 1 column 1 (char 0)"}
+{"asctime": "2025-11-16T19:31:07", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 13781 chars of context"}
+{"asctime": "2025-11-16T19:31:08", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT raw response length: 247 chars"}
+{"asctime": "2025-11-16T19:31:08", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T19:31:21", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 14082 chars of context"}
+{"asctime": "2025-11-16T19:31:23", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT raw response length: 957 chars"}
+{"asctime": "2025-11-16T19:31:23", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to parse RiskGPT response: Expecting value: line 1 column 1 (char 0)"}
+{"asctime": "2025-11-16T19:34:22", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 13781 chars of context"}
+{"asctime": "2025-11-16T19:34:23", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT raw response length: 261 chars"}
+{"asctime": "2025-11-16T19:34:23", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T19:34:28", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 14089 chars of context"}
+{"asctime": "2025-11-16T19:34:36", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT raw response length: 4415 chars"}
+{"asctime": "2025-11-16T19:34:36", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to parse RiskGPT response: Expecting value: line 1 column 1 (char 0)"}
+{"asctime": "2025-11-16T19:35:10", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 13800 chars of context"}
+{"asctime": "2025-11-16T19:35:11", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT raw response length: 608 chars"}
+{"asctime": "2025-11-16T19:35:11", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to parse RiskGPT response: Expecting value: line 1 column 1 (char 0)"}
+{"asctime": "2025-11-16T19:36:10", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 13781 chars of context"}
+{"asctime": "2025-11-16T19:36:11", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT raw response length: 290 chars"}
+{"asctime": "2025-11-16T19:36:11", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T19:36:17", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 14109 chars of context"}
+{"asctime": "2025-11-16T19:36:19", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT raw response length: 1101 chars"}
+{"asctime": "2025-11-16T19:36:19", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to parse RiskGPT response: Invalid control character at: line 1 column 153 (char 152)"}
+{"asctime": "2025-11-16T19:38:41", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 13781 chars of context"}
+{"asctime": "2025-11-16T19:38:42", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT raw response length: 261 chars"}
+{"asctime": "2025-11-16T19:38:42", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T19:38:47", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 14079 chars of context"}
+{"asctime": "2025-11-16T19:38:48", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT raw response length: 402 chars"}
+{"asctime": "2025-11-16T19:38:48", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T19:38:58", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 14511 chars of context"}
+{"asctime": "2025-11-16T19:39:00", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT raw response length: 1372 chars"}
+{"asctime": "2025-11-16T19:39:00", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to parse RiskGPT response: Expecting value: line 1 column 1 (char 0)"}
+{"asctime": "2025-11-16T19:40:42", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 13810 chars of context"}
+{"asctime": "2025-11-16T19:40:43", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT raw response length: 542 chars"}
+{"asctime": "2025-11-16T19:40:43", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT raw response preview: {\"response\": \"Based on the information provided, it looks like you have a total of 23 suggestions for improving the document, with 10 pending, 13 accepted, and 0 rejected. The pending suggestions cove..."}
+{"asctime": "2025-11-16T19:40:43", "name": "external.doc_review.llm", "levelname": "INFO", "message": "Response starts with: {\"response\": \"Based on the information provided, it looks like you have a total of 23 suggestions fo..."}
+{"asctime": "2025-11-16T19:40:43", "name": "external.doc_review.llm", "levelname": "INFO", "message": "About to parse JSON, length: 542"}
+{"asctime": "2025-11-16T19:40:43", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T19:40:50", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 14391 chars of context"}
+{"asctime": "2025-11-16T19:40:52", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT raw response length: 586 chars"}
+{"asctime": "2025-11-16T19:40:52", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT raw response preview: Here are the suggestions for the document:\n\n{\"response\": \"Based on the information provided, it looks like you have a total of 23 suggestions for improving the document, with 10 pending, 13 accepted, ..."}
+{"asctime": "2025-11-16T19:40:52", "name": "external.doc_review.llm", "levelname": "INFO", "message": "Response starts with: Here are the suggestions for the document:\n\n{\"response\": \"Based on the information provided, it look..."}
+{"asctime": "2025-11-16T19:40:52", "name": "external.doc_review.llm", "levelname": "INFO", "message": "About to parse JSON, length: 586"}
+{"asctime": "2025-11-16T19:40:52", "name": "external.doc_review.llm", "levelname": "ERROR", "message": "Failed to parse RiskGPT response: Expecting value: line 1 column 1 (char 0)"}
+{"asctime": "2025-11-16T19:45:16", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 13313 chars of context"}
+{"asctime": "2025-11-16T19:45:19", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT response length: 1017 chars"}
+{"asctime": "2025-11-16T19:45:19", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T19:45:28", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 14402 chars of context"}
+{"asctime": "2025-11-16T19:45:30", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT response length: 1390 chars"}
+{"asctime": "2025-11-16T19:45:30", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T19:47:04", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 13784 chars of context"}
+{"asctime": "2025-11-16T19:47:05", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT response length: 665 chars"}
+{"asctime": "2025-11-16T19:47:05", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}
+{"asctime": "2025-11-16T19:48:11", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT calling LLM with 15850 chars of context"}
+{"asctime": "2025-11-16T19:48:15", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT response length: 2092 chars"}
+{"asctime": "2025-11-16T19:48:15", "name": "external.doc_review.llm", "levelname": "INFO", "message": "RiskGPT responded conversationally"}

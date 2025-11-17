@@ -1,0 +1,1328 @@
+2025-11-16 17:31:14,876 - __main__ - INFO - Starting SAJHA MCP Server on 0.0.0.0:8000
+2025-11-16 17:31:14,900 - core.auth_manager - INFO - Loaded 1 users from configuration
+2025-11-16 17:31:14,900 - tools.tools_registry - INFO - Loading tools from config/tools
+2025-11-16 17:31:14,901 - tools.tools_registry - INFO - Tool registered: create_column_embeddings
+2025-11-16 17:31:14,901 - tools.tools_registry - INFO - Loaded custom tool: create_column_embeddings
+2025-11-16 17:31:14,902 - tools.tools_registry - INFO - Tool registered: yahoo_get_history
+2025-11-16 17:31:14,902 - tools.tools_registry - INFO - Loaded custom tool: yahoo_get_history
+2025-11-16 17:31:14,933 - SqlSelectSampleDataTool - WARNING - Data file not found: data/sqlselect/customers.csv
+2025-11-16 17:31:14,933 - SqlSelectSampleDataTool - WARNING - Data file not found: data/sqlselect/orders.csv
+2025-11-16 17:31:14,933 - SqlSelectSampleDataTool - WARNING - Data file not found: data/sqlselect/products.csv
+2025-11-16 17:31:14,933 - SqlSelectSampleDataTool - WARNING - Data file not found: data/sqlselect/sales.csv
+2025-11-16 17:31:14,933 - SqlSelectSampleDataTool - INFO - DuckDB connection initialized for sqlselect_sample_data
+2025-11-16 17:31:14,933 - tools.tools_registry - INFO - Tool registered: sqlselect_sample_data
+2025-11-16 17:31:14,933 - tools.tools_registry - INFO - Loaded custom tool: sqlselect_sample_data
+2025-11-16 17:31:14,934 - tools.tools_registry - INFO - Tool registered: boc_search_series
+2025-11-16 17:31:14,934 - tools.tools_registry - INFO - Loaded custom tool: boc_search_series
+2025-11-16 17:31:14,935 - tools.tools_registry - INFO - Tool registered: ecb_get_inflation
+2025-11-16 17:31:14,935 - tools.tools_registry - INFO - Loaded custom tool: ecb_get_inflation
+2025-11-16 17:31:14,936 - tools.tools_registry - INFO - Tool registered: ecb_get_interest_rate
+2025-11-16 17:31:14,936 - tools.tools_registry - INFO - Loaded custom tool: ecb_get_interest_rate
+2025-11-16 17:31:14,937 - tools.tools_registry - INFO - Tool registered: bdf_get_french_indicator
+2025-11-16 17:31:14,937 - tools.tools_registry - INFO - Loaded custom tool: bdf_get_french_indicator
+2025-11-16 17:31:14,938 - tools.tools_registry - INFO - Tool registered: un_get_sdg_targets
+2025-11-16 17:31:14,938 - tools.tools_registry - INFO - Loaded custom tool: un_get_sdg_targets
+2025-11-16 17:31:14,939 - tools.tools_registry - INFO - Tool registered: edgar_ownership_reports
+2025-11-16 17:31:14,939 - tools.tools_registry - INFO - Loaded custom tool: edgar_ownership_reports
+2025-11-16 17:31:15,473 - DuckDbDescribeTableTool - INFO - Found 1 data files in data/duckdb
+2025-11-16 17:31:15,533 - DuckDbDescribeTableTool - INFO - ✓ Created view 'limits_data' from limits_data.csv (201 rows)
+2025-11-16 17:31:15,544 - DuckDbDescribeTableTool - INFO - Initialization complete: 4 views available
+2025-11-16 17:31:15,545 - DuckDbDescribeTableTool - INFO - Auto-refresh enabled: checking every 600 seconds
+2025-11-16 17:31:15,545 - tools.tools_registry - INFO - Tool registered: duckdb_describe_table
+2025-11-16 17:31:15,545 - tools.tools_registry - INFO - Loaded custom tool: duckdb_describe_table
+2025-11-16 17:31:15,546 - tools.tools_registry - INFO - Tool registered: imf_get_weo_data
+2025-11-16 17:31:15,546 - tools.tools_registry - INFO - Loaded custom tool: imf_get_weo_data
+2025-11-16 17:31:15,574 - tools.tools_registry - INFO - Tool registered: query_result_evaluator
+2025-11-16 17:31:15,574 - tools.tools_registry - INFO - Loaded custom tool: query_result_evaluator
+2025-11-16 17:31:15,575 - tools.tools_registry - INFO - Tool registered: rbi_get_forex_reserves
+2025-11-16 17:31:15,575 - tools.tools_registry - INFO - Loaded custom tool: rbi_get_forex_reserves
+2025-11-16 17:31:15,576 - tools.tools_registry - INFO - Tool registered: msdoc_get_word_metadata
+2025-11-16 17:31:15,576 - tools.tools_registry - INFO - Loaded custom tool: msdoc_get_word_metadata
+2025-11-16 17:31:15,577 - tools.tools_registry - INFO - Tool registered: imf_compare_countries
+2025-11-16 17:31:15,577 - tools.tools_registry - INFO - Loaded custom tool: imf_compare_countries
+2025-11-16 17:31:15,577 - tools.tools_registry - INFO - Tool registered: bdf_get_exchange_rate
+2025-11-16 17:31:15,577 - tools.tools_registry - INFO - Loaded custom tool: bdf_get_exchange_rate
+2025-11-16 17:31:15,581 - tools.tools_registry - INFO - Tool registered: crawl_sitemap
+2025-11-16 17:31:15,581 - tools.tools_registry - INFO - Loaded custom tool: crawl_sitemap
+2025-11-16 17:31:15,581 - tools.tools_registry - INFO - Tool registered: crawl_url
+2025-11-16 17:31:15,581 - tools.tools_registry - INFO - Loaded custom tool: crawl_url
+2025-11-16 17:31:15,583 - tools.tools_registry - INFO - Tool registered: wb_search_indicators
+2025-11-16 17:31:15,583 - tools.tools_registry - INFO - Loaded custom tool: wb_search_indicators
+2025-11-16 17:31:15,583 - tools.tools_registry - INFO - Tool registered: wb_get_indicator_data
+2025-11-16 17:31:15,583 - tools.tools_registry - INFO - Loaded custom tool: wb_get_indicator_data
+2025-11-16 17:31:15,584 - tools.tools_registry - INFO - Tool registered: model_doc_parse_ast
+2025-11-16 17:31:15,584 - tools.tools_registry - INFO - Loaded custom tool: model_doc_parse_ast
+2025-11-16 17:31:15,584 - tools.tools_registry - INFO - Tool registered: tavily_domain_search
+2025-11-16 17:31:15,584 - tools.tools_registry - INFO - Loaded custom tool: tavily_domain_search
+2025-11-16 17:31:15,585 - tools.tools_registry - INFO - Tool registered: ecb_search_series
+2025-11-16 17:31:15,585 - tools.tools_registry - INFO - Loaded custom tool: ecb_search_series
+2025-11-16 17:31:15,585 - tools.tools_registry - INFO - Tool registered: boj_get_policy_rate
+2025-11-16 17:31:15,585 - tools.tools_registry - INFO - Loaded custom tool: boj_get_policy_rate
+2025-11-16 17:31:15,586 - tools.tools_registry - INFO - Tool registered: fed_get_series
+2025-11-16 17:31:15,586 - tools.tools_registry - INFO - Loaded custom tool: fed_get_series
+2025-11-16 17:31:15,587 - tools.tools_registry - INFO - Tool registered: sec_search_company
+2025-11-16 17:31:15,587 - tools.tools_registry - INFO - Loaded custom tool: sec_search_company
+2025-11-16 17:31:15,587 - tools.tools_registry - INFO - Tool registered: edgar_filings_by_form
+2025-11-16 17:31:15,587 - tools.tools_registry - INFO - Loaded custom tool: edgar_filings_by_form
+2025-11-16 17:31:15,588 - tools.tools_registry - INFO - Tool registered: pboc_get_exchange_rate
+2025-11-16 17:31:15,588 - tools.tools_registry - INFO - Loaded custom tool: pboc_get_exchange_rate
+2025-11-16 17:31:15,589 - tools.tools_registry - INFO - Tool registered: fbi_get_offense_data
+2025-11-16 17:31:15,589 - tools.tools_registry - INFO - Loaded custom tool: fbi_get_offense_data
+2025-11-16 17:31:15,589 - tools.tools_registry - INFO - Tool registered: edgar_registration_statements
+2025-11-16 17:31:15,589 - tools.tools_registry - INFO - Loaded custom tool: edgar_registration_statements
+2025-11-16 17:31:15,590 - tools.tools_registry - INFO - Tool registered: ecb_get_common_indicators
+2025-11-16 17:31:15,590 - tools.tools_registry - INFO - Loaded custom tool: ecb_get_common_indicators
+2025-11-16 17:31:15,593 - tools.tools_registry - INFO - Tool registered: ir_get_annual_reports
+2025-11-16 17:31:15,593 - tools.tools_registry - INFO - Loaded custom tool: ir_get_annual_reports
+2025-11-16 17:31:15,593 - tools.tools_registry - INFO - Tool registered: un_get_sdgs
+2025-11-16 17:31:15,593 - tools.tools_registry - INFO - Loaded custom tool: un_get_sdgs
+2025-11-16 17:31:15,593 - tools.tools_registry - INFO - Tool registered: fbi_get_state_statistics
+2025-11-16 17:31:15,593 - tools.tools_registry - INFO - Loaded custom tool: fbi_get_state_statistics
+2025-11-16 17:31:15,593 - tools.tools_registry - INFO - Tool registered: edgar_company_search
+2025-11-16 17:31:15,593 - tools.tools_registry - INFO - Loaded custom tool: edgar_company_search
+2025-11-16 17:31:15,603 - SqlSelectGetSchemaTool - WARNING - Data file not found: data/sqlselect/customers.csv
+2025-11-16 17:31:15,603 - SqlSelectGetSchemaTool - WARNING - Data file not found: data/sqlselect/orders.csv
+2025-11-16 17:31:15,603 - SqlSelectGetSchemaTool - WARNING - Data file not found: data/sqlselect/products.csv
+2025-11-16 17:31:15,603 - SqlSelectGetSchemaTool - WARNING - Data file not found: data/sqlselect/sales.csv
+2025-11-16 17:31:15,603 - SqlSelectGetSchemaTool - INFO - DuckDB connection initialized for sqlselect_get_schema
+2025-11-16 17:31:15,603 - tools.tools_registry - INFO - Tool registered: sqlselect_get_schema
+2025-11-16 17:31:15,603 - tools.tools_registry - INFO - Loaded custom tool: sqlselect_get_schema
+2025-11-16 17:31:15,603 - tools.tools_registry - INFO - Tool registered: edgar_foreign_issuers
+2025-11-16 17:31:15,603 - tools.tools_registry - INFO - Loaded custom tool: edgar_foreign_issuers
+2025-11-16 17:31:15,603 - tools.tools_registry - INFO - Tool registered: boj_get_price_index
+2025-11-16 17:31:15,603 - tools.tools_registry - INFO - Loaded custom tool: boj_get_price_index
+2025-11-16 17:31:15,604 - tools.tools_registry - INFO - Tool registered: wiki_search
+2025-11-16 17:31:15,604 - tools.tools_registry - INFO - Loaded custom tool: wiki_search
+2025-11-16 17:31:15,605 - tools.tools_registry - INFO - Tool registered: msdoc_read_word
+2025-11-16 17:31:15,605 - tools.tools_registry - INFO - Loaded custom tool: msdoc_read_word
+2025-11-16 17:31:15,605 - tools.tools_registry - INFO - Tool registered: query_safety_validator
+2025-11-16 17:31:15,605 - tools.tools_registry - INFO - Loaded custom tool: query_safety_validator
+2025-11-16 17:31:15,606 - tools.tools_registry - INFO - Tool registered: boj_get_jgb_yield
+2025-11-16 17:31:15,606 - tools.tools_registry - INFO - Loaded custom tool: boj_get_jgb_yield
+2025-11-16 17:31:16,168 - DuckDbListFilesTool - INFO - Found 1 data files in /Users/saadahmed/queryagent/sajhamcpserver/data/duckdb
+2025-11-16 17:31:16,230 - DuckDbListFilesTool - INFO - ✓ Created view 'limits_data' from limits_data.csv (201 rows)
+2025-11-16 17:31:16,240 - DuckDbListFilesTool - INFO - Initialization complete: 4 views available
+2025-11-16 17:31:16,240 - DuckDbListFilesTool - INFO - Auto-refresh enabled: checking every 600 seconds
+2025-11-16 17:31:16,241 - tools.tools_registry - INFO - Tool registered: duckdb_list_files
+2025-11-16 17:31:16,241 - tools.tools_registry - INFO - Loaded custom tool: duckdb_list_files
+2025-11-16 17:31:16,241 - tools.tools_registry - INFO - Tool registered: imf_get_data
+2025-11-16 17:31:16,241 - tools.tools_registry - INFO - Loaded custom tool: imf_get_data
+2025-11-16 17:31:16,242 - tools.tools_registry - INFO - Tool registered: model_doc_build_hierarchy
+2025-11-16 17:31:16,242 - tools.tools_registry - INFO - Loaded custom tool: model_doc_build_hierarchy
+2025-11-16 17:31:16,242 - tools.tools_registry - INFO - Tool registered: un_get_sdg_data
+2025-11-16 17:31:16,242 - tools.tools_registry - INFO - Loaded custom tool: un_get_sdg_data
+2025-11-16 17:31:16,242 - tools.tools_registry - INFO - Tool registered: boc_get_exchange_rate
+2025-11-16 17:31:16,242 - tools.tools_registry - INFO - Loaded custom tool: boc_get_exchange_rate
+2025-11-16 17:31:16,243 - tools.tools_registry - INFO - Tool registered: boc_get_bond_yield
+2025-11-16 17:31:16,243 - tools.tools_registry - INFO - Loaded custom tool: boc_get_bond_yield
+2025-11-16 17:31:16,243 - tools.tools_registry - INFO - Tool registered: ecb_get_bond_yield
+2025-11-16 17:31:16,243 - tools.tools_registry - INFO - Loaded custom tool: ecb_get_bond_yield
+2025-11-16 17:31:16,243 - tools.tools_registry - INFO - Tool registered: wb_get_country_data
+2025-11-16 17:31:16,243 - tools.tools_registry - INFO - Loaded custom tool: wb_get_country_data
+2025-11-16 17:31:16,243 - tools.tools_registry - INFO - Tool registered: edgar_filing_details
+2025-11-16 17:31:16,243 - tools.tools_registry - INFO - Loaded custom tool: edgar_filing_details
+2025-11-16 17:31:16,243 - tools.tools_registry - INFO - Tool registered: imf_get_bop_data
+2025-11-16 17:31:16,243 - tools.tools_registry - INFO - Loaded custom tool: imf_get_bop_data
+2025-11-16 17:31:16,244 - tools.tools_registry - INFO - Tool registered: fbi_search_agencies
+2025-11-16 17:31:16,244 - tools.tools_registry - INFO - Loaded custom tool: fbi_search_agencies
+2025-11-16 17:31:16,244 - tools.tools_registry - INFO - Tool registered: msdoc_list_files
+2025-11-16 17:31:16,244 - tools.tools_registry - INFO - Loaded custom tool: msdoc_list_files
+2025-11-16 17:31:16,244 - tools.tools_registry - INFO - Tool registered: msdoc_extract_text
+2025-11-16 17:31:16,244 - tools.tools_registry - INFO - Loaded custom tool: msdoc_extract_text
+2025-11-16 17:31:16,244 - tools.tools_registry - INFO - Tool registered: edgar_current_reports
+2025-11-16 17:31:16,244 - tools.tools_registry - INFO - Loaded custom tool: edgar_current_reports
+2025-11-16 17:31:16,245 - tools.tools_registry - INFO - Tool registered: fbi_compare_states
+2025-11-16 17:31:16,245 - tools.tools_registry - INFO - Loaded custom tool: fbi_compare_states
+2025-11-16 17:31:16,245 - tools.tools_registry - INFO - Tool registered: yahoo_get_quote
+2025-11-16 17:31:16,245 - tools.tools_registry - INFO - Loaded custom tool: yahoo_get_quote
+2025-11-16 17:31:16,245 - DuckDbGetStatsTool - INFO - Found 1 data files in data/duckdb
+2025-11-16 17:31:16,303 - DuckDbGetStatsTool - INFO - ✓ Created view 'limits_data' from limits_data.csv (201 rows)
+2025-11-16 17:31:16,306 - DuckDbGetStatsTool - INFO - Initialization complete: 4 views available
+2025-11-16 17:31:16,306 - DuckDbGetStatsTool - INFO - Auto-refresh enabled: checking every 600 seconds
+2025-11-16 17:31:16,306 - tools.tools_registry - INFO - Tool registered: duckdb_get_stats
+2025-11-16 17:31:16,306 - tools.tools_registry - INFO - Loaded custom tool: duckdb_get_stats
+2025-11-16 17:31:16,306 - tools.tools_registry - INFO - Tool registered: boj_get_exchange_rate
+2025-11-16 17:31:16,306 - tools.tools_registry - INFO - Loaded custom tool: boj_get_exchange_rate
+2025-11-16 17:31:16,307 - tools.tools_registry - INFO - Tool registered: llm_map_entity_column
+2025-11-16 17:31:16,307 - tools.tools_registry - INFO - Loaded custom tool: llm_map_entity_column
+2025-11-16 17:31:16,307 - tools.tools_registry - INFO - Tool registered: sec_get_company_info
+2025-11-16 17:31:16,307 - tools.tools_registry - INFO - Loaded custom tool: sec_get_company_info
+2025-11-16 17:31:16,308 - tools.tools_registry - INFO - Tool registered: boc_get_common_indicators
+2025-11-16 17:31:16,308 - tools.tools_registry - INFO - Loaded custom tool: boc_get_common_indicators
+2025-11-16 17:31:16,308 - tools.tools_registry - INFO - Tool registered: boc_get_series
+2025-11-16 17:31:16,308 - tools.tools_registry - INFO - Loaded custom tool: boc_get_series
+2025-11-16 17:31:16,309 - tools.tools_registry - INFO - Tool registered: model_doc_assemble_doc
+2025-11-16 17:31:16,309 - tools.tools_registry - INFO - Loaded custom tool: model_doc_assemble_doc
+2025-11-16 17:31:16,318 - SqlSelectExecuteQueryTool - WARNING - Data file not found: data/sqlselect/customers.csv
+2025-11-16 17:31:16,318 - SqlSelectExecuteQueryTool - WARNING - Data file not found: data/sqlselect/orders.csv
+2025-11-16 17:31:16,318 - SqlSelectExecuteQueryTool - WARNING - Data file not found: data/sqlselect/products.csv
+2025-11-16 17:31:16,318 - SqlSelectExecuteQueryTool - WARNING - Data file not found: data/sqlselect/sales.csv
+2025-11-16 17:31:16,318 - SqlSelectExecuteQueryTool - INFO - DuckDB connection initialized for sqlselect_execute_query
+2025-11-16 17:31:16,318 - tools.tools_registry - INFO - Tool registered: sqlselect_execute_query
+2025-11-16 17:31:16,318 - tools.tools_registry - INFO - Loaded custom tool: sqlselect_execute_query
+2025-11-16 17:31:16,318 - tools.tools_registry - INFO - Tool registered: ecb_get_latest
+2025-11-16 17:31:16,318 - tools.tools_registry - INFO - Loaded custom tool: ecb_get_latest
+2025-11-16 17:31:16,319 - tools.tools_registry - INFO - Tool registered: tavily_news_search
+2025-11-16 17:31:16,319 - tools.tools_registry - INFO - Loaded custom tool: tavily_news_search
+2025-11-16 17:31:16,320 - tools.tools_registry - INFO - Tool registered: vector_search_entity_column
+2025-11-16 17:31:16,320 - tools.tools_registry - INFO - Loaded custom tool: vector_search_entity_column
+2025-11-16 17:31:16,320 - tools.tools_registry - INFO - Tool registered: fbi_get_crime_trend
+2025-11-16 17:31:16,320 - tools.tools_registry - INFO - Loaded custom tool: fbi_get_crime_trend
+2025-11-16 17:31:16,320 - tools.tools_registry - INFO - Tool registered: imf_get_databases
+2025-11-16 17:31:16,320 - tools.tools_registry - INFO - Loaded custom tool: imf_get_databases
+2025-11-16 17:31:16,320 - tools.tools_registry - INFO - Tool registered: edgar_frame_data
+2025-11-16 17:31:16,320 - tools.tools_registry - INFO - Loaded custom tool: edgar_frame_data
+2025-11-16 17:31:16,320 - tools.tools_registry - INFO - Tool registered: msdoc_read_excel_sheet
+2025-11-16 17:31:16,320 - tools.tools_registry - INFO - Loaded custom tool: msdoc_read_excel_sheet
+2025-11-16 17:31:16,321 - tools.tools_registry - INFO - Tool registered: msdoc_read_excel
+2025-11-16 17:31:16,321 - tools.tools_registry - INFO - Loaded custom tool: msdoc_read_excel
+2025-11-16 17:31:16,321 - tools.tools_registry - INFO - Tool registered: check_robots_txt
+2025-11-16 17:31:16,321 - tools.tools_registry - INFO - Loaded custom tool: check_robots_txt
+2025-11-16 17:31:16,321 - tools.tools_registry - INFO - Tool registered: bdf_get_oat_yield
+2025-11-16 17:31:16,321 - tools.tools_registry - INFO - Loaded custom tool: bdf_get_oat_yield
+2025-11-16 17:31:16,321 - tools.tools_registry - INFO - Tool registered: un_compare_trade
+2025-11-16 17:31:16,321 - tools.tools_registry - INFO - Loaded custom tool: un_compare_trade
+2025-11-16 17:31:16,321 - tools.tools_registry - INFO - Tool registered: imf_get_country_profile
+2025-11-16 17:31:16,321 - tools.tools_registry - INFO - Loaded custom tool: imf_get_country_profile
+2025-11-16 17:31:16,322 - DuckDbListTablesTool - INFO - Found 1 data files in /Users/saadahmed/queryagent/sajhamcpserver/data/duckdb
+2025-11-16 17:31:16,380 - DuckDbListTablesTool - INFO - ✓ Created view 'limits_data' from limits_data.csv (201 rows)
+2025-11-16 17:31:16,382 - DuckDbListTablesTool - INFO - Initialization complete: 4 views available
+2025-11-16 17:31:16,383 - DuckDbListTablesTool - INFO - Auto-refresh enabled: checking every 600 seconds
+2025-11-16 17:31:16,383 - tools.tools_registry - INFO - Tool registered: duckdb_list_tables
+2025-11-16 17:31:16,383 - tools.tools_registry - INFO - Loaded custom tool: duckdb_list_tables
+2025-11-16 17:31:16,383 - tools.tools_registry - INFO - Tool registered: fed_search_series
+2025-11-16 17:31:16,383 - tools.tools_registry - INFO - Loaded custom tool: fed_search_series
+2025-11-16 17:31:16,383 - tools.tools_registry - INFO - Tool registered: pboc_get_cgb_yield
+2025-11-16 17:31:16,383 - tools.tools_registry - INFO - Loaded custom tool: pboc_get_cgb_yield
+2025-11-16 17:31:16,384 - tools.tools_registry - INFO - Tool registered: edgar_institutional_holdings
+2025-11-16 17:31:16,384 - tools.tools_registry - INFO - Loaded custom tool: edgar_institutional_holdings
+2025-11-16 17:31:16,384 - tools.tools_registry - INFO - Tool registered: tavily_research_search
+2025-11-16 17:31:16,384 - tools.tools_registry - INFO - Loaded custom tool: tavily_research_search
+2025-11-16 17:31:16,388 - tools.tools_registry - INFO - Tool registered: deep_research_agent
+2025-11-16 17:31:16,388 - tools.tools_registry - INFO - Loaded custom tool: deep_research_agent
+2025-11-16 17:31:16,388 - tools.tools_registry - INFO - Tool registered: un_get_trade_data
+2025-11-16 17:31:16,388 - tools.tools_registry - INFO - Loaded custom tool: un_get_trade_data
+2025-11-16 17:31:16,389 - tools.tools_registry - INFO - Tool registered: model_doc_list_files
+2025-11-16 17:31:16,389 - tools.tools_registry - INFO - Loaded custom tool: model_doc_list_files
+2025-11-16 17:31:16,389 - tools.tools_registry - INFO - Tool registered: rbi_get_policy_rate
+2025-11-16 17:31:16,389 - tools.tools_registry - INFO - Loaded custom tool: rbi_get_policy_rate
+2025-11-16 17:31:16,389 - tools.tools_registry - INFO - Tool registered: imf_get_dataflows
+2025-11-16 17:31:16,389 - tools.tools_registry - INFO - Loaded custom tool: imf_get_dataflows
+2025-11-16 17:31:16,390 - tools.tools_registry - INFO - Tool registered: edgar_companies_by_sic
+2025-11-16 17:31:16,390 - tools.tools_registry - INFO - Loaded custom tool: edgar_companies_by_sic
+2025-11-16 17:31:16,390 - tools.tools_registry - INFO - Tool registered: msdoc_get_excel_sheets
+2025-11-16 17:31:16,390 - tools.tools_registry - INFO - Loaded custom tool: msdoc_get_excel_sheets
+2025-11-16 17:31:16,390 - tools.tools_registry - INFO - Tool registered: edgar_amendments
+2025-11-16 17:31:16,390 - tools.tools_registry - INFO - Loaded custom tool: edgar_amendments
+2025-11-16 17:31:16,390 - tools.tools_registry - INFO - Tool registered: bdf_get_eurozone_indicator
+2025-11-16 17:31:16,390 - tools.tools_registry - INFO - Loaded custom tool: bdf_get_eurozone_indicator
+2025-11-16 17:31:16,390 - tools.tools_registry - INFO - Tool registered: edgar_company_submissions
+2025-11-16 17:31:16,390 - tools.tools_registry - INFO - Loaded custom tool: edgar_company_submissions
+2025-11-16 17:31:16,391 - DuckDbAggregateTool - INFO - Found 1 data files in data/duckdb
+2025-11-16 17:31:16,449 - DuckDbAggregateTool - INFO - ✓ Created view 'limits_data' from limits_data.csv (201 rows)
+2025-11-16 17:31:16,452 - DuckDbAggregateTool - INFO - Initialization complete: 4 views available
+2025-11-16 17:31:16,452 - DuckDbAggregateTool - INFO - Auto-refresh enabled: checking every 600 seconds
+2025-11-16 17:31:16,452 - tools.tools_registry - INFO - Tool registered: duckdb_aggregate
+2025-11-16 17:31:16,452 - tools.tools_registry - INFO - Loaded custom tool: duckdb_aggregate
+2025-11-16 17:31:16,452 - tools.tools_registry - INFO - Tool registered: pattern_match_entity_column
+2025-11-16 17:31:16,452 - tools.tools_registry - INFO - Loaded custom tool: pattern_match_entity_column
+2025-11-16 17:31:16,453 - tools.tools_registry - INFO - Tool registered: model_doc_compute_stats
+2025-11-16 17:31:16,453 - tools.tools_registry - INFO - Loaded custom tool: model_doc_compute_stats
+2025-11-16 17:31:16,453 - tools.tools_registry - INFO - Tool registered: sec_get_insider_trading
+2025-11-16 17:31:16,453 - tools.tools_registry - INFO - Loaded custom tool: sec_get_insider_trading
+2025-11-16 17:31:16,453 - tools.tools_registry - INFO - Tool registered: sec_get_financial_data
+2025-11-16 17:31:16,453 - tools.tools_registry - INFO - Loaded custom tool: sec_get_financial_data
+2025-11-16 17:31:16,453 - tools.tools_registry - INFO - Tool registered: ir_find_page
+2025-11-16 17:31:16,454 - tools.tools_registry - INFO - Loaded custom tool: ir_find_page
+2025-11-16 17:31:16,454 - tools.tools_registry - INFO - Tool registered: wb_get_income_levels
+2025-11-16 17:31:16,454 - tools.tools_registry - INFO - Loaded custom tool: wb_get_income_levels
+2025-11-16 17:31:16,454 - tools.tools_registry - INFO - Tool registered: get_page_info
+2025-11-16 17:31:16,454 - tools.tools_registry - INFO - Loaded custom tool: get_page_info
+2025-11-16 17:31:16,454 - tools.tools_registry - INFO - Tool registered: bdf_get_ecb_policy_rate
+2025-11-16 17:31:16,454 - tools.tools_registry - INFO - Loaded custom tool: bdf_get_ecb_policy_rate
+2025-11-16 17:31:16,463 - SqlSelectDescribeSourceTool - WARNING - Data file not found: data/sqlselect/customers.csv
+2025-11-16 17:31:16,464 - SqlSelectDescribeSourceTool - WARNING - Data file not found: data/sqlselect/orders.csv
+2025-11-16 17:31:16,464 - SqlSelectDescribeSourceTool - WARNING - Data file not found: data/sqlselect/products.csv
+2025-11-16 17:31:16,464 - SqlSelectDescribeSourceTool - WARNING - Data file not found: data/sqlselect/sales.csv
+2025-11-16 17:31:16,464 - SqlSelectDescribeSourceTool - INFO - DuckDB connection initialized for sqlselect_describe_source
+2025-11-16 17:31:16,464 - tools.tools_registry - INFO - Tool registered: sqlselect_describe_source
+2025-11-16 17:31:16,464 - tools.tools_registry - INFO - Loaded custom tool: sqlselect_describe_source
+2025-11-16 17:31:16,464 - tools.tools_registry - INFO - Tool registered: fbi_get_agency_details
+2025-11-16 17:31:16,464 - tools.tools_registry - INFO - Loaded custom tool: fbi_get_agency_details
+2025-11-16 17:31:16,464 - tools.tools_registry - INFO - Tool registered: un_get_sdg_indicators
+2025-11-16 17:31:16,464 - tools.tools_registry - INFO - Loaded custom tool: un_get_sdg_indicators
+2025-11-16 17:31:16,464 - tools.tools_registry - INFO - Tool registered: boc_get_latest
+2025-11-16 17:31:16,465 - tools.tools_registry - INFO - Loaded custom tool: boc_get_latest
+2025-11-16 17:31:16,465 - tools.tools_registry - INFO - Tool registered: rbi_get_inflation
+2025-11-16 17:31:16,465 - tools.tools_registry - INFO - Loaded custom tool: rbi_get_inflation
+2025-11-16 17:31:16,465 - tools.tools_registry - INFO - Tool registered: ecb_get_series
+2025-11-16 17:31:16,465 - tools.tools_registry - INFO - Loaded custom tool: ecb_get_series
+2025-11-16 17:31:16,465 - tools.tools_registry - INFO - Tool registered: pboc_get_lpr
+2025-11-16 17:31:16,465 - tools.tools_registry - INFO - Loaded custom tool: pboc_get_lpr
+2025-11-16 17:31:16,465 - tools.tools_registry - INFO - Tool registered: boc_get_interest_rate
+2025-11-16 17:31:16,465 - tools.tools_registry - INFO - Loaded custom tool: boc_get_interest_rate
+2025-11-16 17:31:16,465 - tools.tools_registry - INFO - Tool registered: edgar_company_concept
+2025-11-16 17:31:16,465 - tools.tools_registry - INFO - Loaded custom tool: edgar_company_concept
+2025-11-16 17:31:16,465 - tools.tools_registry - INFO - Tool registered: sec_get_company_facts
+2025-11-16 17:31:16,465 - tools.tools_registry - INFO - Loaded custom tool: sec_get_company_facts
+2025-11-16 17:31:16,466 - tools.tools_registry - INFO - Tool registered: ir_get_presentations
+2025-11-16 17:31:16,466 - tools.tools_registry - INFO - Loaded custom tool: ir_get_presentations
+2025-11-16 17:31:16,466 - tools.tools_registry - INFO - Tool registered: model_doc_read_file
+2025-11-16 17:31:16,466 - tools.tools_registry - INFO - Loaded custom tool: model_doc_read_file
+2025-11-16 17:31:16,466 - tools.tools_registry - INFO - Tool registered: rbi_get_gsec_yield
+2025-11-16 17:31:16,467 - tools.tools_registry - INFO - Loaded custom tool: rbi_get_gsec_yield
+2025-11-16 17:31:16,467 - tools.tools_registry - INFO - Tool registered: wiki_get_page
+2025-11-16 17:31:16,467 - tools.tools_registry - INFO - Loaded custom tool: wiki_get_page
+2025-11-16 17:31:16,470 - tools.tools_registry - INFO - Tool registered: extract_links
+2025-11-16 17:31:16,470 - tools.tools_registry - INFO - Loaded custom tool: extract_links
+2025-11-16 17:31:16,470 - tools.tools_registry - INFO - Tool registered: fbi_get_participation_rate
+2025-11-16 17:31:16,470 - tools.tools_registry - INFO - Loaded custom tool: fbi_get_participation_rate
+2025-11-16 17:31:16,470 - tools.tools_registry - INFO - Tool registered: rbi_get_exchange_rate
+2025-11-16 17:31:16,470 - tools.tools_registry - INFO - Loaded custom tool: rbi_get_exchange_rate
+2025-11-16 17:31:16,470 - tools.tools_registry - INFO - Tool registered: wb_get_lending_types
+2025-11-16 17:31:16,470 - tools.tools_registry - INFO - Loaded custom tool: wb_get_lending_types
+2025-11-16 17:31:16,470 - tools.tools_registry - INFO - Tool registered: wb_compare_countries
+2025-11-16 17:31:16,470 - tools.tools_registry - INFO - Loaded custom tool: wb_compare_countries
+2025-11-16 17:31:16,471 - tools.tools_registry - INFO - Tool registered: edgar_company_facts
+2025-11-16 17:31:16,471 - tools.tools_registry - INFO - Loaded custom tool: edgar_company_facts
+2025-11-16 17:31:16,471 - tools.tools_registry - INFO - Tool registered: un_get_sdg_progress
+2025-11-16 17:31:16,471 - tools.tools_registry - INFO - Loaded custom tool: un_get_sdg_progress
+2025-11-16 17:31:16,471 - tools.tools_registry - INFO - Tool registered: pboc_get_forex_reserves
+2025-11-16 17:31:16,471 - tools.tools_registry - INFO - Loaded custom tool: pboc_get_forex_reserves
+2025-11-16 17:31:16,471 - tools.tools_registry - INFO - Tool registered: fbi_get_national_statistics
+2025-11-16 17:31:16,471 - tools.tools_registry - INFO - Loaded custom tool: fbi_get_national_statistics
+2025-11-16 17:31:16,471 - tools.tools_registry - INFO - Tool registered: ir_get_all_resources
+2025-11-16 17:31:16,471 - tools.tools_registry - INFO - Loaded custom tool: ir_get_all_resources
+2025-11-16 17:31:16,471 - tools.tools_registry - INFO - Tool registered: edgar_xbrl_frames_multi_concept
+2025-11-16 17:31:16,471 - tools.tools_registry - INFO - Loaded custom tool: edgar_xbrl_frames_multi_concept
+2025-11-16 17:31:16,471 - tools.tools_registry - INFO - Tool registered: ir_list_supported_companies
+2025-11-16 17:31:16,472 - tools.tools_registry - INFO - Loaded custom tool: ir_list_supported_companies
+2025-11-16 17:31:16,472 - tools.tools_registry - INFO - Tool registered: wb_get_indicators
+2025-11-16 17:31:16,472 - tools.tools_registry - INFO - Loaded custom tool: wb_get_indicators
+2025-11-16 17:31:16,472 - tools.tools_registry - INFO - Tool registered: msdoc_get_excel_metadata
+2025-11-16 17:31:16,472 - tools.tools_registry - INFO - Loaded custom tool: msdoc_get_excel_metadata
+2025-11-16 17:31:16,472 - tools.tools_registry - INFO - Tool registered: imf_get_ifs_data
+2025-11-16 17:31:16,472 - tools.tools_registry - INFO - Loaded custom tool: imf_get_ifs_data
+2025-11-16 17:31:16,472 - tools.tools_registry - INFO - Tool registered: wb_get_countries
+2025-11-16 17:31:16,472 - tools.tools_registry - INFO - Loaded custom tool: wb_get_countries
+2025-11-16 17:31:16,473 - tools.tools_registry - INFO - Tool registered: google_search
+2025-11-16 17:31:16,473 - tools.tools_registry - INFO - Loaded custom tool: google_search
+2025-11-16 17:31:16,473 - tools.tools_registry - INFO - Tool registered: fed_get_common_indicators
+2025-11-16 17:31:16,473 - tools.tools_registry - INFO - Loaded custom tool: fed_get_common_indicators
+2025-11-16 17:31:16,473 - tools.tools_registry - INFO - Tool registered: edgar_proxy_statements
+2025-11-16 17:31:16,473 - tools.tools_registry - INFO - Loaded custom tool: edgar_proxy_statements
+2025-11-16 17:31:16,473 - tools.tools_registry - INFO - Tool registered: pboc_get_money_supply
+2025-11-16 17:31:16,473 - tools.tools_registry - INFO - Loaded custom tool: pboc_get_money_supply
+2025-11-16 17:31:16,473 - tools.tools_registry - INFO - Tool registered: sec_get_company_filings
+2025-11-16 17:31:16,474 - tools.tools_registry - INFO - Loaded custom tool: sec_get_company_filings
+2025-11-16 17:31:16,474 - tools.tools_registry - INFO - Tool registered: model_doc_save_doc
+2025-11-16 17:31:16,474 - tools.tools_registry - INFO - Loaded custom tool: model_doc_save_doc
+2025-11-16 17:31:16,474 - tools.tools_registry - INFO - Tool registered: tavily_web_search
+2025-11-16 17:31:16,474 - tools.tools_registry - INFO - Loaded custom tool: tavily_web_search
+2025-11-16 17:31:16,484 - SqlSelectListSourcesTool - WARNING - Data file not found: data/sqlselect/customers.csv
+2025-11-16 17:31:16,484 - SqlSelectListSourcesTool - WARNING - Data file not found: data/sqlselect/orders.csv
+2025-11-16 17:31:16,484 - SqlSelectListSourcesTool - WARNING - Data file not found: data/sqlselect/products.csv
+2025-11-16 17:31:16,484 - SqlSelectListSourcesTool - WARNING - Data file not found: data/sqlselect/sales.csv
+2025-11-16 17:31:16,484 - SqlSelectListSourcesTool - INFO - DuckDB connection initialized for sqlselect_list_sources
+2025-11-16 17:31:16,484 - tools.tools_registry - INFO - Tool registered: sqlselect_list_sources
+2025-11-16 17:31:16,484 - tools.tools_registry - INFO - Loaded custom tool: sqlselect_list_sources
+2025-11-16 17:31:16,484 - tools.tools_registry - INFO - Tool registered: boj_get_money_stock
+2025-11-16 17:31:16,484 - tools.tools_registry - INFO - Loaded custom tool: boj_get_money_stock
+2025-11-16 17:31:16,484 - tools.tools_registry - INFO - Tool registered: msdoc_search_excel
+2025-11-16 17:31:16,484 - tools.tools_registry - INFO - Loaded custom tool: msdoc_search_excel
+2025-11-16 17:31:16,484 - tools.tools_registry - INFO - Tool registered: yahoo_search_symbols
+2025-11-16 17:31:16,484 - tools.tools_registry - INFO - Loaded custom tool: yahoo_search_symbols
+2025-11-16 17:31:16,484 - tools.tools_registry - INFO - Tool registered: extract_content
+2025-11-16 17:31:16,484 - tools.tools_registry - INFO - Loaded custom tool: extract_content
+2025-11-16 17:31:16,485 - tools.tools_registry - INFO - Tool registered: wiki_get_summary
+2025-11-16 17:31:16,485 - tools.tools_registry - INFO - Loaded custom tool: wiki_get_summary
+2025-11-16 17:31:16,485 - tools.tools_registry - INFO - Tool registered: ir_get_documents
+2025-11-16 17:31:16,485 - tools.tools_registry - INFO - Loaded custom tool: ir_get_documents
+2025-11-16 17:31:16,485 - tools.tools_registry - INFO - Tool registered: edgar_company_tickers_by_exchange
+2025-11-16 17:31:16,485 - tools.tools_registry - INFO - Loaded custom tool: edgar_company_tickers_by_exchange
+2025-11-16 17:31:16,485 - tools.tools_registry - INFO - Tool registered: un_get_country_trade
+2025-11-16 17:31:16,485 - tools.tools_registry - INFO - Loaded custom tool: un_get_country_trade
+2025-11-16 17:31:16,485 - tools.tools_registry - INFO - Tool registered: ir_get_latest_earnings
+2025-11-16 17:31:16,485 - tools.tools_registry - INFO - Loaded custom tool: ir_get_latest_earnings
+2025-11-16 17:31:16,486 - tools.tools_registry - INFO - Tool registered: model_doc_load_template
+2025-11-16 17:31:16,486 - tools.tools_registry - INFO - Loaded custom tool: model_doc_load_template
+2025-11-16 17:31:16,486 - tools.tools_registry - INFO - Tool registered: fbi_get_agency_statistics
+2025-11-16 17:31:16,486 - tools.tools_registry - INFO - Loaded custom tool: fbi_get_agency_statistics
+2025-11-16 17:31:16,486 - tools.tools_registry - INFO - Tool registered: edgar_mutual_fund_holdings
+2025-11-16 17:31:16,486 - tools.tools_registry - INFO - Loaded custom tool: edgar_mutual_fund_holdings
+2025-11-16 17:31:16,487 - DuckDbQueryTool - INFO - Found 1 data files in /Users/saadahmed/queryagent/sajhamcpserver/data/duckdb
+2025-11-16 17:31:16,546 - DuckDbQueryTool - INFO - ✓ Created view 'limits_data' from limits_data.csv (201 rows)
+2025-11-16 17:31:16,548 - DuckDbQueryTool - INFO - Initialization complete: 4 views available
+2025-11-16 17:31:16,548 - DuckDbQueryTool - INFO - Auto-refresh enabled: checking every 600 seconds
+2025-11-16 17:31:16,548 - tools.tools_registry - INFO - Tool registered: duckdb_query
+2025-11-16 17:31:16,548 - tools.tools_registry - INFO - Loaded custom tool: duckdb_query
+2025-11-16 17:31:16,548 - tools.tools_registry - INFO - Tool registered: ecb_get_exchange_rate
+2025-11-16 17:31:16,548 - tools.tools_registry - INFO - Loaded custom tool: ecb_get_exchange_rate
+2025-11-16 17:31:16,549 - tools.tools_registry - INFO - Tool registered: edgar_insider_transactions
+2025-11-16 17:31:16,549 - tools.tools_registry - INFO - Loaded custom tool: edgar_insider_transactions
+2025-11-16 17:31:16,549 - tools.tools_registry - INFO - Tool registered: msdoc_search_word
+2025-11-16 17:31:16,549 - tools.tools_registry - INFO - Loaded custom tool: msdoc_search_word
+2025-11-16 17:31:16,549 - DuckDbRefreshViewsTool - INFO - Found 1 data files in /Users/saadahmed/queryagent/sajhamcpserver/data/duckdb
+2025-11-16 17:31:16,607 - DuckDbRefreshViewsTool - INFO - ✓ Created view 'limits_data' from limits_data.csv (201 rows)
+2025-11-16 17:31:16,610 - DuckDbRefreshViewsTool - INFO - Initialization complete: 4 views available
+2025-11-16 17:31:16,610 - DuckDbRefreshViewsTool - INFO - Auto-refresh enabled: checking every 600 seconds
+2025-11-16 17:31:16,610 - tools.tools_registry - INFO - Tool registered: duckdb_refresh_views
+2025-11-16 17:31:16,610 - tools.tools_registry - INFO - Loaded custom tool: duckdb_refresh_views
+2025-11-16 17:31:16,610 - tools.tools_registry - INFO - Tool registered: search_entity_in_data
+2025-11-16 17:31:16,610 - tools.tools_registry - INFO - Loaded custom tool: search_entity_in_data
+2025-11-16 17:31:16,610 - tools.tools_registry - INFO - Tool registered: fed_get_latest
+2025-11-16 17:31:16,610 - tools.tools_registry - INFO - Loaded custom tool: fed_get_latest
+2025-11-16 17:31:16,611 - tools.tools_registry - INFO - Tool registered: edgar_financial_ratios
+2025-11-16 17:31:16,611 - tools.tools_registry - INFO - Loaded custom tool: edgar_financial_ratios
+2025-11-16 17:31:16,620 - SqlSelectCountRowsTool - WARNING - Data file not found: data/sqlselect/customers.csv
+2025-11-16 17:31:16,620 - SqlSelectCountRowsTool - WARNING - Data file not found: data/sqlselect/orders.csv
+2025-11-16 17:31:16,620 - SqlSelectCountRowsTool - WARNING - Data file not found: data/sqlselect/products.csv
+2025-11-16 17:31:16,620 - SqlSelectCountRowsTool - WARNING - Data file not found: data/sqlselect/sales.csv
+2025-11-16 17:31:16,620 - SqlSelectCountRowsTool - INFO - DuckDB connection initialized for sqlselect_count_rows
+2025-11-16 17:31:16,620 - tools.tools_registry - INFO - Tool registered: sqlselect_count_rows
+2025-11-16 17:31:16,620 - tools.tools_registry - INFO - Loaded custom tool: sqlselect_count_rows
+2025-11-16 17:31:16,621 - tools.tools_registry - INFO - Tool registered: wb_get_regions
+2025-11-16 17:31:16,621 - tools.tools_registry - INFO - Loaded custom tool: wb_get_regions
+2025-11-16 17:31:16,621 - tools.tools_registry - INFO - Tool registered: sec_get_mutual_fund_holdings
+2025-11-16 17:31:16,621 - tools.tools_registry - INFO - Loaded custom tool: sec_get_mutual_fund_holdings
+2025-11-16 17:31:16,622 - tools.tools_registry - INFO - Tool registered: nl_to_sql_planner
+2025-11-16 17:31:16,622 - tools.tools_registry - INFO - Loaded custom tool: nl_to_sql_planner
+2025-11-16 17:31:16,622 - tools.tools_registry - INFO - Tool registered: un_get_trade_balance
+2025-11-16 17:31:16,622 - tools.tools_registry - INFO - Loaded custom tool: un_get_trade_balance
+2025-11-16 17:31:16,622 - tools.tools_registry - INFO - Tool registered: wb_get_topic_indicators
+2025-11-16 17:31:16,622 - tools.tools_registry - INFO - Loaded custom tool: wb_get_topic_indicators
+2025-11-16 17:31:16,622 - tools.tools_registry - INFO - Tool registered: extract_metadata
+2025-11-16 17:31:16,622 - tools.tools_registry - INFO - Loaded custom tool: extract_metadata
+2025-11-16 17:31:16,622 - tools.tools_registry - INFO - Loading agent tools from external/config/tools
+2025-11-16 17:31:16,623 - tools.tools_registry - INFO - Tool registered: apply_changes_deterministic
+2025-11-16 17:31:16,623 - tools.tools_registry - INFO - Loaded custom tool: apply_changes_deterministic
+2025-11-16 17:31:16,667 - tools.tools_registry - INFO - Tool registered: extract_images
+2025-11-16 17:31:16,667 - tools.tools_registry - INFO - Loaded custom tool: extract_images
+2025-11-16 17:31:16,667 - tools.tools_registry - INFO - Tool registered: compute_file_stats
+2025-11-16 17:31:16,667 - tools.tools_registry - INFO - Loaded custom tool: compute_file_stats
+2025-11-16 17:31:16,670 - tools.tools_registry - INFO - Tool registered: parquet_agent
+2025-11-16 17:31:16,670 - tools.tools_registry - INFO - Loaded custom tool: parquet_agent
+2025-11-16 17:31:16,671 - tools.tools_registry - INFO - Tool registered: extract_section_by_headings
+2025-11-16 17:31:16,671 - tools.tools_registry - INFO - Loaded custom tool: extract_section_by_headings
+2025-11-16 17:31:16,672 - tools.tools_registry - INFO - Tool registered: analyze_heading_structure
+2025-11-16 17:31:16,672 - tools.tools_registry - INFO - Loaded custom tool: analyze_heading_structure
+2025-11-16 17:31:16,672 - tools.tools_registry - INFO - Tool registered: deep_research_agent
+2025-11-16 17:31:16,672 - tools.tools_registry - INFO - Loaded custom tool: deep_research_agent
+2025-11-16 17:31:16,672 - tools.tools_registry - INFO - Tool registered: decide_chunking_strategy
+2025-11-16 17:31:16,673 - tools.tools_registry - INFO - Loaded custom tool: decide_chunking_strategy
+2025-11-16 17:31:16,673 - tools.tools_registry - INFO - Tool registered: assemble_improved_markdown
+2025-11-16 17:31:16,673 - tools.tools_registry - INFO - Loaded custom tool: assemble_improved_markdown
+2025-11-16 17:31:16,674 - tools.tools_registry - INFO - Tool registered: build_index
+2025-11-16 17:31:16,674 - tools.tools_registry - INFO - Loaded custom tool: build_index
+2025-11-16 17:31:16,704 - tools.tools_registry - INFO - Tool registered: convert_to_markdown
+2025-11-16 17:31:16,704 - tools.tools_registry - INFO - Loaded custom tool: convert_to_markdown
+2025-11-16 17:31:16,704 - tools.tools_registry - INFO - Tool registered: annotate_markdown_for_ui
+2025-11-16 17:31:16,704 - tools.tools_registry - INFO - Loaded custom tool: annotate_markdown_for_ui
+2025-11-16 17:31:16,705 - tools.tools_registry - INFO - Tool registered: extract_section_by_toc
+2025-11-16 17:31:16,705 - tools.tools_registry - INFO - Loaded custom tool: extract_section_by_toc
+2025-11-16 17:31:16,705 - tools.tools_registry - INFO - Tool registered: chunk_markdown
+2025-11-16 17:31:16,705 - tools.tools_registry - INFO - Loaded custom tool: chunk_markdown
+2025-11-16 17:31:16,706 - tools.tools_registry - INFO - Tool registered: detect_file_type
+2025-11-16 17:31:16,706 - tools.tools_registry - INFO - Loaded custom tool: detect_file_type
+2025-11-16 17:31:16,706 - tools.tools_registry - INFO - Tool registered: load_outline_template
+2025-11-16 17:31:16,706 - tools.tools_registry - INFO - Loaded custom tool: load_outline_template
+2025-11-16 17:31:16,707 - tools.tools_registry - INFO - Tool registered: generate_toc_from_index
+2025-11-16 17:31:16,707 - tools.tools_registry - INFO - Loaded custom tool: generate_toc_from_index
+2025-11-16 17:31:16,708 - tools.tools_registry - INFO - Tool registered: build_file_metadata
+2025-11-16 17:31:16,708 - tools.tools_registry - INFO - Loaded custom tool: build_file_metadata
+2025-11-16 17:31:16,708 - tools.tools_registry - INFO - Started file monitoring for tool configurations
+2025-11-16 17:31:16,719 - root - INFO - Agent routes registered successfully
+2025-11-16 17:31:16,729 - root - INFO - Document review routes registered successfully
+2025-11-16 17:31:16,732 - root - INFO - Model documentation routes registered successfully
+2025-11-16 17:31:16,732 - root - INFO - All routes registered successfully
+2025-11-16 17:31:16,732 - werkzeug - WARNING - Werkzeug appears to be used in a production deployment. Consider switching to a production web server instead.
+✓ LLM initialized: Anthropic claude-3-haiku-20240307
+ * Serving Flask app 'web.app'
+ * Debug mode: off
+2025-11-16 17:31:16,737 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.68.51:8000
+2025-11-16 17:31:16,737 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-11-16 17:36:31,007 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:36:31] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:36:37,890 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:36:37] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 17:37:20,833 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:37:20] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 17:37:24,698 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:37:24] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:37:24,702 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:37:24] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:37:24,707 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:37:24] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:37:25,559 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:37:25] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 17:37:25,561 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:37:25] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:37:25,563 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:37:25] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:37:25,572 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:37:25] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:37:27,783 - external.doc_review.template_processor - INFO - Starting template processing with 'policy_template'
+2025-11-16 17:37:27,784 - external.doc_review.template_processor - INFO - Processing page 1/3
+2025-11-16 17:37:27,784 - external.doc_review.template_processor - INFO - Performing gap analysis for page 1
+2025-11-16 17:37:33,402 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 17:37:33,416 - external.doc_review.template_processor - INFO - Page 1: Found 6 gaps
+2025-11-16 17:37:33,416 - external.doc_review.template_processor - INFO - Generating improvements for page 1
+2025-11-16 17:37:46,711 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 17:37:46,713 - external.doc_review.template_processor - ERROR - Content improvement failed for page 1: Invalid control character at: line 37 column 128 (char 4336)
+2025-11-16 17:37:46,714 - external.doc_review.template_processor - INFO - Processing page 2/3
+2025-11-16 17:37:46,714 - external.doc_review.template_processor - INFO - Performing gap analysis for page 2
+2025-11-16 17:37:47,207 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:37:47] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:37:54,698 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 17:37:54,701 - external.doc_review.template_processor - INFO - Page 2: Found 10 gaps
+2025-11-16 17:37:54,701 - external.doc_review.template_processor - INFO - Generating improvements for page 2
+2025-11-16 17:38:11,303 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 17:38:11,307 - external.doc_review.template_processor - INFO - Page 2: Generated 10 improvements
+2025-11-16 17:38:11,307 - external.doc_review.template_processor - INFO - Processing page 3/3
+2025-11-16 17:38:11,307 - external.doc_review.template_processor - INFO - Performing gap analysis for page 3
+2025-11-16 17:38:13,989 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 17:38:13,990 - external.doc_review.template_processor - INFO - Page 3: Found 2 gaps
+2025-11-16 17:38:13,990 - external.doc_review.template_processor - INFO - Generating improvements for page 3
+2025-11-16 17:38:16,380 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 17:38:16,381 - external.doc_review.template_processor - INFO - Page 3: Generated 2 improvements
+2025-11-16 17:38:16,381 - external.doc_review.template_processor - INFO - Template processing complete: 18 gaps, 12 improvements
+2025-11-16 17:38:16,388 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:38:16] "POST /api/doc_review/documents/collateral_good/apply_template HTTP/1.1" 200 -
+2025-11-16 17:38:16,397 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:38:16] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:38:27,209 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:38:27] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 17:38:27,212 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:38:27] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:38:27,213 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:38:27] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:38:27,219 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:38:27] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:38:31,356 - external.doc_review.template_processor - INFO - Starting template processing with 'policy_template'
+2025-11-16 17:38:31,357 - external.doc_review.template_processor - INFO - Processing page 1/3
+2025-11-16 17:38:31,357 - external.doc_review.template_processor - INFO - Performing gap analysis for page 1
+2025-11-16 17:38:33,965 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 17:38:33,967 - external.doc_review.template_processor - INFO - Page 1: Found 3 gaps
+2025-11-16 17:38:33,967 - external.doc_review.template_processor - INFO - Generating improvements for page 1
+2025-11-16 17:38:40,640 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 17:38:40,642 - external.doc_review.template_processor - INFO - Page 1: Generated 3 improvements
+2025-11-16 17:38:40,642 - external.doc_review.template_processor - INFO - Processing page 2/3
+2025-11-16 17:38:40,643 - external.doc_review.template_processor - INFO - Performing gap analysis for page 2
+2025-11-16 17:38:48,387 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 17:38:48,391 - external.doc_review.template_processor - INFO - Page 2: Found 12 gaps
+2025-11-16 17:38:48,392 - external.doc_review.template_processor - INFO - Generating improvements for page 2
+2025-11-16 17:39:01,057 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 17:39:01,060 - external.doc_review.template_processor - INFO - Page 2: Generated 12 improvements
+2025-11-16 17:39:01,060 - external.doc_review.template_processor - INFO - Processing page 3/3
+2025-11-16 17:39:01,060 - external.doc_review.template_processor - INFO - Performing gap analysis for page 3
+2025-11-16 17:39:03,299 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 17:39:03,299 - external.doc_review.template_processor - INFO - Page 3: Found 2 gaps
+2025-11-16 17:39:03,300 - external.doc_review.template_processor - INFO - Generating improvements for page 3
+2025-11-16 17:39:06,434 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 17:39:06,437 - external.doc_review.template_processor - INFO - Page 3: Generated 2 improvements
+2025-11-16 17:39:06,438 - external.doc_review.template_processor - INFO - Template processing complete: 17 gaps, 17 improvements
+2025-11-16 17:39:06,447 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:39:06] "POST /api/doc_review/documents/collateral_good/apply_template HTTP/1.1" 200 -
+2025-11-16 17:39:06,459 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:39:06] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:40:01,029 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:40:01] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 17:40:01,030 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:40:01] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:40:01,033 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:40:01] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:40:01,044 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:40:01] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:47:29,995 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:47:29] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 17:47:29,997 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:47:29] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:47:30,000 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:47:30] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:47:30,006 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:47:30] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:47:59,022 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:47:59] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:47:59,022 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:47:59] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:47:59,029 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:47:59] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 17:47:59,035 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:47:59] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:49:15,000 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:49:15] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:49:15,002 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:49:15] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:49:15,003 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:49:15] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:49:15,003 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:49:15] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:49:36,215 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:49:36] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:49:36,224 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:49:36] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:49:36,227 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:49:36] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:49:36,229 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:49:36] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:49:59,092 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:49:59] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:49:59,118 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:49:59] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:49:59,135 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:49:59] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 17:49:59,179 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:49:59] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:51:45,056 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:51:45] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:51:45,057 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:51:45] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:51:45,479 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:51:45] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:51:45,589 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:51:45] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 17:53:41,186 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:53:41] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 17:55:27,109 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:27] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:55:27,112 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:27] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:55:27,113 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:27] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:55:27,118 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:27] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:55:27,123 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:27] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:55:27,131 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:27] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:55:38,036 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:38] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:55:38,036 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:38] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:55:38,044 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:38] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:55:38,049 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:38] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:55:38,050 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:38] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:55:38,057 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:38] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:55:54,065 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:54] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:55:54,066 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:54] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:55:54,072 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:54] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:55:54,077 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:54] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:55:54,090 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:54] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:55:54,095 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:55:54] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:56:51,087 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:56:51] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:56:51,092 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:56:51] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:56:51,095 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:56:51] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:56:51,098 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:56:51] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:56:51,108 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:56:51] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:56:51,113 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:56:51] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:57:28,574 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:57:28] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 17:57:28,575 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:57:28] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 17:57:28,649 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:57:28] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 17:57:28,659 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 17:57:28] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:02:59,722 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:02:59] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:02:59,725 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:02:59] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:02:59,867 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:02:59] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:02:59,887 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:02:59] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:05:30,992 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:05:30] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:05:30,993 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:05:30] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:05:31,020 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:05:31] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:05:31,043 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:05:31] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:05:42,076 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:05:42] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:05:42,079 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:05:42] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:05:42,140 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:05:42] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:05:42,194 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:05:42] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:10:25,947 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:10:25] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:10:25,933 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:10:25] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:10:25,987 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:10:25] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:10:26,039 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:10:26] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:11:30,485 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:11:30] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:11:30,486 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:11:30] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:11:30,487 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:11:30] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:11:30,499 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:11:30] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:12:25,556 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:12:25] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:12:25,558 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:12:25] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:12:25,662 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:12:25] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:12:25,673 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:12:25] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:13:13,106 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:13:13] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:13:13,111 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:13:13] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:13:13,134 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:13:13] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:13:13,151 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:13:13] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:13:40,346 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:13:40] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:13:40,349 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:13:40] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:13:40,363 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:13:40] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:13:40,367 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:13:40] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:13:44,394 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:13:44] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:13:44,395 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:13:44] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:13:44,402 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:13:44] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:13:44,405 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:13:44] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:15:52,998 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:15:52] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:17:30,893 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:17:30] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:17:30,894 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:17:30] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:17:30,926 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:17:30] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:17:30,933 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:17:30] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:18:32,998 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:18:32] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:18:33,005 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:18:33] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:18:33,008 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:18:33] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:18:33,011 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:18:33] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:18:33,012 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:18:33] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:18:33,014 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:18:33] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:18:33,016 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:18:33] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:18:33,017 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:18:33] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:20:07,010 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:20:07] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:20:07,010 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:20:07] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:20:07,013 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:20:07] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:20:07,015 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:20:07] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:20:14,038 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:20:14] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:20:14,047 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:20:14] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:20:14,051 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:20:14] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:20:14,052 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:20:14] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:20:28,994 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:20:28] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:20:28,997 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:20:28] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:20:29,000 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:20:29] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:20:29,001 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:20:29] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:21:10,008 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:21:10] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:21:10,008 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:21:10] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:21:10,010 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:21:10] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:21:10,011 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:21:10] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:21:39,045 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:21:39] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:21:39,057 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:21:39] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:21:39,059 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:21:39] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:21:39,068 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:21:39] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:22:28,066 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:28] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:22:28,066 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:28] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:22:28,068 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:28] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:22:28,069 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:28] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:22:39,831 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:39] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:22:39,835 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:39] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:22:39,840 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:39] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:22:39,847 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:39] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:22:48,655 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:48] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:22:48,658 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:48] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:22:48,659 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:48] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:22:48,666 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:48] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:22:54,121 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:54] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:22:54,123 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:54] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:22:54,130 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:54] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:22:54,137 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:54] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:22:58,200 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:58] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:22:58,201 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:58] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:22:58,217 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:58] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:22:58,226 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:22:58] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:23:11,511 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:23:11] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:23:11,512 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:23:11] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:23:11,519 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:23:11] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:23:11,528 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:23:11] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:24:55,014 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:24:55] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:24:55,016 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:24:55] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:24:55,030 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:24:55] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:24:55,031 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:24:55] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:25:12,975 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:25:12] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:25:12,977 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:25:12] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:25:12,977 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:25:12] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:25:12,981 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:25:12] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:26:08,279 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:26:08] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:26:08,284 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:26:08] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:26:08,291 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:26:08] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:26:08,299 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:26:08] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:26:12,441 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:26:12] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:26:12,442 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:26:12] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:26:12,442 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:26:12] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:26:12,450 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:26:12] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:26:28,618 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:26:28] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:26:28,620 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:26:28] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:26:28,620 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:26:28] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:26:28,627 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:26:28] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:28:26,983 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:28:26] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:28:38,967 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:28:38] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:28:38,968 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:28:38] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:28:38,970 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:28:38] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:28:38,971 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:28:38] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:29:38,901 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:29:38] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:29:38,901 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:29:38] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:29:38,998 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:29:38] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:29:39,002 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:29:39] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:29:40,285 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:29:40] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:29:40,285 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:29:40] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:29:40,301 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:29:40] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:29:40,308 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:29:40] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:29:44,034 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:29:44] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:29:44,045 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:29:44] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:29:44,046 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:29:44] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:29:44,055 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:29:44] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:30:00,390 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:30:00] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:30:01,375 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:30:01] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:30:03,407 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:30:03] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:30:03,409 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:30:03] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:30:03,410 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:30:03] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:30:03,417 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:30:03] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:30:14,525 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:30:14] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:30:15,103 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:30:15] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:30:16,594 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:30:16] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:30:16,597 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:30:16] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:30:16,605 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:30:16] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:30:16,612 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:30:16] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:31:24,600 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:31:24] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:31:24,604 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:31:24] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:31:24,961 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:31:24] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:31:24,962 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:31:24] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:31:35,031 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:31:35] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:31:45,963 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:31:45] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:31:45,963 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:31:45] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:31:45,969 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:31:45] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:31:45,970 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:31:45] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:32:58,632 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:32:58] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:32:58,633 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:32:58] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:32:58,968 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:32:58] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:32:58,970 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:32:58] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:32:58,975 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:32:58] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:33:11,955 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:11] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:33:11,957 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:11] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:33:12,971 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:12] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:33:12,971 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:12] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:33:12,977 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:12] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:33:31,841 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:31] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:33:31,843 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:31] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:33:31,982 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:31] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:33:31,986 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:31] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:33:31,995 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:31] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:33:37,585 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:37] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:33:40,191 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:40] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:33:40,193 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:40] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:33:40,199 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:40] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:33:40,207 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:40] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:33:41,676 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:41] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:33:53,599 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:53] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:33:53,599 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:53] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:33:53,608 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:53] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:33:53,611 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:53] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:33:54,866 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:33:54] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:34:00,964 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:00] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:34:00,964 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:00] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:34:00,969 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:00] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:34:01,984 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:01] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:34:01,984 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:01] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:34:01,987 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:01] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:34:19,363 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:19] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:34:23,508 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:23] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:34:25,113 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:25] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:34:25,113 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:25] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:34:25,119 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:25] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:34:27,385 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:27] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:34:42,962 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:42] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:34:42,966 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:42] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:34:42,972 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:42] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:34:43,022 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:43] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:34:43,025 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:43] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:34:43,032 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:43] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:34:53,223 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:53] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:34:53,226 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:53] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:34:53,240 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:53] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:34:53,261 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:53] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:34:54,621 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:34:54] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:35:18,142 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:35:18] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:35:18,154 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:35:18] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:35:18,174 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:35:18] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:35:18,991 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:35:18] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:35:19,007 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:35:19] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:35:19,019 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:35:19] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:35:22,362 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:35:22] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:35:39,772 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:35:39] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:35:39,788 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:35:39] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:35:39,990 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:35:39] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:35:40,031 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:35:40] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:35:40,056 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:35:40] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:36:09,059 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:36:09] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:36:09,059 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:36:09] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:36:09,085 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:36:09] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:36:09,090 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:36:09] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:36:13,497 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:36:13] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:36:43,103 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:36:43] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:36:45,350 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:36:45] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:36:45,365 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:36:45] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:36:45,432 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:36:45] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:37:09,823 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:37:09] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:37:09,827 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:37:09] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:37:09,848 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:37:09] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:37:09,857 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:37:09] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:37:09,861 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:37:09] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:37:09,875 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:37:09] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:37:10,017 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:37:10] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:37:10,158 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:37:10] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:37:10,222 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:37:10] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:37:11,043 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:37:11] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:37:11,047 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:37:11] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:37:11,058 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:37:11] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:37:11,061 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:37:11] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:37:47,960 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:37:47] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:37:47,960 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:37:47] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:37:47,962 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:37:47] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:37:47,965 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:37:47] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:38:12,403 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:38:12] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:38:14,186 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:38:14] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:38:14,191 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:38:14] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:38:14,191 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:38:14] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:38:14,196 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:38:14] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:38:45,737 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:38:45] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:38:54,757 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:38:54] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:39:36,913 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:39:36] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:39:36,918 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:39:36] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:39:37,096 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:39:37] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:39:37,107 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:39:37] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:39:49,894 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:39:49] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:39:49,897 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:39:49] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:39:50,076 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:39:50] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:39:50,126 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:39:50] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:41:54,367 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:41:54] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:41:54,367 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:41:54] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:41:54,383 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:41:54] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:41:54,385 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:41:54] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:42:15,792 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:42:15] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:43:57,038 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:43:57] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:43:58,487 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:43:58] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:43:58,488 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:43:58] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:44:24,864 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:44:24] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:45:29,080 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:29] "GET /login HTTP/1.1" 200 -
+2025-11-16 18:45:29,115 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:29] "[36mGET /static/css/style.css?v=20251113 HTTP/1.1[0m" 304 -
+2025-11-16 18:45:29,116 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:29] "[36mGET /static/js/main.js?v=20251113 HTTP/1.1[0m" 304 -
+2025-11-16 18:45:29,328 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:29] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-11-16 18:45:29,333 - root - INFO - WebSocket client connected: I-iIvTxx2GmMizTeAAAB
+2025-11-16 18:45:29,336 - root - INFO - WebSocket client disconnected: I-iIvTxx2GmMizTeAAAB
+2025-11-16 18:45:29,338 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:29] "[32mGET /api/doc_review/token HTTP/1.1[0m" 302 -
+2025-11-16 18:45:29,345 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:29] "GET /login?next=http://127.0.0.1:8000/api/doc_review/token HTTP/1.1" 200 -
+2025-11-16 18:45:29,355 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:29] "[35m[1mGET /socket.io/?EIO=4&transport=websocket HTTP/1.1[0m" 500 -
+2025-11-16 18:45:29,369 - werkzeug - ERROR - Error on request:
+Traceback (most recent call last):
+  File "/Users/saadahmed/samjha_agent/samjha_agent/venv/lib/python3.13/site-packages/werkzeug/serving.py", line 370, in run_wsgi
+    execute(self.server.app)
+    ~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/saadahmed/samjha_agent/samjha_agent/venv/lib/python3.13/site-packages/werkzeug/serving.py", line 336, in execute
+    write(b"")
+    ~~~~~^^^^^
+  File "/Users/saadahmed/samjha_agent/samjha_agent/venv/lib/python3.13/site-packages/werkzeug/serving.py", line 261, in write
+    assert status_set is not None, "write() before start_response"
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: write() before start_response
+2025-11-16 18:45:34,865 - core.auth_manager - INFO - Saved 1 users to configuration
+2025-11-16 18:45:34,865 - core.auth_manager - INFO - User authenticated successfully: admin
+2025-11-16 18:45:34,866 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:34] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-11-16 18:45:34,899 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:34] "GET /dashboard HTTP/1.1" 200 -
+2025-11-16 18:45:34,927 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:34] "[36mGET /static/css/style.css?v=20251113 HTTP/1.1[0m" 304 -
+2025-11-16 18:45:34,928 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:34] "[36mGET /static/js/main.js?v=20251113 HTTP/1.1[0m" 304 -
+2025-11-16 18:45:35,016 - root - INFO - WebSocket client connected: lxY6jx58egR5XTOpAAAD
+2025-11-16 18:45:35,018 - root - INFO - WebSocket client disconnected: lxY6jx58egR5XTOpAAAD
+2025-11-16 18:45:35,021 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:35] "GET /api/doc_review/token HTTP/1.1" 200 -
+2025-11-16 18:45:35,031 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:35] "[35m[1mGET /socket.io/?EIO=4&transport=websocket HTTP/1.1[0m" 500 -
+2025-11-16 18:45:35,033 - werkzeug - ERROR - Error on request:
+Traceback (most recent call last):
+  File "/Users/saadahmed/samjha_agent/samjha_agent/venv/lib/python3.13/site-packages/werkzeug/serving.py", line 370, in run_wsgi
+    execute(self.server.app)
+    ~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/saadahmed/samjha_agent/samjha_agent/venv/lib/python3.13/site-packages/werkzeug/serving.py", line 336, in execute
+    write(b"")
+    ~~~~~^^^^^
+  File "/Users/saadahmed/samjha_agent/samjha_agent/venv/lib/python3.13/site-packages/werkzeug/serving.py", line 261, in write
+    assert status_set is not None, "write() before start_response"
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: write() before start_response
+2025-11-16 18:45:37,145 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:37] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:45:40,634 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:40] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:45:40,635 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:40] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:45:40,641 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:40] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:45:42,545 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:45:42] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:46:19,088 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:19] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:46:19,090 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:19] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:19,092 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:19] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:46:19,094 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:19] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:19,146 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:19] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:19,150 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:19] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:46:19,150 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:19] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:46:19,155 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:19] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:46:19,159 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:19] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:19,165 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:19] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:19,173 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:19] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:46:19,176 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:19] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:19,914 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:19] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:46:19,918 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:19] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:19,919 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:19] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:46:19,923 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:19] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:28,755 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:28] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:46:28,757 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:28] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:28,762 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:28] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:28,762 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:28] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:46:28,866 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:28] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:46:28,991 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:28] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:28,993 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:28] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:46:29,003 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:29] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:31,923 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:31] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:46:31,929 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:31] "[31m[1mPUT /login?next=http://127.0.0.1:8000/api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 405 -
+2025-11-16 18:46:36,446 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:36] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:46:36,450 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:36] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:36,451 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:36] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:46:36,459 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:36] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:38,163 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:38] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:46:38,165 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:38] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 18:46:38,172 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:38] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 18:46:38,778 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:38] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:46:39,569 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:39] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:46:39,571 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:39] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:39,571 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:39] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:46:39,576 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:39] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:40,246 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:40] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:46:40,249 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:40] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:40,249 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:40] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:46:40,252 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:40] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:46:57,278 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:57] "GET /login HTTP/1.1" 200 -
+2025-11-16 18:46:57,299 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:57] "[36mGET /static/css/style.css?v=20251113 HTTP/1.1[0m" 304 -
+2025-11-16 18:46:57,316 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:46:57] "[36mGET /static/js/main.js?v=20251113 HTTP/1.1[0m" 304 -
+2025-11-16 18:46:57,363 - root - INFO - WebSocket client connected: hRxkZ4PcaYlZ1JZ_AAAF
+2025-11-16 18:47:01,792 - root - INFO - WebSocket client disconnected: hRxkZ4PcaYlZ1JZ_AAAF
+2025-11-16 18:47:01,804 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:01] "[35m[1mGET /socket.io/?EIO=4&transport=websocket HTTP/1.1[0m" 500 -
+2025-11-16 18:47:01,805 - core.auth_manager - INFO - Saved 1 users to configuration
+2025-11-16 18:47:01,805 - core.auth_manager - INFO - User authenticated successfully: admin
+2025-11-16 18:47:01,807 - werkzeug - ERROR - Error on request:
+Traceback (most recent call last):
+  File "/Users/saadahmed/samjha_agent/samjha_agent/venv/lib/python3.13/site-packages/werkzeug/serving.py", line 370, in run_wsgi
+    execute(self.server.app)
+    ~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/saadahmed/samjha_agent/samjha_agent/venv/lib/python3.13/site-packages/werkzeug/serving.py", line 336, in execute
+    write(b"")
+    ~~~~~^^^^^
+  File "/Users/saadahmed/samjha_agent/samjha_agent/venv/lib/python3.13/site-packages/werkzeug/serving.py", line 261, in write
+    assert status_set is not None, "write() before start_response"
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: write() before start_response
+2025-11-16 18:47:01,808 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:01] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-11-16 18:47:01,825 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:01] "GET /dashboard HTTP/1.1" 200 -
+2025-11-16 18:47:01,852 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:01] "[36mGET /static/js/main.js?v=20251113 HTTP/1.1[0m" 304 -
+2025-11-16 18:47:01,852 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:01] "[36mGET /static/css/style.css?v=20251113 HTTP/1.1[0m" 304 -
+2025-11-16 18:47:01,874 - root - INFO - WebSocket client connected: ozxj1A0jK_SWRNPUAAAH
+2025-11-16 18:47:06,824 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:06] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:47:06,826 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:06] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:47:06,844 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:06] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:47:06,864 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:06] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:47:13,660 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:13] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:47:13,666 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:13] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:47:13,666 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:13] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:47:13,671 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:13] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:47:18,372 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:18] "[32mPUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 302 -
+2025-11-16 18:47:18,378 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:18] "[31m[1mPUT /login?next=http://127.0.0.1:8000/api/doc_review/documents/collateral_good/markdown HTTP/1.1[0m" 405 -
+2025-11-16 18:47:37,297 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:37] "GET /login HTTP/1.1" 200 -
+2025-11-16 18:47:43,292 - core.auth_manager - INFO - Saved 1 users to configuration
+2025-11-16 18:47:43,292 - core.auth_manager - INFO - User authenticated successfully: admin
+2025-11-16 18:47:43,293 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:43] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-11-16 18:47:43,416 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:43] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:47:46,469 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:46] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:47:46,472 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:46] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:47:46,485 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:46] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:47:47,891 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:47] "PUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1" 200 -
+2025-11-16 18:47:48,407 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:47:48] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:47:52,590 - external.doc_review.template_processor - INFO - Starting template processing with 'policy_template'
+2025-11-16 18:47:52,591 - external.doc_review.template_processor - INFO - Processing page 1/3
+2025-11-16 18:47:52,591 - external.doc_review.template_processor - INFO - Performing gap analysis for page 1
+2025-11-16 18:47:57,875 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:47:57,881 - external.doc_review.template_processor - INFO - Page 1: Found 6 gaps
+2025-11-16 18:47:57,881 - external.doc_review.template_processor - INFO - Generating improvements for page 1
+2025-11-16 18:48:12,490 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:48:12,494 - external.doc_review.template_processor - INFO - Page 1: Generated 6 improvements
+2025-11-16 18:48:12,494 - external.doc_review.template_processor - INFO - Processing page 2/3
+2025-11-16 18:48:12,494 - external.doc_review.template_processor - INFO - Performing gap analysis for page 2
+2025-11-16 18:48:20,101 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:48:20,103 - external.doc_review.template_processor - INFO - Page 2: Found 10 gaps
+2025-11-16 18:48:20,103 - external.doc_review.template_processor - INFO - Generating improvements for page 2
+2025-11-16 18:48:36,146 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:48:36,150 - external.doc_review.template_processor - INFO - Page 2: Generated 11 improvements
+2025-11-16 18:48:36,150 - external.doc_review.template_processor - INFO - Processing page 3/3
+2025-11-16 18:48:36,150 - external.doc_review.template_processor - INFO - Performing gap analysis for page 3
+2025-11-16 18:48:38,401 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:48:38,404 - external.doc_review.template_processor - INFO - Page 3: Found 2 gaps
+2025-11-16 18:48:38,404 - external.doc_review.template_processor - INFO - Generating improvements for page 3
+2025-11-16 18:48:41,827 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:48:41,832 - external.doc_review.template_processor - INFO - Page 3: Generated 2 improvements
+2025-11-16 18:48:41,832 - external.doc_review.template_processor - INFO - Template processing complete: 18 gaps, 19 improvements
+2025-11-16 18:48:41,843 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:48:41] "POST /api/doc_review/documents/collateral_good/apply_template HTTP/1.1" 200 -
+2025-11-16 18:48:41,857 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:48:41] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:49:11,128 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:11] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:49:11,132 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:11] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:49:11,138 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:11] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:49:11,143 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:11] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:49:12,789 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:12] "PUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1" 200 -
+2025-11-16 18:49:13,306 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:13] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:49:16,257 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:16] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:49:16,259 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:16] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:49:16,260 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:16] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:49:16,265 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:16] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:49:20,248 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:20] "PUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1" 200 -
+2025-11-16 18:49:20,769 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:20] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:49:23,325 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:23] "PUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1" 200 -
+2025-11-16 18:49:23,845 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:23] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:49:25,423 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:25] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:49:25,423 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:25] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:49:25,431 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:25] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:49:25,434 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:25] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:49:28,756 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:28] "PUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1" 200 -
+2025-11-16 18:49:29,272 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:29] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:49:31,823 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:31] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:49:31,829 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:31] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:49:31,829 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:31] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:49:31,833 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:31] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:49:34,407 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:34] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:49:34,413 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:34] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:49:34,413 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:34] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:49:34,420 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:34] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:49:36,125 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:36] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:49:36,125 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:36] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:49:36,126 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:36] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:49:36,132 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:49:36] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:50:53,857 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:50:53] "PUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1" 200 -
+2025-11-16 18:50:54,375 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:50:54] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:51:05,685 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:51:05] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:51:05,688 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:51:05] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:51:05,688 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:51:05] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:51:05,697 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:51:05] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:51:53,654 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:51:53] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:51:53,655 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:51:53] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:51:53,657 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:51:53] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:51:53,664 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:51:53] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:51:54,285 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:51:54] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:51:54,289 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:51:54] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:51:55,025 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:51:55] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:51:55,025 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:51:55] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:51:58,717 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:51:58] "PUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1" 200 -
+2025-11-16 18:51:59,227 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:51:59] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:52:04,666 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:04] "PUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1" 200 -
+2025-11-16 18:52:05,177 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:05] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:52:05,994 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:05] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:52:05,995 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:05] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:52:06,017 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:06] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:52:06,018 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:06] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:52:13,543 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:13] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:52:13,543 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:13] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:52:13,550 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:13] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:52:13,559 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:13] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:52:35,586 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:35] "PUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1" 200 -
+2025-11-16 18:52:36,104 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:36] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:52:45,883 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:45] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:52:45,889 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:45] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:52:45,889 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:45] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:52:45,895 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:45] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:52:49,216 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:49] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:52:49,218 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:49] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:52:49,221 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:49] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:52:49,225 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:52:49] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:54:38,107 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:54:38] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:54:38,112 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:54:38] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:54:38,112 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:54:38] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:54:38,117 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:54:38] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:54:42,620 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:54:42] "PUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1" 200 -
+2025-11-16 18:54:43,135 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:54:43] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:54:45,955 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:54:45] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:54:45,960 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:54:45] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:54:45,960 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:54:45] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:54:45,966 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:54:45] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:54:56,720 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:54:56] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:54:56,721 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:54:56] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:54:56,722 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:54:56] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:54:56,729 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:54:56] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:55:24,320 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:55:24] "PUT /api/doc_review/documents/collateral_good/markdown HTTP/1.1" 200 -
+2025-11-16 18:55:24,836 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:55:24] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:55:35,565 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:55:35] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 18:55:45,650 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:55:45] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:55:46,902 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:55:46] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:55:46,907 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:55:46] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-k788ak HTTP/1.1" 200 -
+2025-11-16 18:55:46,916 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:55:46] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-k788ak HTTP/1.1" 200 -
+2025-11-16 18:55:50,023 - external.doc_review.template_processor - INFO - Starting template processing with 'policy_template'
+2025-11-16 18:55:50,024 - external.routes.doc_review_routes - ERROR - Template application failed for CAR_Chapter_1_First_5_Pages-k788ak: 'start_line'
+Traceback (most recent call last):
+  File "/Users/saadahmed/samjha_agent/samjha_agent/external/routes/doc_review_routes.py", line 984, in apply_template
+    gap_analysis, improvements = processor.process_document_with_template(
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        full_markdown=full_markdown,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        template_name=template_name
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/saadahmed/samjha_agent/samjha_agent/external/doc_review/template_processor.py", line 56, in process_document_with_template
+    pages = self._group_blocks_by_page(block_metadata, full_markdown)
+  File "/Users/saadahmed/samjha_agent/samjha_agent/external/doc_review/template_processor.py", line 121, in _group_blocks_by_page
+    start_line = min(b['start_line'] for b in page_blocks)
+  File "/Users/saadahmed/samjha_agent/samjha_agent/external/doc_review/template_processor.py", line 121, in <genexpr>
+    start_line = min(b['start_line'] for b in page_blocks)
+                     ~^^^^^^^^^^^^^^
+KeyError: 'start_line'
+2025-11-16 18:55:50,035 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:55:50] "[35m[1mPOST /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-k788ak/apply_template HTTP/1.1[0m" 500 -
+2025-11-16 18:55:54,545 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:55:54] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:56:10,207 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:10] "[35m[1mPOST /api/doc_review/upload HTTP/1.1[0m" 201 -
+2025-11-16 18:56:10,214 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:10] "[31m[1mPOST /api/doc_review/documents HTTP/1.1[0m" 409 -
+2025-11-16 18:56:10,217 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:10] "[35m[1mPOST /api/doc_review/documents HTTP/1.1[0m" 201 -
+2025-11-16 18:56:10,228 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:10] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:56:28,609 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:28] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:56:28,609 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:28] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:56:28,616 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:28] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:56:28,619 - external.agent.doc_review_agent - INFO - DocReviewAgent.run_phase1: run_id=CAR_Chapter_1_First_5_Pages-64h4yl doc_id=a81701c4f8db47eca3f8eb31c1389665_CAR_Chapter_1_First_5_Pages
+2025-11-16 18:56:28,619 - DetectFileTypeTool - INFO - detect_file_type: file_id=a81701c4f8db47eca3f8eb31c1389665_CAR_Chapter_1_First_5_Pages path=/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/a81701c4f8db47eca3f8eb31c1389665_CAR_Chapter_1_First_5_Pages.pdf ext=.pdf mimetype=application/pdf type=pdf
+2025-11-16 18:56:28,619 - DetectFileTypeTool - INFO - Tool executed successfully: detect_file_type (0.00s)
+2025-11-16 18:56:28,620 - ConvertToMarkdownTool - INFO - Converting PDF to images at 300 DPI: /Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/a81701c4f8db47eca3f8eb31c1389665_CAR_Chapter_1_First_5_Pages.pdf
+2025-11-16 18:56:31,532 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:31] "[31m[1mPOST /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl/apply_template HTTP/1.1[0m" 400 -
+2025-11-16 18:56:32,144 - ConvertToMarkdownTool - INFO - Converted 5 pages to images
+2025-11-16 18:56:32,144 - ConvertToMarkdownTool - INFO - Transcribing page 1/5...
+2025-11-16 18:56:36,350 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:56:36,353 - ConvertToMarkdownTool - INFO - Transcribed page 1: 2212 characters
+2025-11-16 18:56:36,353 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 1...
+2025-11-16 18:56:40,284 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:40] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 18:56:41,492 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:56:41,495 - ConvertToMarkdownTool - INFO - Page 1: LLM created 6 semantic blocks
+2025-11-16 18:56:41,495 - ConvertToMarkdownTool - INFO - Verifying page 1 with text extraction...
+2025-11-16 18:56:43,376 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:43] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:56:43,377 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:43] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 18:56:43,382 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:43] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:56:45,419 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:45] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:56:46,855 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:56:46,856 - ConvertToMarkdownTool - ERROR - Failed to verify page 1: Invalid control character at: line 19 column 342 (char 2982)
+2025-11-16 18:56:46,856 - ConvertToMarkdownTool - INFO - Transcribing page 2/5...
+2025-11-16 18:56:48,016 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:48] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:56:48,903 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:56:48,905 - ConvertToMarkdownTool - INFO - Transcribed page 2: 841 characters
+2025-11-16 18:56:48,905 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 2...
+2025-11-16 18:56:50,015 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:50] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:56:51,304 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:56:51,306 - ConvertToMarkdownTool - INFO - Page 2: LLM created 2 semantic blocks
+2025-11-16 18:56:51,307 - ConvertToMarkdownTool - INFO - Verifying page 2 with text extraction...
+2025-11-16 18:56:52,016 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:52] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:56:52,423 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:56:52,425 - ConvertToMarkdownTool - INFO - Page 2: Found 1 verified suggestions
+2025-11-16 18:56:52,425 - ConvertToMarkdownTool - INFO - Transcribing page 3/5...
+2025-11-16 18:56:54,013 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:54] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:56:55,476 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:56:55,477 - ConvertToMarkdownTool - INFO - Transcribed page 3: 2439 characters
+2025-11-16 18:56:55,478 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 3...
+2025-11-16 18:56:56,013 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:56] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:56:58,015 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:56:58] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:00,018 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:00] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:01,239 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:57:01,242 - ConvertToMarkdownTool - INFO - Page 3: LLM created 11 semantic blocks
+2025-11-16 18:57:01,242 - ConvertToMarkdownTool - INFO - Verifying page 3 with text extraction...
+2025-11-16 18:57:02,017 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:02] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:04,016 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:04] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:06,013 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:06] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:07,950 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:57:07,952 - ConvertToMarkdownTool - INFO - Page 3: Found 6 verified suggestions
+2025-11-16 18:57:07,953 - ConvertToMarkdownTool - INFO - Transcribing page 4/5...
+2025-11-16 18:57:08,011 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:08] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:10,013 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:10] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:11,124 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:57:11,127 - ConvertToMarkdownTool - INFO - Transcribed page 4: 1522 characters
+2025-11-16 18:57:11,127 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 4...
+2025-11-16 18:57:12,016 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:12] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:14,014 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:14] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:15,833 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:57:15,835 - ConvertToMarkdownTool - INFO - Page 4: LLM created 6 semantic blocks
+2025-11-16 18:57:15,835 - ConvertToMarkdownTool - INFO - Verifying page 4 with text extraction...
+2025-11-16 18:57:16,012 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:16] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:18,016 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:18] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:19,826 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:57:19,829 - ConvertToMarkdownTool - INFO - Page 4: Found 2 verified suggestions
+2025-11-16 18:57:19,829 - ConvertToMarkdownTool - INFO - Transcribing page 5/5...
+2025-11-16 18:57:20,011 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:20] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:22,016 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:22] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:23,820 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:57:23,821 - ConvertToMarkdownTool - INFO - Transcribed page 5: 1841 characters
+2025-11-16 18:57:23,822 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 5...
+2025-11-16 18:57:24,014 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:24] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:26,019 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:26] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:28,017 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:28] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:29,349 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:57:29,352 - ConvertToMarkdownTool - INFO - Page 5: LLM created 6 semantic blocks
+2025-11-16 18:57:29,352 - ConvertToMarkdownTool - INFO - Verifying page 5 with text extraction...
+2025-11-16 18:57:30,014 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:30] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:32,015 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:32] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:32,425 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:57:32,427 - ConvertToMarkdownTool - ERROR - Failed to verify page 5: Expecting ',' delimiter: line 6 column 57 (char 522)
+2025-11-16 18:57:32,427 - ConvertToMarkdownTool - INFO - Successfully transcribed 5 pages
+2025-11-16 18:57:32,427 - ConvertToMarkdownTool - INFO - Generated 31 blocks with stable IDs
+2025-11-16 18:57:32,427 - ConvertToMarkdownTool - INFO - Found 9 verification suggestions
+2025-11-16 18:57:32,442 - ConvertToMarkdownTool - INFO - convert_to_markdown: file_id=a81701c4f8db47eca3f8eb31c1389665_CAR_Chapter_1_First_5_Pages -> md_file_id=a81701c4f8db47eca3f8eb31c1389665_CAR_Chapter_1_First_5_Pages_md_72502b9e path=external/data/doc_review/markdown/a81701c4f8db47eca3f8eb31c1389665_CAR_Chapter_1_First_5_Pages_md_72502b9e.md
+2025-11-16 18:57:32,442 - ConvertToMarkdownTool - INFO - Tool executed successfully: convert_to_markdown (63.82s)
+2025-11-16 18:57:32,607 - ExtractImagesTool - INFO - extract_images: file_id=a81701c4f8db47eca3f8eb31c1389665_CAR_Chapter_1_First_5_Pages path=/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/a81701c4f8db47eca3f8eb31c1389665_CAR_Chapter_1_First_5_Pages.pdf images_found=0
+2025-11-16 18:57:32,607 - ExtractImagesTool - INFO - Tool executed successfully: extract_images (0.16s)
+2025-11-16 18:57:32,607 - ComputeFileStatsTool - INFO - compute_file_stats: file_id=a81701c4f8db47eca3f8eb31c1389665_CAR_Chapter_1_First_5_Pages md_file_id=a81701c4f8db47eca3f8eb31c1389665_CAR_Chapter_1_First_5_Pages_md_72502b9e words=1114 pages=3
+2025-11-16 18:57:32,607 - ComputeFileStatsTool - INFO - Tool executed successfully: compute_file_stats (0.00s)
+2025-11-16 18:57:32,608 - AnalyzeHeadingStructureTool - INFO - analyze_heading_structure: file_id=a81701c4f8db47eca3f8eb31c1389665_CAR_Chapter_1_First_5_Pages headings=12 levels=h1,h2,h3
+2025-11-16 18:57:32,608 - AnalyzeHeadingStructureTool - INFO - Tool executed successfully: analyze_heading_structure (0.00s)
+2025-11-16 18:57:34,015 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:34] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:36,015 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:36] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:38,019 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:38] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:40,016 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:40] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:42,016 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:42] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:44,015 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:44] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:44,302 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:57:44,304 - BuildFileMetadataTool - INFO - build_file_metadata: file_id=a81701c4f8db47eca3f8eb31c1389665_CAR_Chapter_1_First_5_Pages type=pdf words=1114 pages=3
+2025-11-16 18:57:44,305 - BuildFileMetadataTool - INFO - Tool executed successfully: build_file_metadata (0.00s)
+2025-11-16 18:57:46,010 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:57:46] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:57:46,544 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:57:57,920 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:58:04,507 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:58:07,607 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:58:07,620 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:58:07] "POST /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl/run_phase1 HTTP/1.1" 200 -
+2025-11-16 18:58:07,634 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:58:07] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:58:28,023 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 18:58:28] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 18:59:37,206 - external.doc_review.template_processor - INFO - Starting template processing with 'policy_template'
+2025-11-16 18:59:37,206 - external.doc_review.template_processor - INFO - Processing page 1/5
+2025-11-16 18:59:37,206 - external.doc_review.template_processor - INFO - Performing gap analysis for page 1
+2025-11-16 18:59:48,191 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 18:59:48,194 - external.doc_review.template_processor - INFO - Page 1: Found 15 gaps
+2025-11-16 18:59:48,195 - external.doc_review.template_processor - INFO - Generating improvements for page 1
+2025-11-16 19:00:14,524 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 19:00:14,527 - external.doc_review.template_processor - ERROR - Content improvement failed for page 1: Invalid control character at: line 56 column 130 (char 12462)
+2025-11-16 19:00:14,531 - external.doc_review.template_processor - INFO - Processing page 2/5
+2025-11-16 19:00:14,531 - external.doc_review.template_processor - INFO - Performing gap analysis for page 2
+2025-11-16 19:00:16,880 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 19:00:16,882 - external.doc_review.template_processor - INFO - Page 2: Found 2 gaps
+2025-11-16 19:00:16,882 - external.doc_review.template_processor - INFO - Generating improvements for page 2
+2025-11-16 19:00:21,999 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 19:00:22,002 - external.doc_review.template_processor - INFO - Page 2: Generated 2 improvements
+2025-11-16 19:00:22,003 - external.doc_review.template_processor - INFO - Processing page 3/5
+2025-11-16 19:00:22,003 - external.doc_review.template_processor - INFO - Performing gap analysis for page 3
+2025-11-16 19:00:30,652 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 19:00:30,654 - external.doc_review.template_processor - INFO - Page 3: Found 11 gaps
+2025-11-16 19:00:30,654 - external.doc_review.template_processor - INFO - Generating improvements for page 3
+2025-11-16 19:00:56,338 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 19:00:56,341 - external.doc_review.template_processor - INFO - Page 3: Generated 11 improvements
+2025-11-16 19:00:56,341 - external.doc_review.template_processor - INFO - Processing page 4/5
+2025-11-16 19:00:56,341 - external.doc_review.template_processor - INFO - Performing gap analysis for page 4
+2025-11-16 19:01:00,302 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 19:01:00,305 - external.doc_review.template_processor - INFO - Page 4: Found 4 gaps
+2025-11-16 19:01:00,305 - external.doc_review.template_processor - INFO - Generating improvements for page 4
+2025-11-16 19:01:10,464 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 19:01:10,466 - external.doc_review.template_processor - INFO - Page 4: Generated 4 improvements
+2025-11-16 19:01:10,466 - external.doc_review.template_processor - INFO - Processing page 5/5
+2025-11-16 19:01:10,467 - external.doc_review.template_processor - INFO - Performing gap analysis for page 5
+2025-11-16 19:01:15,356 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 19:01:15,358 - external.doc_review.template_processor - INFO - Page 5: Found 6 gaps
+2025-11-16 19:01:15,358 - external.doc_review.template_processor - INFO - Generating improvements for page 5
+2025-11-16 19:01:30,244 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 19:01:30,246 - external.doc_review.template_processor - INFO - Page 5: Generated 6 improvements
+2025-11-16 19:01:30,246 - external.doc_review.template_processor - INFO - Template processing complete: 38 gaps, 23 improvements
+2025-11-16 19:01:30,259 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:01:30] "POST /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl/apply_template HTTP/1.1" 200 -
+2025-11-16 19:01:30,275 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:01:30] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 19:01:43,603 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:01:43] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 19:01:43,605 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:01:43] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 19:01:43,606 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:01:43] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 19:01:43,615 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:01:43] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 19:02:52,016 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:02:52] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 19:02:52,020 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:02:52] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 19:03:05,034 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:03:05] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 19:03:05,036 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:03:05] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 19:03:05,038 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:03:05] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 19:03:05,039 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:03:05] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 19:03:05,039 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:03:05] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 19:03:05,058 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:03:05] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 19:03:05,063 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:03:05] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 19:03:05,063 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:03:05] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 19:03:36,036 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:03:36] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 19:03:36,115 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:03:36] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 19:03:36,144 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:03:36] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 19:03:36,146 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:03:36] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 19:03:36,146 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:03:36] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 19:03:36,148 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:03:36] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 19:03:36,150 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:03:36] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 19:03:36,172 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:03:36] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 19:05:02,332 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:05:02] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 19:05:02,332 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:05:02] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 19:05:02,346 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:05:02] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 19:05:02,348 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:05:02] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 19:05:10,156 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:05:10] "PUT /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl/markdown HTTP/1.1" 200 -
+2025-11-16 19:05:10,678 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:05:10] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 19:05:14,265 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:05:14] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 19:05:14,272 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:05:14] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 19:05:14,273 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:05:14] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 19:05:14,280 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:05:14] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 19:05:51,049 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 19:05:51,052 - external.doc_review.llm - ERROR - Failed to parse RiskGPT response: Invalid control character at: line 28 column 273 (char 3594)
+2025-11-16 19:05:51,052 - external.routes.doc_review_routes - ERROR - Ask RiskGPT failed for CAR_Chapter_1_First_5_Pages-64h4yl: Invalid RiskGPT response format: Invalid control character at: line 28 column 273 (char 3594)
+Traceback (most recent call last):
+  File "/Users/saadahmed/samjha_agent/samjha_agent/external/doc_review/llm.py", line 247, in ask_riskgpt_for_blocks
+    suggestions_summary += f"Pending: {len([s for s in all_suggestions if s.get('status') == 'pending'])}\n"
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/decoder.py", line 361, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ~~~~~~~~~~~~~~^^^^^^^^
+json.decoder.JSONDecodeError: Invalid control character at: line 28 column 273 (char 3594)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/saadahmed/samjha_agent/samjha_agent/external/routes/doc_review_routes.py", line 876, in ask_riskgpt
+    rejected_suggestions = set(document_state.get("rejected_suggestions", []))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        block_id = imp.get("block_id")
+    
+  File "/Users/saadahmed/samjha_agent/samjha_agent/external/doc_review/llm.py", line 273, in ask_riskgpt_for_blocks
+    "analysis": "Your helpful response to the user's question"
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Invalid RiskGPT response format: Invalid control character at: line 28 column 273 (char 3594)
+2025-11-16 19:05:51,059 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:05:51] "[35m[1mPOST /api/doc_review/ask_riskgpt HTTP/1.1[0m" 500 -
+2025-11-16 19:06:52,022 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:06:52] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 19:06:52,022 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:06:52] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 19:07:33,348 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:07:33] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 19:07:34,017 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:07:34] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 19:08:55,029 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:08:55] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 19:08:55,034 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:08:55] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 19:08:55,034 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:08:55] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 19:08:55,038 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:08:55] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages-64h4yl HTTP/1.1" 200 -
+2025-11-16 19:08:58,129 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 19:08:58] "[31m[1mPOST /api/doc_review/ask_riskgpt HTTP/1.1[0m" 400 -

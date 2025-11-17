@@ -1,0 +1,67 @@
+
+> Doc Review Workspace Wireframe@0.1.0 dev
+> vite
+
+
+  VITE v6.3.5  ready in 94 ms
+
+  ➜  Local:   http://localhost:3000/
+  ➜  Network: use --host to expose
+6:15:02 PM [vite] (client) hmr update /src/components/LeftPane.tsx
+6:15:24 PM [vite] (client) hmr update /src/components/LeftPane.tsx
+6:15:42 PM [vite] (client) hmr update /src/components/LeftPane.tsx
+6:18:17 PM [vite] (client) hmr update /src/App.tsx
+6:18:32 PM [vite] (client) hmr update /src/App.tsx
+6:18:40 PM [vite] (client) hmr update /src/components/LeftPane.tsx
+6:18:48 PM [vite] (client) hmr update /src/components/LeftPane.tsx
+6:18:57 PM [vite] (client) hmr update /src/components/LeftPane.tsx
+6:19:05 PM [vite] (client) hmr update /src/components/LeftPane.tsx
+6:19:18 PM [vite] (client) hmr update /src/components/LeftPane.tsx
+6:19:50 PM [vite] (client) hmr update /src/App.tsx
+6:20:06 PM [vite] (client) hmr update /src/components/CenterPane.tsx
+6:20:13 PM [vite] (client) hmr update /src/components/CenterPane.tsx
+6:20:28 PM [vite] (client) hmr update /src/components/CenterPane.tsx
+6:20:44 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:21:09 PM [vite] (client) hmr update /src/components/CenterPane.tsx
+6:21:27 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:21:38 PM [vite] (client) hmr update /src/App.tsx
+6:22:26 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:22:26 PM [vite] (client) hmr update /src/components/LeftPane.tsx
+6:22:26 PM [vite] (client) hmr update /src/components/CenterPane.tsx
+6:22:26 PM [vite] (client) hmr update /src/App.tsx
+6:24:43 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:24:54 PM [vite] (client) hmr update /src/App.tsx
+6:25:12 PM [vite] (client) hmr update /src/App.tsx
+6:25:12 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:28:37 PM [vite] (client) hmr update /src/components/CenterPane.tsx
+6:28:37 PM [vite] (client) hmr update /src/components/CenterPane.tsx
+6:29:02 PM [vite] (client) hmr update /src/App.tsx
+6:29:15 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:29:38 PM [vite] (client) hmr update /src/App.tsx
+6:29:38 PM [vite] (client) hmr update /src/components/CenterPane.tsx
+6:29:38 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:31:11 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:31:24 PM [vite] (client) hmr update /src/components/CenterPane.tsx
+6:31:45 PM [vite] (client) hmr update /src/components/CenterPane.tsx
+6:31:45 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:32:58 PM [vite] (client) hmr update /src/components/CenterPane.tsx, /src/components/RightPane.tsx, /src/components/LeftPane.tsx, /src/components/DocumentsList.tsx, /src/components/TemplatesPage.tsx, /src/components/UploadModal.tsx, /src/components/BlockEditor.tsx
+6:33:11 PM [vite] (client) hmr update /src/components/CenterPane.tsx, /src/components/RightPane.tsx, /src/components/LeftPane.tsx, /src/components/DocumentsList.tsx, /src/components/TemplatesPage.tsx, /src/components/UploadModal.tsx, /src/components/BlockEditor.tsx
+6:33:31 PM [vite] (client) hmr update /src/components/CenterPane.tsx, /src/components/RightPane.tsx, /src/components/LeftPane.tsx, /src/components/DocumentsList.tsx, /src/components/TemplatesPage.tsx, /src/components/UploadModal.tsx, /src/components/BlockEditor.tsx
+6:34:00 PM [vite] (client) hmr update /src/components/CenterPane.tsx, /src/components/RightPane.tsx, /src/components/LeftPane.tsx, /src/components/DocumentsList.tsx, /src/components/TemplatesPage.tsx, /src/components/UploadModal.tsx, /src/components/BlockEditor.tsx
+6:34:42 PM [vite] (client) hmr update /src/components/CenterPane.tsx, /src/components/RightPane.tsx, /src/components/LeftPane.tsx, /src/components/DocumentsList.tsx, /src/components/TemplatesPage.tsx, /src/components/UploadModal.tsx, /src/components/BlockEditor.tsx
+6:35:17 PM [vite] (client) hmr update /src/components/CenterPane.tsx, /src/components/RightPane.tsx, /src/components/LeftPane.tsx, /src/components/DocumentsList.tsx, /src/components/TemplatesPage.tsx, /src/components/UploadModal.tsx, /src/components/BlockEditor.tsx
+6:35:39 PM [vite] (client) hmr update /src/components/CenterPane.tsx, /src/components/RightPane.tsx, /src/components/LeftPane.tsx, /src/components/DocumentsList.tsx, /src/components/TemplatesPage.tsx, /src/components/UploadModal.tsx, /src/components/BlockEditor.tsx
+6:37:10 PM [vite] (client) hmr update /src/components/CenterPane.tsx
+6:37:25 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:37:46 PM [vite] (client) hmr update /src/components/CenterPane.tsx
+6:37:46 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:38:56 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:39:11 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:39:29 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:41:12 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:41:31 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:41:51 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:44:54 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:45:09 PM [vite] (client) hmr update /src/components/BlockEditor.tsx
+6:46:18 PM [vite] vite.config.ts changed, restarting server...
+6:46:18 PM [vite] server restarted.

@@ -1,0 +1,41 @@
+{
+  "total_tests": 4,
+  "passed": 4,
+  "failed": 0,
+  "results": [
+    {
+      "tool": "decide_chunking_strategy",
+      "passed": true,
+      "reasons": [
+        "✓ All checks passed"
+      ]
+    },
+    {
+      "tool": "chunk_markdown",
+      "passed": true,
+      "reasons": [
+        "✓ All checks passed"
+      ]
+    },
+    {
+      "tool": "build_index",
+      "passed": true,
+      "reasons": [
+        "✓ All checks passed",
+        "✓ Sections count matches: 5",
+        "⚠ should_chunk in index: expected True, got None",
+        "⚠ strategy in index: expected by_h1, got None",
+        "✓ Total sections matches: 5",
+        "✓ Unmapped sections matches: 5",
+        "✓ All sections are unmapped (expected for Phase 2)"
+      ]
+    },
+    {
+      "tool": "load_outline_template",
+      "passed": true,
+      "reasons": [
+        "✓ Tool is optional, template not found (expected)"
+      ]
+    }
+  ]
+}

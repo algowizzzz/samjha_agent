@@ -36,6 +36,24 @@ except ImportError as e:
     AgentSocketIOHandlers = None
     AGENT_AVAILABLE = False
 
+# Import document review routes (optional)
+try:
+    from external.routes.doc_review_routes import DocReviewRoutes
+    DOC_REVIEW_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Doc review routes not available: {e}.")
+    DocReviewRoutes = None
+    DOC_REVIEW_AVAILABLE = False
+
+# Import model documentation routes (optional)
+try:
+    from external.routes.model_doc_routes import ModelDocRoutes
+    MODEL_DOC_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Model doc routes not available: {e}.")
+    ModelDocRoutes = None
+    MODEL_DOC_AVAILABLE = False
+
 # Global instances
 app = None
 socketio = None
@@ -114,7 +132,29 @@ def register_all_routes(app, socketio):
             logging.error(f"Failed to register agent routes: {e}")
     else:
         logging.info("Agent features not available - server running in base mode")
-    
+
+    # Register document review routes if available
+    if DOC_REVIEW_AVAILABLE and DocReviewRoutes is not None:
+        try:
+            doc_review_routes = DocReviewRoutes(auth_manager, tools_registry, mcp_handler, socketio)
+            doc_review_routes.register_routes(app)
+            logging.info("Document review routes registered successfully")
+        except Exception as e:  # pylint: disable=broad-except
+            logging.error(f"Failed to register doc review routes: {e}")
+    else:
+        logging.info("Document review features not available")
+
+    # Register model documentation routes if available
+    if MODEL_DOC_AVAILABLE and ModelDocRoutes is not None:
+        try:
+            model_doc_routes = ModelDocRoutes(auth_manager, tools_registry, mcp_handler, socketio)
+            model_doc_routes.register_routes(app)
+            logging.info("Model documentation routes registered successfully")
+        except Exception as e:  # pylint: disable=broad-except
+            logging.error(f"Failed to register model doc routes: {e}")
+    else:
+        logging.info("Model documentation features not available")
+
     logging.info("All routes registered successfully")
 
 
@@ -151,4 +191,4 @@ def register_health_check(app):
 
 if __name__ == '__main__':
     app, socketio = create_app()
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5555, debug=True, allow_unsafe_werkzeug=True)

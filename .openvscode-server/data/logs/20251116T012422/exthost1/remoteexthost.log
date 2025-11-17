@@ -1,0 +1,181 @@
+2025-11-16 01:30:16.782 [info] Extension host with pid 30 started
+2025-11-16 01:30:16.831 [info] ExtensionService#_doActivateExtension vscode.emmet, startup: false, activationEvent: 'onLanguage'
+2025-11-16 01:30:16.852 [info] ExtensionService#_doActivateExtension vscode.git-base, startup: true, activationEvent: '*', root cause: vscode.git
+2025-11-16 01:30:16.855 [info] ExtensionService#_doActivateExtension vscode.git, startup: true, activationEvent: '*'
+2025-11-16 01:30:16.856 [info] ExtensionService#_doActivateExtension vscode.github, startup: true, activationEvent: '*'
+2025-11-16 01:30:16.915 [info] Eager extensions activated
+2025-11-16 01:30:16.916 [info] ExtensionService#_doActivateExtension vscode.debug-auto-launch, startup: false, activationEvent: 'onStartupFinished'
+2025-11-16 01:30:16.916 [info] ExtensionService#_doActivateExtension vscode.merge-conflict, startup: false, activationEvent: 'onStartupFinished'
+2025-11-16 01:30:36.138 [info] ExtensionService#_doActivateExtension vscode.configuration-editing, startup: false, activationEvent: 'onLanguage:jsonc'
+2025-11-16 01:30:36.141 [info] ExtensionService#_doActivateExtension vscode.json-language-features, startup: false, activationEvent: 'onLanguage:jsonc'
+2025-11-16 01:30:36.141 [info] ExtensionService#_doActivateExtension vscode.typescript-language-features, startup: false, activationEvent: 'onLanguage:jsonc'
+2025-11-16 01:35:39.630 [info] ExtensionService#_doActivateExtension samjha.doc-review-vfs, startup: false, activationEvent: 'onStartupFinished'
+2025-11-16 01:35:43.197 [error] TypeError: Invalid URL
+	at new URL (node:internal/url:825:25)
+	at DocReviewApi.buildUrl (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:58:21)
+	at DocReviewApi.getJSON (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:67:43)
+	at pickDocument (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:155:30)
+	at /home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:191:27
+	at iy.h (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:41621)
+	at iy.g (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:40698)
+	at iy.executeCommand (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:40605)
+	at Object.executeCommand (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:201:105071)
+	at /home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:325:33 docReview.selectDocument {"value":"samjha.doc-review-vfs","_lower":"samjha.doc-review-vfs"}
+2025-11-16 01:35:44.204 [error] TypeError: Invalid URL
+	at new URL (node:internal/url:825:25)
+	at DocReviewApi.buildUrl (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:58:21)
+	at DocReviewApi.getJSON (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:67:43)
+	at pickDocument (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:155:30)
+	at /home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:191:27
+	at iy.h (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:41621)
+	at iy.g (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:40698)
+	at iy.executeCommand (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:40605)
+	at Object.executeCommand (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:201:105071)
+	at /home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:325:33
+2025-11-16 01:36:25.949 [error] TypeError: Invalid URL
+	at new URL (node:internal/url:825:25)
+	at DocReviewApi.buildUrl (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:58:21)
+	at DocReviewApi.getJSON (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:67:43)
+	at pickDocument (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:155:30)
+	at /home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:191:27
+	at iy.h (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:41621)
+	at iy.$executeContributedCommand (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:42512)
+	at U4.S (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:137735)
+	at U4.Q (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:137515)
+	at U4.M (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:136604)
+	at U4.L (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:135709)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:134506)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at Ao.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:9458)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:393:8616)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at Ao.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:9458)
+	at ov.A (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:12574)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:10994)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at Ax.acceptChunk (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:7941)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:7227)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at yN.z (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:21724) docReview.selectDocument {"value":"samjha.doc-review-vfs","_lower":"samjha.doc-review-vfs"}
+2025-11-16 01:38:16.000 [error] TypeError: Invalid URL
+	at new URL (node:internal/url:825:25)
+	at DocReviewApi.buildUrl (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:58:21)
+	at DocReviewApi.getJSON (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:67:43)
+	at pickDocument (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:155:30)
+	at /home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:191:27
+	at iy.h (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:41621)
+	at iy.$executeContributedCommand (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:42512)
+	at U4.S (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:137735)
+	at U4.Q (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:137515)
+	at U4.M (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:136604)
+	at U4.L (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:135709)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:134506)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at Ao.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:9458)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:393:8616)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at Ao.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:9458)
+	at ov.A (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:12574)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:10994)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at Ax.acceptChunk (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:7941)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:7227)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at yN.z (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:21724) docReview.selectDocument {"value":"samjha.doc-review-vfs","_lower":"samjha.doc-review-vfs"}
+2025-11-16 01:38:47.532 [error] TypeError: Invalid URL
+	at new URL (node:internal/url:825:25)
+	at DocReviewApi.buildUrl (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:58:21)
+	at DocReviewApi.getJSON (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:67:43)
+	at pickDocument (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:155:30)
+	at /home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:191:27
+	at iy.h (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:41621)
+	at iy.$executeContributedCommand (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:42512)
+	at U4.S (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:137735)
+	at U4.Q (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:137515)
+	at U4.M (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:136604)
+	at U4.L (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:135709)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:134506)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at Ao.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:9458)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:393:8616)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at Ao.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:9458)
+	at ov.A (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:12574)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:10994)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at Ax.acceptChunk (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:7941)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:7227)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at yN.z (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:21724) docReview.selectDocument {"value":"samjha.doc-review-vfs","_lower":"samjha.doc-review-vfs"}
+2025-11-16 01:40:41.122 [error] TypeError: Invalid URL
+	at new URL (node:internal/url:825:25)
+	at DocReviewApi.buildUrl (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:58:21)
+	at DocReviewApi.getJSON (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:67:43)
+	at pickDocument (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:155:30)
+	at /home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:191:27
+	at iy.h (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:41621)
+	at iy.$executeContributedCommand (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:42512)
+	at U4.S (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:137735)
+	at U4.Q (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:137515)
+	at U4.M (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:136604)
+	at U4.L (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:135709)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:134506)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at Ao.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:9458)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:393:8616)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at Ao.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:9458)
+	at ov.A (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:12574)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:10994)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at Ax.acceptChunk (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:7941)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:7227)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at yN.z (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:21724) docReview.selectDocument {"value":"samjha.doc-review-vfs","_lower":"samjha.doc-review-vfs"}
+2025-11-16 01:42:48.068 [error] TypeError: Invalid URL
+	at new URL (node:internal/url:825:25)
+	at DocReviewApi.buildUrl (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:58:21)
+	at DocReviewApi.getJSON (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:67:43)
+	at pickDocument (/home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:155:30)
+	at /home/workspace/.openvscode-server/extensions/samjha.doc-review-vfs-0.1.0/dist/extension.js:191:27
+	at iy.h (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:41621)
+	at iy.$executeContributedCommand (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:114:42512)
+	at U4.S (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:137735)
+	at U4.Q (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:137515)
+	at U4.M (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:136604)
+	at U4.L (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:135709)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:134506)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at Ao.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:9458)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:393:8616)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at Ao.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:9458)
+	at ov.A (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:12574)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:10994)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at Ax.acceptChunk (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:7941)
+	at od.value (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:7227)
+	at $.C (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2373)
+	at $.fire (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:27:2591)
+	at yN.z (file:///home/.openvscode-server/out/vs/workbench/api/node/extensionHostProcess.js:29:21724) docReview.selectDocument {"value":"samjha.doc-review-vfs","_lower":"samjha.doc-review-vfs"}
+2025-11-16 01:43:30.341 [info] Extension host terminating: received terminate message from renderer
+2025-11-16 01:43:30.399 [info] Extension host with pid 30 exiting with code 0

@@ -1,0 +1,10 @@
+{
+  "name": "load_outline_template",
+  "description": "Doc review tool: Load Outline Template",
+  "enabled": true,
+  "version": "1.0.0",
+  "metadata": {
+    "category": "doc_review"
+  },
+  "implementation": "external.tools.doc_processing.load_outline_template.LoadOutlineTemplateTool"
+}
