@@ -100,7 +100,7 @@ class ConvertToMarkdownTool(BaseMCPTool):
         image_base64 = self._image_to_base64(image)
         
         # Prompt for precise transcription
-        prompt = """Transcribe this document page preserving all visual formatting and structure. Start immediately with the content.
+        prompt = """Transcribe this document page preserving ALL visual formatting and structure. Start immediately with the content.
 
 CRITICAL RULES:
 1. NO intro text - start transcribing right away
@@ -121,18 +121,27 @@ INLINE FORMATTING (within paragraphs):
 - Italic text → *text*
 - Bold + Italic → ***text***
 - Underlined/emphasized → *text*
+- Highlighted/colored background → ==highlighted text==
+- Small print / footnotes → <small>footnote text</small>
+- Strikethrough → ~~strikethrough~~
 
 STRUCTURE & SPACING:
 - Preserve blank lines between sections
 - Headings are standalone lines (not part of paragraphs)
 - Keep paragraph breaks
 - Maintain document flow
+- Centered text → <center>centered content</center>
+- Right-aligned → <right>right-aligned content</right>
+- Indented paragraphs → Use 2 spaces per indentation level
 
 LISTS:
 - Bullet points → - Item text
 - Numbered items → 1. Item text
-- Sub-bullets → Indent with spaces: - Item
-  - Sub-item
+- Sub-bullets → Indent with spaces (2 spaces per level):
+  - Level 1 item
+    - Level 2 item
+      - Level 3 item
+- Preserve indentation levels
 
 TABLES:
 - Convert ALL tables to markdown format with | pipes
@@ -143,13 +152,27 @@ TABLES:
   |----------|----------|
   | Data 1   | Data 2   |
 
+SPECIAL ELEMENTS:
+- Callout boxes / bordered sections → > Callout: content here
+- Blockquotes → > quoted text
+- Code blocks → ```code here```
+- Horizontal rules → ---
+
 IMAGES/CHARTS/DIAGRAMS:
 - Mark as: ![Image: Brief description]
 - Do NOT skip images - always mark their presence
+- Note position (top/middle/bottom of content)
+
+COLOR & HIGHLIGHTING:
+- Yellow highlight → ==text==
+- Other colors → ==text== (use == for any highlighting)
 
 DISTINCTION:
 ✅ Large heading → **Risk Management Overview** (bold, standalone)
 ✅ Bold word in paragraph → This is **important** text.
+✅ Highlighted → This is ==critical== information.
+✅ Small print → <small>See footnote 1</small>
+✅ Centered → <center>CONFIDENTIAL</center>
 ❌ NEVER → # Risk Management Overview (no # symbols)
 
 Begin transcription:"""
@@ -241,7 +264,7 @@ Begin transcription:"""
         if not self.client:
             raise RuntimeError("Anthropic client not initialized")
         
-        prompt = f"""Analyze this text and group it into semantic blocks with heading level detection.
+        prompt = f"""Analyze this text and group it into semantic blocks with ALL formatting metadata.
 
 TEXT TO ANALYZE:
 {page_md}
@@ -253,17 +276,18 @@ INSTRUCTIONS:
 - Empty lines can be their own blocks
 - Detect headings by **bold** formatting + structure
 - Infer heading level (1-3) from context
-- STRIP all markdown symbols (**, #) from content field
-- Store structure info in type and level fields
+- STRIP markdown symbols (**bold**, *italic*, ==highlight==, <small>, <center>, <right>) from content field
+- Store ALL formatting info as metadata fields
 
-OUTPUT FORMAT (JSON array):
+OUTPUT FORMAT (JSON array with formatting metadata):
 [
   {{
     "start_line": 0,
     "end_line": 0,
     "content": "Risk Management Policy",
     "type": "heading",
-    "level": 1
+    "level": 1,
+    "formatting": {{"bold": true}}
   }},
   {{
     "start_line": 2,
@@ -274,46 +298,76 @@ OUTPUT FORMAT (JSON array):
   }},
   {{
     "start_line": 4,
-    "end_line": 4,
-    "content": "1.1 Purpose",
-    "type": "heading",
-    "level": 3
+    "end_line": 8,
+    "content": "This paragraph has bold, italic, and highlighted words.",
+    "type": "paragraph",
+    "formatting": {{"has_bold": true, "has_italic": true, "has_highlight": true}}
   }},
   {{
-    "start_line": 6,
-    "end_line": 8,
-    "content": "This is a complete paragraph with bold words inside.",
-    "type": "paragraph"
+    "start_line": 10,
+    "end_line": 12,
+    "content": "- Item 1\\n  - Sub-item 1.1\\n  - Sub-item 1.2",
+    "type": "bullet",
+    "indent_level": 2
+  }},
+  {{
+    "start_line": 14,
+    "end_line": 14,
+    "content": "CONFIDENTIAL",
+    "type": "paragraph",
+    "formatting": {{"alignment": "center", "bold": true}}
+  }},
+  {{
+    "start_line": 16,
+    "end_line": 16,
+    "content": "See section 3.1 for details.",
+    "type": "paragraph",
+    "formatting": {{"size": "small"}}
+  }},
+  {{
+    "start_line": 18,
+    "end_line": 20,
+    "content": "Important: Review annually.",
+    "type": "callout"
   }}
 ]
 
 CRITICAL CONTENT CLEANING:
-- If input has "**Risk Policy**" → output "Risk Policy" (strip **)
-- If input has "# Overview" → output "Overview" (strip #)
-- If input has "**# Title**" → output "Title" (strip both ** and #)
-- Keep bold meaning in type/level, NOT in content text
+- Strip ALL formatting symbols from content field
+- "**Risk Policy**" → "Risk Policy"
+- "This is ==critical==" → "This is critical"
+- "<small>footnote</small>" → "footnote"
+- "<center>TITLE</center>" → "TITLE"
+- But track what was stripped in the "formatting" object
 
 BLOCK TYPES:
-- heading (with level 1-3): detected from **bold** + short + standalone
+- heading (with level 1-3): **bold** + short + standalone
 - paragraph: multi-line text blocks
-- bullet: entire bullet list (lines starting with -)
-- numbered: entire numbered list (lines starting with 1. 2. 3.)
+- bullet: bullet lists (lines with -)
+- numbered: numbered lists (1. 2. 3.)
 - table: markdown tables with | pipes
+- callout: bordered/quoted sections (> Callout:)
+- quote: blockquotes (> text)
 - empty: blank lines
 
+FORMATTING METADATA (optional fields):
+- "formatting": {{
+    "bold": true,           // Entire block is bold
+    "italic": true,         // Entire block is italic
+    "has_bold": true,       // Contains some bold text
+    "has_italic": true,     // Contains some italic text
+    "has_highlight": true,  // Contains ==highlight==
+    "alignment": "center|right|left",  // Text alignment
+    "size": "small|normal|large"       // Font size
+  }}
+- "indent_level": 0-3      // For nested lists (spaces/2)
+
 HEADING LEVEL DETECTION:
-- Level 1: Appears first, largest, document title, all caps, or no numbering
-- Level 2: Section headings, numbered "1.", "2.", "3."
-- Level 3: Subsections, numbered "1.1", "2.1", indented, or under level 2
+- Level 1: First heading, all caps, or no numbering
+- Level 2: "1.", "2.", "3." (section numbers)
+- Level 3: "1.1", "2.1" (subsection numbers)
 
-HEADING PATTERNS (after stripping symbols):
-- "RISK POLICY" → level 1 (all caps, title)
-- "Risk Management Policy" → level 1 (title case, first heading)
-- "1. Overview" → level 2 (section numbering)
-- "1.1 Purpose" → level 3 (subsection numbering)
-- "Background" → level 2 or 3 (context dependent)
-
-CRITICAL: Output ONLY the JSON array, no other text. Clean all content fields.
+CRITICAL: Output ONLY valid JSON array. Strip ALL symbols from content. Track formatting in metadata.
 """
 
         try:
@@ -463,6 +517,23 @@ If no issues found, return empty array: []
             self.logger.error(f"Failed to verify page {page_num}: {e}")
             return []
 
+    def _generate_table_of_contents(self, blocks: List[Dict]) -> List[Dict]:
+        """Generate table of contents from heading blocks.
+        
+        Returns:
+            List of TOC entries with title, level, block_id, page
+        """
+        toc = []
+        for block in blocks:
+            if block.get('type') == 'heading':
+                toc.append({
+                    'title': block['content'],
+                    'level': block.get('level', 1),
+                    'block_id': block['id'],
+                    'page': block['page']
+                })
+        return toc
+
     def _convert_pdf_with_vision(self, source_path: Path) -> Tuple[str, List[Dict], List[Dict]]:
         """Convert PDF to markdown using vision-based transcription.
         
@@ -513,9 +584,14 @@ If no issues found, return empty array: []
                     'content': block_data['content'],
                     'type': block_data['type']
                 }
-                # Add level field if it's a heading
-                if block_data['type'] == 'heading' and 'level' in block_data:
+                
+                # Add optional metadata fields if present
+                if block_data.get('level'):
                     block_meta['level'] = block_data['level']
+                if block_data.get('formatting'):
+                    block_meta['formatting'] = block_data['formatting']
+                if block_data.get('indent_level') is not None:
+                    block_meta['indent_level'] = block_data['indent_level']
                 
                 all_blocks.append(block_meta)
                 page_blocks.append(block_meta)
@@ -531,11 +607,15 @@ If no issues found, return empty array: []
         # Combine all pages with page breaks
         full_markdown = "\n\n---\n\n".join(page_markdowns)
         
+        # Generate table of contents from heading blocks
+        toc = self._generate_table_of_contents(all_blocks)
+        
         self.logger.info(f"Successfully transcribed {len(images)} pages")
         self.logger.info(f"Generated {len(all_blocks)} blocks with stable IDs")
         self.logger.info(f"Found {len(all_suggestions)} verification suggestions")
+        self.logger.info(f"Generated TOC with {len(toc)} entries")
         
-        return full_markdown, all_blocks, all_suggestions
+        return full_markdown, all_blocks, all_suggestions, toc
 
     def execute(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
         file_id = arguments["file_id"]
@@ -548,6 +628,7 @@ If no issues found, return empty array: []
         # Initialize metadata
         block_metadata = []
         verification_suggestions = []
+        table_of_contents = []
 
         # Handle different file types
         if file_type in self.SUPPORTED_TEXT_TYPES:
@@ -555,8 +636,8 @@ If no issues found, return empty array: []
             notes = "Converted from text-based source"
         elif file_type == "pdf":
             result = self._convert_pdf_with_vision(source_path)
-            markdown, block_metadata, verification_suggestions = result
-            notes = "Converted from PDF using vision-based transcription with verification"
+            markdown, block_metadata, verification_suggestions, table_of_contents = result
+            notes = "Converted from PDF using vision-based transcription with verification + TOC"
         else:
             markdown = f"> Conversion for file type `{file_type}` is not yet implemented.\n\n> Source file: `{source_path.name}`"
             notes = "Placeholder conversion"
@@ -580,5 +661,6 @@ If no issues found, return empty array: []
             "raw_markdown": markdown,
             "block_metadata": block_metadata,
             "verification_suggestions": verification_suggestions,
+            "table_of_contents": table_of_contents,
             "notes": notes,
         }

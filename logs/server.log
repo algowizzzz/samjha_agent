@@ -9995,3 +9995,183 @@ AssertionError: write() before start_response
 2025-11-16 22:58:02,341 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
 2025-11-16 22:58:02,343 - ConvertToMarkdownTool - INFO - Transcribed page 2: 880 characters
 2025-11-16 22:58:02,343 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 2...
+2025-11-16 22:58:04,248 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:04] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:04,256 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:04] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:04,490 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:04,492 - ConvertToMarkdownTool - ERROR - Failed to create semantic blocks for page 2: Invalid control character at: line 5 column 72 (char 117)
+2025-11-16 22:58:04,493 - ConvertToMarkdownTool - INFO - Verifying page 2 with text extraction...
+2025-11-16 22:58:06,248 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:06] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:07,934 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:07,936 - ConvertToMarkdownTool - INFO - Page 3: Found 11 verified suggestions
+2025-11-16 22:58:07,936 - ConvertToMarkdownTool - INFO - Transcribing page 4/5...
+2025-11-16 22:58:08,246 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:08] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:10,248 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:10] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:10,254 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:10] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:11,661 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:11,663 - ConvertToMarkdownTool - INFO - Page 2: Found 10 verified suggestions
+2025-11-16 22:58:11,663 - ConvertToMarkdownTool - INFO - Transcribing page 3/5...
+2025-11-16 22:58:12,249 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:12] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:12,273 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:12,274 - ConvertToMarkdownTool - INFO - Transcribed page 4: 2077 characters
+2025-11-16 22:58:12,274 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 4...
+2025-11-16 22:58:14,245 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:14] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:15,130 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:15,132 - ConvertToMarkdownTool - INFO - Transcribed page 3: 2502 characters
+2025-11-16 22:58:15,133 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 3...
+2025-11-16 22:58:16,246 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:16] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:16,253 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:16] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:16,736 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:16,741 - ConvertToMarkdownTool - INFO - Page 4: LLM created 8 semantic blocks
+2025-11-16 22:58:16,742 - ConvertToMarkdownTool - INFO - Verifying page 4 with text extraction...
+2025-11-16 22:58:18,248 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:18] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:20,146 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:20,149 - ConvertToMarkdownTool - INFO - Page 4: Found 2 verified suggestions
+2025-11-16 22:58:20,149 - ConvertToMarkdownTool - INFO - Transcribing page 5/5...
+2025-11-16 22:58:20,244 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:20] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:22,248 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:22] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:22,255 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:22] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:23,947 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:23,949 - ConvertToMarkdownTool - INFO - Page 3: LLM created 24 semantic blocks
+2025-11-16 22:58:23,950 - ConvertToMarkdownTool - INFO - Verifying page 3 with text extraction...
+2025-11-16 22:58:24,245 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:24] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:24,562 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:24,565 - ConvertToMarkdownTool - INFO - Transcribed page 5: 1854 characters
+2025-11-16 22:58:24,565 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 5...
+2025-11-16 22:58:24,921 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:24] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:58:24,921 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:24] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:24,924 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:24] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:58:25,064 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:25] "OPTIONS /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 22:58:25,066 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:25] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:58:25,068 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:25] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 22:58:26,922 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:26] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:28,928 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:28] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:28,942 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:28] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:30,069 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:30,072 - ConvertToMarkdownTool - INFO - Page 5: LLM created 5 semantic blocks
+2025-11-16 22:58:30,072 - ConvertToMarkdownTool - INFO - Verifying page 5 with text extraction...
+2025-11-16 22:58:30,926 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:30] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:32,923 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:32] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:33,469 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:33,470 - ConvertToMarkdownTool - INFO - Page 3: Found 14 verified suggestions
+2025-11-16 22:58:33,471 - ConvertToMarkdownTool - INFO - Transcribing page 4/5...
+2025-11-16 22:58:34,922 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:34] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:34,926 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:34] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:36,924 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:36] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:37,361 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:37,363 - ConvertToMarkdownTool - ERROR - Failed to verify page 5: Invalid control character at: line 12 column 104 (char 2297)
+2025-11-16 22:58:37,363 - ConvertToMarkdownTool - INFO - Successfully transcribed 5 pages
+2025-11-16 22:58:37,363 - ConvertToMarkdownTool - INFO - Generated 57 blocks with stable IDs
+2025-11-16 22:58:37,363 - ConvertToMarkdownTool - INFO - Found 16 verification suggestions
+2025-11-16 22:58:37,376 - ConvertToMarkdownTool - INFO - convert_to_markdown: file_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages -> md_file_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages_md_a4618a7c path=external/data/doc_review/markdown/3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages_md_a4618a7c.md
+2025-11-16 22:58:37,377 - ConvertToMarkdownTool - INFO - Tool executed successfully: convert_to_markdown (78.34s)
+2025-11-16 22:58:37,632 - ExtractImagesTool - INFO - extract_images: file_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages path=/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages.pdf images_found=0
+2025-11-16 22:58:37,632 - ExtractImagesTool - INFO - Tool executed successfully: extract_images (0.26s)
+2025-11-16 22:58:37,632 - ComputeFileStatsTool - INFO - compute_file_stats: file_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages md_file_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages_md_a4618a7c words=1176 pages=3
+2025-11-16 22:58:37,632 - ComputeFileStatsTool - INFO - Tool executed successfully: compute_file_stats (0.00s)
+2025-11-16 22:58:37,632 - AnalyzeHeadingStructureTool - INFO - analyze_heading_structure: file_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages headings=0 levels=
+2025-11-16 22:58:37,633 - AnalyzeHeadingStructureTool - INFO - Tool executed successfully: analyze_heading_structure (0.00s)
+2025-11-16 22:58:37,664 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:37,668 - ConvertToMarkdownTool - INFO - Transcribed page 4: 2081 characters
+2025-11-16 22:58:37,668 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 4...
+2025-11-16 22:58:38,924 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:38] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:40,923 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:40] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:40,928 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:40] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:42,402 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:42,404 - ConvertToMarkdownTool - INFO - Page 4: LLM created 8 semantic blocks
+2025-11-16 22:58:42,405 - ConvertToMarkdownTool - INFO - Verifying page 4 with text extraction...
+2025-11-16 22:58:42,920 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:42] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:45,055 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:45] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:45,610 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:45,612 - BuildFileMetadataTool - INFO - build_file_metadata: file_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages type=pdf words=1176 pages=3
+2025-11-16 22:58:45,612 - BuildFileMetadataTool - INFO - Tool executed successfully: build_file_metadata (0.00s)
+2025-11-16 22:58:45,871 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:45,872 - ConvertToMarkdownTool - INFO - Page 4: Found 2 verified suggestions
+2025-11-16 22:58:45,872 - ConvertToMarkdownTool - INFO - Transcribing page 5/5...
+2025-11-16 22:58:47,057 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:47] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:47,060 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:47] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:47,736 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:49,060 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:49] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:50,576 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:50,578 - ConvertToMarkdownTool - INFO - Transcribed page 5: 1854 characters
+2025-11-16 22:58:50,578 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 5...
+2025-11-16 22:58:51,057 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:51] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:53,059 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:53] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:53,063 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:53] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:55,059 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:55] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:55,973 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:55,975 - ConvertToMarkdownTool - INFO - Page 5: LLM created 5 semantic blocks
+2025-11-16 22:58:55,975 - ConvertToMarkdownTool - INFO - Verifying page 5 with text extraction...
+2025-11-16 22:58:56,877 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:57,061 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:57] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:59,059 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:59] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:59,063 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:59] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:59:01,060 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:59:01] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:59:01,651 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:59:01,654 - ConvertToMarkdownTool - ERROR - Failed to verify page 5: Invalid control character at: line 12 column 104 (char 1647)
+2025-11-16 22:59:01,654 - ConvertToMarkdownTool - INFO - Successfully transcribed 5 pages
+2025-11-16 22:59:01,654 - ConvertToMarkdownTool - INFO - Generated 59 blocks with stable IDs
+2025-11-16 22:59:01,654 - ConvertToMarkdownTool - INFO - Found 31 verification suggestions
+2025-11-16 22:59:01,665 - ConvertToMarkdownTool - INFO - convert_to_markdown: file_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages -> md_file_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages_md_a60709d0 path=external/data/doc_review/markdown/3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages_md_a60709d0.md
+2025-11-16 22:59:01,665 - ConvertToMarkdownTool - INFO - Tool executed successfully: convert_to_markdown (86.04s)
+2025-11-16 22:59:01,923 - ExtractImagesTool - INFO - extract_images: file_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages path=/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages.pdf images_found=0
+2025-11-16 22:59:01,923 - ExtractImagesTool - INFO - Tool executed successfully: extract_images (0.26s)
+2025-11-16 22:59:01,923 - ComputeFileStatsTool - INFO - compute_file_stats: file_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages md_file_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages_md_a60709d0 words=1177 pages=3
+2025-11-16 22:59:01,923 - ComputeFileStatsTool - INFO - Tool executed successfully: compute_file_stats (0.00s)
+2025-11-16 22:59:01,924 - AnalyzeHeadingStructureTool - INFO - analyze_heading_structure: file_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages headings=0 levels=
+2025-11-16 22:59:01,924 - AnalyzeHeadingStructureTool - INFO - Tool executed successfully: analyze_heading_structure (0.00s)
+2025-11-16 22:59:03,116 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:59:03] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:59:04,831 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:59:05,059 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:59:05] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:59:05,063 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:59:05] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:59:07,060 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:59:07] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:59:08,115 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:59:08,117 - external.doc_review.store - INFO - Preserved original_markdown for CAR_Chapter_1_First_5_Pages
+2025-11-16 22:59:08,124 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:59:08] "POST /api/doc_review/documents/CAR_Chapter_1_First_5_Pages/run_phase1 HTTP/1.1" 200 -
+2025-11-16 22:59:08,131 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:59:08] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:59:09,064 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:59:09] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:59:09,243 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:59:09,253 - BuildFileMetadataTool - INFO - build_file_metadata: file_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages type=pdf words=1177 pages=3
+2025-11-16 22:59:09,253 - BuildFileMetadataTool - INFO - Tool executed successfully: build_file_metadata (0.00s)
+2025-11-16 22:59:11,462 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:59:20,576 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:59:28,214 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:59:31,533 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:59:31,536 - external.doc_review.store - INFO - Preserved original_markdown for CAR_Chapter_1_First_5_Pages
+2025-11-16 22:59:31,548 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:59:31] "POST /api/doc_review/documents/CAR_Chapter_1_First_5_Pages/run_phase1 HTTP/1.1" 200 -
+2025-11-16 22:59:31,554 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:59:31] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:59:31,560 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:59:31] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 23:03:06,981 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 23:03:06] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages/apply_template HTTP/1.1" 200 -
+2025-11-16 23:03:07,005 - external.doc_review.template_processor - INFO - Starting template processing with 'policy_template'
+2025-11-16 23:03:07,005 - external.doc_review.template_processor - INFO - Processing page 1/5
+2025-11-16 23:03:07,005 - external.doc_review.template_processor - INFO - Performing gap analysis for page 1
+2025-11-16 23:03:16,065 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 23:03:16,067 - external.doc_review.template_processor - INFO - Page 1: Found 9 gaps
+2025-11-16 23:03:16,067 - external.doc_review.template_processor - INFO - Generating improvements for page 1
+2025-11-16 23:03:30,694 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 23:03:30,697 - external.doc_review.template_processor - INFO - Page 1: Generated 9 improvements
+2025-11-16 23:03:30,697 - external.doc_review.template_processor - INFO - Processing page 2/5
+2025-11-16 23:03:30,698 - external.doc_review.template_processor - INFO - Performing gap analysis for page 2
+2025-11-16 23:03:34,943 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 23:03:34,944 - external.doc_review.template_processor - INFO - Page 2: Found 3 gaps
+2025-11-16 23:03:34,945 - external.doc_review.template_processor - INFO - Generating improvements for page 2
+2025-11-16 23:03:47,204 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 23:03:47,209 - external.doc_review.template_processor - INFO - Page 2: Generated 10 improvements
+2025-11-16 23:03:47,212 - external.doc_review.template_processor - INFO - Processing page 3/5
+2025-11-16 23:03:47,214 - external.doc_review.template_processor - INFO - Performing gap analysis for page 3
+2025-11-16 23:03:56,923 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 23:03:56,925 - external.doc_review.template_processor - INFO - Page 3: Found 10 gaps
+2025-11-16 23:03:56,926 - external.doc_review.template_processor - INFO - Generating improvements for page 3
+2025-11-16 23:04:12,521 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 23:04:12,522 - external.doc_review.template_processor - INFO - Page 3: Generated 9 improvements
+2025-11-16 23:04:12,523 - external.doc_review.template_processor - INFO - Processing page 4/5
+2025-11-16 23:04:12,523 - external.doc_review.template_processor - INFO - Performing gap analysis for page 4
+2025-11-16 23:04:18,014 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 23:04:18,015 - external.doc_review.template_processor - INFO - Page 4: Found 8 gaps
+2025-11-16 23:04:18,015 - external.doc_review.template_processor - INFO - Generating improvements for page 4
+2025-11-16 23:04:29,418 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 23:04:29,419 - external.doc_review.template_processor - INFO - Page 4: Generated 8 improvements
+2025-11-16 23:04:29,419 - external.doc_review.template_processor - INFO - Processing page 5/5
+2025-11-16 23:04:29,419 - external.doc_review.template_processor - INFO - Performing gap analysis for page 5
+2025-11-16 23:04:34,946 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 23:04:34,947 - external.doc_review.template_processor - ERROR - Gap analysis failed for page 5: Extra data: line 51 column 1 (char 2243)
+2025-11-16 23:04:34,947 - external.doc_review.template_processor - INFO - Generating improvements for page 5
