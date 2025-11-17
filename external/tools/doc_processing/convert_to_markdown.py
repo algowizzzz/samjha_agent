@@ -253,40 +253,48 @@ INSTRUCTIONS:
 - Empty lines can be their own blocks
 - Detect headings by **bold** formatting + structure
 - Infer heading level (1-3) from context
+- STRIP all markdown symbols (**, #) from content field
+- Store structure info in type and level fields
 
 OUTPUT FORMAT (JSON array):
 [
   {{
     "start_line": 0,
     "end_line": 0,
-    "content": "**Risk Management Policy**",
+    "content": "Risk Management Policy",
     "type": "heading",
     "level": 1
   }},
   {{
     "start_line": 2,
     "end_line": 2,
-    "content": "**1. Overview**",
+    "content": "1. Overview",
     "type": "heading",
     "level": 2
   }},
   {{
     "start_line": 4,
     "end_line": 4,
-    "content": "**1.1 Purpose**",
+    "content": "1.1 Purpose",
     "type": "heading",
     "level": 3
   }},
   {{
     "start_line": 6,
     "end_line": 8,
-    "content": "This is a complete paragraph with **bold** words inside.",
+    "content": "This is a complete paragraph with bold words inside.",
     "type": "paragraph"
   }}
 ]
 
+CRITICAL CONTENT CLEANING:
+- If input has "**Risk Policy**" → output "Risk Policy" (strip **)
+- If input has "# Overview" → output "Overview" (strip #)
+- If input has "**# Title**" → output "Title" (strip both ** and #)
+- Keep bold meaning in type/level, NOT in content text
+
 BLOCK TYPES:
-- heading (with level 1-3): **bold** + short + standalone line
+- heading (with level 1-3): detected from **bold** + short + standalone
 - paragraph: multi-line text blocks
 - bullet: entire bullet list (lines starting with -)
 - numbered: entire numbered list (lines starting with 1. 2. 3.)
@@ -298,14 +306,14 @@ HEADING LEVEL DETECTION:
 - Level 2: Section headings, numbered "1.", "2.", "3."
 - Level 3: Subsections, numbered "1.1", "2.1", indented, or under level 2
 
-HEADING PATTERNS:
-- "**RISK POLICY**" → level 1 (all caps, title)
-- "**Risk Management Policy**" → level 1 (title case, first heading)
-- "**1. Overview**" → level 2 (section numbering)
-- "**1.1 Purpose**" → level 3 (subsection numbering)
-- "**Background**" → level 2 or 3 (context dependent)
+HEADING PATTERNS (after stripping symbols):
+- "RISK POLICY" → level 1 (all caps, title)
+- "Risk Management Policy" → level 1 (title case, first heading)
+- "1. Overview" → level 2 (section numbering)
+- "1.1 Purpose" → level 3 (subsection numbering)
+- "Background" → level 2 or 3 (context dependent)
 
-CRITICAL: Output ONLY the JSON array, no other text.
+CRITICAL: Output ONLY the JSON array, no other text. Clean all content fields.
 """
 
         try:
