@@ -1,21 +1,43 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { 
   GripVertical, 
   MessageSquare, 
-  MoreVertical, 
   Bold, 
   Italic, 
   Highlighter, 
   Link as LinkIcon, 
-  MessageSquarePlus,
-  Sparkles,
   Plus,
   Check,
   X as XIcon,
-  AlertCircle
+  AlertCircle,
+  Undo,
+  Redo,
+  Save
 } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { motion, AnimatePresence } from 'framer-motion';
 import { BlockMetadata, VerificationSuggestion, RiskGPTSuggestion, askRiskGPT } from '@/lib/api';
 import { activityLogger } from '@/utils/activityLogger';
+import { SlashCommandMenu } from './editor/SlashCommandMenu';
+import { ContextMenu } from './editor/ContextMenu';
+import { useUndoRedo } from '@/hooks/useUndoRedo';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 type BlockType = 'paragraph' | 'heading1' | 'heading2' | 'heading3' | 'bullet' | 'numbered' | 'table' | 'callout' | 'quote' | 'empty';
 type ChangeType = 'verified' | 'modified' | 'ai_suggested' | 'ai_applied' | 'rejected' | 'none';
@@ -81,21 +103,27 @@ function parseMarkdownToBlocks(markdown: string): Block[] {
   for (const line of lines) {
     const trimmed = line.trimEnd();
     if (trimmed.startsWith('### ')) {
-      blocks.push({ id: `b${blocks.length + 1}`, type: 'heading3', content: trimmed.replace(/^###\\s+/, ''), changeType: 'none', commentCount: 0, changeHistory: [] });
+      const content = trimmed.replace(/^###\s+/, '');
+      blocks.push({ id: `b${blocks.length + 1}`, type: 'heading3', content: markdownToHtml(content), changeType: 'none', commentCount: 0, changeHistory: [] });
     } else if (trimmed.startsWith('## ')) {
-      blocks.push({ id: `b${blocks.length + 1}`, type: 'heading2', content: trimmed.replace(/^##\\s+/, ''), changeType: 'none', commentCount: 0, changeHistory: [] });
+      const content = trimmed.replace(/^##\s+/, '');
+      blocks.push({ id: `b${blocks.length + 1}`, type: 'heading2', content: markdownToHtml(content), changeType: 'none', commentCount: 0, changeHistory: [] });
     } else if (trimmed.startsWith('# ')) {
-      blocks.push({ id: `b${blocks.length + 1}`, type: 'heading1', content: trimmed.replace(/^#\\s+/, ''), changeType: 'none', commentCount: 0, changeHistory: [] });
+      const content = trimmed.replace(/^#\s+/, '');
+      blocks.push({ id: `b${blocks.length + 1}`, type: 'heading1', content: markdownToHtml(content), changeType: 'none', commentCount: 0, changeHistory: [] });
     } else if (trimmed.startsWith('- ')) {
-      blocks.push({ id: `b${blocks.length + 1}`, type: 'bullet', content: trimmed.replace(/^-\\s+/, ''), changeType: 'none', commentCount: 0, changeHistory: [] });
-    } else if (trimmed.match(/^\\d+\\.\\s+/)) {
-      blocks.push({ id: `b${blocks.length + 1}`, type: 'numbered', content: trimmed.replace(/^\\d+\\.\\s+/, ''), changeType: 'none', commentCount: 0, changeHistory: [] });
+      const content = trimmed.replace(/^-\s+/, '');
+      blocks.push({ id: `b${blocks.length + 1}`, type: 'bullet', content: markdownToHtml(content), changeType: 'none', commentCount: 0, changeHistory: [] });
+    } else if (trimmed.match(/^\d+\.\s+/)) {
+      const content = trimmed.replace(/^\d+\.\s+/, '');
+      blocks.push({ id: `b${blocks.length + 1}`, type: 'numbered', content: markdownToHtml(content), changeType: 'none', commentCount: 0, changeHistory: [] });
     } else if (trimmed.startsWith('> ')) {
-      blocks.push({ id: `b${blocks.length + 1}`, type: 'quote', content: trimmed.replace(/^>\\s+/, ''), changeType: 'none', commentCount: 0, changeHistory: [] });
+      const content = trimmed.replace(/^>\s+/, '');
+      blocks.push({ id: `b${blocks.length + 1}`, type: 'quote', content: markdownToHtml(content), changeType: 'none', commentCount: 0, changeHistory: [] });
     } else if (trimmed.length === 0) {
       blocks.push({ id: `b${blocks.length + 1}`, type: 'paragraph', content: '', changeType: 'none', commentCount: 0, changeHistory: [] });
     } else {
-      blocks.push({ id: `b${blocks.length + 1}`, type: 'paragraph', content: trimmed, changeType: 'none', commentCount: 0, changeHistory: [] });
+      blocks.push({ id: `b${blocks.length + 1}`, type: 'paragraph', content: markdownToHtml(trimmed), changeType: 'none', commentCount: 0, changeHistory: [] });
     }
   }
   return blocks;
@@ -123,6 +151,9 @@ function parseMarkdownWithMetadata(
     // Check if this block has a suggestion
     const suggestion = suggestions.find(s => s.block_id === blockId);
     
+    // Convert markdown content to HTML for contentEditable
+    const htmlContent = markdownToHtml(meta.content);
+    
     // Determine change type based on suggestion
     const changeType: ChangeType = suggestion ? 'verified' : 'none';
     
@@ -130,19 +161,26 @@ function parseMarkdownWithMetadata(
     const changeHistory: ChangeRecord[] = suggestion ? [{
       timestamp: new Date().toISOString(),
       type: 'verified',
-      original: suggestion.original,
-      modified: suggestion.suggested,
+      original: markdownToHtml(suggestion.original),
+      modified: markdownToHtml(suggestion.suggested),
       reason: suggestion.reason,
       user: 'system'
     }] : [];
     
+    // Convert suggestion content to HTML as well
+    const htmlSuggestion = suggestion ? {
+      ...suggestion,
+      original: markdownToHtml(suggestion.original),
+      suggested: markdownToHtml(suggestion.suggested)
+    } : undefined;
+    
     blocks.push({
       id: blockId,
       type: blockType,
-      content: meta.content,  // Use full block content (can be multi-line)
+      content: htmlContent,  // Use HTML content for contentEditable
       changeType,
       commentCount: 0,
-      suggestion,
+      suggestion: htmlSuggestion,
       changeHistory,
       formatting: (meta as any).formatting,  // Pass formatting metadata
       indent_level: (meta as any).indent_level  // Pass indent level
@@ -152,12 +190,78 @@ function parseMarkdownWithMetadata(
   return blocks;
 }
 
+// Helper: Convert HTML to plain text (strip tags but preserve formatting markers)
+function htmlToPlainText(html: string): string {
+  console.log('[htmlToPlainText] Input HTML:', html);
+  
+  // Create a temporary div to parse HTML
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
+  
+  // Convert common HTML tags to markdown/plain text
+  temp.querySelectorAll('strong, b').forEach(el => {
+    const boldText = `**${el.textContent}**`;
+    console.log('[htmlToPlainText] Converting bold:', el.textContent, '→', boldText);
+    el.replaceWith(boldText);
+  });
+  temp.querySelectorAll('em, i').forEach(el => {
+    const italicText = `*${el.textContent}*`;
+    console.log('[htmlToPlainText] Converting italic:', el.textContent, '→', italicText);
+    el.replaceWith(italicText);
+  });
+  temp.querySelectorAll('u').forEach(el => {
+    el.replaceWith(el.textContent || '');
+  });
+  temp.querySelectorAll('br').forEach(el => {
+    el.replaceWith('\n');
+  });
+  
+  const result = temp.textContent || '';
+  console.log('[htmlToPlainText] Output:', result);
+  return result;
+}
+
+function markdownToHtml(markdown: string): string {
+  console.log('[markdownToHtml] Input markdown:', markdown);
+  let html = markdown;
+  
+  // IMPORTANT: Process bold BEFORE italic to avoid conflicts
+  // Bold: **text** or __text__ -> <strong>text</strong>
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+  
+  // Italic: *text* or _text_ -> <em>text</em>
+  // Match single * or _ that are NOT part of bold markers
+  html = html.replace(/(?<![*_])\*([^*]+?)\*(?![*_])/g, '<em>$1</em>');
+  html = html.replace(/(?<![*_])_([^_]+?)_(?![*_])/g, '<em>$1</em>');
+  
+  console.log('[markdownToHtml] Output HTML:', html);
+  return html;
+}
+
 function blocksToMarkdown(blocks: Block[]): string {
   const lines: string[] = [];
   for (const b of blocks) {
-    // For semantic blocks, content may already include markdown formatting
-    // Just add the content as-is
-    lines.push(b.content);
+    // Convert HTML content to plain text
+    const plainContent = htmlToPlainText(b.content);
+    
+    // Add markdown syntax based on block type
+    let line = plainContent;
+    if (b.type === 'heading1') {
+      line = `# ${plainContent}`;
+    } else if (b.type === 'heading2') {
+      line = `## ${plainContent}`;
+    } else if (b.type === 'heading3') {
+      line = `### ${plainContent}`;
+    } else if (b.type === 'bullet_list') {
+      line = `- ${plainContent}`;
+    } else if (b.type === 'numbered_list') {
+      line = `1. ${plainContent}`;
+    } else if (b.type === 'quote') {
+      line = `> ${plainContent}`;
+    }
+    
+    lines.push(line);
   }
   return lines.join('\n');
 }
@@ -179,7 +283,8 @@ export function BlockEditor({
   onAcceptSuggestion,
   onRejectSuggestion
 }: BlockEditorProps) {
-  const [blocks, setBlocks] = useState<Block[]>(() => {
+  // Enhanced: Undo/Redo state
+  const initialBlocks = (() => {
     if (initialMarkdown && initialMarkdown.trim().length > 0) {
       if (blockMetadata && verificationSuggestions) {
         return parseMarkdownWithMetadata(initialMarkdown, blockMetadata, verificationSuggestions);
@@ -187,13 +292,21 @@ export function BlockEditor({
       return parseMarkdownToBlocks(initialMarkdown);
     }
     return mockBlocks;
-  });
+  })();
+  
+  // ENHANCED: Undo/Redo with history
+  const { state: blocks, setState: setBlocks, undo, redo, canUndo, canRedo } = useUndoRedo<Block[]>(initialBlocks);
+  
+  // Debug logging
+  console.log('[BlockEditor] Blocks count:', blocks.length);
+  console.log('[BlockEditor] First 3 blocks:', blocks.slice(0, 3));
+  
   const [hoveredBlock, setHoveredBlock] = useState<string | null>(null);
-  const [selectedText, setSelectedText] = useState(false);
-  const [selectionPosition, setSelectionPosition] = useState({ x: 0, y: 0 });
   const [showSlashMenu, setShowSlashMenu] = useState(false);
   const [slashMenuPosition, setSlashMenuPosition] = useState({ x: 0, y: 0 });
+  const [slashSearchQuery, setSlashSearchQuery] = useState('');
   const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ blockId: string; position: { x: number; y: number } } | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   
   // Track accepted/rejected suggestions for persistence
@@ -205,12 +318,88 @@ export function BlockEditor({
   const [riskGPTPrompt, setRiskGPTPrompt] = useState('');
   const [isAskingRiskGPT, setIsAskingRiskGPT] = useState(false);
   const blockRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  
+  // ENHANCED: Drag & drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+  
+  // Auto-save disabled per user request
+  // Manual save only via "Save" button
+  const isSaving = false;
+  const lastSaved = null;
+  const saveNow = () => {
+    // Manual save via handleSave() called by button
+  };
+
+  // ENHANCED: Drag & drop handler
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setBlocks((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  }, [setBlocks]);
+
+  // ENHANCED: Slash command handler
+  const handleSlashCommand = useCallback((position: { x: number; y: number }) => {
+    setSlashMenuPosition(position);
+    setShowSlashMenu(true);
+  }, []);
+
+  const handleSlashSelect = useCallback((blockType: any) => {
+    if (blockType === 'ai') {
+      activityLogger.info('AI assistant requested');
+    } else {
+      const selectedId = Array.from(selectedBlockIds)[0];
+      if (selectedId) {
+        setBlocks((prevBlocks) =>
+          prevBlocks.map((block) =>
+            block.id === selectedId ? { ...block, type: blockType } : block
+          )
+        );
+      }
+    }
+    setShowSlashMenu(false);
+    setSlashSearchQuery('');
+  }, [selectedBlockIds, setBlocks]);
+
+  // ENHANCED: Keyboard shortcuts
+  useKeyboardShortcuts({
+    'cmd+z': undo,
+    'ctrl+z': undo,
+    'cmd+shift+z': redo,
+    'ctrl+shift+z': redo,
+    'cmd+s': (e) => {
+      e.preventDefault();
+      handleSave();
+    },
+    'ctrl+s': (e) => {
+      e.preventDefault();
+      handleSave();
+    },
+  });
 
   useEffect(() => {
-    if (initialMarkdown !== undefined) {
-      if (blockMetadata && verificationSuggestions) {
+    console.log('[BlockEditor] useEffect triggered:', {
+      hasInitialMarkdown: !!initialMarkdown,
+      hasBlockMetadata: !!blockMetadata,
+      hasSuggestions: !!verificationSuggestions,
+      markdownLength: initialMarkdown?.length,
+      metadataCount: blockMetadata?.length
+    });
+    
+    if (initialMarkdown !== undefined && initialMarkdown.trim().length > 0) {
+      if (blockMetadata && blockMetadata.length > 0 && verificationSuggestions) {
         // Parse blocks with metadata and suggestions
         const blocksWithSuggestions = parseMarkdownWithMetadata(initialMarkdown, blockMetadata, verificationSuggestions);
+        console.log('[BlockEditor] Parsed blocks with metadata:', blocksWithSuggestions.length);
         
         // AUTO-ACCEPT all verification suggestions silently
         const blocksWithAutoAccept = blocksWithSuggestions.map(block => {
@@ -236,21 +425,17 @@ export function BlockEditor({
           return block;
         });
         
+        console.log('[BlockEditor] Setting blocks with auto-accept:', blocksWithAutoAccept.length);
         setBlocks(blocksWithAutoAccept);
       } else {
-      setBlocks(parseMarkdownToBlocks(initialMarkdown || ''));
+        const parsed = parseMarkdownToBlocks(initialMarkdown || '');
+        console.log('[BlockEditor] Setting blocks from markdown:', parsed.length);
+        setBlocks(parsed);
       }
     }
-  }, [initialMarkdown, blockMetadata, verificationSuggestions]);
+  }, [initialMarkdown, blockMetadata, verificationSuggestions, setBlocks]);
 
-  // Auto-resize all textareas on mount and when blocks change
-  useEffect(() => {
-    const textareas = editorRef.current?.querySelectorAll('textarea');
-    textareas?.forEach((textarea) => {
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    });
-  }, [blocks]);
+  // No longer needed - using contentEditable divs instead of textareas
 
   // Notify parent when selected blocks change
   useEffect(() => {
@@ -377,23 +562,6 @@ export function BlockEditor({
     };
   }, [onAcceptSuggestion, onRejectSuggestion, blocks, blockMetadata, onSelectedBlocksChange]);
 
-  useEffect(() => {
-    const handleSelectionChange = () => {
-      const selection = window.getSelection();
-      if (selection && selection.toString().length > 0) {
-        const range = selection.getRangeAt(0);
-        const rect = range.getBoundingClientRect();
-        setSelectionPosition({ x: rect.left, y: rect.top - 50 });
-        setSelectedText(true);
-      } else {
-        setSelectedText(false);
-      }
-    };
-
-    document.addEventListener('selectionchange', handleSelectionChange);
-    return () => document.removeEventListener('selectionchange', handleSelectionChange);
-  }, []);
-
   const handleAcceptChange = (blockId: string) => {
     setBlocks(blocks.map(b => 
       b.id === blockId ? { ...b, changeType: 'none' } : b
@@ -404,7 +572,19 @@ export function BlockEditor({
     setBlocks(blocks.filter(b => b.id !== blockId));
   };
 
-  const handleInputChange = (blockId: string, value: string) => {
+  const handleInputChange = (blockId: string, value: string, e?: React.FormEvent<HTMLTextAreaElement>) => {
+    // ENHANCED: Detect slash command
+    if (value.startsWith('/') && e) {
+      const target = e.target as HTMLTextAreaElement;
+      const rect = target.getBoundingClientRect();
+      setSlashMenuPosition({ x: rect.left, y: rect.bottom + 5 });
+      setSlashSearchQuery(value.slice(1)); // Remove the /
+      setShowSlashMenu(true);
+      setSelectedBlockIds(new Set([blockId])); // Select this block for slash command
+    } else {
+      setShowSlashMenu(false);
+    }
+    
     setBlocks(prev => prev.map(b => b.id === blockId ? { ...b, content: value } : b));
   };
 
@@ -615,13 +795,42 @@ export function BlockEditor({
     // Convert blocks back to markdown
     const md = blocksToMarkdown(blocks);
     
-    // Update block metadata with current content
+    // Update block metadata with current content and type (convert HTML to plain text)
     const updatedBlockMetadata = blockMetadata.map(meta => {
       const block = blocks.find(b => b.id === meta.id);
       if (block) {
+        // Map block type to metadata format
+        let metaType = meta.type;
+        let metaLevel = meta.level;
+        
+        if (block.type === 'heading1') {
+          metaType = 'heading';
+          metaLevel = 1;
+        } else if (block.type === 'heading2') {
+          metaType = 'heading';
+          metaLevel = 2;
+        } else if (block.type === 'heading3') {
+          metaType = 'heading';
+          metaLevel = 3;
+        } else if (block.type === 'bullet' || block.type === 'bullet_list') {
+          metaType = 'list_item';
+          metaLevel = undefined;
+        } else if (block.type === 'numbered' || block.type === 'numbered_list') {
+          metaType = 'list_item';
+          metaLevel = undefined;
+        } else if (block.type === 'quote') {
+          metaType = 'quote';
+          metaLevel = undefined;
+        } else {
+          metaType = 'paragraph';
+          metaLevel = undefined;
+        }
+        
         return {
           ...meta,
-          content: block.content
+          type: metaType,
+          level: metaLevel,
+          content: htmlToPlainText(block.content)
         };
       }
       return meta;
@@ -798,6 +1007,10 @@ export function BlockEditor({
         onMouseEnter={() => setHoveredBlock(block.id)}
         onMouseLeave={() => setHoveredBlock(null)}
         onClick={(e) => handleBlockClick(block.id, e)}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          setContextMenu({ blockId: block.id, position: { x: e.clientX, y: e.clientY } });
+        }}
       >
         {/* Yellow Flag for Suggestions */}
         {block.aiSuggestion && (
@@ -829,33 +1042,131 @@ export function BlockEditor({
         {/* Block Content */}
         <div className={block.changeType === 'removed' ? 'line-through opacity-50' : ''}>
           {block.type === 'bullet' || block.type === 'numbered' ? (
-            <li className={getBlockStyles(block.type, block)}>
-              <input
-                value={block.content}
-                onChange={(e) => handleInputChange(block.id, e.target.value)}
-                className="w-full bg-transparent outline-none"
-              />
-            </li>
+            <li 
+              className={getBlockStyles(block.type, block)}
+              contentEditable
+              suppressContentEditableWarning
+              dangerouslySetInnerHTML={{ __html: block.content }}
+              onInput={(e) => {
+                const newContent = e.currentTarget.innerHTML;
+                handleInputChange(block.id, newContent, e as any);
+              }}
+              onKeyDown={(e) => {
+                // ENHANCED: Cmd+B for bold
+                if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+                  e.preventDefault();
+                  document.execCommand('bold', false);
+                }
+                // ENHANCED: Cmd+I for italic
+                else if ((e.metaKey || e.ctrlKey) && e.key === 'i') {
+                  e.preventDefault();
+                  document.execCommand('italic', false);
+                }
+                // ENHANCED: Cmd+U for underline
+                else if ((e.metaKey || e.ctrlKey) && e.key === 'u') {
+                  e.preventDefault();
+                  document.execCommand('underline', false);
+                }
+                // ENHANCED: Enter creates new block
+                else if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  const index = blocks.findIndex(b => b.id === block.id);
+                  const newBlock: Block = {
+                    id: `b${Date.now()}`,
+                    type: block.type,
+                    content: '',
+                    changeType: 'none',
+                    commentCount: 0,
+                    changeHistory: [],
+                  };
+                  setBlocks([...blocks.slice(0, index + 1), newBlock, ...blocks.slice(index + 1)]);
+                  // Focus new block
+                  setTimeout(() => {
+                    const newEl = blockRefs.current.get(newBlock.id);
+                    if (newEl) {
+                      const contentLi = newEl.querySelector('[contenteditable]') as HTMLElement;
+                      contentLi?.focus();
+                    }
+                  }, 0);
+                }
+                // ENHANCED: Backspace on empty deletes block
+                else if (e.key === 'Backspace' && e.currentTarget.textContent === '') {
+                  e.preventDefault();
+                  if (blocks.length > 1) {
+                    setBlocks(blocks.filter(b => b.id !== block.id));
+                  }
+                }
+              }}
+              style={{ minHeight: '1.5rem' }}
+            />
           ) : (
-            <div className={getBlockStyles(block.type, block)}>
-              <textarea
-                value={block.content}
-                onChange={(e) => {
-                  handleInputChange(block.id, e.target.value);
-                  // Auto-resize
-                  e.target.style.height = 'auto';
-                  e.target.style.height = e.target.scrollHeight + 'px';
-                }}
-                onFocus={(e) => {
-                  // Set initial height on focus
-                  e.target.style.height = 'auto';
-                  e.target.style.height = e.target.scrollHeight + 'px';
-                }}
-                className="w-full bg-transparent outline-none resize-none overflow-hidden"
-                rows={1}
+            <div 
+              className={getBlockStyles(block.type, block)}
+              contentEditable
+              suppressContentEditableWarning
+              dangerouslySetInnerHTML={{ __html: block.content }}
+              onInput={(e) => {
+                const newContent = e.currentTarget.innerHTML;
+                handleInputChange(block.id, newContent, e as any);
+              }}
+              onKeyDown={(e) => {
+                // ENHANCED: Cmd+B for bold
+                if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+                  e.preventDefault();
+                  document.execCommand('bold', false);
+                }
+                // ENHANCED: Cmd+I for italic
+                else if ((e.metaKey || e.ctrlKey) && e.key === 'i') {
+                  e.preventDefault();
+                  document.execCommand('italic', false);
+                }
+                // ENHANCED: Cmd+U for underline
+                else if ((e.metaKey || e.ctrlKey) && e.key === 'u') {
+                  e.preventDefault();
+                  document.execCommand('underline', false);
+                }
+                // ENHANCED: Enter creates new paragraph
+                else if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  const index = blocks.findIndex(b => b.id === block.id);
+                  const newBlock: Block = {
+                    id: `b${Date.now()}`,
+                    type: 'paragraph',
+                    content: '',
+                    changeType: 'none',
+                    commentCount: 0,
+                    changeHistory: [],
+                  };
+                  setBlocks([...blocks.slice(0, index + 1), newBlock, ...blocks.slice(index + 1)]);
+                  // Focus new block
+                  setTimeout(() => {
+                    const newEl = blockRefs.current.get(newBlock.id);
+                    if (newEl) {
+                      const contentDiv = newEl.querySelector('[contenteditable]') as HTMLElement;
+                      contentDiv?.focus();
+                    }
+                  }, 0);
+                }
+                // ENHANCED: Backspace on empty deletes block
+                else if (e.key === 'Backspace' && e.currentTarget.textContent === '') {
+                  e.preventDefault();
+                  if (blocks.length > 1) {
+                    setBlocks(blocks.filter(b => b.id !== block.id));
+                  }
+                }
+                // ENHANCED: Tab to indent
+                else if (e.key === 'Tab') {
+                  e.preventDefault();
+                  const indent = e.shiftKey ? -1 : 1;
+                  setBlocks(prev => prev.map(b => 
+                    b.id === block.id 
+                      ? { ...b, indent_level: Math.max(0, (b.indent_level || 0) + indent) }
+                      : b
+                  ));
+                }
+              }}
                 style={{ minHeight: '1.5rem' }}
               />
-            </div>
           )}
         </div>
 
@@ -875,40 +1186,45 @@ export function BlockEditor({
             </button>
           )}
 
-          {isHovered && (
-            <>
-              <button
-                onClick={() => onCommentClick(block.id)}
-                className="p-1 hover:bg-neutral-200 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                title="Add comment"
-              >
-                <MessageSquarePlus className="w-4 h-4 text-neutral-500" />
-              </button>
+          {(isHovered || selectedBlockIds.has(block.id)) && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleBlockClick(block.id, e);
                 }}
-                className={`p-1 hover:bg-blue-100 rounded opacity-0 group-hover:opacity-100 transition-opacity ${
-                  selectedBlockIds.has(block.id) ? 'bg-blue-100' : ''
-                }`}
-                title="Ask RiskGPT to improve this block"
-              >
-                <Sparkles className={`w-4 h-4 ${selectedBlockIds.has(block.id) ? 'text-blue-600' : 'text-neutral-500'}`} />
+              className={`px-2 py-0.5 rounded text-xs transition-all ${
+                selectedBlockIds.has(block.id) 
+                  ? 'bg-blue-600 text-white font-bold opacity-100' 
+                  : 'bg-neutral-200 text-neutral-700 hover:bg-neutral-300 opacity-0 group-hover:opacity-100'
+              }`}
+              title="Select block and ask RiskGPT to improve it"
+            >
+              Ask RiskGPT
               </button>
-              <button className="p-1 hover:bg-neutral-200 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                <MoreVertical className="w-4 h-4 text-neutral-500" />
-              </button>
-            </>
           )}
         </div>
 
 
 
-        {/* Add Block Button */}
+        {/* ENHANCED: Add Block Button */}
         {isHovered && (
           <div className="absolute left-1/2 -translate-x-1/2 -bottom-3 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button className="p-1 bg-white border border-neutral-300 rounded-full hover:bg-neutral-100 shadow-sm">
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                const index = blocks.findIndex(b => b.id === block.id);
+                const newBlock: Block = {
+                  id: `b${Date.now()}`,
+                  type: 'paragraph',
+                  content: '',
+                  changeType: 'none',
+                  commentCount: 0,
+                  changeHistory: [],
+                };
+                setBlocks([...blocks.slice(0, index + 1), newBlock, ...blocks.slice(index + 1)]);
+              }}
+              className="p-1 bg-white border border-neutral-300 rounded-full hover:bg-neutral-100 shadow-sm"
+            >
               <Plus className="w-3 h-3 text-neutral-500" />
             </button>
           </div>
@@ -919,44 +1235,34 @@ export function BlockEditor({
 
   return (
     <div className="relative h-full overflow-y-auto bg-white" ref={editorRef}>
-      {/* Floating Toolbar */}
-      {selectedText && (
-        <div
-          className="fixed z-50 flex items-center gap-1 bg-neutral-900 text-white rounded-lg shadow-lg p-1"
-          style={{ left: selectionPosition.x, top: selectionPosition.y }}
-        >
-          <button className="p-2 hover:bg-neutral-700 rounded">
-            <Bold className="w-4 h-4" />
+
+      {/* Track Changes Legend with Undo/Redo */}
+      <div className="sticky top-0 z-20 bg-white border-b border-neutral-200 px-4 py-2 shadow-sm">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            {/* Undo/Redo */}
+            <div className="flex items-center gap-1">
+              <button
+                onClick={undo}
+                disabled={!canUndo}
+                className="p-1 hover:bg-neutral-100 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                title="Undo (⌘Z)"
+              >
+                <Undo className="w-4 h-4" />
           </button>
-          <button className="p-2 hover:bg-neutral-700 rounded">
-            <Italic className="w-4 h-4" />
-          </button>
-          <button className="p-2 hover:bg-neutral-700 rounded">
-            <Highlighter className="w-4 h-4" />
-          </button>
-          <button className="p-2 hover:bg-neutral-700 rounded">
-            <LinkIcon className="w-4 h-4" />
-          </button>
-          <div className="w-px h-5 bg-neutral-600 mx-1" />
-          <button className="p-2 hover:bg-neutral-700 rounded">
-            <MessageSquarePlus className="w-4 h-4" />
-          </button>
-          <button className="p-2 hover:bg-neutral-700 rounded">
-            <Sparkles className="w-4 h-4" />
+              <button
+                onClick={redo}
+                disabled={!canRedo}
+                className="p-1 hover:bg-neutral-100 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                title="Redo (⌘⇧Z)"
+              >
+                <Redo className="w-4 h-4" />
           </button>
         </div>
-      )}
-
 
       {/* Track Changes Legend */}
-      <div className="sticky top-0 z-20 bg-white border-b border-neutral-200 px-4 py-3 shadow-sm">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4 text-xs">
-            <span className="font-semibold text-neutral-700">Track Changes:</span>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 border-l-4 border-yellow-500 bg-white"></div>
-              <span className="text-neutral-600">Verification</span>
-            </div>
+            <div className="flex items-center gap-3 text-xs">
+              <span className="font-semibold text-neutral-700">Track:</span>
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 border-l-4 border-blue-500 bg-white"></div>
               <span className="text-neutral-600">AI Suggestion</span>
@@ -966,19 +1272,20 @@ export function BlockEditor({
               <span className="text-neutral-600">AI Applied</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 border-l-4 border-green-500 bg-white"></div>
-              <span className="text-neutral-600">User Edit</span>
-            </div>
-            <div className="flex items-center gap-1">
               <div className="w-3 h-3 border-l-4 border-red-500 bg-white"></div>
               <span className="text-neutral-600">Rejected</span>
             </div>
           </div>
-          {onSave && (
-            <button className="px-3 py-1 text-xs bg-neutral-900 text-white rounded hover:bg-neutral-800" onClick={handleSave}>
-              Save changes
+          </div>
+
+          {/* Save Button */}
+          <button
+            onClick={handleSave}
+            className="px-3 py-1 text-xs bg-neutral-900 text-white rounded hover:bg-neutral-800 flex items-center gap-2"
+          >
+            <Save className="w-3 h-3" />
+            Save (Cmd+S)
             </button>
-          )}
         </div>
       </div>
 
@@ -988,51 +1295,122 @@ export function BlockEditor({
           <div>
             {blocks.filter(b => b.aiSuggestion || b.suggestion).length > 0 && (
               <div className="px-3 py-2 bg-blue-100 border border-blue-300 rounded text-sm text-blue-900">
-                <Sparkles className="w-4 h-4 inline mr-2" />
                 {blocks.filter(b => b.aiSuggestion || b.suggestion).length} block{blocks.filter(b => b.aiSuggestion || b.suggestion).length > 1 ? 's' : ''} with suggestions - Review below
               </div>
             )}
           </div>
         </div>
         <div className="max-w-4xl mx-auto">
+          {blocks.length === 0 ? (
+            <div className="text-center py-12 text-neutral-500">
+              <p className="text-lg mb-2">No content to display</p>
+              <p className="text-sm">Document may be loading or empty</p>
+            </div>
+          ) : (
+            /* ENHANCED: Drag & Drop Context */
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
         {blocks.map(renderBlock)}
+              </SortableContext>
+            </DndContext>
+          )}
         </div>
       </div>
 
-      {/* Slash Menu */}
+      {/* ENHANCED: Slash Command Menu */}
       {showSlashMenu && (
-        <div
-          className="fixed z-50 bg-white border border-neutral-200 rounded-lg shadow-lg py-2 w-64"
-          style={{ left: slashMenuPosition.x, top: slashMenuPosition.y }}
-        >
-          <button className="w-full px-4 py-2 text-left text-sm hover:bg-neutral-100 text-neutral-900">
-            Heading 1
-          </button>
-          <button className="w-full px-4 py-2 text-left text-sm hover:bg-neutral-100 text-neutral-900">
-            Heading 2
-          </button>
-          <button className="w-full px-4 py-2 text-left text-sm hover:bg-neutral-100 text-neutral-900">
-            Heading 3
-          </button>
-          <div className="border-t border-neutral-200 my-1" />
-          <button className="w-full px-4 py-2 text-left text-sm hover:bg-neutral-100 text-neutral-900">
-            Bulleted List
-          </button>
-          <button className="w-full px-4 py-2 text-left text-sm hover:bg-neutral-100 text-neutral-900">
-            Numbered List
-          </button>
-          <button className="w-full px-4 py-2 text-left text-sm hover:bg-neutral-100 text-neutral-900">
-            Callout
-          </button>
-          <button className="w-full px-4 py-2 text-left text-sm hover:bg-neutral-100 text-neutral-900">
-            Quote
-          </button>
-          <div className="border-t border-neutral-200 my-1" />
-          <button className="w-full px-4 py-2 text-left text-sm hover:bg-neutral-100 text-neutral-700 flex items-center gap-2">
-            <Sparkles className="w-4 h-4" />
-            Ask AI to rewrite
-          </button>
-        </div>
+        <SlashCommandMenu
+          position={slashMenuPosition}
+          searchQuery={slashSearchQuery}
+          onSelect={handleSlashSelect}
+          onClose={() => setShowSlashMenu(false)}
+        />
+      )}
+
+      {/* ENHANCED: Context Menu */}
+      {contextMenu && (
+        <ContextMenu
+          position={contextMenu.position}
+          onClose={() => setContextMenu(null)}
+          onCopy={() => {
+            const block = blocks.find((b) => b.id === contextMenu.blockId);
+            if (block) navigator.clipboard.writeText(block.content);
+          }}
+          onDuplicate={() => {
+            const index = blocks.findIndex((b) => b.id === contextMenu.blockId);
+            const block = blocks[index];
+            const newBlock = { ...block, id: `b${Date.now()}` };
+            setBlocks([...blocks.slice(0, index + 1), newBlock, ...blocks.slice(index + 1)]);
+          }}
+          onDelete={() => {
+            setBlocks(blocks.filter((b) => b.id !== contextMenu.blockId));
+          }}
+          onMoveUp={() => {
+            const index = blocks.findIndex((b) => b.id === contextMenu.blockId);
+            if (index > 0) setBlocks(arrayMove(blocks, index, index - 1));
+          }}
+          onMoveDown={() => {
+            const index = blocks.findIndex((b) => b.id === contextMenu.blockId);
+            if (index < blocks.length - 1) setBlocks(arrayMove(blocks, index, index + 1));
+          }}
+          onTurnInto={() => {
+            setShowSlashMenu(true);
+            setSelectedBlockIds(new Set([contextMenu.blockId]));
+          }}
+          onComment={() => onCommentClick(contextMenu.blockId)}
+          onAskAI={async () => {
+            // ENHANCED: Connect Ask AI to RiskGPT
+            if (!fileId) {
+              alert('No file ID available');
+              return;
+            }
+            
+            const block = blocks.find(b => b.id === contextMenu.blockId);
+            if (!block) return;
+            
+            try {
+              activityLogger.info(`Asking RiskGPT to improve block: ${contextMenu.blockId}`);
+              const result = await askRiskGPT(
+                fileId,
+                [contextMenu.blockId],
+                `Improve this content: "${block.content.substring(0, 100)}..."`
+              );
+              
+              // Apply suggestions
+              if (result.suggestions && result.suggestions.length > 0) {
+                setBlocks(prev => prev.map(b => {
+                  const suggestion = result.suggestions.find(s => s.block_id === b.id);
+                  if (suggestion) {
+                    return {
+                      ...b,
+                      aiSuggestion: suggestion,
+                      changeType: 'ai_suggested' as const,
+                      changeHistory: [
+                        ...b.changeHistory,
+                        {
+                          timestamp: new Date().toISOString(),
+                          type: 'ai_suggested' as const,
+                          original: b.content,
+                          modified: suggestion.suggested,
+                          reason: suggestion.reason,
+                          user: 'riskgpt'
+                        }
+                      ]
+                    };
+                  }
+                  return b;
+                }));
+              }
+            } catch (error) {
+              console.error('[BlockEditor] RiskGPT error:', error);
+              alert(`Failed to get AI suggestions: ${error}`);
+            }
+          }}
+        />
       )}
     </div>
   );

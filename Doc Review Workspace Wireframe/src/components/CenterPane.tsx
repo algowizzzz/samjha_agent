@@ -5,8 +5,8 @@ import { Button } from './ui/button';
 import { BlockEditor } from './BlockEditor';
 import { getDocument, runFull, runPhase1, runPhase2, runPhase4, type ApiDocument, updateDocumentMarkdown, type BlockMetadata, listTemplates, applyTemplate, type TemplateImprovement } from '@/lib/api';
 import { MarkdownViewer } from './MarkdownViewer';
+import { DiffView } from './DiffView';
 import { activityLogger } from '@/utils/activityLogger';
-import { ActivityLogDisplay } from './ActivityLogDisplay';
 
 interface CenterPaneProps {
   mode: 'editing' | 'original' | 'diff';
@@ -36,7 +36,6 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
   const [doc, setDoc] = useState<ApiDocument | null>(null);
   const [loading, setLoading] = useState(false);
   const pollTimer = useRef<number | null>(null);
-  const [trackChangesEnabled, setTrackChangesEnabled] = useState(false);
   const [templates, setTemplates] = useState<string[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
@@ -385,23 +384,7 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
           </button>
         </div>
 
-        {mode === 'editing' && (
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-neutral-600">Track Changes:</span>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={trackChangesEnabled}
-                onChange={(e) => setTrackChangesEnabled(e.target.checked)}
-                className="sr-only peer"
-              />
-              <div className="w-9 h-5 bg-neutral-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-neutral-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-neutral-900"></div>
-            </label>
-            <span className={`text-xs ${trackChangesEnabled ? 'text-neutral-900 font-medium' : 'text-neutral-500'}`}>
-              {trackChangesEnabled ? 'On' : 'Off'}
-            </span>
-          </div>
-        )}
+        {/* Track Changes toggle removed per user request */}
       </div>
 
       {/* Content Area */}
@@ -424,67 +407,66 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
               </div>
               <div className="px-10 py-6">
                 {improvedMarkdown || rawMarkdown ? (
-          <BlockEditor 
-            trackChangesEnabled={trackChangesEnabled}
-            onCommentClick={onCommentClick}
-            selectedIssueId={selectedIssueId}
-                    initialMarkdown={improvedMarkdown || rawMarkdown || ''}
-                    blockMetadata={doc?.state?.block_metadata}
-                    verificationSuggestions={doc?.state?.verification_suggestions}
-                    fileId={fileId}
-                    onSelectedBlocksChange={onSelectedBlocksChange}
-                    aiSuggestions={[...aiSuggestions, ...templateSuggestions]}
-                    onSuggestionsListChange={onSuggestionsListChange}
-                    selectedSuggestionId={selectedSuggestionId}
-                    onBlockWithSuggestionClick={onBlockWithSuggestionClick}
-                    onAcceptSuggestion={onAcceptSuggestion}
-                    onRejectSuggestion={onRejectSuggestion}
-                    onSave={async (data: { 
-                      markdown: string; 
-                      blockMetadata: any[]; 
-                      acceptedSuggestions: string[]; 
-                      rejectedSuggestions: string[] 
-                    }) => {
-                      activityLogger.info('Saving document...');
-                      console.log('[CenterPane] onSave called with data:', {
-                        markdownLength: data.markdown.length,
-                        blockMetadataCount: data.blockMetadata.length,
-                        acceptedCount: data.acceptedSuggestions.length,
-                        rejectedCount: data.rejectedSuggestions.length
-                      });
-                      
-                      if (!fileId) {
-                        console.error('[CenterPane] Cannot save: fileId missing');
-                        return;
-                      }
-                      
-                      try {
-                        const res = await updateDocumentMarkdown(
-                          fileId, 
-                          data.markdown,
-                          undefined, // toc_markdown
-                          data.blockMetadata,
-                          data.acceptedSuggestions,
-                          data.rejectedSuggestions
-                        );
-                        console.log('[CenterPane] ✅ Save successful! Current editor state persisted.');
-                        activityLogger.changesSaved();
+                  <BlockEditor 
+                      trackChangesEnabled={false}
+                      onCommentClick={onCommentClick}
+                      selectedIssueId={selectedIssueId}
+                      initialMarkdown={improvedMarkdown || rawMarkdown || ''}
+                      blockMetadata={doc?.state?.block_metadata}
+                      verificationSuggestions={doc?.state?.verification_suggestions}
+                      fileId={fileId}
+                      onSelectedBlocksChange={onSelectedBlocksChange}
+                      aiSuggestions={[...aiSuggestions, ...templateSuggestions]}
+                      onSuggestionsListChange={onSuggestionsListChange}
+                      selectedSuggestionId={selectedSuggestionId}
+                      onBlockWithSuggestionClick={onBlockWithSuggestionClick}
+                      onAcceptSuggestion={onAcceptSuggestion}
+                      onRejectSuggestion={onRejectSuggestion}
+                      onSave={async (data: { 
+                        markdown: string; 
+                        blockMetadata: any[]; 
+                        acceptedSuggestions: string[]; 
+                        rejectedSuggestions: string[] 
+                      }) => {
+                        activityLogger.info('Saving document...');
+                        console.log('[CenterPane] onSave called with data:', {
+                          markdownLength: data.markdown.length,
+                          blockMetadataCount: data.blockMetadata.length,
+                          acceptedCount: data.acceptedSuggestions.length,
+                          rejectedCount: data.rejectedSuggestions.length
+                        });
                         
-                        // Update local state with new accepted/rejected counts without reloading editor
-                        if (doc && doc.state) {
-                          setDoc({
-                            ...doc,
-                            state: {
-                              ...doc.state,
-                              accepted_suggestions: data.acceptedSuggestions,
-                              rejected_suggestions: data.rejectedSuggestions,
-                              block_metadata: data.blockMetadata,
-                              improved_markdown: data.markdown
-                            }
-                          });
-                        }
-                      } catch (e) {
-                        console.error('[CenterPane] ❌ Save failed:', e);
+                        try {
+                          const fileId = doc?.file_id;
+                          if (!fileId) throw new Error('No file ID available');
+                          
+                          // FIX: Pass parameters in correct order (markdown, toc_markdown, block_metadata, ...)
+                          await updateDocumentMarkdown(
+                            fileId,
+                            data.markdown,
+                            undefined, // toc_markdown
+                            data.blockMetadata,
+                            data.acceptedSuggestions,
+                            data.rejectedSuggestions
+                          );
+                          console.log('[CenterPane] ✅ Save successful! Current editor state persisted.');
+                          activityLogger.changesSaved();
+                          
+                          // Update local state with new accepted/rejected counts without reloading editor
+                          if (doc && doc.state) {
+                            setDoc({
+                              ...doc,
+                              state: {
+                                ...doc.state,
+                                accepted_suggestions: data.acceptedSuggestions,
+                                rejected_suggestions: data.rejectedSuggestions,
+                                block_metadata: data.blockMetadata,
+                                improved_markdown: data.markdown
+                              }
+                            });
+                          }
+                        } catch (e) {
+                          console.error('[CenterPane] ❌ Save failed:', e);
                         alert(`Failed to save: ${e}`);
                       }
                     }}
@@ -515,44 +497,71 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
             </div>
           </div>
         ) : (
-          <div className="flex h-full">
-            {/* Original - Left */}
-            <div className="flex-1 border-right border-neutral-200 overflow-y-auto">
-              <div className="bg-neutral-100 px-6 py-2 sticky top-0 border-b border-neutral-200">
-                <span className="text-neutral-700 text-sm font-medium">Original</span>
+          // Diff mode - Show line-by-line comparison
+          (() => {
+            // Prepare blocks data for DiffView
+            const blockMetadata = doc?.state?.block_metadata as BlockMetadata[] | undefined;
+            const verificationSuggestions = doc?.state?.verification_suggestions || [];
+            const templateImprovements = doc?.state?.template_improvements || [];
+            
+            // Convert metadata to blocks with change history
+            const blocks = (blockMetadata || []).map((meta) => {
+              const changeHistory: Array<{
+                timestamp: string;
+                type: string;
+                original: string;
+                modified: string;
+                reason?: string;
+                user?: string;
+              }> = [];
+              
+              // Check for verification suggestions
+              const verifySuggestion = verificationSuggestions.find((s: any) => s.block_id === meta.id);
+              if (verifySuggestion) {
+                changeHistory.push({
+                  timestamp: new Date().toISOString(),
+                  type: 'verified',
+                  original: verifySuggestion.original,
+                  modified: verifySuggestion.suggested,
+                  reason: verifySuggestion.reason,
+                  user: 'system'
+                });
+              }
+              
+              // Check for template improvements
+              const templateImprovement = templateImprovements.find((imp: any) => imp.block_id === meta.id);
+              if (templateImprovement) {
+                changeHistory.push({
+                  timestamp: new Date().toISOString(),
+                  type: 'ai_suggested',
+                  original: templateImprovement.original,
+                  modified: templateImprovement.improved,
+                  reason: `${templateImprovement.reasoning}\n\nChanges: ${templateImprovement.changes_made?.join(', ') || 'N/A'}`,
+                  user: 'riskgpt'
+                });
+              }
+              
+              return {
+                id: meta.id,
+                type: meta.type || 'paragraph',
+                content: meta.content,
+                changeHistory
+              };
+            });
+            
+            return blocks.length > 0 ? (
+              <DiffView blocks={blocks} blockMetadata={blockMetadata} />
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center text-neutral-500">
+                  <p className="text-sm">No content available for diff comparison.</p>
+                  <p className="text-xs mt-2">Please ensure the document has been processed.</p>
+                </div>
               </div>
-              <div className="px-10 py-6">
-                {leftContent ? (
-                  <MarkdownViewer content={leftContent} title={`${title} (original)`} onCommentClick={onCommentClick} />
-                ) : (
-                  <div className="text-sm text-neutral-600">No original markdown available.</div>
-                )}
-              </div>
-            </div>
-            {/* Updated - Right */}
-            <div className="flex-1 overflow-y-auto">
-              <div className="bg-neutral-100 px-6 py-2 sticky top-0 border-b border-neutral-200">
-                <span className="text-neutral-700 text-sm font-medium">Improved</span>
-              </div>
-              <div className="px-10 py-6">
-                {rightContent ? (
-                  <MarkdownViewer content={rightContent} title={`${title} (improved)`} onCommentClick={onCommentClick} />
-                ) : (
-                  <div className="text-sm text-neutral-600">No improved markdown available. Run Assemble.</div>
-                )}
-              </div>
-            </div>
-          </div>
+            );
+          })()
         )}
       </div>
-
-      {/* Unified Activity Log */}
-      {doc && (
-        <ActivityLogDisplay 
-          backendLogs={doc.state?.logs || []}
-          backendErrors={doc.state?.errors || []}
-        />
-      )}
     </div>
   );
 }

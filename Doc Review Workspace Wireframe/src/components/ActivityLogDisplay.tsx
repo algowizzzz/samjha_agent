@@ -84,7 +84,7 @@ export function ActivityLogDisplay({ backendLogs = [], backendErrors = [] }: Act
 
   return (
     <div className="border-t bg-white">
-      <div className="flex items-center justify-between px-4 py-2 border-b">
+      <div className="flex items-center justify-between px-4 py-2 border-b bg-neutral-50">
         <h3 className="font-semibold text-sm">
           All Activity ({allLogs.length} logs)
         </h3>
@@ -97,7 +97,7 @@ export function ActivityLogDisplay({ backendLogs = [], backendErrors = [] }: Act
         </button>
       </div>
       
-      <ScrollArea className="h-48">
+      <ScrollArea className="h-24">
         <div className="p-2 space-y-1 font-mono text-xs">
           {allLogs.length === 0 ? (
             <div className="text-center text-neutral-400 py-4">

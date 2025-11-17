@@ -74,7 +74,7 @@ def create_app():
     # Enable CORS with credentials support
     CORS(app, 
          supports_credentials=True,
-         origins=["http://localhost:3001", "http://localhost:3000", "http://127.0.0.1:3001", "http://127.0.0.1:3000"],
+         origins=["http://localhost:3003", "http://localhost:3002", "http://localhost:3001", "http://localhost:3000", "http://127.0.0.1:3003", "http://127.0.0.1:3002", "http://127.0.0.1:3001", "http://127.0.0.1:3000"],
          allow_headers=["Content-Type", "Authorization", "X-API-Key"],
          methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"])
     

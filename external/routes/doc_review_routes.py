@@ -780,7 +780,7 @@ class DocReviewRoutes(BaseRoutes):
             ), 201
 
         @app.route("/api/doc_review/documents/<file_id>/markdown", methods=["PUT"])
-        @self.login_required
+        @_api_key_or_login_required
         def update_document_markdown(file_id: str):
             record = self.store.load(file_id)
             if not record:
@@ -903,16 +903,16 @@ class DocReviewRoutes(BaseRoutes):
                 if selected_block_ids and block_metadata:
                     selected_blocks = [b for b in block_metadata if b["id"] in selected_block_ids]
                 
-                # Call RiskGPT
-                from external.doc_review.llm import ask_riskgpt_for_blocks
-                result = ask_riskgpt_for_blocks(
-                    selected_blocks=selected_blocks,
+                # Call RiskGPT Agent
+                from external.doc_review.riskgpt_agent import RiskGPTAgent
+                agent = RiskGPTAgent()
+                result = agent.run(
+                    file_id=file_id,
                     user_prompt=user_prompt,
-                    full_markdown=full_markdown,
-                    template_name=template_name,
-                    template_content=template_content,
-                    all_suggestions=all_suggestions,
-                    conversation_history=conversation_history
+                    selected_block_ids=selected_block_ids,
+                    conversation_history=conversation_history,
+                    document_state=document_state,
+                    template_content=template_content
                 )
                 
                 return jsonify({
@@ -920,7 +920,10 @@ class DocReviewRoutes(BaseRoutes):
                     "analysis": result.get("analysis", ""),
                     "suggestions": result.get("suggestions", []),
                     "selected_block_ids": selected_block_ids,
-                    "user_prompt": user_prompt
+                    "user_prompt": user_prompt,
+                    "intent": result.get("intent"),
+                    "intent_confidence": result.get("intent_confidence"),
+                    "metrics": result.get("metrics")
                 })
                 
             except LLMNotAvailableError:

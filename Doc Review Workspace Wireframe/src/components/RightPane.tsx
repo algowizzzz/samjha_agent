@@ -24,9 +24,11 @@ interface RightPaneProps {
   selectedBlocks?: BlockMetadata[]; // NEW: Selected blocks from BlockEditor
   onSuggestionsReceived?: (suggestions: Array<{ block_id: string; original: string; suggested: string; reason: string }>) => void; // NEW: Callback when suggestions received
   synthesisData?: any; // NEW: Template synthesis summary
+  onDeselectBlock?: (blockId: string) => void; // NEW: Callback to deselect a specific block
+  onClearAllBlocks?: () => void; // NEW: Callback to clear all selected blocks
 }
 
-export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileId, selectedBlocks = [], onSuggestionsReceived, synthesisData }: RightPaneProps) {
+export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileId, selectedBlocks = [], onSuggestionsReceived, synthesisData, onDeselectBlock, onClearAllBlocks }: RightPaneProps) {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -364,16 +366,36 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
       <div className="border-t border-neutral-200 p-4 bg-white">
         {/* Selected Blocks Display */}
         {selectedBlocks.length > 0 && (
-          <div className="mb-3 flex flex-wrap gap-2">
-            <span className="text-xs text-neutral-600 self-center">Selected:</span>
+          <div className="mb-3 flex flex-wrap gap-2 items-center">
+            <span className="text-xs text-neutral-600">Selected ({selectedBlocks.length}):</span>
             {selectedBlocks.map((block) => (
               <div
                 key={block.id}
-                className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs flex items-center gap-1"
+                className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs flex items-center gap-1.5 hover:bg-blue-200 transition-colors"
               >
-                <span>{block.content.substring(0, 30)}...</span>
+                <span className="font-medium">Block {block.block_num}</span>
+                <span className="text-blue-600">·</span>
+                <span className="max-w-[120px] truncate">{block.content}</span>
+                {onDeselectBlock && (
+                  <button
+                    onClick={() => onDeselectBlock(block.id)}
+                    className="hover:bg-blue-300 rounded p-0.5 transition-colors"
+                    title="Remove block"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
               </div>
             ))}
+            {selectedBlocks.length > 1 && onClearAllBlocks && (
+              <button
+                onClick={onClearAllBlocks}
+                className="px-2 py-1 text-xs text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded transition-colors"
+                title="Clear all selections"
+              >
+                Clear all
+              </button>
+            )}
           </div>
         )}
         

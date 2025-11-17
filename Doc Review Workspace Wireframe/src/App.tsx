@@ -116,14 +116,6 @@ export default function App() {
     }
   };
 
-  // Handler for refreshing suggestions
-  const handleRefreshSuggestions = () => {
-    console.log('[App] Refresh suggestions');
-    // Call the CenterPane's refresh function via window global
-    if ((window as any).__centerPaneRefreshDocument) {
-      (window as any).__centerPaneRefreshDocument();
-    }
-  };
   
   // Workspace view
   if (currentPage === 'workspace') {
@@ -170,7 +162,6 @@ export default function App() {
                 onAcceptSuggestion={handleAcceptSuggestion}
                 onRejectSuggestion={handleRejectSuggestion}
                 onCommentSuggestion={handleCommentSuggestion}
-                onRefreshSuggestions={handleRefreshSuggestions}
               />
             </Resizable>
           )}
@@ -267,6 +258,12 @@ export default function App() {
                 selectedBlocks={selectedBlocks}
                 onSuggestionsReceived={setAiSuggestions}
                 synthesisData={synthesisData}
+                onDeselectBlock={(blockId) => {
+                  setSelectedBlocks(prev => prev.filter(b => b.id !== blockId));
+                }}
+                onClearAllBlocks={() => {
+                  setSelectedBlocks([]);
+                }}
               />
             </Resizable>
           )}

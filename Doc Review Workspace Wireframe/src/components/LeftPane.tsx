@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FileText, AlertCircle, FolderTree, ChevronRight, ChevronDown, MessageSquare, Sparkles, Check, X, RefreshCw } from 'lucide-react';
+import { FileText, AlertCircle, FolderTree, ChevronRight, ChevronDown, MessageSquare, Sparkles, Check, X } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { ArtifactPreviewModal } from './ArtifactPreviewModal';
 import { vfsReadFile, vfsTree } from '@/lib/api';
@@ -310,10 +310,9 @@ interface LeftPaneProps {
   onAcceptSuggestion?: (blockId: string) => void;
   onRejectSuggestion?: (blockId: string) => void;
   onCommentSuggestion?: (blockId: string) => void;
-  onRefreshSuggestions?: () => void;
 }
 
-export function LeftPane({ onIssueSelect, selectedIssueId, onArtifactSelect, fileId, suggestions = [], onSuggestionSelect, selectedSuggestionId, onAcceptSuggestion, onRejectSuggestion, onCommentSuggestion, onRefreshSuggestions }: LeftPaneProps) {
+export function LeftPane({ onIssueSelect, selectedIssueId, onArtifactSelect, fileId, suggestions = [], onSuggestionSelect, selectedSuggestionId, onAcceptSuggestion, onRejectSuggestion, onCommentSuggestion }: LeftPaneProps) {
   const [activeTab, setActiveTab] = useState<LeftPaneTab>('suggestions');
   const [severityFilter, setSeverityFilter] = useState<string>('All');
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['phase1', 'phase2', 'phase4']));
@@ -489,15 +488,6 @@ export function LeftPane({ onIssueSelect, selectedIssueId, onArtifactSelect, fil
               <span className="px-1.5 py-0.5 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold">
                 {suggestions.length}
               </span>
-            )}
-            {onRefreshSuggestions && (
-              <button
-                onClick={onRefreshSuggestions}
-                className="p-1 hover:bg-yellow-100 rounded transition-colors flex-shrink-0"
-                title="Refresh suggestions"
-              >
-                <RefreshCw className="w-3.5 h-3.5 text-neutral-600" />
-              </button>
             )}
           </div>
         </div>
