@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Play, FileText, Upload, ChevronDown, ChevronUp } from 'lucide-react';
+import { Play, FileText, Upload } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { BlockEditor } from './BlockEditor';
@@ -42,7 +42,6 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
   const [applyingTemplate, setApplyingTemplate] = useState(false);
   const [templateSuggestions, setTemplateSuggestions] = useState<Array<{ block_id: string; original: string; suggested: string; reason: string }>>([]);
-  const [showLogs, setShowLogs] = useState(false);
   // sockets disabled for now to avoid connection issues
 
   function clearPoll() {
@@ -130,8 +129,7 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
     const rawMd = (doc.state as any)?.raw_markdown as string | undefined;
     const status = (doc.status || '').toLowerCase();
     if (!rawMd && status !== 'running' && status !== 'completed') {
-      // eslint-disable-next-line no-console
-      console.info('[CenterPane] Auto-running Phase 0 ingestion for', fileId);
+      activityLogger.info(`[CenterPane] Auto-running Phase 0 ingestion for ${fileId}`);
       setLoading(true);
       handleRun('phase1');
     }
@@ -548,118 +546,12 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
         )}
       </div>
 
-      {/* Activity Section - Collapsible */}
+      {/* Unified Activity Log */}
       {doc && (
-        <div className="border-t border-neutral-200 bg-neutral-50">
-          {/* Activity Log Display - Always visible at bottom */}
-          <div className="w-full">
-            <ActivityLogDisplay />
-          </div>
-          
-          {/* Old logs section - collapsible */}
-          <button
-            onClick={() => setShowLogs(!showLogs)}
-            className="w-full px-6 py-2 flex items-center justify-between hover:bg-neutral-100 transition-colors border-t"
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-neutral-700">Processing Details</span>
-              {((doc.state?.logs?.length || 0) + (doc.state?.errors?.length || 0)) > 0 && (
-                <Badge variant="secondary" className="text-xs">
-                  {(doc.state?.logs?.length || 0) + (doc.state?.errors?.length || 0)} logs
-                </Badge>
-              )}
-            </div>
-            {showLogs ? (
-              <ChevronUp className="w-4 h-4 text-neutral-500" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-neutral-500" />
-            )}
-          </button>
-          
-          {showLogs && (
-            <div className="px-6 py-3 max-h-64 overflow-y-auto bg-white border-t border-neutral-200">
-              {/* Current Processing Status */}
-              {doc.status === 'running' && (
-                <div className="mb-4 pb-3 border-b border-neutral-200">
-                  <div className="flex items-center gap-2 text-amber-700 mb-2">
-                    <div className="animate-spin h-4 w-4 border-2 border-amber-300 border-t-amber-700 rounded-full"></div>
-                    <span className="text-xs font-semibold">Processing in Progress...</span>
-                  </div>
-                  <div className="text-xs text-neutral-600 bg-amber-50 px-3 py-2 rounded">
-                    {doc.state?.last_node || 'Initializing'} 
-                    {doc.state?.control && ` → ${doc.state.control}`}
-                  </div>
-                </div>
-              )}
-
-              {/* Phase Status Overview */}
-              {(doc.state?.block_metadata?.length > 0 || doc.state?.verification_suggestions?.length > 0 || doc.state?.improved_markdown) && (
-                <div className="mb-4 pb-3 border-b border-neutral-200">
-                  <div className="text-xs font-semibold text-neutral-700 mb-2">Processing Stages:</div>
-                  <div className="space-y-1">
-                    <div className={`flex items-center gap-2 text-xs px-2 py-1 rounded ${doc.state?.block_metadata?.length > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-neutral-50 text-neutral-400'}`}>
-                      <div className={`w-2 h-2 rounded-full ${doc.state?.block_metadata?.length > 0 ? 'bg-emerald-500' : 'bg-neutral-300'}`}></div>
-                      <span>Phase 1: Analyzed ({doc.state?.block_metadata?.length || 0} blocks)</span>
-                    </div>
-                    <div className={`flex items-center gap-2 text-xs px-2 py-1 rounded ${doc.state?.verification_suggestions?.length > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-neutral-50 text-neutral-400'}`}>
-                      <div className={`w-2 h-2 rounded-full ${doc.state?.verification_suggestions?.length > 0 ? 'bg-emerald-500' : 'bg-neutral-300'}`}></div>
-                      <span>Phase 2: Reviewed ({doc.state?.verification_suggestions?.length || 0} suggestions)</span>
-                    </div>
-                    <div className={`flex items-center gap-2 text-xs px-2 py-1 rounded ${doc.state?.improved_markdown ? 'bg-emerald-50 text-emerald-700' : 'bg-neutral-50 text-neutral-400'}`}>
-                      <div className={`w-2 h-2 rounded-full ${doc.state?.improved_markdown ? 'bg-emerald-500' : 'bg-neutral-300'}`}></div>
-                      <span>Phase 3: {doc.state?.improved_markdown ? 'Improved document ready' : 'Not started'}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Errors */}
-              {doc.state?.errors && doc.state.errors.length > 0 && (
-                <div className="mb-3">
-                  <div className="text-xs font-semibold text-red-700 mb-1">⚠️ Errors:</div>
-                  {doc.state.errors.map((error: string, idx: number) => (
-                    <div key={`error-${idx}`} className="text-xs text-red-600 py-1 px-2 bg-red-50 rounded mb-1 font-mono">
-                      {error}
-                    </div>
-                  ))}
-                </div>
-              )}
-              
-              {/* Processing Logs */}
-              {doc.state?.logs && doc.state.logs.length > 0 && (
-                <div className="mb-3">
-                  <div className="text-xs font-semibold text-neutral-700 mb-1">🔍 Processing Details:</div>
-                  <div className="space-y-0.5 max-h-32 overflow-y-auto">
-                    {doc.state.logs.slice(-20).map((log: string | { node?: string; msg?: string; timestamp?: string }, idx: number) => {
-                      const logText = typeof log === 'string' ? log : (log.msg || JSON.stringify(log));
-                      return (
-                        <div key={`log-${idx}`} className="text-xs text-neutral-600 py-1 px-2 bg-neutral-50 rounded font-mono">
-                          {logText}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Document Stats */}
-              {(doc.state?.raw_markdown || doc.updated_at) && (
-                <div className="text-xs text-neutral-500 pt-2 border-t border-neutral-100">
-                  <div className="flex justify-between">
-                    <span>Last updated: {doc.updated_at ? new Date(doc.updated_at).toLocaleString() : 'Never'}</span>
-                    {doc.state?.raw_markdown && (
-                      <span>{Math.round(doc.state.raw_markdown.length / 1024)}KB</span>
-                    )}
-                  </div>
-                </div>
-              )}
-              
-              {!doc.state?.logs?.length && !doc.state?.errors?.length && !doc.state?.accepted_suggestions?.length && !doc.state?.rejected_suggestions?.length && !doc.state?.block_metadata?.length && (
-                <div className="text-xs text-neutral-500 italic text-center py-4">No activity yet. Upload a document to get started.</div>
-              )}
-            </div>
-          )}
-        </div>
+        <ActivityLogDisplay 
+          backendLogs={doc.state?.logs || []}
+          backendErrors={doc.state?.errors || []}
+        />
       )}
     </div>
   );

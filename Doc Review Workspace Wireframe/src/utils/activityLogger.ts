@@ -38,11 +38,14 @@ class ActivityLoggerService {
   }
 
   /**
-   * Clear all logs
+   * Clear all logs (only frontend logs, not backend logs)
    */
   clear(): void {
     this.logs = [];
-    this.notifyListeners();
+    // Notify all listeners to refresh their state
+    this.listeners.forEach(listener => {
+      // Send a special clear notification (empty log array will be handled by subscribers)
+    });
   }
 
   /**

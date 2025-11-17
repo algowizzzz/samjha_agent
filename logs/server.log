@@ -9793,3 +9793,205 @@ AssertionError: write() before start_response
 2025-11-16 22:51:18,313 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:51:18] "GET /api/doc_review/templates HTTP/1.1" 200 -
 2025-11-16 22:51:18,316 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:51:18] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
 2025-11-16 22:51:18,316 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:51:18] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:52:29,072 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:52:29] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:52:29,073 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:52:29] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:52:29,076 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:52:29] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:52:29,078 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:52:29] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:52:29,080 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:52:29] "OPTIONS /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 22:52:29,081 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:52:29] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:52:29,084 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:52:29] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 22:52:39,070 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:52:39] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:52:39,073 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:52:39] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:52:39,080 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:52:39] "OPTIONS /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 22:52:39,092 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:52:39] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:52:39,118 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:52:39] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:52:39,119 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:52:39] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:52:39,121 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:52:39] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 22:52:39,187 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:52:39] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:53:06,274 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:06] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 22:53:06,285 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:06] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 22:53:09,585 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:09] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:53:09,590 - external.routes.doc_review_routes - INFO - Document deleted: collateral_bad
+2025-11-16 22:53:09,590 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:09] "DELETE /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:53:09,599 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:09] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 22:53:19,001 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:19] "OPTIONS /api/doc_review/upload HTTP/1.1" 200 -
+2025-11-16 22:53:19,009 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:19] "[35m[1mPOST /api/doc_review/upload HTTP/1.1[0m" 201 -
+2025-11-16 22:53:19,014 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:19] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 22:53:19,016 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:19] "[35m[1mPOST /api/doc_review/documents HTTP/1.1[0m" 201 -
+2025-11-16 22:53:19,023 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:19] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 22:53:20,463 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:20] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:53:20,464 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:20] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:53:20,466 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:20] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:53:20,467 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:20] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:53:20,469 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:20] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:53:20,470 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:20] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:53:20,472 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:20] "OPTIONS /api/doc_review/documents/collateral_bad/run_phase1 HTTP/1.1" 200 -
+2025-11-16 22:53:20,474 - external.agent.doc_review_agent - INFO - DocReviewAgent.run_phase1: run_id=collateral_bad doc_id=463bae9381c7467ab5a965b28c7bbd86_collateral_bad
+2025-11-16 22:53:20,475 - DetectFileTypeTool - INFO - detect_file_type: file_id=463bae9381c7467ab5a965b28c7bbd86_collateral_bad path=/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/463bae9381c7467ab5a965b28c7bbd86_collateral_bad.pdf ext=.pdf mimetype=application/pdf type=pdf
+2025-11-16 22:53:20,475 - DetectFileTypeTool - INFO - Tool executed successfully: detect_file_type (0.00s)
+2025-11-16 22:53:20,475 - ConvertToMarkdownTool - INFO - Converting PDF to images at 300 DPI: /Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/463bae9381c7467ab5a965b28c7bbd86_collateral_bad.pdf
+2025-11-16 22:53:21,128 - ConvertToMarkdownTool - INFO - Converted 1 pages to images
+2025-11-16 22:53:21,128 - ConvertToMarkdownTool - INFO - Transcribing page 1/1...
+2025-11-16 22:53:23,297 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:53:23,301 - ConvertToMarkdownTool - INFO - Transcribed page 1: 663 characters
+2025-11-16 22:53:23,301 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 1...
+2025-11-16 22:53:25,857 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:53:25,858 - ConvertToMarkdownTool - INFO - Page 1: LLM created 5 semantic blocks
+2025-11-16 22:53:25,859 - ConvertToMarkdownTool - INFO - Verifying page 1 with text extraction...
+2025-11-16 22:53:27,600 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:53:27,602 - ConvertToMarkdownTool - INFO - Page 1: Found 2 verified suggestions
+2025-11-16 22:53:27,602 - ConvertToMarkdownTool - INFO - Successfully transcribed 1 pages
+2025-11-16 22:53:27,602 - ConvertToMarkdownTool - INFO - Generated 5 blocks with stable IDs
+2025-11-16 22:53:27,603 - ConvertToMarkdownTool - INFO - Found 2 verification suggestions
+2025-11-16 22:53:27,607 - ConvertToMarkdownTool - INFO - convert_to_markdown: file_id=463bae9381c7467ab5a965b28c7bbd86_collateral_bad -> md_file_id=463bae9381c7467ab5a965b28c7bbd86_collateral_bad_md_b6671502 path=external/data/doc_review/markdown/463bae9381c7467ab5a965b28c7bbd86_collateral_bad_md_b6671502.md
+2025-11-16 22:53:27,607 - ConvertToMarkdownTool - INFO - Tool executed successfully: convert_to_markdown (7.13s)
+2025-11-16 22:53:27,629 - ExtractImagesTool - INFO - extract_images: file_id=463bae9381c7467ab5a965b28c7bbd86_collateral_bad path=/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/463bae9381c7467ab5a965b28c7bbd86_collateral_bad.pdf images_found=0
+2025-11-16 22:53:27,629 - ExtractImagesTool - INFO - Tool executed successfully: extract_images (0.02s)
+2025-11-16 22:53:27,630 - ComputeFileStatsTool - INFO - compute_file_stats: file_id=463bae9381c7467ab5a965b28c7bbd86_collateral_bad md_file_id=463bae9381c7467ab5a965b28c7bbd86_collateral_bad_md_b6671502 words=116 pages=1
+2025-11-16 22:53:27,630 - ComputeFileStatsTool - INFO - Tool executed successfully: compute_file_stats (0.00s)
+2025-11-16 22:53:27,630 - AnalyzeHeadingStructureTool - INFO - analyze_heading_structure: file_id=463bae9381c7467ab5a965b28c7bbd86_collateral_bad headings=0 levels=
+2025-11-16 22:53:27,630 - AnalyzeHeadingStructureTool - INFO - Tool executed successfully: analyze_heading_structure (0.00s)
+2025-11-16 22:53:28,776 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:53:28,780 - BuildFileMetadataTool - INFO - build_file_metadata: file_id=463bae9381c7467ab5a965b28c7bbd86_collateral_bad type=pdf words=116 pages=1
+2025-11-16 22:53:28,781 - BuildFileMetadataTool - INFO - Tool executed successfully: build_file_metadata (0.00s)
+2025-11-16 22:53:30,157 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:53:31,846 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:53:42,077 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:53:45,800 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:53:45,803 - external.doc_review.store - INFO - Preserved original_markdown for collateral_bad
+2025-11-16 22:53:45,810 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:45] "POST /api/doc_review/documents/collateral_bad/run_phase1 HTTP/1.1" 200 -
+2025-11-16 22:53:45,817 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:45] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:53:45,821 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:45] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:53:59,521 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:53:59] "OPTIONS /api/doc_review/documents/collateral_bad/apply_template HTTP/1.1" 200 -
+2025-11-16 22:53:59,545 - external.doc_review.template_processor - INFO - Starting template processing with 'policy_template'
+2025-11-16 22:53:59,546 - external.doc_review.template_processor - INFO - Processing page 1/1
+2025-11-16 22:53:59,546 - external.doc_review.template_processor - INFO - Performing gap analysis for page 1
+2025-11-16 22:54:03,971 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:54:03,974 - external.doc_review.template_processor - INFO - Page 1: Found 5 gaps
+2025-11-16 22:54:03,974 - external.doc_review.template_processor - INFO - Generating improvements for page 1
+2025-11-16 22:54:13,371 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:54:13,373 - external.doc_review.template_processor - INFO - Page 1: Generated 5 improvements
+2025-11-16 22:54:13,374 - external.doc_review.template_processor - INFO - Template processing complete: 5 gaps, 5 improvements
+2025-11-16 22:54:13,374 - external.doc_review.template_processor - INFO - Generating synthesis summary for 'collateral_bad'
+2025-11-16 22:54:18,189 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:54:18,190 - external.doc_review.template_processor - INFO - Synthesis summary generated successfully
+2025-11-16 22:54:18,194 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:54:18] "POST /api/doc_review/documents/collateral_bad/apply_template HTTP/1.1" 200 -
+2025-11-16 22:54:18,199 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:54:18] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:54:18,202 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:54:18] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:56:37,077 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:56:37] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:56:37,078 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:56:37] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:56:37,080 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:56:37] "OPTIONS /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 22:56:37,083 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:56:37] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:56:37,089 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:56:37] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:56:37,090 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:56:37] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:56:37,097 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:56:37] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 22:56:37,100 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:56:37] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:56:41,757 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:56:41] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:56:46,359 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:56:46] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 22:56:46,367 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:56:46] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 22:56:52,065 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:56:52] "OPTIONS /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 22:56:52,065 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:56:52] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:56:52,069 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:56:52] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 22:56:52,069 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:56:52] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:57:05,732 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:05] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:57:05,734 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:05] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:57:05,737 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:05] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:57:05,738 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:05] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:57:05,740 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:05] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-16 22:57:06,073 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:06] "OPTIONS /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 22:57:06,076 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:06] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:57:06,078 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:06] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 22:57:08,415 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:08] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 22:57:08,419 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:08] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 22:57:17,593 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:17] "OPTIONS /api/doc_review/upload HTTP/1.1" 200 -
+2025-11-16 22:57:17,599 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:17] "[35m[1mPOST /api/doc_review/upload HTTP/1.1[0m" 201 -
+2025-11-16 22:57:17,602 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:17] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 22:57:17,603 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:17] "[35m[1mPOST /api/doc_review/documents HTTP/1.1[0m" 201 -
+2025-11-16 22:57:17,610 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:17] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-16 22:57:19,021 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:19] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:19,023 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:19] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:19,025 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:19] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:57:19,025 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:19] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:19,028 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:19] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:57:19,029 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:19] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:19,030 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:19] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages/run_phase1 HTTP/1.1" 200 -
+2025-11-16 22:57:19,033 - external.agent.doc_review_agent - INFO - DocReviewAgent.run_phase1: run_id=CAR_Chapter_1_First_5_Pages doc_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages
+2025-11-16 22:57:19,034 - DetectFileTypeTool - INFO - detect_file_type: file_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages path=/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages.pdf ext=.pdf mimetype=application/pdf type=pdf
+2025-11-16 22:57:19,034 - DetectFileTypeTool - INFO - Tool executed successfully: detect_file_type (0.00s)
+2025-11-16 22:57:19,034 - ConvertToMarkdownTool - INFO - Converting PDF to images at 300 DPI: /Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages.pdf
+2025-11-16 22:57:25,332 - ConvertToMarkdownTool - INFO - Converted 5 pages to images
+2025-11-16 22:57:25,333 - ConvertToMarkdownTool - INFO - Transcribing page 1/5...
+2025-11-16 22:57:30,141 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:57:30,141 - ConvertToMarkdownTool - INFO - Transcribed page 1: 2212 characters
+2025-11-16 22:57:30,141 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 1...
+2025-11-16 22:57:33,319 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:33] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:33,322 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:33] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:35,615 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:35] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:57:35,617 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:35] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages/run_phase1 HTTP/1.1" 200 -
+2025-11-16 22:57:35,618 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:35] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:35,621 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:35] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:57:35,623 - external.agent.doc_review_agent - INFO - DocReviewAgent.run_phase1: run_id=CAR_Chapter_1_First_5_Pages doc_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages
+2025-11-16 22:57:35,623 - DetectFileTypeTool - INFO - detect_file_type: file_id=3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages path=/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages.pdf ext=.pdf mimetype=application/pdf type=pdf
+2025-11-16 22:57:35,624 - DetectFileTypeTool - INFO - Tool executed successfully: detect_file_type (0.00s)
+2025-11-16 22:57:35,624 - ConvertToMarkdownTool - INFO - Converting PDF to images at 300 DPI: /Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/3fd70187f45e4f50978ade756bef8e2c_CAR_Chapter_1_First_5_Pages.pdf
+2025-11-16 22:57:35,690 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:57:35,696 - ConvertToMarkdownTool - INFO - Page 1: LLM created 7 semantic blocks
+2025-11-16 22:57:35,697 - ConvertToMarkdownTool - INFO - Verifying page 1 with text extraction...
+2025-11-16 22:57:36,068 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:36] "OPTIONS /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 22:57:36,069 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:36] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:57:36,072 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:36] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 22:57:37,627 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:37] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:39,627 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:39] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:39,631 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:39] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:41,387 - ConvertToMarkdownTool - INFO - Converted 5 pages to images
+2025-11-16 22:57:41,387 - ConvertToMarkdownTool - INFO - Transcribing page 1/5...
+2025-11-16 22:57:41,627 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:41] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:42,578 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:57:42,580 - ConvertToMarkdownTool - INFO - Page 1: Found 3 verified suggestions
+2025-11-16 22:57:42,580 - ConvertToMarkdownTool - INFO - Transcribing page 2/5...
+2025-11-16 22:57:43,630 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:43] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:44,725 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:57:44,725 - ConvertToMarkdownTool - INFO - Transcribed page 2: 880 characters
+2025-11-16 22:57:44,726 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 2...
+2025-11-16 22:57:45,628 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:45] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:45,629 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:45] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:45,850 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:57:45,851 - ConvertToMarkdownTool - INFO - Transcribed page 1: 2228 characters
+2025-11-16 22:57:45,851 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 1...
+2025-11-16 22:57:46,878 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:57:46,879 - ConvertToMarkdownTool - ERROR - Failed to create semantic blocks for page 2: Invalid control character at: line 12 column 407 (char 614)
+2025-11-16 22:57:46,880 - ConvertToMarkdownTool - INFO - Verifying page 2 with text extraction...
+2025-11-16 22:57:47,627 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:47] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:48,236 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:48] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:57:48,236 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:48] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:48,240 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:48] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:57:48,724 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:57:48,737 - ConvertToMarkdownTool - ERROR - Failed to verify page 2: Expecting ',' delimiter: line 6 column 78 (char 889)
+2025-11-16 22:57:48,737 - ConvertToMarkdownTool - INFO - Transcribing page 3/5...
+2025-11-16 22:57:49,065 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:49] "OPTIONS /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 22:57:49,067 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:49] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-16 22:57:49,070 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:49] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-16 22:57:50,244 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:50] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:51,939 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:57:51,940 - ConvertToMarkdownTool - INFO - Page 1: LLM created 9 semantic blocks
+2025-11-16 22:57:51,940 - ConvertToMarkdownTool - INFO - Verifying page 1 with text extraction...
+2025-11-16 22:57:52,245 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:52] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:52,247 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:52] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:52,345 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:57:52,345 - ConvertToMarkdownTool - INFO - Transcribed page 3: 2461 characters
+2025-11-16 22:57:52,345 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 3...
+2025-11-16 22:57:54,244 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:54] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:56,248 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:56] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:58,247 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:58] "OPTIONS /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:58,249 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:57:58] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:57:59,985 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:57:59,985 - ConvertToMarkdownTool - INFO - Page 1: Found 5 verified suggestions
+2025-11-16 22:57:59,985 - ConvertToMarkdownTool - INFO - Transcribing page 2/5...
+2025-11-16 22:58:00,246 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:00] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:01,626 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:01,629 - ConvertToMarkdownTool - INFO - Page 3: LLM created 24 semantic blocks
+2025-11-16 22:58:01,629 - ConvertToMarkdownTool - INFO - Verifying page 3 with text extraction...
+2025-11-16 22:58:02,248 - werkzeug - INFO - 127.0.0.1 - - [16/Nov/2025 22:58:02] "GET /api/doc_review/documents/CAR_Chapter_1_First_5_Pages HTTP/1.1" 200 -
+2025-11-16 22:58:02,341 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-16 22:58:02,343 - ConvertToMarkdownTool - INFO - Transcribed page 2: 880 characters
+2025-11-16 22:58:02,343 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 2...
