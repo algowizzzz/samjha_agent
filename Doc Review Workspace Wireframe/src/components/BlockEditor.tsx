@@ -38,6 +38,7 @@ import { SlashCommandMenu } from './editor/SlashCommandMenu';
 import { ContextMenu } from './editor/ContextMenu';
 import { useUndoRedo } from '@/hooks/useUndoRedo';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { LexicalBlock } from './editor/LexicalBlock';
 
 type BlockType = 'paragraph' | 'heading1' | 'heading2' | 'heading3' | 'bullet' | 'numbered' | 'table' | 'callout' | 'quote' | 'empty';
 type ChangeType = 'verified' | 'modified' | 'ai_suggested' | 'ai_applied' | 'rejected' | 'none';
@@ -1061,91 +1062,54 @@ export function BlockEditor({
         {/* Block Content */}
         <div className={block.changeType === 'removed' ? 'line-through opacity-50' : ''}>
           {block.type === 'bullet' || block.type === 'numbered' ? (
-            <li 
-              className={getBlockStyles(block.type, block)}
-              contentEditable
-              suppressContentEditableWarning
-              dangerouslySetInnerHTML={{ __html: block.content }}
-              onInput={(e) => {
-                const newContent = e.currentTarget.innerHTML;
-                handleInputChange(block.id, newContent, e as any);
+            <LexicalBlock
+              block={block}
+              onChange={(textContent, htmlContent) => {
+                handleInputChange(block.id, htmlContent, null as any);
               }}
               onKeyDown={(e) => {
-                // ENHANCED: Cmd+B for bold
-                if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
-                  e.preventDefault();
-                  document.execCommand('bold', false);
-                }
-                // ENHANCED: Cmd+I for italic
-                else if ((e.metaKey || e.ctrlKey) && e.key === 'i') {
-                  e.preventDefault();
-                  document.execCommand('italic', false);
-                }
-                // ENHANCED: Cmd+U for underline
-                else if ((e.metaKey || e.ctrlKey) && e.key === 'u') {
-                  e.preventDefault();
-                  document.execCommand('underline', false);
-                }
-                // ENHANCED: Enter creates new block
-                else if (e.key === 'Enter' && !e.shiftKey) {
+                // Handle Enter - create new list item
+                if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
                   const index = blocks.findIndex(b => b.id === block.id);
                   const newBlock: Block = {
                     id: `b${Date.now()}`,
-                    type: block.type,
+                    type: block.type, // Keep same list type
                     content: '',
                     changeType: 'none',
                     commentCount: 0,
                     changeHistory: [],
                   };
                   setBlocks([...blocks.slice(0, index + 1), newBlock, ...blocks.slice(index + 1)]);
-                  // Focus new block
+                  // Focus new block after render
                   setTimeout(() => {
                     const newEl = blockRefs.current.get(newBlock.id);
                     if (newEl) {
-                      const contentLi = newEl.querySelector('[contenteditable]') as HTMLElement;
-                      contentLi?.focus();
+                      const contentDiv = newEl.querySelector('.lexical-content-editable') as HTMLElement;
+                      contentDiv?.focus();
                     }
                   }, 0);
                 }
-                // ENHANCED: Backspace on empty deletes block
-                else if (e.key === 'Backspace' && e.currentTarget.textContent === '') {
-                  e.preventDefault();
-                  if (blocks.length > 1) {
+                // Handle Backspace on empty - delete block
+                else if (e.key === 'Backspace') {
+                  const target = e.target as HTMLElement;
+                  if (target.textContent === '' && blocks.length > 1) {
+                    e.preventDefault();
                     setBlocks(blocks.filter(b => b.id !== block.id));
                   }
                 }
               }}
-              style={{ minHeight: '1.5rem' }}
+              className={getBlockStyles(block.type, block)}
             />
           ) : (
-            <div 
-              className={getBlockStyles(block.type, block)}
-              contentEditable
-              suppressContentEditableWarning
-              dangerouslySetInnerHTML={{ __html: block.content }}
-              onInput={(e) => {
-                const newContent = e.currentTarget.innerHTML;
-                handleInputChange(block.id, newContent, e as any);
+            <LexicalBlock
+              block={block}
+              onChange={(textContent, htmlContent) => {
+                handleInputChange(block.id, htmlContent, null as any);
               }}
               onKeyDown={(e) => {
-                // ENHANCED: Cmd+B for bold
-                if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
-                  e.preventDefault();
-                  document.execCommand('bold', false);
-                }
-                // ENHANCED: Cmd+I for italic
-                else if ((e.metaKey || e.ctrlKey) && e.key === 'i') {
-                  e.preventDefault();
-                  document.execCommand('italic', false);
-                }
-                // ENHANCED: Cmd+U for underline
-                else if ((e.metaKey || e.ctrlKey) && e.key === 'u') {
-                  e.preventDefault();
-                  document.execCommand('underline', false);
-                }
-                // ENHANCED: Enter creates new paragraph
-                else if (e.key === 'Enter' && !e.shiftKey) {
+                // Handle Enter - create new block
+                if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
                   const index = blocks.findIndex(b => b.id === block.id);
                   const newBlock: Block = {
@@ -1157,23 +1121,24 @@ export function BlockEditor({
                     changeHistory: [],
                   };
                   setBlocks([...blocks.slice(0, index + 1), newBlock, ...blocks.slice(index + 1)]);
-                  // Focus new block
+                  // Focus new block after render
                   setTimeout(() => {
                     const newEl = blockRefs.current.get(newBlock.id);
                     if (newEl) {
-                      const contentDiv = newEl.querySelector('[contenteditable]') as HTMLElement;
+                      const contentDiv = newEl.querySelector('.lexical-content-editable') as HTMLElement;
                       contentDiv?.focus();
                     }
                   }, 0);
                 }
-                // ENHANCED: Backspace on empty deletes block
-                else if (e.key === 'Backspace' && e.currentTarget.textContent === '') {
-                  e.preventDefault();
-                  if (blocks.length > 1) {
+                // Handle Backspace on empty - delete block
+                else if (e.key === 'Backspace') {
+                  const target = e.target as HTMLElement;
+                  if (target.textContent === '' && blocks.length > 1) {
+                    e.preventDefault();
                     setBlocks(blocks.filter(b => b.id !== block.id));
                   }
                 }
-                // ENHANCED: Tab to indent
+                // Handle Tab to indent
                 else if (e.key === 'Tab') {
                   e.preventDefault();
                   const indent = e.shiftKey ? -1 : 1;
@@ -1184,8 +1149,8 @@ export function BlockEditor({
                   ));
                 }
               }}
-                style={{ minHeight: '1.5rem' }}
-              />
+              className={getBlockStyles(block.type, block)}
+            />
           )}
         </div>
 
