@@ -13,12 +13,31 @@ from flask import jsonify, request, render_template, session, send_from_director
 from werkzeug.utils import secure_filename
 
 from routes.base_routes import BaseRoutes
-from external.agent.doc_review_agent import DocReviewAgent
-from external.doc_review.store import DocReviewStore
-from external.doc_review.vfs import DocReviewVFSAdapter
-from external.doc_review.llm import LLMNotAvailableError, generate_chat_reply
-from external.doc_review.logging_config import configure_doc_review_logging
-from external.doc_review.template_processor import TemplateProcessor, load_template, list_templates
+from external.products.doc_review.agent import DocReviewAgent
+from external.products.doc_review.store import DocReviewStore
+from external.products.doc_review.vfs import DocReviewVFSAdapter
+from external.products.doc_review.template_processor import TemplateProcessor, load_template, list_templates
+from external.platform.llm import get_llm_client, is_llm_available
+
+
+class LLMNotAvailableError(RuntimeError):
+    """LLM not available error."""
+    pass
+
+
+def generate_chat_reply(message: str, context: str = "") -> str:
+    """Generate chat reply using LLM."""
+    if not is_llm_available():
+        raise LLMNotAvailableError("LLM not configured")
+    client = get_llm_client()
+    prompt = f"Context: {context}\n\nUser: {message}\n\nAssistant:"
+    return client.invoke_with_prompt("You are a helpful document review assistant.", prompt)
+
+
+def configure_doc_review_logging():
+    """Configure logging for doc review."""
+    import logging
+    logging.basicConfig(level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
@@ -904,7 +923,7 @@ class DocReviewRoutes(BaseRoutes):
                     selected_blocks = [b for b in block_metadata if b["id"] in selected_block_ids]
                 
                 # Call RiskGPT Agent
-                from external.doc_review.riskgpt_agent import RiskGPTAgent
+                from external.products.doc_review.riskgpt.agent import RiskGPTAgent
                 agent = RiskGPTAgent()
                 result = agent.run(
                     file_id=file_id,

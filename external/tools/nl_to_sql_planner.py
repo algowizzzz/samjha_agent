@@ -17,7 +17,7 @@ except ImportError:
     duckdb = None
 
 try:
-    from external.agent.llm_client import get_llm_client
+    from external.platform.llm import get_llm_client
     LLM_AVAILABLE = True
 except ImportError:
     LLM_AVAILABLE = False
@@ -104,7 +104,7 @@ class NLToSQLPlannerTool(BaseMCPTool):
             conversation_history: Formatted conversation history for context
         """
         # Get prompts from config if available, otherwise use defaults
-        from external.agent.config import QueryAgentConfig
+        from external.products.parquet_query.config import QueryAgentConfig
         cfg = QueryAgentConfig()
         
         # =========================================================================

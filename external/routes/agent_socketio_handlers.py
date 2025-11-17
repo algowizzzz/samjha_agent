@@ -63,7 +63,7 @@ class AgentSocketIOHandlers:
                     return
                 
                 # Create streaming wrapper
-                from external.agent.streaming_agent import StreamingAgent
+                from external.platform.agent import StreamingAgent
                 streaming_agent = StreamingAgent(
                     agent=agent_tool.agent,
                     socketio=self.socketio,
@@ -71,7 +71,7 @@ class AgentSocketIOHandlers:
                 )
                 
                 # Import session manager
-                from external.agent.session_manager import AgentSessionManager
+                from external.platform.storage import AgentSessionManager
                 session_manager = AgentSessionManager()
                 
                 # Run query with streaming in background thread

@@ -10,9 +10,23 @@ from typing import Any, Callable, Dict, Optional
 from flask import jsonify, request, render_template
 
 from routes.base_routes import BaseRoutes
-from external.model_doc.model_doc_agent import ModelDocAgent
-from external.model_doc.store import ModelDocStore
-from external.model_doc.llm import LLMNotAvailableError, generate_chat_reply
+from external.products.model_doc.agent import ModelDocAgent
+from external.products.model_doc.store import ModelDocStore
+from external.platform.llm import get_llm_client, is_llm_available
+
+
+class LLMNotAvailableError(RuntimeError):
+    """LLM not available error."""
+    pass
+
+
+def generate_chat_reply(message: str, context: str = "") -> str:
+    """Generate chat reply using LLM."""
+    if not is_llm_available():
+        raise LLMNotAvailableError("LLM not configured")
+    client = get_llm_client()
+    prompt = f"Context: {context}\n\nUser: {message}\n\nAssistant:"
+    return client.invoke_with_prompt("You are a helpful model documentation assistant.", prompt)
 
 logger = logging.getLogger(__name__)
 
