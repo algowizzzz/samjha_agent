@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { FileText, AlertCircle, FolderTree, ChevronRight, ChevronDown, MessageSquare, Sparkles, Check, X, MapPin, Type } from 'lucide-react';
+import { FileText, AlertCircle, FolderTree, ChevronRight, ChevronDown, MessageSquare, Sparkles, Check, X } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { ArtifactPreviewModal } from './ArtifactPreviewModal';
 import { vfsReadFile, vfsTree } from '@/lib/api';
@@ -31,7 +31,7 @@ function SuggestionsList({
   const [expandedBoxes, setExpandedBoxes] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
     suggestions.forEach(s => {
-      initial[s.block_id] = true; // All expanded by default
+      initial[s.block_id] = false; // All collapsed by default
     });
     return initial;
   });
@@ -142,9 +142,6 @@ function SuggestionsList({
         const expanded = expandedSections[suggestion.block_id] || { original: true, reasoning: true, improved: true };
         const isBoxExpanded = expandedBoxes[suggestion.block_id] !== false;
         
-        const charCount = (suggestion.suggested || '').length - (suggestion.original || '').length;
-        const charChangeText = charCount > 0 ? `+${charCount}` : charCount < 0 ? `${charCount}` : '±0';
-
         return (
           <div
             key={suggestion.block_id}
@@ -179,13 +176,7 @@ function SuggestionsList({
                 className="flex-1 min-w-0 text-left group-hover:bg-amber-50/50 rounded-lg px-2 py-1 transition-all"
                 title="Jump to block in editor"
               >
-                <div className="flex items-center gap-2 mb-1">
-                  <p className="text-sm font-semibold text-neutral-800">Suggestion {index + 1}</p>
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-neutral-100 text-neutral-600 rounded text-xs">
-                    <Type className="w-3 h-3" />
-                    {charChangeText} chars
-                  </span>
-                </div>
+                <p className="text-sm font-semibold text-neutral-800 mb-1">Suggestion {index + 1}</p>
                 <p className="text-xs text-neutral-500 truncate leading-relaxed">
                   {suggestion.block_content?.substring(0, 60) || 'Click to view in editor'}...
                 </p>
@@ -259,8 +250,8 @@ function SuggestionsList({
                     onClick={() => toggleSection(suggestion.block_id, 'original')}
                     className="w-full flex items-center justify-between text-left py-2 px-3 hover:bg-neutral-100 transition-colors"
                   >
-                    <span className="text-xs font-semibold text-neutral-700 flex items-center gap-2">
-                      📄 Original Content
+                    <span className="text-xs font-semibold text-neutral-700">
+                      Original Content
                     </span>
                     {expanded.original ? (
                       <ChevronDown className="w-3 h-3 text-neutral-400" />
@@ -286,8 +277,8 @@ function SuggestionsList({
                     onClick={() => toggleSection(suggestion.block_id, 'reasoning')}
                     className="w-full flex items-center justify-between text-left py-2 px-3 hover:bg-blue-100/50 transition-colors"
                   >
-                    <span className="text-xs font-semibold text-blue-700 flex items-center gap-2">
-                      💡 Why Change This
+                    <span className="text-xs font-semibold text-blue-700">
+                      Why Change This
                     </span>
                     {expanded.reasoning ? (
                       <ChevronDown className="w-3 h-3 text-blue-400" />
@@ -313,8 +304,8 @@ function SuggestionsList({
                     onClick={() => toggleSection(suggestion.block_id, 'improved')}
                     className="w-full flex items-center justify-between text-left py-2 px-3 hover:bg-green-100/50 transition-colors"
                   >
-                    <span className="text-xs font-semibold text-green-700 flex items-center gap-2">
-                      ✨ Improved Version
+                    <span className="text-xs font-semibold text-green-700">
+                      Improved Version
                     </span>
                     {expanded.improved ? (
                       <ChevronDown className="w-3 h-3 text-green-400" />
