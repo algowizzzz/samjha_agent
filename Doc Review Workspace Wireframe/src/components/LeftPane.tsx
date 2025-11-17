@@ -142,6 +142,11 @@ function SuggestionsList({
         const expanded = expandedSections[suggestion.block_id] || { original: true, reasoning: true, improved: true };
         const isBoxExpanded = expandedBoxes[suggestion.block_id] !== false;
         
+        // Generate meaningful title from reasoning
+        const suggestionTitle = suggestion.reason 
+          ? suggestion.reason.substring(0, 60).trim() + (suggestion.reason.length > 60 ? '...' : '')
+          : `Suggestion ${index + 1}`;
+        
         return (
           <div
             key={suggestion.block_id}
@@ -176,7 +181,7 @@ function SuggestionsList({
                 className="flex-1 min-w-0 text-left group-hover:bg-amber-50/50 rounded-lg px-2 py-1 transition-all"
                 title="Jump to block in editor"
               >
-                <p className="text-sm font-semibold text-neutral-800 mb-1">Suggestion {index + 1}</p>
+                <p className="text-sm font-semibold text-neutral-800 mb-1">{suggestionTitle}</p>
                 <p className="text-xs text-neutral-500 truncate leading-relaxed">
                   {suggestion.block_content?.substring(0, 60) || 'Click to view in editor'}...
                 </p>
