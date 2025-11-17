@@ -440,10 +440,24 @@ export function BlockEditor({
   // Notify parent when selected blocks change
   useEffect(() => {
     if (onSelectedBlocksChange && blockMetadata) {
-      const selectedBlocks = blockMetadata.filter(b => selectedBlockIds.has(b.id));
+      // NEW FIX: Send current edited content instead of old metadata
+      const selectedBlocks = blockMetadata
+        .filter(b => selectedBlockIds.has(b.id))
+        .map(meta => {
+          // Find the current block content from editor state
+          const currentBlock = blocks.find(b => b.id === meta.id);
+          if (currentBlock) {
+            // Use the current edited content from the editor
+            return {
+              ...meta,
+              content: htmlToPlainText(currentBlock.content)
+            };
+          }
+          return meta;
+        });
       onSelectedBlocksChange(selectedBlocks);
     }
-  }, [selectedBlockIds, blockMetadata, onSelectedBlocksChange]);
+  }, [selectedBlockIds, blockMetadata, onSelectedBlocksChange, blocks]);
 
   // Apply AI suggestions from chat to blocks (only once per suggestion set)
   const appliedSuggestionsRef = useRef<string>('');
@@ -549,7 +563,12 @@ export function BlockEditor({
         if (metadata) {
           setSelectedBlockIds(new Set([blockId]));
           if (onSelectedBlocksChange) {
-            onSelectedBlocksChange([metadata]);
+            // NEW FIX: Send current edited content instead of old metadata
+            const updatedMetadata = {
+              ...metadata,
+              content: htmlToPlainText(block.content)
+            };
+            onSelectedBlocksChange([updatedMetadata]);
           }
         }
       }
