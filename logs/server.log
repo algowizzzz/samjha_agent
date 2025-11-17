@@ -4607,3 +4607,327 @@ Access the Document Review UI at: http://localhost:8000/doc-review
 2025-11-17 01:12:11,396 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:12:11] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
 2025-11-17 01:12:11,396 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:12:11] "GET /api/doc_review/templates HTTP/1.1" 200 -
 2025-11-17 01:12:11,401 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:12:11] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-17 01:17:06,574 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:17:06] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 01:17:41,080 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:17:41] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 01:17:45,051 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:17:45] "GET /login HTTP/1.1" 200 -
+2025-11-17 01:17:53,288 - core.auth_manager - INFO - Saved 1 users to configuration
+2025-11-17 01:17:53,289 - core.auth_manager - INFO - User authenticated successfully: admin
+2025-11-17 01:17:53,290 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:17:53] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-11-17 01:17:53,360 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:17:53] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 01:17:57,698 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:17:57] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 01:18:13,558 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:18:13] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 01:18:13,565 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:18:13] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 01:18:15,295 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:18:15] "OPTIONS /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-17 01:18:15,296 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:18:15] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 01:18:15,298 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:18:15] "OPTIONS /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-17 01:18:15,303 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:18:15] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-17 01:18:15,305 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:18:15] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 01:18:15,310 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:18:15] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-17 01:20:16,781 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:20:16] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 01:20:16,789 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:20:16] "OPTIONS /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-17 01:20:16,794 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:20:16] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 01:20:16,796 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:20:16] "OPTIONS /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-17 01:20:16,820 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:20:16] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-17 01:20:16,823 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:20:16] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 01:20:16,825 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:20:16] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 01:20:16,832 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 01:20:16] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-17 08:13:35,270 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 08:13:35] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 08:13:35,271 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 08:13:35] "OPTIONS /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-17 08:13:35,272 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 08:13:35] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 08:13:35,273 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 08:13:35] "OPTIONS /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-17 08:13:35,284 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 08:13:35] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-17 08:13:35,291 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 08:13:35] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 08:13:35,292 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 08:13:35] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 08:13:35,299 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 08:13:35] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-17 09:08:02,158 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:02] "OPTIONS /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-17 09:08:02,158 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:02] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:08:02,162 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:02] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:08:02,165 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:02] "OPTIONS /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-17 09:08:02,195 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:02] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:08:02,203 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:02] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-17 09:08:02,205 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:02] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:08:02,233 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:02] "GET /api/doc_review/documents/collateral_good HTTP/1.1" 200 -
+2025-11-17 09:08:06,955 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:06] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:08:16,044 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:16] "OPTIONS /api/doc_review/upload HTTP/1.1" 200 -
+2025-11-17 09:08:16,051 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:16] "[35m[1mPOST /api/doc_review/upload HTTP/1.1[0m" 201 -
+2025-11-17 09:08:16,055 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:16] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:08:16,059 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:16] "[35m[1mPOST /api/doc_review/documents HTTP/1.1[0m" 201 -
+2025-11-17 09:08:16,067 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:16] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:08:17,740 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:17] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:08:17,741 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:17] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:08:17,742 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:17] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:08:17,746 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:17] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:08:17,746 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:17] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:08:17,749 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:17] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:08:17,751 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:17] "OPTIONS /api/doc_review/documents/collateral_bad/run_phase1 HTTP/1.1" 200 -
+2025-11-17 09:08:17,753 - external.agent.doc_review_agent - INFO - DocReviewAgent.run_phase1: run_id=collateral_bad doc_id=89ff186c9e4b4c6090a12d90c44cc8c3_collateral_bad
+2025-11-17 09:08:17,753 - DetectFileTypeTool - INFO - detect_file_type: file_id=89ff186c9e4b4c6090a12d90c44cc8c3_collateral_bad path=/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/89ff186c9e4b4c6090a12d90c44cc8c3_collateral_bad.pdf ext=.pdf mimetype=application/pdf type=pdf
+2025-11-17 09:08:17,753 - DetectFileTypeTool - INFO - Tool executed successfully: detect_file_type (0.00s)
+2025-11-17 09:08:17,754 - ConvertToMarkdownTool - INFO - Converting PDF to images at 300 DPI: /Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/89ff186c9e4b4c6090a12d90c44cc8c3_collateral_bad.pdf
+2025-11-17 09:08:18,437 - ConvertToMarkdownTool - INFO - Converted 1 pages to images
+2025-11-17 09:08:18,438 - ConvertToMarkdownTool - INFO - Transcribing page 1/1...
+2025-11-17 09:08:21,064 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:08:21,067 - ConvertToMarkdownTool - INFO - Transcribed page 1: 618 characters
+2025-11-17 09:08:21,067 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 1...
+2025-11-17 09:08:24,187 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:08:24,189 - ConvertToMarkdownTool - ERROR - Failed to create semantic blocks for page 1: Expecting value: line 1 column 1 (char 0)
+2025-11-17 09:08:24,190 - ConvertToMarkdownTool - INFO - Verifying page 1 with text extraction...
+2025-11-17 09:08:26,709 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:08:26,712 - ConvertToMarkdownTool - INFO - Page 1: Found 2 verified suggestions
+2025-11-17 09:08:26,712 - ConvertToMarkdownTool - INFO - Successfully transcribed 1 pages
+2025-11-17 09:08:26,712 - ConvertToMarkdownTool - INFO - Generated 9 blocks with stable IDs
+2025-11-17 09:08:26,712 - ConvertToMarkdownTool - INFO - Found 2 verification suggestions
+2025-11-17 09:08:26,712 - ConvertToMarkdownTool - INFO - Generated TOC with 1 entries
+2025-11-17 09:08:26,714 - ConvertToMarkdownTool - INFO - convert_to_markdown: file_id=89ff186c9e4b4c6090a12d90c44cc8c3_collateral_bad -> md_file_id=89ff186c9e4b4c6090a12d90c44cc8c3_collateral_bad_md_d7ea38ed path=external/data/doc_review/markdown/89ff186c9e4b4c6090a12d90c44cc8c3_collateral_bad_md_d7ea38ed.md
+2025-11-17 09:08:26,714 - ConvertToMarkdownTool - INFO - Tool executed successfully: convert_to_markdown (8.96s)
+2025-11-17 09:08:26,743 - ExtractImagesTool - INFO - extract_images: file_id=89ff186c9e4b4c6090a12d90c44cc8c3_collateral_bad path=/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/89ff186c9e4b4c6090a12d90c44cc8c3_collateral_bad.pdf images_found=0
+2025-11-17 09:08:26,743 - ExtractImagesTool - INFO - Tool executed successfully: extract_images (0.03s)
+2025-11-17 09:08:26,743 - ComputeFileStatsTool - INFO - compute_file_stats: file_id=89ff186c9e4b4c6090a12d90c44cc8c3_collateral_bad md_file_id=89ff186c9e4b4c6090a12d90c44cc8c3_collateral_bad_md_d7ea38ed words=109 pages=1
+2025-11-17 09:08:26,744 - ComputeFileStatsTool - INFO - Tool executed successfully: compute_file_stats (0.00s)
+2025-11-17 09:08:26,744 - AnalyzeHeadingStructureTool - INFO - analyze_heading_structure: file_id=89ff186c9e4b4c6090a12d90c44cc8c3_collateral_bad headings=0 levels=
+2025-11-17 09:08:26,744 - AnalyzeHeadingStructureTool - INFO - Tool executed successfully: analyze_heading_structure (0.00s)
+2025-11-17 09:08:27,455 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:27] "[32mGET /api/doc_review/documents HTTP/1.1[0m" 302 -
+2025-11-17 09:08:28,062 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:08:28,066 - BuildFileMetadataTool - INFO - build_file_metadata: file_id=89ff186c9e4b4c6090a12d90c44cc8c3_collateral_bad type=pdf words=109 pages=1
+2025-11-17 09:08:28,066 - BuildFileMetadataTool - INFO - Tool executed successfully: build_file_metadata (0.00s)
+2025-11-17 09:08:30,324 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:08:32,210 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:08:43,680 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:08:47,571 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:08:47,574 - external.doc_review.store - INFO - Preserved original_markdown for collateral_bad
+2025-11-17 09:08:47,580 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:47] "POST /api/doc_review/documents/collateral_bad/run_phase1 HTTP/1.1" 200 -
+2025-11-17 09:08:47,589 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:47] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:08:47,593 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:08:47] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:22:56,114 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:22:56] "OPTIONS /api/doc_review/documents/collateral_bad/apply_template HTTP/1.1" 200 -
+2025-11-17 09:22:56,141 - external.doc_review.template_processor - INFO - Starting template processing with 'policy_template'
+2025-11-17 09:22:56,142 - external.doc_review.template_processor - INFO - Processing page 1/1
+2025-11-17 09:22:56,142 - external.doc_review.template_processor - INFO - Performing gap analysis for page 1
+2025-11-17 09:23:05,329 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:23:05,332 - external.doc_review.template_processor - INFO - Page 1: Found 12 gaps
+2025-11-17 09:23:05,332 - external.doc_review.template_processor - INFO - Generating improvements for page 1
+2025-11-17 09:23:25,498 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:23:25,519 - external.doc_review.template_processor - INFO - Page 1: Generated 12 improvements
+2025-11-17 09:23:25,519 - external.doc_review.template_processor - INFO - Template processing complete: 12 gaps, 12 improvements
+2025-11-17 09:23:25,520 - external.doc_review.template_processor - INFO - Generating synthesis summary for 'collateral_bad'
+2025-11-17 09:23:31,037 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:23:31,039 - external.doc_review.template_processor - INFO - Synthesis summary generated successfully
+2025-11-17 09:23:31,047 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:23:31] "POST /api/doc_review/documents/collateral_bad/apply_template HTTP/1.1" 200 -
+2025-11-17 09:23:31,053 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:23:31] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:23:31,057 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:23:31] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:24:58,394 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:24:58] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:24:58,403 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:24:58] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:24:58,403 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:24:58] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:24:58,405 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:24:58] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:24:58,408 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:24:58] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:24:58,410 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:24:58] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:24:58,411 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:24:58] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:24:58,413 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:24:58] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:25:15,438 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:25:15] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:25:15,449 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:25:15] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:25:18,063 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:25:18] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:25:18,066 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:25:18] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:25:18,071 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:25:18] "OPTIONS /api/doc_review/templates/policy_template/content HTTP/1.1" 200 -
+2025-11-17 09:25:18,073 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:25:18] "GET /api/doc_review/templates/policy_template/content HTTP/1.1" 200 -
+2025-11-17 09:25:18,826 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:25:18] "OPTIONS /api/doc_review/prompts HTTP/1.1" 200 -
+2025-11-17 09:25:18,830 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:25:18] "GET /api/doc_review/prompts HTTP/1.1" 200 -
+2025-11-17 09:25:18,834 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:25:18] "OPTIONS /api/doc_review/prompts/agent_planner HTTP/1.1" 200 -
+2025-11-17 09:25:18,836 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:25:18] "GET /api/doc_review/prompts/agent_planner HTTP/1.1" 200 -
+2025-11-17 09:25:20,326 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:25:20] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:25:21,668 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:25:21] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:25:21,670 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:25:21] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:25:21,673 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:25:21] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:25:28,208 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:25:28] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:25:28,212 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:25:28] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:26:07,672 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:07] "OPTIONS /api/doc_review/documents/collateral_bad/markdown HTTP/1.1" 200 -
+2025-11-17 09:26:07,681 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:07] "PUT /api/doc_review/documents/collateral_bad/markdown HTTP/1.1" 200 -
+2025-11-17 09:26:11,640 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:11] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:26:11,651 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:11] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:26:21,981 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:21] "OPTIONS /api/doc_review/upload HTTP/1.1" 200 -
+2025-11-17 09:26:21,986 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:21] "[35m[1mPOST /api/doc_review/upload HTTP/1.1[0m" 201 -
+2025-11-17 09:26:21,988 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:21] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:26:21,991 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:21] "[35m[1mPOST /api/doc_review/documents HTTP/1.1[0m" 201 -
+2025-11-17 09:26:22,002 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:22] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:26:29,124 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:29] "OPTIONS /api/doc_review/documents/collateral_middle-kjz5o4 HTTP/1.1" 200 -
+2025-11-17 09:26:29,125 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:29] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:26:29,126 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:29] "OPTIONS /api/doc_review/documents/collateral_middle-kjz5o4 HTTP/1.1" 200 -
+2025-11-17 09:26:29,130 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:29] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:26:29,132 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:29] "GET /api/doc_review/documents/collateral_middle-kjz5o4 HTTP/1.1" 200 -
+2025-11-17 09:26:29,138 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:29] "GET /api/doc_review/documents/collateral_middle-kjz5o4 HTTP/1.1" 200 -
+2025-11-17 09:26:48,074 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:48] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:26:48,084 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:48] "OPTIONS /api/doc_review/documents/collateral_middle-kjz5o4 HTTP/1.1" 200 -
+2025-11-17 09:26:48,093 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:48] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:26:48,095 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:48] "OPTIONS /api/doc_review/documents/collateral_middle-kjz5o4 HTTP/1.1" 200 -
+2025-11-17 09:26:48,099 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:48] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:26:48,102 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:48] "GET /api/doc_review/documents/collateral_middle-kjz5o4 HTTP/1.1" 200 -
+2025-11-17 09:26:48,103 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:48] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:26:48,107 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:48] "GET /api/doc_review/documents/collateral_middle-kjz5o4 HTTP/1.1" 200 -
+2025-11-17 09:26:49,394 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:49] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:26:50,385 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:50] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:26:50,388 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:50] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:26:50,389 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:50] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:26:50,391 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:50] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:26:50,394 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:50] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:26:52,110 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:52] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:26:52,114 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:52] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:26:52,117 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:52] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:26:52,121 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:52] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:26:54,715 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:26:54] "OPTIONS /api/doc_review/documents/collateral_bad/apply_template HTTP/1.1" 200 -
+2025-11-17 09:26:54,744 - external.doc_review.template_processor - INFO - Starting template processing with 'policy_template'
+2025-11-17 09:26:54,744 - external.doc_review.template_processor - INFO - Processing page 1/1
+2025-11-17 09:26:54,744 - external.doc_review.template_processor - INFO - Performing gap analysis for page 1
+2025-11-17 09:27:00,475 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:27:00,479 - external.doc_review.template_processor - INFO - Page 1: Found 6 gaps
+2025-11-17 09:27:00,479 - external.doc_review.template_processor - INFO - Generating improvements for page 1
+2025-11-17 09:27:20,365 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:20] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:27:20,377 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:20] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:27:21,921 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:27:21,923 - external.doc_review.template_processor - INFO - Page 1: Generated 11 improvements
+2025-11-17 09:27:21,923 - external.doc_review.template_processor - INFO - Template processing complete: 6 gaps, 11 improvements
+2025-11-17 09:27:21,923 - external.doc_review.template_processor - INFO - Generating synthesis summary for 'collateral_bad'
+2025-11-17 09:27:24,239 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:24] "OPTIONS /api/doc_review/documents/collateral_middle-kjz5o4 HTTP/1.1" 200 -
+2025-11-17 09:27:24,242 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:24] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:27:24,242 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:24] "OPTIONS /api/doc_review/documents/collateral_middle-kjz5o4 HTTP/1.1" 200 -
+2025-11-17 09:27:24,245 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:24] "GET /api/doc_review/documents/collateral_middle-kjz5o4 HTTP/1.1" 200 -
+2025-11-17 09:27:24,246 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:24] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:27:24,250 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:24] "GET /api/doc_review/documents/collateral_middle-kjz5o4 HTTP/1.1" 200 -
+2025-11-17 09:27:26,100 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:27:26,102 - external.doc_review.template_processor - INFO - Synthesis summary generated successfully
+2025-11-17 09:27:26,108 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:26] "POST /api/doc_review/documents/collateral_bad/apply_template HTTP/1.1" 200 -
+2025-11-17 09:27:27,060 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:27] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:27:27,070 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:27] "GET /api/doc_review/documents/collateral_middle-kjz5o4 HTTP/1.1" 200 -
+2025-11-17 09:27:27,073 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:27] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:27:27,074 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:27] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:27:27,079 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:27] "GET /api/doc_review/documents/collateral_middle-kjz5o4 HTTP/1.1" 200 -
+2025-11-17 09:27:30,074 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:30] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:27:31,284 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:31] "OPTIONS /api/doc_review/documents/collateral_middle HTTP/1.1" 200 -
+2025-11-17 09:27:31,285 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:31] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:27:31,287 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:31] "OPTIONS /api/doc_review/documents/collateral_middle HTTP/1.1" 200 -
+2025-11-17 09:27:31,289 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:31] "GET /api/doc_review/documents/collateral_middle HTTP/1.1" 200 -
+2025-11-17 09:27:31,289 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:31] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:27:31,291 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:31] "GET /api/doc_review/documents/collateral_middle HTTP/1.1" 200 -
+2025-11-17 09:27:31,292 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:31] "OPTIONS /api/doc_review/documents/collateral_middle/run_phase1 HTTP/1.1" 200 -
+2025-11-17 09:27:31,296 - external.agent.doc_review_agent - INFO - DocReviewAgent.run_phase1: run_id=collateral_middle doc_id=e6f71ce7b9cf494f96ceb0f12542b065_collateral_middle
+2025-11-17 09:27:31,296 - DetectFileTypeTool - INFO - detect_file_type: file_id=e6f71ce7b9cf494f96ceb0f12542b065_collateral_middle path=/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/e6f71ce7b9cf494f96ceb0f12542b065_collateral_middle.pdf ext=.pdf mimetype=application/pdf type=pdf
+2025-11-17 09:27:31,296 - DetectFileTypeTool - INFO - Tool executed successfully: detect_file_type (0.00s)
+2025-11-17 09:27:31,296 - ConvertToMarkdownTool - INFO - Converting PDF to images at 300 DPI: /Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/e6f71ce7b9cf494f96ceb0f12542b065_collateral_middle.pdf
+2025-11-17 09:27:32,745 - ConvertToMarkdownTool - INFO - Converted 2 pages to images
+2025-11-17 09:27:32,746 - ConvertToMarkdownTool - INFO - Transcribing page 1/2...
+2025-11-17 09:27:32,781 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:32] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:27:32,787 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:32] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:27:33,852 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:33] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:27:33,855 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:33] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:27:33,856 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:33] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:27:33,858 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:33] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:27:33,863 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:27:33] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:27:36,477 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:27:36,479 - ConvertToMarkdownTool - INFO - Transcribed page 1: 1419 characters
+2025-11-17 09:27:36,480 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 1...
+2025-11-17 09:27:42,548 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:27:42,551 - ConvertToMarkdownTool - ERROR - Failed to create semantic blocks for page 1: Expecting value: line 1 column 1 (char 0)
+2025-11-17 09:27:42,552 - ConvertToMarkdownTool - INFO - Verifying page 1 with text extraction...
+2025-11-17 09:27:53,591 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:27:53,595 - ConvertToMarkdownTool - INFO - Page 1: Found 17 verified suggestions
+2025-11-17 09:27:53,595 - ConvertToMarkdownTool - INFO - Transcribing page 2/2...
+2025-11-17 09:27:55,354 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:27:55,356 - ConvertToMarkdownTool - INFO - Transcribed page 2: 398 characters
+2025-11-17 09:27:55,356 - ConvertToMarkdownTool - INFO - Creating semantic blocks for page 2...
+2025-11-17 09:27:59,073 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:27:59,075 - ConvertToMarkdownTool - ERROR - Failed to create semantic blocks for page 2: Expecting value: line 1 column 1 (char 0)
+2025-11-17 09:27:59,075 - ConvertToMarkdownTool - INFO - Verifying page 2 with text extraction...
+2025-11-17 09:28:01,795 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:28:01,798 - ConvertToMarkdownTool - INFO - Page 2: Found 3 verified suggestions
+2025-11-17 09:28:01,798 - ConvertToMarkdownTool - INFO - Successfully transcribed 2 pages
+2025-11-17 09:28:01,798 - ConvertToMarkdownTool - INFO - Generated 44 blocks with stable IDs
+2025-11-17 09:28:01,798 - ConvertToMarkdownTool - INFO - Found 20 verification suggestions
+2025-11-17 09:28:01,798 - ConvertToMarkdownTool - INFO - Generated TOC with 11 entries
+2025-11-17 09:28:01,804 - ConvertToMarkdownTool - INFO - convert_to_markdown: file_id=e6f71ce7b9cf494f96ceb0f12542b065_collateral_middle -> md_file_id=e6f71ce7b9cf494f96ceb0f12542b065_collateral_middle_md_d4240aef path=external/data/doc_review/markdown/e6f71ce7b9cf494f96ceb0f12542b065_collateral_middle_md_d4240aef.md
+2025-11-17 09:28:01,804 - ConvertToMarkdownTool - INFO - Tool executed successfully: convert_to_markdown (30.51s)
+2025-11-17 09:28:01,893 - ExtractImagesTool - INFO - extract_images: file_id=e6f71ce7b9cf494f96ceb0f12542b065_collateral_middle path=/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/e6f71ce7b9cf494f96ceb0f12542b065_collateral_middle.pdf images_found=0
+2025-11-17 09:28:01,893 - ExtractImagesTool - INFO - Tool executed successfully: extract_images (0.09s)
+2025-11-17 09:28:01,893 - ComputeFileStatsTool - INFO - compute_file_stats: file_id=e6f71ce7b9cf494f96ceb0f12542b065_collateral_middle md_file_id=e6f71ce7b9cf494f96ceb0f12542b065_collateral_middle_md_d4240aef words=255 pages=1
+2025-11-17 09:28:01,893 - ComputeFileStatsTool - INFO - Tool executed successfully: compute_file_stats (0.00s)
+2025-11-17 09:28:01,894 - AnalyzeHeadingStructureTool - INFO - analyze_heading_structure: file_id=e6f71ce7b9cf494f96ceb0f12542b065_collateral_middle headings=0 levels=
+2025-11-17 09:28:01,894 - AnalyzeHeadingStructureTool - INFO - Tool executed successfully: analyze_heading_structure (0.00s)
+2025-11-17 09:28:06,957 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:28:06,960 - BuildFileMetadataTool - INFO - build_file_metadata: file_id=e6f71ce7b9cf494f96ceb0f12542b065_collateral_middle type=pdf words=255 pages=1
+2025-11-17 09:28:06,960 - BuildFileMetadataTool - INFO - Tool executed successfully: build_file_metadata (0.00s)
+2025-11-17 09:28:09,378 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:28:15,215 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:28:23,728 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:28:23] "OPTIONS /api/doc_review/ask_riskgpt HTTP/1.1" 200 -
+2025-11-17 09:28:23,734 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Starting workflow for file_id=collateral_bad, selected_blocks=1, prompt_len=2
+2025-11-17 09:28:23,734 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Step 1: context_loader → intent_classifier (0.0ms)
+2025-11-17 09:28:23,915 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:28:25,000 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:28:25,002 - external.doc_review.riskgpt_nodes - INFO - [IntentClassifier] Classified as 'compliance_check' (confidence: 0.90) -> doc_searcher
+2025-11-17 09:28:25,002 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Step 2: intent_classifier → doc_searcher (1268.1ms)
+2025-11-17 09:28:26,690 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:28:26,692 - external.doc_review.riskgpt_nodes - INFO - [DocSearcher] Generated search response (862 chars)
+2025-11-17 09:28:26,692 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Step 3: doc_searcher → end (1689.9ms)
+2025-11-17 09:28:26,693 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Completed in 4 steps, 2958.9ms total
+2025-11-17 09:28:26,693 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:28:26] "POST /api/doc_review/ask_riskgpt HTTP/1.1" 200 -
+2025-11-17 09:28:27,414 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:28:27,418 - external.doc_review.store - INFO - Preserved original_markdown for collateral_middle
+2025-11-17 09:28:27,426 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:28:27] "POST /api/doc_review/documents/collateral_middle/run_phase1 HTTP/1.1" 200 -
+2025-11-17 09:28:27,433 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:28:27] "OPTIONS /api/doc_review/documents/collateral_middle HTTP/1.1" 200 -
+2025-11-17 09:28:27,437 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:28:27] "GET /api/doc_review/documents/collateral_middle HTTP/1.1" 200 -
+2025-11-17 09:34:54,550 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:34:54] "OPTIONS /api/doc_review/ask_riskgpt HTTP/1.1" 200 -
+2025-11-17 09:34:54,558 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Starting workflow for file_id=collateral_bad, selected_blocks=1, prompt_len=2
+2025-11-17 09:34:54,559 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Step 1: context_loader → intent_classifier (0.1ms)
+2025-11-17 09:34:55,654 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:34:55,662 - external.doc_review.riskgpt_nodes - INFO - [IntentClassifier] Classified as 'general_question' (confidence: 0.10) -> chat_responder
+2025-11-17 09:34:55,662 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Step 2: intent_classifier → chat_responder (1103.0ms)
+2025-11-17 09:34:57,172 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:34:57,173 - external.doc_review.riskgpt_nodes - INFO - [ChatResponder] Generated response (946 chars)
+2025-11-17 09:34:57,173 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Step 3: chat_responder → end (1510.5ms)
+2025-11-17 09:34:57,173 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Completed in 4 steps, 2614.9ms total
+2025-11-17 09:34:57,174 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:34:57] "POST /api/doc_review/ask_riskgpt HTTP/1.1" 200 -
+2025-11-17 09:40:51,476 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:40:51] "OPTIONS /api/doc_review/ask_riskgpt HTTP/1.1" 200 -
+2025-11-17 09:40:51,484 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Starting workflow for file_id=collateral_bad, selected_blocks=1, prompt_len=21
+2025-11-17 09:40:51,485 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Step 1: context_loader → intent_classifier (0.1ms)
+2025-11-17 09:40:52,579 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:40:52,582 - external.doc_review.riskgpt_nodes - INFO - [IntentClassifier] Classified as 'general_question' (confidence: 0.60) -> chat_responder
+2025-11-17 09:40:52,582 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Step 2: intent_classifier → chat_responder (1096.3ms)
+2025-11-17 09:40:55,091 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:40:55,093 - external.doc_review.riskgpt_nodes - INFO - [ChatResponder] Generated response (1465 chars)
+2025-11-17 09:40:55,093 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Step 3: chat_responder → end (2511.1ms)
+2025-11-17 09:40:55,094 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Completed in 4 steps, 3609.3ms total
+2025-11-17 09:40:55,094 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:40:55] "POST /api/doc_review/ask_riskgpt HTTP/1.1" 200 -
+2025-11-17 09:41:13,897 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:41:13] "OPTIONS /api/doc_review/ask_riskgpt HTTP/1.1" 200 -
+2025-11-17 09:41:13,903 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Starting workflow for file_id=collateral_bad, selected_blocks=4, prompt_len=12
+2025-11-17 09:41:13,903 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Step 1: context_loader → intent_classifier (0.1ms)
+2025-11-17 09:41:14,790 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:41:14,792 - external.doc_review.riskgpt_nodes - INFO - [IntentClassifier] Classified as 'improve_blocks' (confidence: 0.90) -> block_improver
+2025-11-17 09:41:14,793 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Step 2: intent_classifier → block_improver (889.4ms)
+2025-11-17 09:41:22,053 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-17 09:41:22,055 - external.doc_review.riskgpt_nodes - INFO - [BlockImprover] Generated 4 suggestions
+2025-11-17 09:41:22,055 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Step 3: block_improver → end (7262.4ms)
+2025-11-17 09:41:22,056 - external.doc_review.riskgpt_agent - INFO - [RiskGPTAgent] Completed in 4 steps, 8152.8ms total
+2025-11-17 09:41:22,056 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:41:22] "POST /api/doc_review/ask_riskgpt HTTP/1.1" 200 -
+2025-11-17 09:53:23,225 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:53:23] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:53:23,253 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:53:23] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:53:23,255 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:53:23] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:53:23,258 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:53:23] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:53:23,272 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:53:23] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 09:53:23,279 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:53:23] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 09:53:23,283 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:53:23] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 09:53:23,288 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 09:53:23] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 12:58:02,080 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 12:58:02] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 12:58:02,082 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 12:58:02] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 12:58:02,083 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 12:58:02] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 12:58:02,085 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 12:58:02] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 12:58:02,096 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 12:58:02] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 12:58:02,098 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 12:58:02] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 12:58:02,102 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 12:58:02] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 12:58:02,109 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 12:58:02] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 14:10:26,777 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 14:10:26] "OPTIONS /api/doc_review/documents/collateral_bad/markdown HTTP/1.1" 200 -
+2025-11-17 14:10:26,835 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 14:10:26] "PUT /api/doc_review/documents/collateral_bad/markdown HTTP/1.1" 200 -
+2025-11-17 14:10:30,944 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 14:10:30] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 14:10:30,961 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 14:10:30] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-17 14:10:32,717 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 14:10:32] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 14:10:32,718 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 14:10:32] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 14:10:32,719 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 14:10:32] "OPTIONS /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 14:10:32,723 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 14:10:32] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 14:10:32,724 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 14:10:32] "GET /api/doc_review/templates HTTP/1.1" 200 -
+2025-11-17 14:10:32,729 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 14:10:32] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 14:10:39,525 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 14:10:39] "OPTIONS /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
+2025-11-17 14:10:39,531 - werkzeug - INFO - 127.0.0.1 - - [17/Nov/2025 14:10:39] "GET /api/doc_review/documents/collateral_bad HTTP/1.1" 200 -
