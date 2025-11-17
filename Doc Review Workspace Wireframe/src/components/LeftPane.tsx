@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { FileText, AlertCircle, FolderTree, ChevronRight, ChevronDown, MessageSquare, Sparkles, Check, X } from 'lucide-react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import { FileText, AlertCircle, FolderTree, ChevronRight, ChevronDown, MessageSquare, Sparkles, Check, X, MapPin, Type } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { ArtifactPreviewModal } from './ArtifactPreviewModal';
 import { vfsReadFile, vfsTree } from '@/lib/api';
@@ -73,15 +73,68 @@ function SuggestionsList({
         // Scroll to the suggestion
         setTimeout(() => {
           suggestionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          // Briefly highlight
-          suggestionElement.style.backgroundColor = '#fef3c7';
+          // Briefly highlight with animation
+          suggestionElement.classList.add('highlight-flash');
           setTimeout(() => {
-            suggestionElement.style.backgroundColor = '';
-          }, 2000);
+            suggestionElement.classList.remove('highlight-flash');
+          }, 1000);
         }, 100);
       }
     }
   }, [selectedSuggestionId]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle if not typing in an input
+      if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA') {
+        return;
+      }
+
+      const currentIndex = selectedSuggestionId 
+        ? suggestions.findIndex(s => s.block_id === selectedSuggestionId)
+        : -1;
+
+      // j or ArrowDown - next suggestion
+      if (e.key === 'j' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        const nextIndex = currentIndex < suggestions.length - 1 ? currentIndex + 1 : 0;
+        onSuggestionSelect?.(suggestions[nextIndex].block_id);
+      }
+      // k or ArrowUp - previous suggestion
+      else if (e.key === 'k' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prevIndex = currentIndex > 0 ? currentIndex - 1 : suggestions.length - 1;
+        onSuggestionSelect?.(suggestions[prevIndex].block_id);
+      }
+      // a - accept suggestion
+      else if (e.key === 'a' && selectedSuggestionId) {
+        e.preventDefault();
+        onAcceptSuggestion?.(selectedSuggestionId);
+      }
+      // r - reject suggestion
+      else if (e.key === 'r' && selectedSuggestionId) {
+        e.preventDefault();
+        onRejectSuggestion?.(selectedSuggestionId);
+      }
+      // c - comment/ask RiskGPT
+      else if (e.key === 'c' && selectedSuggestionId) {
+        e.preventDefault();
+        onCommentSuggestion?.(selectedSuggestionId);
+      }
+      // Enter - toggle expand/collapse
+      else if (e.key === 'Enter' && selectedSuggestionId) {
+        e.preventDefault();
+        setExpandedBoxes(prev => ({
+          ...prev,
+          [selectedSuggestionId]: !prev[selectedSuggestionId]
+        }));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [suggestions, selectedSuggestionId, onSuggestionSelect, onAcceptSuggestion, onRejectSuggestion, onCommentSuggestion]);
 
   return (
     <>
@@ -89,6 +142,9 @@ function SuggestionsList({
         const expanded = expandedSections[suggestion.block_id] || { original: true, reasoning: true, improved: true };
         const isBoxExpanded = expandedBoxes[suggestion.block_id] !== false;
         
+        const charCount = (suggestion.suggested || '').length - (suggestion.original || '').length;
+        const charChangeText = charCount > 0 ? `+${charCount}` : charCount < 0 ? `${charCount}` : '±0';
+
         return (
           <div
             key={suggestion.block_id}
@@ -96,48 +152,55 @@ function SuggestionsList({
               if (el) suggestionRefs.current.set(suggestion.block_id, el);
               else suggestionRefs.current.delete(suggestion.block_id);
             }}
-            className={`p-3 rounded-lg border-2 transition-all ${
+            className={`group p-4 rounded-xl border transition-all duration-300 ${
               selectedSuggestionId === suggestion.block_id
-                ? 'bg-yellow-50 border-yellow-400 shadow-md'
-                : 'bg-yellow-50/50 border-yellow-200 hover:border-yellow-300 hover:shadow-sm'
+                ? 'bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-300 shadow-lg ring-2 ring-amber-200'
+                : 'bg-white border-neutral-200 hover:border-amber-200 hover:shadow-md hover:-translate-y-0.5'
             }`}
+            style={{
+              animation: selectedSuggestionId === suggestion.block_id ? 'none' : undefined,
+            }}
           >
-            {/* Header with number badge, action icons, and collapse button */}
-            <div className="flex items-start gap-2 mb-3">
-              <button
-                onClick={() => toggleBox(suggestion.block_id)}
-                className="flex-shrink-0 w-6 h-6 bg-yellow-400 text-white rounded-full flex items-center justify-center text-xs font-bold hover:bg-yellow-500 transition-colors"
-                title="Collapse/Expand"
-              >
+            {/* Header with number badge, title, and metadata */}
+            <div className="flex items-start gap-3 mb-3">
+              {/* Number badge */}
+              <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-amber-400 to-yellow-500 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm">
                 {index + 1}
-              </button>
+              </div>
+
+              {/* Title and metadata */}
               <button
                 onClick={() => {
-                  // Expand the box and scroll to the block in the editor
                   if (!isBoxExpanded) {
                     setExpandedBoxes(prev => ({ ...prev, [suggestion.block_id]: true }));
                   }
                   onSuggestionSelect?.(suggestion.block_id);
                 }}
-                className="flex-1 min-w-0 text-left hover:bg-yellow-100 rounded px-2 py-1 transition-colors"
+                className="flex-1 min-w-0 text-left group-hover:bg-amber-50/50 rounded-lg px-2 py-1 transition-all"
                 title="Jump to block in editor"
               >
-                <p className="text-xs text-neutral-600 font-medium">Suggestion {index + 1}</p>
-                <p className="text-xs text-neutral-500 truncate mt-0.5">
-                  {suggestion.block_content?.substring(0, 50) || 'Click to view in editor'}...
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-sm font-semibold text-neutral-800">Suggestion {index + 1}</p>
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-neutral-100 text-neutral-600 rounded text-xs">
+                    <Type className="w-3 h-3" />
+                    {charChangeText} chars
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-500 truncate leading-relaxed">
+                  {suggestion.block_content?.substring(0, 60) || 'Click to view in editor'}...
                 </p>
               </button>
               
               {/* Action Icons: Comment, Accept, Reject */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     console.log('[LeftPane] Comment/AskRiskGPT clicked:', suggestion.block_id);
                     onCommentSuggestion?.(suggestion.block_id);
                   }}
-                  className="p-1.5 hover:bg-blue-100 rounded transition-colors"
-                  title="Comment / Ask RiskGPT"
+                  className="p-2 hover:bg-blue-100 rounded-lg transition-all hover:scale-110 active:scale-95"
+                  title="Ask RiskGPT (C)"
                 >
                   <MessageSquare className="w-4 h-4 text-blue-600" />
                 </button>
@@ -148,8 +211,8 @@ function SuggestionsList({
                     activityLogger.suggestionAccepted(suggestion.block_id);
                     onAcceptSuggestion?.(suggestion.block_id);
                   }}
-                  className="p-1.5 hover:bg-green-100 rounded transition-colors"
-                  title="Accept Suggestion"
+                  className="p-2 hover:bg-green-100 rounded-lg transition-all hover:scale-110 active:scale-95"
+                  title="Accept (A)"
                 >
                   <Check className="w-4 h-4 text-green-600" />
                 </button>
@@ -160,74 +223,118 @@ function SuggestionsList({
                     activityLogger.suggestionRejected(suggestion.block_id);
                     onRejectSuggestion?.(suggestion.block_id);
                   }}
-                  className="p-1.5 hover:bg-red-100 rounded transition-colors"
-                  title="Reject Suggestion"
+                  className="p-2 hover:bg-red-100 rounded-lg transition-all hover:scale-110 active:scale-95"
+                  title="Reject (R)"
                 >
                   <X className="w-4 h-4 text-red-600" />
                 </button>
               </div>
               
+              {/* Expand/Collapse toggle */}
               <button
                 onClick={() => toggleBox(suggestion.block_id)}
-                className="flex-shrink-0 text-neutral-500 text-sm hover:text-neutral-700 px-2 transition-colors"
-                title="Collapse/Expand"
+                className="flex-shrink-0 p-1 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded transition-all"
+                title={isBoxExpanded ? 'Collapse (Enter)' : 'Expand (Enter)'}
               >
-                {isBoxExpanded ? '▼' : '▶'}
+                {isBoxExpanded ? (
+                  <ChevronDown className="w-4 h-4" />
+                ) : (
+                  <ChevronRight className="w-4 h-4" />
+                )}
               </button>
             </div>
 
-            {/* Collapsible content */}
-            {isBoxExpanded && (
-              <div>
-                {/* Collapsible: Original Content */}
-                <div className="mb-2">
+            {/* Collapsible content with smooth animation */}
+            <div
+              className="overflow-hidden transition-all duration-300 ease-in-out"
+              style={{
+                maxHeight: isBoxExpanded ? '1000px' : '0px',
+                opacity: isBoxExpanded ? 1 : 0,
+              }}
+            >
+              <div className="space-y-3 pt-2">
+                {/* Original Content Section */}
+                <div className="border border-neutral-200 rounded-lg overflow-hidden bg-neutral-50/50">
                   <button
                     onClick={() => toggleSection(suggestion.block_id, 'original')}
-                    className="w-full flex items-center justify-between text-left py-1.5 px-2 bg-neutral-100 hover:bg-neutral-200 rounded transition-colors"
+                    className="w-full flex items-center justify-between text-left py-2 px-3 hover:bg-neutral-100 transition-colors"
                   >
-                    <span className="text-xs font-semibold text-neutral-700">📄 Original</span>
-                    <span className="text-xs text-neutral-500">{expanded.original ? '▼' : '▶'}</span>
+                    <span className="text-xs font-semibold text-neutral-700 flex items-center gap-2">
+                      📄 Original Content
+                    </span>
+                    {expanded.original ? (
+                      <ChevronDown className="w-3 h-3 text-neutral-400" />
+                    ) : (
+                      <ChevronRight className="w-3 h-3 text-neutral-400" />
+                    )}
                   </button>
-                  {expanded.original && (
-                    <div className="mt-1 p-2 bg-white border border-neutral-200 rounded text-xs text-neutral-600 leading-relaxed max-h-32 overflow-y-auto">
+                  <div
+                    className="overflow-hidden transition-all duration-200"
+                    style={{
+                      maxHeight: expanded.original ? '200px' : '0px',
+                    }}
+                  >
+                    <div className="p-3 bg-white text-xs text-neutral-600 leading-relaxed overflow-y-auto border-t border-neutral-200">
                       {suggestion.block_content || suggestion.original || 'N/A'}
                     </div>
-                  )}
+                  </div>
                 </div>
 
-                {/* Collapsible: Reasoning / Gap Analysis */}
-                <div className="mb-2">
+                {/* Reasoning Section */}
+                <div className="border border-blue-200 rounded-lg overflow-hidden bg-blue-50/30">
                   <button
                     onClick={() => toggleSection(suggestion.block_id, 'reasoning')}
-                    className="w-full flex items-center justify-between text-left py-1.5 px-2 bg-blue-100 hover:bg-blue-200 rounded transition-colors"
+                    className="w-full flex items-center justify-between text-left py-2 px-3 hover:bg-blue-100/50 transition-colors"
                   >
-                    <span className="text-xs font-semibold text-blue-700">💡 Reasoning</span>
-                    <span className="text-xs text-blue-500">{expanded.reasoning ? '▼' : '▶'}</span>
+                    <span className="text-xs font-semibold text-blue-700 flex items-center gap-2">
+                      💡 Why Change This
+                    </span>
+                    {expanded.reasoning ? (
+                      <ChevronDown className="w-3 h-3 text-blue-400" />
+                    ) : (
+                      <ChevronRight className="w-3 h-3 text-blue-400" />
+                    )}
                   </button>
-                  {expanded.reasoning && (
-                    <div className="mt-1 p-2 bg-white border border-blue-200 rounded text-xs text-neutral-600 leading-relaxed max-h-32 overflow-y-auto">
+                  <div
+                    className="overflow-hidden transition-all duration-200"
+                    style={{
+                      maxHeight: expanded.reasoning ? '200px' : '0px',
+                    }}
+                  >
+                    <div className="p-3 bg-white text-xs text-neutral-700 leading-relaxed overflow-y-auto border-t border-blue-200">
                       {suggestion.reason || 'No reasoning provided'}
                     </div>
-                  )}
+                  </div>
                 </div>
 
-                {/* Collapsible: Improved Content */}
-                <div className="mb-3">
+                {/* Improved Content Section */}
+                <div className="border border-green-200 rounded-lg overflow-hidden bg-green-50/30">
                   <button
                     onClick={() => toggleSection(suggestion.block_id, 'improved')}
-                    className="w-full flex items-center justify-between text-left py-1.5 px-2 bg-green-100 hover:bg-green-200 rounded transition-colors"
+                    className="w-full flex items-center justify-between text-left py-2 px-3 hover:bg-green-100/50 transition-colors"
                   >
-                    <span className="text-xs font-semibold text-green-700">✨ Improved</span>
-                    <span className="text-xs text-green-500">{expanded.improved ? '▼' : '▶'}</span>
+                    <span className="text-xs font-semibold text-green-700 flex items-center gap-2">
+                      ✨ Improved Version
+                    </span>
+                    {expanded.improved ? (
+                      <ChevronDown className="w-3 h-3 text-green-400" />
+                    ) : (
+                      <ChevronRight className="w-3 h-3 text-green-400" />
+                    )}
                   </button>
-                  {expanded.improved && (
-                    <div className="mt-1 p-2 bg-white border border-green-200 rounded text-xs text-neutral-700 leading-relaxed max-h-32 overflow-y-auto font-medium">
+                  <div
+                    className="overflow-hidden transition-all duration-200"
+                    style={{
+                      maxHeight: expanded.improved ? '200px' : '0px',
+                    }}
+                  >
+                    <div className="p-3 bg-white text-xs text-neutral-800 leading-relaxed overflow-y-auto border-t border-green-200 font-medium">
                       {suggestion.suggested || 'No improved content'}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
         );
       })}
@@ -480,34 +587,44 @@ export function LeftPane({ onIssueSelect, selectedIssueId, onArtifactSelect, fil
   return (
     <div className="flex flex-col h-full">
       {/* Header - Suggestions Only */}
-      <div className="border-b border-neutral-200 px-3 py-2.5 bg-yellow-50">
+      <div className="border-b border-neutral-200 px-4 py-3 bg-gradient-to-r from-amber-50 to-yellow-50">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold text-neutral-900 flex-shrink-0">Template Suggestions</h2>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-neutral-900">Template Suggestions</h2>
             {suggestions.length > 0 && (
-              <span className="px-1.5 py-0.5 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold">
+              <span className="px-2 py-0.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-white rounded-full text-xs font-bold shadow-sm">
                 {suggestions.length}
               </span>
             )}
           </div>
         </div>
+        {/* Keyboard shortcuts hint */}
+        {suggestions.length > 0 && (
+          <p className="text-xs text-neutral-500 mt-1.5">
+            j/k to navigate • a to accept • r to reject • c to ask RiskGPT
+          </p>
+        )}
       </div>
 
       {/* Suggestions Content */}
       <div className="flex-1 overflow-y-auto" style={{ overflowY: 'auto', overflowX: 'visible' }}>
         {/* Always show suggestions - no tabs */}
         {(
-          <div className="p-3 space-y-3" style={{ minHeight: '100%' }}>
+          <div className="p-4 space-y-3" style={{ minHeight: '100%' }}>
             {suggestions.length === 0 ? (
-              <div className="text-center py-8 text-neutral-500 text-sm">
-                <AlertCircle className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
-                <p>No suggestions yet</p>
-                <p className="text-xs mt-1">Apply a template to see suggestions</p>
+              <div className="text-center py-12 px-4">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-amber-100 to-yellow-100 rounded-full flex items-center justify-center">
+                  <Sparkles className="w-8 h-8 text-amber-500" />
+                </div>
+                <h3 className="text-sm font-semibold text-neutral-800 mb-2">No suggestions yet</h3>
+                <p className="text-xs text-neutral-500 leading-relaxed max-w-xs mx-auto">
+                  Apply a template to your document to receive AI-powered improvement suggestions
+                </p>
               </div>
             ) : (
               <SuggestionsList 
                 suggestions={suggestions}
-                selectedSuggestionId={selectedSuggestionId}
+                selectedSuggestionId={selectedSuggestionId || null}
                 onAcceptSuggestion={onAcceptSuggestion}
                 onRejectSuggestion={onRejectSuggestion}
                 onCommentSuggestion={onCommentSuggestion}

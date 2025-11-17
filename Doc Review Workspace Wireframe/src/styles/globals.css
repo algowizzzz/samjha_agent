@@ -187,3 +187,23 @@
 html {
   font-size: var(--font-size);
 }
+
+/* Suggestion highlight flash animation */
+@keyframes highlightFlash {
+  0% {
+    background-color: rgb(254 249 195);
+    transform: scale(1);
+  }
+  50% {
+    background-color: rgb(254 243 199);
+    transform: scale(1.02);
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+}
+
+.highlight-flash {
+  animation: highlightFlash 1s ease-in-out;
+}
