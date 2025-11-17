@@ -575,11 +575,24 @@ export function LeftPane({ onIssueSelect, selectedIssueId, onArtifactSelect, fil
     );
   };
 
+  // Bulk actions
+  const handleAcceptAll = () => {
+    suggestions.forEach(suggestion => {
+      onAcceptSuggestion?.(suggestion.block_id);
+    });
+  };
+
+  const handleRejectAll = () => {
+    suggestions.forEach(suggestion => {
+      onRejectSuggestion?.(suggestion.block_id);
+    });
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Header - Suggestions Only */}
       <div className="border-b border-neutral-200 px-4 py-3 bg-gradient-to-r from-amber-50 to-yellow-50">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2 mb-2">
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-semibold text-neutral-900">Template Suggestions</h2>
             {suggestions.length > 0 && (
@@ -588,10 +601,31 @@ export function LeftPane({ onIssueSelect, selectedIssueId, onArtifactSelect, fil
               </span>
             )}
           </div>
+          {/* Bulk action buttons */}
+          {suggestions.length > 0 && (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={handleAcceptAll}
+                className="px-2 py-1 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors flex items-center gap-1"
+                title="Accept all suggestions"
+              >
+                <Check className="w-3 h-3" />
+                Accept All
+              </button>
+              <button
+                onClick={handleRejectAll}
+                className="px-2 py-1 text-xs font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition-colors flex items-center gap-1"
+                title="Reject all suggestions"
+              >
+                <X className="w-3 h-3" />
+                Reject All
+              </button>
+            </div>
+          )}
         </div>
         {/* Keyboard shortcuts hint */}
         {suggestions.length > 0 && (
-          <p className="text-xs text-neutral-500 mt-1.5">
+          <p className="text-xs text-neutral-500">
             j/k to navigate • a to accept • r to reject • c to ask RiskGPT
           </p>
         )}
