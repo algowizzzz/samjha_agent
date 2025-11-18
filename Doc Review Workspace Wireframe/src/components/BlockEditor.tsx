@@ -937,7 +937,7 @@ export function BlockEditor({
   };
 
   const getBlockClassName = (block: Block) => {
-    const baseClasses = 'relative group px-16 py-0.5 rounded transition-all cursor-pointer bg-white';
+    const baseClasses = 'relative group px-16 py-0.5 rounded transition-all bg-white';
     
     // Check if block is selected - removed blue border to avoid editing interference
     // Selection state is still tracked for Ask RiskGPT functionality
