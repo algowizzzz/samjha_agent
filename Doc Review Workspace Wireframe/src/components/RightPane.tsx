@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Send, Sparkles, X, Copy, Check, RotateCcw, FileDown, Search, Moon, Sun, ChevronDown, ChevronUp } from 'lucide-react';
+import { Send, Sparkles, X, Copy, Check, RotateCcw, FileDown, Search, Moon, Sun, ChevronDown, ChevronUp, MessageSquare } from 'lucide-react';
 import { getDocument, askRiskGPT, type BlockMetadata } from '@/lib/api';
+import { CommentsPane } from './CommentsPane';
 
 interface ChatMessage {
   id: string;
@@ -401,19 +402,30 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
 
   return (
     <div className={`flex flex-col h-full ${isDarkMode ? 'bg-neutral-900' : 'bg-white'}`}>
+      {/* Header - RiskGPT Only (Comments hidden) */}
+      <div className={`border-b ${isDarkMode ? 'border-neutral-700 bg-neutral-800' : 'border-neutral-200 bg-white'} px-4`}>
+        <div className="flex items-center gap-2 py-3">
+          <Sparkles className="w-4 h-4 text-blue-500" />
+          <span className="text-sm font-medium">RiskGPT</span>
+          {chatMessages.length > 0 && (
+            <span className={`text-xs px-1.5 py-0.5 rounded ${
+              isDarkMode ? 'bg-neutral-700 text-neutral-300' : 'bg-neutral-100 text-neutral-600'
+            }`}>
+              {chatMessages.length}
+            </span>
+          )}
+        </div>
+      </div>
+
       {/* Chat Header with actions */}
       <div className={`border-b ${isDarkMode ? 'border-neutral-700 bg-neutral-800' : 'border-neutral-200 bg-neutral-50'} px-4 py-3`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className={`w-5 h-5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
-            <h2 className={`text-sm font-semibold ${isDarkMode ? 'text-neutral-100' : 'text-neutral-900'}`}>RiskGPT</h2>
-            {chatMessages.length > 0 && (
-              <span className={`text-xs ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>
-                ({chatMessages.length} messages)
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h3 className={`text-xs font-medium ${isDarkMode ? 'text-neutral-300' : 'text-neutral-600'}`}>
+                Ask about your document
+              </h3>
+            </div>
+            <div className="flex items-center gap-1">
             {/* Search button */}
             <button
               onClick={() => setShowSearch(!showSearch)}
@@ -465,6 +477,7 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
         )}
       </div>
 
+      {/* Chat Content */}
       {/* Messages Area - Full Height */}
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
         {filteredMessages.length === 0 && chatMessages.length === 0 && (
@@ -498,10 +511,10 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
             : message.content;
           
           return (
-            <div
-              key={message.id}
+          <div
+            key={message.id}
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} group`}
-            >
+          >
             <div className={`max-w-[85%] flex flex-col gap-2`}>
               {/* Timestamp (hover to show) */}
               {message.timestamp && (
@@ -512,7 +525,7 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
               
               {/* Selected Blocks Attachment */}
               {message.selectedBlocks && message.selectedBlocks.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-1">
+                <div className="flex flex-wrap gap-1.5 mb-1">
                   {message.selectedBlocks.map((block) => (
                     <div
                       key={block.id}
@@ -521,11 +534,12 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
                           ? 'bg-blue-900 text-blue-200 border border-blue-700' 
                           : 'bg-blue-100 text-blue-800 border border-blue-200'
                       }`}
-                      title={block.content.substring(0, 100)}
+                      title={block.content}
                     >
-                      <span className="font-medium">Block {block.block_num}</span>
-                      <span className={isDarkMode ? 'text-blue-400' : 'text-blue-600'}>·</span>
-                      <span className="max-w-[100px] truncate">{block.content}</span>
+                      <span className="font-medium">B{block.block_num}</span>
+                      <span className={`${isDarkMode ? 'text-blue-400' : 'text-blue-600'} text-[10px]`}>
+                        {block.content.substring(0, 5)}...
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -533,17 +547,17 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
 
               {/* Message Bubble with header actions */}
               <div className="relative">
-                <div
-                  className={`px-4 py-3 rounded-2xl text-sm ${
-                    message.role === 'user'
+              <div
+                className={`px-4 py-3 rounded-2xl text-sm ${
+                  message.role === 'user'
                       ? isDarkMode 
                         ? 'bg-blue-700 text-white rounded-br-sm' 
                         : 'bg-blue-600 text-white rounded-br-sm'
                       : isDarkMode 
                         ? 'bg-neutral-800 text-neutral-100 rounded-bl-sm border border-neutral-700' 
-                        : 'bg-neutral-100 text-neutral-900 rounded-bl-sm'
-                  }`}
-                >
+                    : 'bg-neutral-100 text-neutral-900 rounded-bl-sm'
+                }`}
+              >
                 {message.role === 'assistant' ? (
                   <div 
                     className={`prose prose-sm max-w-none prose-headings:mt-3 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-li:my-0 ${isDarkMode ? 'prose-invert' : ''}`}
@@ -591,7 +605,7 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
                   </button>
                 )}
               </div>
-              
+
               {/* Action buttons (hover to show) */}
               <div className={`flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {/* Copy button */}
@@ -643,9 +657,10 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
                     Apply All ({message.suggestions.length})
                   </button>
                 )}
-              </div>
+                </div>
             </div>
           </div>
+        </div>
         );
         })}
         
@@ -698,10 +713,12 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
                     ? 'bg-blue-900 text-blue-200 hover:bg-blue-800 border border-blue-700' 
                     : 'bg-blue-100 text-blue-800 hover:bg-blue-200 border border-blue-200'
                 }`}
+                title={block.content}
               >
-                <span className="font-medium">Block {block.block_num}</span>
-                <span className={isDarkMode ? 'text-blue-400' : 'text-blue-600'}>·</span>
-                <span className="max-w-[120px] truncate">{block.content}</span>
+                <span className="font-medium">B{block.block_num}</span>
+                <span className={`${isDarkMode ? 'text-blue-400' : 'text-blue-600'} text-[10px]`}>
+                  {block.content.substring(0, 5)}...
+                </span>
                 {onDeselectBlock && (
                   <button
                     onClick={() => onDeselectBlock(block.id)}
