@@ -1383,7 +1383,7 @@ export function BlockEditor({
         </div>
       </div>
 
-      {/* Editor Content */}
+      {/* Editor Content - Single contentEditable Root (Notion-style) */}
       <div className="w-full py-8">
         <div className="max-w-4xl mx-auto">
           {blocks.length === 0 ? (
@@ -1392,34 +1392,125 @@ export function BlockEditor({
               <p className="text-sm">Document may be loading or empty</p>
             </div>
           ) : (
-            /* ENHANCED: Drag & Drop Context */
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
+            <div
+              id="editor-root"
+              contentEditable={true}
+              data-editor-root="true"
+              className="outline-none min-h-[200px]"
+              suppressHydrationWarning
+              onInput={(e) => {
+                // DOM → Model reconciliation on input (Notion-style)
+                const root = e.currentTarget;
+                const newBlocks: Block[] = [];
+                
+                // Iterate through block children
+                Array.from(root.children).forEach((child) => {
+                  const blockId = child.getAttribute('data-block-id');
+                  const blockType = child.getAttribute('data-block-type') as BlockType;
+                  
+                  if (blockId && blockType) {
+                    const existingBlock = blocks.find(b => b.id === blockId);
+                    if (existingBlock) {
+                      // Extract HTML content from the block's text container
+                      const textContainer = child.querySelector('p, h1, h2, h3, li') || child;
+                      const newContent = textContainer.innerHTML || '';
+                      
+                      newBlocks.push({
+                        ...existingBlock,
+                        content: newContent, // Store as HTML directly
+                      });
+                    }
+                  }
+                });
+                
+                if (newBlocks.length > 0 && newBlocks.length === blocks.length) {
+                  setBlocks(newBlocks);
+                }
+              }}
+              onBeforeInput={(e) => {
+                // Handle special cases before input
+                console.log('[BlockEditor] beforeinput:', (e.nativeEvent as any).inputType);
+              }}
             >
-              <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
-                {blocks.map((block, index) => (
-                  <SortableBlockItem 
-                    key={block.id} 
-                    block={block} 
-                    index={index}
-                    hoveredBlock={hoveredBlock}
-                    setHoveredBlock={setHoveredBlock}
-                    getBlockClassName={getBlockClassName}
-                    setContextMenu={setContextMenu}
-                    handleInputChange={handleInputChange}
-                    blocks={blocks}
-                    blockRefs={blockRefs}
-                    setBlocks={setBlocks}
-                    onCommentClick={onCommentClick}
-                    selectedBlockIds={selectedBlockIds}
-                    handleBlockSelect={handleBlockSelect}
-                    getBlockStyles={getBlockStyles}
-                  />
-                ))}
-              </SortableContext>
-            </DndContext>
+              {blocks.map((block, index) => (
+                <div
+                  key={block.id}
+                  className={`block ${getBlockClassName(block)}`}
+                  data-block-id={block.id}
+                  data-block-type={block.type}
+                  onMouseEnter={() => setHoveredBlock(block.id)}
+                  onMouseLeave={() => setHoveredBlock(null)}
+                >
+                  {/* Non-editable UI (handles, badges) */}
+                  {hoveredBlock === block.id && (
+                    <div className="block-ui absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1" contentEditable={false}>
+                      <div 
+                        className="cursor-grab active:cursor-grabbing p-1 hover:bg-neutral-200 rounded transition-colors"
+                        onMouseDown={(e) => {
+                          // TODO: Implement drag-and-drop for single contentEditable root
+                          e.preventDefault();
+                          console.log('[BlockEditor] Drag handle clicked - drag-and-drop needs reimplementation');
+                        }}
+                      >
+                        <GripVertical className="w-4 h-4 text-neutral-400" />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Yellow Flag for Suggestions */}
+                  {block.aiSuggestion && (
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-400" contentEditable={false}></div>
+                  )}
+
+                  {/* Block Content - Editable text */}
+                  {block.type === 'heading1' ? (
+                    <h1 dangerouslySetInnerHTML={{ __html: block.content }} />
+                  ) : block.type === 'heading2' ? (
+                    <h2 dangerouslySetInnerHTML={{ __html: block.content }} />
+                  ) : block.type === 'heading3' ? (
+                    <h3 dangerouslySetInnerHTML={{ __html: block.content }} />
+                  ) : block.type === 'bullet' ? (
+                    <ul><li dangerouslySetInnerHTML={{ __html: block.content }} /></ul>
+                  ) : block.type === 'numbered' ? (
+                    <ol><li dangerouslySetInnerHTML={{ __html: block.content }} /></ol>
+                  ) : (
+                    <p dangerouslySetInnerHTML={{ __html: block.content }} />
+                  )}
+
+                  {/* Right Gutter - Comment & Menu (non-editable) */}
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2" contentEditable={false}>
+                    {block.commentCount > 0 && (
+                      <button
+                        onClick={() => onCommentClick(block.id)}
+                        className="relative p-1 hover:bg-neutral-200 rounded"
+                      >
+                        <MessageSquare className="w-4 h-4 text-blue-600" />
+                        <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                          {block.commentCount}
+                        </span>
+                      </button>
+                    )}
+
+                    {(hoveredBlock === block.id || selectedBlockIds.has(block.id)) && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBlockSelect(block.id, e);
+                        }}
+                        className={`px-2 py-0.5 rounded text-xs transition-all ${
+                          selectedBlockIds.has(block.id) 
+                            ? 'bg-blue-600 text-white font-bold opacity-100' 
+                            : 'bg-neutral-200 text-neutral-700 hover:bg-neutral-300 opacity-0 group-hover:opacity-100'
+                        }`}
+                        title={selectedBlockIds.has(block.id) ? "Block selected (click to deselect)" : "Ask RiskGPT about this block (Cmd/Shift to multi-select)"}
+                      >
+                        {selectedBlockIds.has(block.id) ? '✓ Selected' : 'Ask RiskGPT'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>
