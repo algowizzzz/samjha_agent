@@ -1889,8 +1889,16 @@ export function BlockEditor({
             if (index < blocks.length - 1) setBlocks(arrayMove(blocks, index, index + 1));
           }}
           onTurnInto={() => {
-            setShowSlashMenu(true);
-            setSelectedBlockIds(new Set([contextMenu.blockId]));
+            if (contextMenu) {
+              setSelectedBlockIds(new Set([contextMenu.blockId]));
+              setShowSlashMenu(true);
+              // Position slash menu near the block
+              const blockEl = document.querySelector(`[data-block-id="${contextMenu.blockId}"]`);
+              if (blockEl) {
+                const rect = blockEl.getBoundingClientRect();
+                setSlashMenuPosition({ x: rect.left, y: rect.top + 20 });
+              }
+            }
           }}
           onComment={() => onCommentClick(contextMenu.blockId)}
           onAskAI={async () => {
