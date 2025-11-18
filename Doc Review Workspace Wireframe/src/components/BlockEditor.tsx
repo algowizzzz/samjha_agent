@@ -1621,6 +1621,10 @@ export function BlockEditor({
                   data-block-type={block.type}
                   onMouseEnter={() => setHoveredBlock(block.id)}
                   onMouseLeave={() => setHoveredBlock(null)}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    setContextMenu({ blockId: block.id, position: { x: e.clientX, y: e.clientY } });
+                  }}
                   onDragOver={(e) => {
                     if (draggedBlockId && draggedBlockId !== block.id) {
                       e.preventDefault();
@@ -1743,12 +1747,14 @@ export function BlockEditor({
             top: `${floatingToolbarPosition.y}px`,
             transform: 'translate(-50%, -100%)',
             pointerEvents: 'auto',
+            minWidth: '280px',
+            whiteSpace: 'nowrap',
           }}
           onMouseDown={(e) => e.preventDefault()} // Prevent losing selection
         >
           {/* Bold */}
           <button
-            className="p-2 hover:bg-neutral-700 rounded-md transition-colors"
+            className="p-2 hover:bg-neutral-700 rounded-md transition-colors flex-shrink-0"
             onClick={() => {
               document.execCommand('bold');
               setShowFloatingToolbar(false);
@@ -1760,7 +1766,7 @@ export function BlockEditor({
           
           {/* Italic */}
           <button
-            className="p-2 hover:bg-neutral-700 rounded-md transition-colors"
+            className="p-2 hover:bg-neutral-700 rounded-md transition-colors flex-shrink-0"
             onClick={() => {
               document.execCommand('italic');
               setShowFloatingToolbar(false);
@@ -1772,7 +1778,7 @@ export function BlockEditor({
           
           {/* Highlight */}
           <button
-            className="p-2 hover:bg-neutral-700 rounded-md transition-colors"
+            className="p-2 hover:bg-neutral-700 rounded-md transition-colors flex-shrink-0"
             onClick={() => {
               document.execCommand('hiliteColor', false, '#fef3c7');
               setShowFloatingToolbar(false);
@@ -1784,7 +1790,7 @@ export function BlockEditor({
           
           {/* Link */}
           <button
-            className="p-2 hover:bg-neutral-700 rounded-md transition-colors"
+            className="p-2 hover:bg-neutral-700 rounded-md transition-colors flex-shrink-0"
             onClick={() => {
               const url = prompt('Enter URL:');
               if (url) {
@@ -1798,11 +1804,11 @@ export function BlockEditor({
           </button>
           
           {/* Divider */}
-          <div className="w-px h-5 bg-neutral-600 mx-1.5" />
+          <div className="w-px h-5 bg-neutral-600 mx-1.5 flex-shrink-0" />
           
           {/* More Options */}
           <button
-            className="p-2 hover:bg-neutral-700 rounded-md transition-colors"
+            className="p-2 hover:bg-neutral-700 rounded-md transition-colors flex-shrink-0"
             onClick={() => {
               // Could open more formatting options
               setShowFloatingToolbar(false);
@@ -1818,7 +1824,7 @@ export function BlockEditor({
           
           {/* Ask AI - Sparkle Icon */}
           <button
-            className="p-2 hover:bg-neutral-700 rounded-md transition-colors"
+            className="p-2 hover:bg-neutral-700 rounded-md transition-colors flex-shrink-0"
             onClick={async () => {
               const selection = window.getSelection();
               const selectedText = selection?.toString().trim();
