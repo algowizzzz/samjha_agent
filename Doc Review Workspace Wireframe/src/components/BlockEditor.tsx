@@ -591,10 +591,49 @@ export function BlockEditor({
       }
     };
     
+    // NEW: Expose clear selection for Clear All button
+    (window as any).__blockEditorClearSelection = () => {
+      console.log('[BlockEditor] Clearing all block selections');
+      setSelectedBlockIds(new Set());
+      if (onSelectedBlocksChange) {
+        onSelectedBlocksChange([]);
+      }
+    };
+    
+    // NEW: Expose deselect single block
+    (window as any).__blockEditorDeselectBlock = (blockId: string) => {
+      console.log('[BlockEditor] Deselecting block:', blockId);
+      setSelectedBlockIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(blockId);
+        
+        // Update parent with new selection
+        if (onSelectedBlocksChange && blockMetadata) {
+          const selectedBlocks = blockMetadata
+            .filter(b => newSet.has(b.id))
+            .map(meta => {
+              const currentBlock = blocks.find(b => b.id === meta.id);
+              if (currentBlock) {
+                return {
+                  ...meta,
+                  content: htmlToPlainText(currentBlock.content)
+                };
+              }
+              return meta;
+            });
+          onSelectedBlocksChange(selectedBlocks);
+        }
+        
+        return newSet;
+      });
+    };
+    
     return () => {
       delete (window as any).__blockEditorAcceptSuggestion;
       delete (window as any).__blockEditorRejectSuggestion;
       delete (window as any).__blockEditorSelectBlock;
+      delete (window as any).__blockEditorClearSelection;
+      delete (window as any).__blockEditorDeselectBlock;
     };
   }, [onAcceptSuggestion, onRejectSuggestion, blocks, blockMetadata, onSelectedBlocksChange]);
 

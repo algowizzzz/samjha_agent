@@ -260,9 +260,18 @@ export default function App() {
                 synthesisData={synthesisData}
                 onDeselectBlock={(blockId) => {
                   setSelectedBlocks(prev => prev.filter(b => b.id !== blockId));
+                  // Also deselect in BlockEditor
+                  if ((window as any).__blockEditorDeselectBlock) {
+                    (window as any).__blockEditorDeselectBlock(blockId);
+                  }
                 }}
                 onClearAllBlocks={() => {
+                  // Clear the state in App
                   setSelectedBlocks([]);
+                  // Also clear the selection in BlockEditor
+                  if ((window as any).__blockEditorClearSelection) {
+                    (window as any).__blockEditorClearSelection();
+                  }
                 }}
               />
             </Resizable>
