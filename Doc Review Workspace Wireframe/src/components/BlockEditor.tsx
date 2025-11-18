@@ -567,6 +567,8 @@ export function BlockEditor({
   const [lastClickedBlockId, setLastClickedBlockId] = useState<string | null>(null);
   const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
   const [dragOverBlockId, setDragOverBlockId] = useState<string | null>(null);
+  const [showFloatingToolbar, setShowFloatingToolbar] = useState(false);
+  const [floatingToolbarPosition, setFloatingToolbarPosition] = useState({ x: 0, y: 0 });
   
   // ENHANCED: Drag & drop sensors - only activate on drag handle
   const sensors = useSensors(
@@ -1400,6 +1402,34 @@ export function BlockEditor({
               data-editor-root="true"
               className="outline-none min-h-[200px]"
               suppressHydrationWarning
+              onMouseUp={(e) => {
+                // Show floating toolbar on text selection
+                setTimeout(() => {
+                  const selection = window.getSelection();
+                  const selectedText = selection?.toString().trim();
+                  
+                  if (selectedText && selectedText.length > 0) {
+                    const range = selection!.getRangeAt(0);
+                    const rect = range.getBoundingClientRect();
+                    
+                    // Position toolbar above selection (fixed positioning)
+                    setFloatingToolbarPosition({
+                      x: rect.left + rect.width / 2,
+                      y: rect.top + window.scrollY - 10,
+                    });
+                    setShowFloatingToolbar(true);
+                  } else {
+                    setShowFloatingToolbar(false);
+                  }
+                }, 10);
+              }}
+              onClick={(e) => {
+                // Hide toolbar on click if no selection
+                const selection = window.getSelection();
+                if (!selection?.toString().trim()) {
+                  setShowFloatingToolbar(false);
+                }
+              }}
               onInput={(e) => {
                 // DOM → Model reconciliation on input (Notion-style)
                 const root = e.currentTarget;
@@ -1700,6 +1730,66 @@ export function BlockEditor({
           )}
         </div>
       </div>
+
+      {/* Floating Toolbar on Text Selection */}
+      {showFloatingToolbar && (
+        <div
+          className="fixed z-[99999] flex items-center gap-1 bg-neutral-900 text-white rounded-lg shadow-2xl px-2 py-1.5 animate-in fade-in zoom-in-95 duration-100"
+          style={{
+            left: `${floatingToolbarPosition.x}px`,
+            top: `${floatingToolbarPosition.y}px`,
+            transform: 'translate(-50%, -100%)',
+          }}
+          onMouseDown={(e) => e.preventDefault()} // Prevent losing selection
+        >
+          <button
+            className="p-1.5 hover:bg-neutral-700 rounded transition-colors"
+            onClick={() => {
+              document.execCommand('bold');
+              setShowFloatingToolbar(false);
+            }}
+            title="Bold (Cmd+B)"
+          >
+            <Bold className="w-3.5 h-3.5" />
+          </button>
+          <button
+            className="p-1.5 hover:bg-neutral-700 rounded transition-colors"
+            onClick={() => {
+              document.execCommand('italic');
+              setShowFloatingToolbar(false);
+            }}
+            title="Italic (Cmd+I)"
+          >
+            <Italic className="w-3.5 h-3.5" />
+          </button>
+          <div className="w-px h-4 bg-neutral-600 mx-1" />
+          <button
+            className="px-2 py-1 hover:bg-blue-600 bg-blue-700 rounded transition-colors text-xs font-semibold"
+            onClick={async () => {
+              const selection = window.getSelection();
+              const selectedText = selection?.toString().trim();
+              
+              if (selectedText && fileId) {
+                setShowFloatingToolbar(false);
+                try {
+                  const result = await askRiskGPT(
+                    fileId,
+                    [],
+                    `Improve this text: "${selectedText}"`
+                  );
+                  // Handle result (could show in chat or apply inline)
+                  console.log('[Floating Toolbar] RiskGPT result:', result);
+                } catch (error) {
+                  console.error('[Floating Toolbar] RiskGPT error:', error);
+                }
+              }
+            }}
+            title="Ask RiskGPT to improve selected text"
+          >
+            Ask RiskGPT
+          </button>
+        </div>
+      )}
 
       {/* ENHANCED: Slash Command Menu */}
       {showSlashMenu && (
