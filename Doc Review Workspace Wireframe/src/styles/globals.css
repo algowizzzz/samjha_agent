@@ -207,3 +207,17 @@ html {
 .highlight-flash {
   animation: highlightFlash 1s ease-in-out;
 }
+
+/* Enable text selection across blocks */
+.select-text {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+/* Ensure contentEditable allows selection */
+[contenteditable="true"] {
+  user-select: text;
+  -webkit-user-select: text;
+}

@@ -349,7 +349,7 @@ const SortableBlockItem = React.memo(({
       )}
 
       {/* Block Content */}
-      <div className={block.changeType === 'removed' ? 'line-through opacity-50' : ''}>
+      <div className={`${block.changeType === 'removed' ? 'line-through opacity-50' : ''} select-text`}>
         {block.type === 'bullet' || block.type === 'numbered' ? (
           <LexicalBlock
             block={block}
@@ -1218,7 +1218,7 @@ export function BlockEditor({
   };
 
   const getBlockClassName = (block: Block) => {
-    const baseClasses = 'relative group px-16 py-0.5 rounded transition-all';
+    const baseClasses = 'relative group px-16 py-0.5 rounded transition-all select-text';
     
     // Check if block is selected for RiskGPT
     const isSelected = selectedBlockIds.has(block.id);
