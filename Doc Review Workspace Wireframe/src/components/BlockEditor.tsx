@@ -561,6 +561,7 @@ export function BlockEditor({
   const [riskGPTPrompt, setRiskGPTPrompt] = useState('');
   const [isAskingRiskGPT, setIsAskingRiskGPT] = useState(false);
   const blockRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const [lastClickedBlockId, setLastClickedBlockId] = useState<string | null>(null);
   
   // ENHANCED: Drag & drop sensors - only activate on drag handle
   const sensors = useSensors(
@@ -950,9 +951,8 @@ export function BlockEditor({
     }));
   };
 
-  // NEW: RiskGPT handlers
+  // NEW: RiskGPT handlers (Notion-style range selection)
   const handleBlockSelect = (blockId: string, event: React.MouseEvent) => {
-    // NEW: Only handle block selection when explicitly clicking "Ask RiskGPT" button
     console.log('[BlockEditor] Block selected for RiskGPT:', blockId);
     activityLogger.blockSelected(blockId);
     
@@ -963,8 +963,21 @@ export function BlockEditor({
       onBlockWithSuggestionClick(blockId);
     }
     
-    if (event.shiftKey || event.metaKey || event.ctrlKey) {
-      // Multi-select
+    if (event.shiftKey && lastClickedBlockId) {
+      // SHIFT+CLICK: Range selection (like Notion)
+      const currentIndex = blocks.findIndex(b => b.id === blockId);
+      const lastIndex = blocks.findIndex(b => b.id === lastClickedBlockId);
+      
+      if (currentIndex !== -1 && lastIndex !== -1) {
+        const start = Math.min(currentIndex, lastIndex);
+        const end = Math.max(currentIndex, lastIndex);
+        const rangeIds = blocks.slice(start, end + 1).map(b => b.id);
+        
+        setSelectedBlockIds(new Set(rangeIds));
+        console.log('[BlockEditor] Range select:', rangeIds.length, 'blocks');
+      }
+    } else if (event.metaKey || event.ctrlKey) {
+      // CMD/CTRL+CLICK: Add/remove from selection
       setSelectedBlockIds(prev => {
         const newSet = new Set(prev);
         if (newSet.has(blockId)) {
@@ -975,8 +988,9 @@ export function BlockEditor({
         console.log('[BlockEditor] Multi-select, new selection:', Array.from(newSet));
         return newSet;
       });
+      setLastClickedBlockId(blockId);
     } else {
-      // Single select (or toggle if already selected)
+      // REGULAR CLICK: Toggle single selection
       setSelectedBlockIds(prev => {
         const newSet = new Set(prev);
         if (newSet.has(blockId)) {
@@ -987,6 +1001,7 @@ export function BlockEditor({
         console.log('[BlockEditor] Toggle select, new selection:', Array.from(newSet));
         return newSet;
       });
+      setLastClickedBlockId(blockId);
     }
   };
 
