@@ -565,6 +565,8 @@ export function BlockEditor({
   const [isAskingRiskGPT, setIsAskingRiskGPT] = useState(false);
   const blockRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [lastClickedBlockId, setLastClickedBlockId] = useState<string | null>(null);
+  const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
+  const [dragOverBlockId, setDragOverBlockId] = useState<string | null>(null);
   
   // ENHANCED: Drag & drop sensors - only activate on drag handle
   const sensors = useSensors(
@@ -1427,6 +1429,150 @@ export function BlockEditor({
                   setBlocks(newBlocks);
                 }
               }}
+              onKeyDown={(e) => {
+                // Handle Enter key for block splitting/creation
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  
+                  const selection = window.getSelection();
+                  if (!selection || !selection.rangeCount) return;
+                  
+                  const range = selection.getRangeAt(0);
+                  
+                  // Find which block we're in
+                  let currentBlockElement = range.startContainer as Node;
+                  while (currentBlockElement && !(currentBlockElement as Element).hasAttribute?.('data-block-id')) {
+                    currentBlockElement = currentBlockElement.parentNode!;
+                  }
+                  
+                  if (!currentBlockElement) return;
+                  
+                  const blockId = (currentBlockElement as Element).getAttribute('data-block-id');
+                  const blockIndex = blocks.findIndex(b => b.id === blockId);
+                  
+                  if (blockIndex === -1) return;
+                  
+                  const currentBlock = blocks[blockIndex];
+                  
+                  // Get text container
+                  const textContainer = (currentBlockElement as Element).querySelector('p, h1, h2, h3, li');
+                  if (!textContainer) return;
+                  
+                  // Split the content at cursor position
+                  const beforeRange = document.createRange();
+                  beforeRange.setStart(textContainer, 0);
+                  beforeRange.setEnd(range.startContainer, range.startOffset);
+                  const beforeContent = beforeRange.toString();
+                  
+                  const afterRange = document.createRange();
+                  afterRange.setStart(range.startContainer, range.startOffset);
+                  afterRange.setEnd(textContainer, textContainer.childNodes.length);
+                  const afterContent = afterRange.toString();
+                  
+                  // Create new block
+                  const newBlock: Block = {
+                    id: `block-${Date.now()}`,
+                    type: 'paragraph',
+                    content: afterContent || '',
+                    changeType: 'none',
+                    commentCount: 0,
+                    changeHistory: [],
+                  };
+                  
+                  // Update current block content
+                  const updatedBlocks = [...blocks];
+                  updatedBlocks[blockIndex] = {
+                    ...currentBlock,
+                    content: beforeContent,
+                  };
+                  
+                  // Insert new block after current
+                  updatedBlocks.splice(blockIndex + 1, 0, newBlock);
+                  
+                  setBlocks(updatedBlocks);
+                  
+                  // Move cursor to new block (after DOM updates)
+                  setTimeout(() => {
+                    const newBlockElement = document.querySelector(`[data-block-id="${newBlock.id}"]`);
+                    if (newBlockElement) {
+                      const newTextContainer = newBlockElement.querySelector('p, h1, h2, h3, li');
+                      if (newTextContainer) {
+                        const newRange = document.createRange();
+                        const sel = window.getSelection();
+                        newRange.setStart(newTextContainer, 0);
+                        newRange.collapse(true);
+                        sel?.removeAllRanges();
+                        sel?.addRange(newRange);
+                      }
+                    }
+                  }, 10);
+                }
+                
+                // Handle Backspace at start of block to merge with previous
+                if (e.key === 'Backspace') {
+                  const selection = window.getSelection();
+                  if (!selection || !selection.rangeCount) return;
+                  
+                  const range = selection.getRangeAt(0);
+                  
+                  // Check if cursor is at start of text container
+                  let currentBlockElement = range.startContainer as Node;
+                  while (currentBlockElement && !(currentBlockElement as Element).hasAttribute?.('data-block-id')) {
+                    currentBlockElement = currentBlockElement.parentNode!;
+                  }
+                  
+                  if (!currentBlockElement) return;
+                  
+                  const textContainer = (currentBlockElement as Element).querySelector('p, h1, h2, h3, li');
+                  if (!textContainer) return;
+                  
+                  // Check if we're at the very start
+                  const checkRange = document.createRange();
+                  checkRange.setStart(textContainer, 0);
+                  checkRange.setEnd(range.startContainer, range.startOffset);
+                  
+                  if (checkRange.toString().length === 0) {
+                    // At start of block - merge with previous
+                    e.preventDefault();
+                    
+                    const blockId = (currentBlockElement as Element).getAttribute('data-block-id');
+                    const blockIndex = blocks.findIndex(b => b.id === blockId);
+                    
+                    if (blockIndex > 0) {
+                      const currentBlock = blocks[blockIndex];
+                      const prevBlock = blocks[blockIndex - 1];
+                      
+                      // Merge content
+                      const mergedBlock = {
+                        ...prevBlock,
+                        content: prevBlock.content + ' ' + currentBlock.content,
+                      };
+                      
+                      const updatedBlocks = [...blocks];
+                      updatedBlocks[blockIndex - 1] = mergedBlock;
+                      updatedBlocks.splice(blockIndex, 1);
+                      
+                      setBlocks(updatedBlocks);
+                      
+                      // Move cursor to end of merged block
+                      setTimeout(() => {
+                        const prevBlockElement = document.querySelector(`[data-block-id="${prevBlock.id}"]`);
+                        if (prevBlockElement) {
+                          const prevTextContainer = prevBlockElement.querySelector('p, h1, h2, h3, li');
+                          if (prevTextContainer && prevTextContainer.lastChild) {
+                            const newRange = document.createRange();
+                            const sel = window.getSelection();
+                            newRange.setStart(prevTextContainer.lastChild, prevTextContainer.lastChild.textContent?.length || 0);
+                            newRange.collapse(true);
+                            sel?.removeAllRanges();
+                            sel?.addRange(newRange);
+                          }
+                        }
+                      }, 10);
+                    }
+                  }
+                }
+              }}
               onBeforeInput={(e) => {
                 // Handle special cases before input
                 console.log('[BlockEditor] beforeinput:', (e.nativeEvent as any).inputType);
@@ -1435,21 +1581,61 @@ export function BlockEditor({
               {blocks.map((block, index) => (
                 <div
                   key={block.id}
-                  className={`block ${getBlockClassName(block)}`}
+                  className={`block ${getBlockClassName(block)} ${
+                    dragOverBlockId === block.id ? 'border-t-2 border-blue-500' : ''
+                  }`}
                   data-block-id={block.id}
                   data-block-type={block.type}
                   onMouseEnter={() => setHoveredBlock(block.id)}
                   onMouseLeave={() => setHoveredBlock(null)}
+                  onDragOver={(e) => {
+                    if (draggedBlockId && draggedBlockId !== block.id) {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = 'move';
+                      setDragOverBlockId(block.id);
+                    }
+                  }}
+                  onDragLeave={() => {
+                    setDragOverBlockId(null);
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    
+                    if (!draggedBlockId || draggedBlockId === block.id) return;
+                    
+                    const draggedIndex = blocks.findIndex(b => b.id === draggedBlockId);
+                    const targetIndex = blocks.findIndex(b => b.id === block.id);
+                    
+                    if (draggedIndex === -1 || targetIndex === -1) return;
+                    
+                    // Reorder blocks
+                    const newBlocks = [...blocks];
+                    const [draggedBlock] = newBlocks.splice(draggedIndex, 1);
+                    newBlocks.splice(targetIndex, 0, draggedBlock);
+                    
+                    setBlocks(newBlocks);
+                    setDraggedBlockId(null);
+                    setDragOverBlockId(null);
+                  }}
                 >
                   {/* Non-editable UI (handles, badges) */}
                   {hoveredBlock === block.id && (
                     <div className="block-ui absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1" contentEditable={false}>
                       <div 
-                        className="cursor-grab active:cursor-grabbing p-1 hover:bg-neutral-200 rounded transition-colors"
-                        onMouseDown={(e) => {
-                          // TODO: Implement drag-and-drop for single contentEditable root
-                          e.preventDefault();
-                          console.log('[BlockEditor] Drag handle clicked - drag-and-drop needs reimplementation');
+                        draggable
+                        className={`cursor-grab active:cursor-grabbing p-1 hover:bg-neutral-200 rounded transition-colors ${
+                          draggedBlockId === block.id ? 'opacity-50' : ''
+                        }`}
+                        onDragStart={(e) => {
+                          e.stopPropagation();
+                          setDraggedBlockId(block.id);
+                          // Make the entire block draggable
+                          e.dataTransfer.effectAllowed = 'move';
+                          e.dataTransfer.setData('text/plain', block.id);
+                        }}
+                        onDragEnd={() => {
+                          setDraggedBlockId(null);
+                          setDragOverBlockId(null);
                         }}
                       >
                         <GripVertical className="w-4 h-4 text-neutral-400" />
