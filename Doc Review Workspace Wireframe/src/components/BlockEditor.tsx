@@ -1181,9 +1181,9 @@ export function BlockEditor({
                   ? 'bg-blue-600 text-white font-bold opacity-100' 
                   : 'bg-neutral-200 text-neutral-700 hover:bg-neutral-300 opacity-0 group-hover:opacity-100'
               }`}
-              title={selectedBlockIds.has(block.id) ? "Block selected (click to deselect)" : "Select block for RiskGPT (Cmd/Shift to multi-select)"}
+              title={selectedBlockIds.has(block.id) ? "Block selected (click to deselect)" : "Ask RiskGPT about this block (Cmd/Shift to multi-select)"}
             >
-              {selectedBlockIds.has(block.id) ? '✓ Selected' : 'Select'}
+              {selectedBlockIds.has(block.id) ? '✓ Selected' : 'Ask RiskGPT'}
             </button>
           )}
         </div>
