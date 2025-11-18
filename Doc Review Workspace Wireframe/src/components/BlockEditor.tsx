@@ -609,16 +609,27 @@ export function BlockEditor({
   }, []);
 
   const handleSlashSelect = useCallback((blockType: any) => {
+    console.log('[SlashMenu] Selected block type:', blockType);
+    console.log('[SlashMenu] Selected block IDs:', Array.from(selectedBlockIds));
+    
     if (blockType === 'ai') {
       activityLogger.info('AI assistant requested');
     } else {
       const selectedId = Array.from(selectedBlockIds)[0];
+      console.log('[SlashMenu] Converting block:', selectedId, 'to type:', blockType);
+      
       if (selectedId) {
         setBlocks((prevBlocks) =>
-          prevBlocks.map((block) =>
-            block.id === selectedId ? { ...block, type: blockType } : block
-          )
+          prevBlocks.map((block) => {
+            if (block.id === selectedId) {
+              console.log('[SlashMenu] Converting block from', block.type, 'to', blockType);
+              return { ...block, type: blockType };
+            }
+            return block;
+          })
         );
+      } else {
+        console.warn('[SlashMenu] No selected block ID found');
       }
     }
     setShowSlashMenu(false);
@@ -1741,14 +1752,15 @@ export function BlockEditor({
       {/* Floating Toolbar on Text Selection - Notion Style */}
       {showFloatingToolbar && (
         <div
-          className="fixed z-[99999] flex items-center gap-0.5 bg-[#2b2b2b] text-white rounded-xl shadow-2xl px-1.5 py-1.5 opacity-100"
+          className="fixed z-[99999] flex items-center gap-0.5 bg-[#2b2b2b] text-white rounded-xl shadow-2xl px-1.5 py-1.5"
           style={{
             left: `${floatingToolbarPosition.x}px`,
             top: `${floatingToolbarPosition.y}px`,
             transform: 'translate(-50%, -100%)',
             pointerEvents: 'auto',
-            minWidth: '280px',
-            whiteSpace: 'nowrap',
+            visibility: 'visible',
+            display: 'flex',
+            opacity: '1',
           }}
           onMouseDown={(e) => e.preventDefault()} // Prevent losing selection
         >
@@ -1890,14 +1902,23 @@ export function BlockEditor({
           }}
           onTurnInto={() => {
             if (contextMenu) {
+              // Set the block as selected for the slash command handler
               setSelectedBlockIds(new Set([contextMenu.blockId]));
-              setShowSlashMenu(true);
+              
               // Position slash menu near the block
               const blockEl = document.querySelector(`[data-block-id="${contextMenu.blockId}"]`);
               if (blockEl) {
                 const rect = blockEl.getBoundingClientRect();
                 setSlashMenuPosition({ x: rect.left, y: rect.top + 20 });
               }
+              
+              // Close context menu first
+              setContextMenu(null);
+              
+              // Then show slash menu
+              setTimeout(() => {
+                setShowSlashMenu(true);
+              }, 10);
             }
           }}
           onComment={() => onCommentClick(contextMenu.blockId)}
