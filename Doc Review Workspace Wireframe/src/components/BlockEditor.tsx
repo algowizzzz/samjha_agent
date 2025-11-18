@@ -1731,10 +1731,10 @@ export function BlockEditor({
         </div>
       </div>
 
-      {/* Floating Toolbar on Text Selection */}
+      {/* Floating Toolbar on Text Selection - Notion Style */}
       {showFloatingToolbar && (
         <div
-          className="fixed z-[99999] flex items-center gap-1 bg-neutral-900 text-white rounded-lg shadow-2xl px-2 py-1.5 animate-in fade-in zoom-in-95 duration-100"
+          className="fixed z-[99999] flex items-center gap-0.5 bg-[#2b2b2b] text-white rounded-xl shadow-2xl px-1.5 py-1.5 animate-in fade-in zoom-in-95 duration-150"
           style={{
             left: `${floatingToolbarPosition.x}px`,
             top: `${floatingToolbarPosition.y}px`,
@@ -1742,29 +1742,79 @@ export function BlockEditor({
           }}
           onMouseDown={(e) => e.preventDefault()} // Prevent losing selection
         >
+          {/* Bold */}
           <button
-            className="p-1.5 hover:bg-neutral-700 rounded transition-colors"
+            className="p-2 hover:bg-neutral-700 rounded-md transition-colors"
             onClick={() => {
               document.execCommand('bold');
               setShowFloatingToolbar(false);
             }}
-            title="Bold (Cmd+B)"
+            title="Bold"
           >
-            <Bold className="w-3.5 h-3.5" />
+            <Bold className="w-4 h-4" strokeWidth={2.5} />
           </button>
+          
+          {/* Italic */}
           <button
-            className="p-1.5 hover:bg-neutral-700 rounded transition-colors"
+            className="p-2 hover:bg-neutral-700 rounded-md transition-colors"
             onClick={() => {
               document.execCommand('italic');
               setShowFloatingToolbar(false);
             }}
-            title="Italic (Cmd+I)"
+            title="Italic"
           >
-            <Italic className="w-3.5 h-3.5" />
+            <Italic className="w-4 h-4" strokeWidth={2.5} />
           </button>
-          <div className="w-px h-4 bg-neutral-600 mx-1" />
+          
+          {/* Highlight */}
           <button
-            className="px-2 py-1 hover:bg-blue-600 bg-blue-700 rounded transition-colors text-xs font-semibold"
+            className="p-2 hover:bg-neutral-700 rounded-md transition-colors"
+            onClick={() => {
+              document.execCommand('hiliteColor', false, '#fef3c7');
+              setShowFloatingToolbar(false);
+            }}
+            title="Highlight"
+          >
+            <Highlighter className="w-4 h-4" strokeWidth={2.5} />
+          </button>
+          
+          {/* Link */}
+          <button
+            className="p-2 hover:bg-neutral-700 rounded-md transition-colors"
+            onClick={() => {
+              const url = prompt('Enter URL:');
+              if (url) {
+                document.execCommand('createLink', false, url);
+                setShowFloatingToolbar(false);
+              }
+            }}
+            title="Link"
+          >
+            <LinkIcon className="w-4 h-4" strokeWidth={2.5} />
+          </button>
+          
+          {/* Divider */}
+          <div className="w-px h-5 bg-neutral-600 mx-1.5" />
+          
+          {/* More Options */}
+          <button
+            className="p-2 hover:bg-neutral-700 rounded-md transition-colors"
+            onClick={() => {
+              // Could open more formatting options
+              setShowFloatingToolbar(false);
+            }}
+            title="More"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="1" fill="currentColor"/>
+              <circle cx="12" cy="5" r="1" fill="currentColor"/>
+              <circle cx="12" cy="19" r="1" fill="currentColor"/>
+            </svg>
+          </button>
+          
+          {/* Ask AI - Sparkle Icon */}
+          <button
+            className="p-2 hover:bg-neutral-700 rounded-md transition-colors"
             onClick={async () => {
               const selection = window.getSelection();
               const selectedText = selection?.toString().trim();
@@ -1777,16 +1827,17 @@ export function BlockEditor({
                     [],
                     `Improve this text: "${selectedText}"`
                   );
-                  // Handle result (could show in chat or apply inline)
                   console.log('[Floating Toolbar] RiskGPT result:', result);
                 } catch (error) {
                   console.error('[Floating Toolbar] RiskGPT error:', error);
                 }
               }
             }}
-            title="Ask RiskGPT to improve selected text"
+            title="Ask RiskGPT"
           >
-            Ask RiskGPT
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 22.5l-.394-1.933a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+            </svg>
           </button>
         </div>
       )}
