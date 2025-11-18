@@ -284,6 +284,8 @@ interface SortableBlockItemProps {
   selectedBlockIds: Set<string>;
   handleBlockSelect: (blockId: string, event: React.MouseEvent) => void;
   getBlockStyles: (type: BlockType, block?: Block) => string;
+  focusedBlockId: string | null;
+  setFocusedBlockId: (id: string | null) => void;
 }
 
 const SortableBlockItem = React.memo(({ 
@@ -546,6 +548,7 @@ export function BlockEditor({
   const [slashMenuPosition, setSlashMenuPosition] = useState({ x: 0, y: 0 });
   const [slashSearchQuery, setSlashSearchQuery] = useState('');
   const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
+  const [focusedBlockId, setFocusedBlockId] = useState<string | null>(null); // NEW: Track which block is being edited
   const [contextMenu, setContextMenu] = useState<{ blockId: string; position: { x: number; y: number } } | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   
