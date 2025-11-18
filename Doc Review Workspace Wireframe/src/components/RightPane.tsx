@@ -404,7 +404,7 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
     <div className={`flex flex-col h-full ${isDarkMode ? 'bg-neutral-900' : 'bg-white'}`}>
       {/* Header - RiskGPT Only (Comments hidden) */}
       <div className={`border-b ${isDarkMode ? 'border-neutral-700 bg-neutral-800' : 'border-neutral-200 bg-white'} px-4`}>
-        <div className="flex items-center gap-2 py-3">
+        <div className="flex items-center gap-2 py-3 justify-end">
           <span className="text-sm font-medium">RiskGPT</span>
           {chatMessages.length > 0 && (
             <span className={`text-xs px-1.5 py-0.5 rounded ${
