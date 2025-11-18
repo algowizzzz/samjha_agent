@@ -39,6 +39,7 @@ import { ContextMenu } from './editor/ContextMenu';
 import { useUndoRedo } from '@/hooks/useUndoRedo';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { LexicalBlock } from './editor/LexicalBlock';
+import { useComments } from '@/hooks/useComments';
 
 type BlockType = 'paragraph' | 'heading1' | 'heading2' | 'heading3' | 'bullet' | 'numbered' | 'table' | 'callout' | 'quote' | 'empty';
 type ChangeType = 'verified' | 'modified' | 'ai_suggested' | 'ai_applied' | 'rejected' | 'none';
@@ -314,6 +315,9 @@ export function BlockEditor({
   const [acceptedSuggestions, setAcceptedSuggestions] = useState<string[]>([]);
   const [rejectedSuggestions, setRejectedSuggestions] = useState<string[]>([]);
   
+  // NEW: Fetch comment counts for blocks
+  const { commentCounts } = useComments(fileId || null);
+  
   // NEW: Block selection for RiskGPT
   const [selectedBlockIds, setSelectedBlockIds] = useState<Set<string>>(new Set());
   const [riskGPTPrompt, setRiskGPTPrompt] = useState('');
@@ -506,6 +510,18 @@ export function BlockEditor({
     }
   }, [aiSuggestions]);
 
+  // Update blocks with comment counts
+  useEffect(() => {
+    if (commentCounts && Object.keys(commentCounts).length > 0) {
+      setBlocks(prevBlocks => 
+        prevBlocks.map(block => ({
+          ...block,
+          commentCount: commentCounts[block.id] || 0
+        }))
+      );
+    }
+  }, [commentCounts]);
+
   // Notify parent of all suggestions for left panel (excluding accepted/rejected)
   useEffect(() => {
     if (onSuggestionsListChange) {
@@ -654,14 +670,9 @@ export function BlockEditor({
   };
 
   // NEW: RiskGPT handlers
-  const handleBlockClick = (blockId: string, event: React.MouseEvent) => {
-    // Don't select if clicking on input/textarea (user is editing)
-    const target = event.target as HTMLElement;
-    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-      return;
-    }
-    
-    console.log('[BlockEditor] Block clicked:', blockId);
+  const handleBlockSelect = (blockId: string, event: React.MouseEvent) => {
+    // NEW: Only handle block selection when explicitly clicking "Ask RiskGPT" button
+    console.log('[BlockEditor] Block selected for RiskGPT:', blockId);
     activityLogger.blockSelected(blockId);
     
     // If this block has a suggestion, notify parent to highlight it in left panel
@@ -684,10 +695,17 @@ export function BlockEditor({
         return newSet;
       });
     } else {
-      // Single select
-      const newSet = new Set([blockId]);
-      console.log('[BlockEditor] Single select, new selection:', Array.from(newSet));
-      setSelectedBlockIds(newSet);
+      // Single select (or toggle if already selected)
+      setSelectedBlockIds(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(blockId)) {
+          newSet.delete(blockId); // Deselect if already selected
+        } else {
+          newSet.add(blockId); // Select if not selected
+        }
+        console.log('[BlockEditor] Toggle select, new selection:', Array.from(newSet));
+        return newSet;
+      });
     }
   };
 
@@ -921,11 +939,13 @@ export function BlockEditor({
   const getBlockClassName = (block: Block) => {
     const baseClasses = 'relative group px-16 py-0.5 rounded transition-all cursor-pointer bg-white';
     
-    // Check if block is selected
+    // Check if block is selected - removed blue border to avoid editing interference
+    // Selection state is still tracked for Ask RiskGPT functionality
     const isSelected = selectedBlockIds.has(block.id);
-    if (isSelected) {
-      return `${baseClasses} border-2 border-blue-400`;
-    }
+    // Removed: border-2 border-blue-400 from selected blocks
+    // if (isSelected) {
+    //   return `${baseClasses} border-2 border-blue-400`;
+    // }
     
     // Apply colored left borders based on change type
     switch (block.changeType) {
@@ -1026,7 +1046,6 @@ export function BlockEditor({
         className={getBlockClassName(block)}
         onMouseEnter={() => setHoveredBlock(block.id)}
         onMouseLeave={() => setHoveredBlock(null)}
-        onClick={(e) => handleBlockClick(block.id, e)}
         onContextMenu={(e) => {
           e.preventDefault();
           setContextMenu({ blockId: block.id, position: { x: e.clientX, y: e.clientY } });
@@ -1037,27 +1056,8 @@ export function BlockEditor({
           <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-400"></div>
         )}
 
-        {/* Left Gutter - Drag Handle / Selection */}
-        <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-opacity ${
-          selectedBlockIds.has(block.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-        }`}>
-          {selectedBlockIds.has(block.id) ? (
-            <div className="p-1 bg-blue-500 rounded">
-              <Check className="w-4 h-4 text-white" />
-            </div>
-          ) : (
-            <button 
-              className="p-1 hover:bg-neutral-200 rounded cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleBlockClick(block.id, e);
-              }}
-              title="Click to select block (Shift/Cmd for multi-select)"
-            >
-            <GripVertical className="w-4 h-4 text-neutral-400" />
-          </button>
-          )}
-        </div>
+        {/* Left Gutter - Removed to avoid editing interference */}
+        {/* Drag handle/checkbox removed - selection still tracked internally for Ask RiskGPT */}
 
         {/* Block Content */}
         <div className={block.changeType === 'removed' ? 'line-through opacity-50' : ''}>
@@ -1171,20 +1171,20 @@ export function BlockEditor({
           )}
 
           {(isHovered || selectedBlockIds.has(block.id)) && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleBlockClick(block.id, e);
-                }}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleBlockSelect(block.id, e);
+              }}
               className={`px-2 py-0.5 rounded text-xs transition-all ${
                 selectedBlockIds.has(block.id) 
                   ? 'bg-blue-600 text-white font-bold opacity-100' 
                   : 'bg-neutral-200 text-neutral-700 hover:bg-neutral-300 opacity-0 group-hover:opacity-100'
               }`}
-              title="Select block and ask RiskGPT to improve it"
+              title={selectedBlockIds.has(block.id) ? "Block selected (click to deselect)" : "Select block for RiskGPT (Cmd/Shift to multi-select)"}
             >
-              Ask RiskGPT
-              </button>
+              {selectedBlockIds.has(block.id) ? '✓ Selected' : 'Select'}
+            </button>
           )}
         </div>
 
