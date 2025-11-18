@@ -405,7 +405,6 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
       {/* Header - RiskGPT Only (Comments hidden) */}
       <div className={`border-b ${isDarkMode ? 'border-neutral-700 bg-neutral-800' : 'border-neutral-200 bg-white'} px-4`}>
         <div className="flex items-center gap-2 py-3">
-          <Sparkles className="w-4 h-4 text-blue-500" />
           <span className="text-sm font-medium">RiskGPT</span>
           {chatMessages.length > 0 && (
             <span className={`text-xs px-1.5 py-0.5 rounded ${
@@ -483,7 +482,6 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
         {filteredMessages.length === 0 && chatMessages.length === 0 && (
           <div className="flex items-center justify-center h-full text-center">
             <div className={isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}>
-              <Sparkles className={`w-12 h-12 mx-auto mb-3 ${isDarkMode ? 'text-neutral-600' : 'text-neutral-300'}`} />
               <p className="text-sm font-medium mb-2">Welcome to RiskGPT</p>
               <p className="text-xs max-w-xs mx-auto">Select blocks and ask me to improve them, or ask general questions about your document</p>
               <div className="mt-4 text-xs space-y-1">

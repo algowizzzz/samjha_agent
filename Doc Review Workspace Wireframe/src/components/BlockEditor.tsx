@@ -324,6 +324,12 @@ export function BlockEditor({
   const [isAskingRiskGPT, setIsAskingRiskGPT] = useState(false);
   const blockRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   
+  // NEW: Drag-to-select state
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartIndex, setDragStartIndex] = useState<number | null>(null);
+  const [dragCurrentIndex, setDragCurrentIndex] = useState<number | null>(null);
+  const editorContainerRef = useRef<HTMLDivElement>(null);
+  
   // ENHANCED: Drag & drop sensors
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -748,6 +754,56 @@ export function BlockEditor({
     }
   };
 
+  // NEW: Drag-to-select handlers
+  const handleMouseDown = (blockId: string, index: number, event: React.MouseEvent) => {
+    // Only start drag if clicking in the left margin area (not on content or buttons)
+    const target = event.target as HTMLElement;
+    if (target.closest('button') || target.closest('[contenteditable]') || target.closest('textarea')) {
+      return;
+    }
+    
+    event.preventDefault();
+    setIsDragging(true);
+    setDragStartIndex(index);
+    setDragCurrentIndex(index);
+    
+    // Start with this block selected
+    setSelectedBlockIds(new Set([blockId]));
+    console.log('[BlockEditor] Drag-to-select started at block:', blockId, 'index:', index);
+  };
+
+  const handleMouseEnterDrag = (blockId: string, index: number) => {
+    if (!isDragging || dragStartIndex === null) return;
+    
+    setDragCurrentIndex(index);
+    
+    // Select all blocks between start and current
+    const start = Math.min(dragStartIndex, index);
+    const end = Math.max(dragStartIndex, index);
+    const selectedBlocks = blocks.slice(start, end + 1);
+    const newSelectedIds: Set<string> = new Set(selectedBlocks.map(b => b.id));
+    
+    setSelectedBlockIds(newSelectedIds);
+    console.log('[BlockEditor] Drag-to-select range:', start, '-', end, 'blocks:', selectedBlocks.length);
+  };
+
+  const handleMouseUp = () => {
+    if (isDragging) {
+      console.log('[BlockEditor] Drag-to-select ended, selected:', selectedBlockIds.size, 'blocks');
+      setIsDragging(false);
+      setDragStartIndex(null);
+      setDragCurrentIndex(null);
+    }
+  };
+
+  // Add global mouseup listener for drag-to-select
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mouseup', handleMouseUp);
+      return () => window.removeEventListener('mouseup', handleMouseUp);
+    }
+  }, [isDragging]);
+
   const handleAskRiskGPT = async () => {
     if (!riskGPTPrompt.trim() || selectedBlockIds.size === 0 || !fileId) return;
     
@@ -976,30 +1032,26 @@ export function BlockEditor({
   };
 
   const getBlockClassName = (block: Block) => {
-    const baseClasses = 'relative group px-16 py-0.5 rounded transition-all bg-white';
+    const baseClasses = 'relative group px-16 py-0.5 rounded transition-all';
     
-    // Check if block is selected - removed blue border to avoid editing interference
-    // Selection state is still tracked for Ask RiskGPT functionality
+    // Check if block is selected for RiskGPT
     const isSelected = selectedBlockIds.has(block.id);
-    // Removed: border-2 border-blue-400 from selected blocks
-    // if (isSelected) {
-    //   return `${baseClasses} border-2 border-blue-400`;
-    // }
+    const selectedClass = isSelected ? 'bg-blue-50' : 'bg-white';
     
     // Apply colored left borders based on change type
     switch (block.changeType) {
       case 'verified':
-        return `${baseClasses} border-l-4 border-yellow-500 hover:bg-yellow-50/30`;
+        return `${baseClasses} ${selectedClass} border-l-4 border-yellow-500 hover:bg-yellow-50/30`;
       case 'ai_suggested':
-        return `${baseClasses} border-l-4 border-blue-500 hover:bg-blue-50/30`;
+        return `${baseClasses} ${selectedClass} border-l-4 border-blue-500 hover:bg-blue-50/30`;
       case 'ai_applied':
-        return `${baseClasses} border-l-4 border-purple-500 hover:bg-purple-50/30`;
+        return `${baseClasses} ${selectedClass} border-l-4 border-purple-500 hover:bg-purple-50/30`;
       case 'modified':
-        return `${baseClasses} border-l-4 border-green-500 hover:bg-green-50/30`;
+        return `${baseClasses} ${selectedClass} border-l-4 border-green-500 hover:bg-green-50/30`;
       case 'rejected':
-        return `${baseClasses} border-l-4 border-red-500 hover:bg-red-50/30`;
+        return `${baseClasses} ${selectedClass} border-l-4 border-red-500 hover:bg-red-50/30`;
       default:
-        return `${baseClasses} hover:bg-neutral-50`;
+        return `${baseClasses} ${selectedClass} hover:bg-neutral-50`;
     }
   };
 
@@ -1070,7 +1122,7 @@ export function BlockEditor({
     return baseStyles;
   };
 
-  const renderBlock = (block: Block) => {
+  const renderBlock = (block: Block, index: number) => {
     const isHovered = hoveredBlock === block.id;
     // Show Accept/Reject buttons only for AI suggestions (not verification - those are auto-accepted)
     const showAISuggestionButtons = !!block.aiSuggestion;
@@ -1083,7 +1135,11 @@ export function BlockEditor({
           else blockRefs.current.delete(block.id);
         }}
         className={getBlockClassName(block)}
-        onMouseEnter={() => setHoveredBlock(block.id)}
+        onMouseDown={(e) => handleMouseDown(block.id, index, e)}
+        onMouseEnter={() => {
+          setHoveredBlock(block.id);
+          handleMouseEnterDrag(block.id, index);
+        }}
         onMouseLeave={() => setHoveredBlock(null)}
         onContextMenu={(e) => {
           e.preventDefault();
@@ -1314,15 +1370,6 @@ export function BlockEditor({
 
       {/* Editor Content */}
       <div className="w-full py-8">
-        <div className="flex justify-between items-center mb-4 gap-2 px-2">
-          <div>
-            {blocks.filter(b => b.aiSuggestion || b.suggestion).length > 0 && (
-              <div className="px-3 py-2 bg-blue-100 border border-blue-300 rounded text-sm text-blue-900">
-                {blocks.filter(b => b.aiSuggestion || b.suggestion).length} block{blocks.filter(b => b.aiSuggestion || b.suggestion).length > 1 ? 's' : ''} with suggestions - Review below
-              </div>
-            )}
-          </div>
-        </div>
         <div className="max-w-4xl mx-auto">
           {blocks.length === 0 ? (
             <div className="text-center py-12 text-neutral-500">
