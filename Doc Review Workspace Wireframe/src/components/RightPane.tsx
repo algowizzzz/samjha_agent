@@ -646,14 +646,14 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
                 {message.role === 'assistant' && message.suggestions && message.suggestions.length > 0 && (
                   <button
                     onClick={() => applyAllSuggestions(message)}
-                    className={`p-1.5 rounded text-xs flex items-center gap-1 font-medium ${
+                    className={`p-1.5 rounded-lg text-xs flex items-center gap-1.5 font-semibold shadow-sm transition-all hover:scale-105 active:scale-95 ${
                       isDarkMode 
-                        ? 'bg-green-900 text-green-200 hover:bg-green-800 border border-green-700' 
-                        : 'bg-green-100 text-green-800 hover:bg-green-200 border border-green-300'
+                        ? 'bg-gradient-to-r from-green-700 to-green-600 text-white hover:from-green-600 hover:to-green-500 border border-green-500' 
+                        : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 border border-green-400'
                     }`}
-                    title="Apply all suggestions"
+                    title="Apply all suggestions to document"
                   >
-                    <Check className="w-3 h-3" />
+                    <Check className="w-3.5 h-3.5" />
                     Apply All ({message.suggestions.length})
                   </button>
                 )}
@@ -730,17 +730,17 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
                 )}
               </div>
             ))}
-            {selectedBlocks.length > 1 && onClearAllBlocks && (
+            {selectedBlocks.length > 0 && onClearAllBlocks && (
               <button
                 onClick={onClearAllBlocks}
-                className={`px-2 py-1 text-xs rounded transition-colors ${
+                className={`px-2 py-1 text-xs rounded font-medium transition-colors ${
                   isDarkMode 
-                    ? 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700' 
-                    : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
+                    ? 'text-red-400 hover:text-red-300 hover:bg-red-900/30 border border-red-800' 
+                    : 'text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200'
                 }`}
-                title="Clear all selections"
+                title="Clear all selected blocks"
               >
-                Clear all
+                ✕ Clear all
               </button>
             )}
           </div>
