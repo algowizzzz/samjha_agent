@@ -10,10 +10,12 @@ import { PromptsPage } from './components/PromptsPage';
 import { SettingsPage } from './components/SettingsPage';
 import { MainNav } from './components/MainNav';
 import { MarkdownViewer } from './components/MarkdownViewer';
+import { SingleEditorDemo } from './components/SingleEditorDemo';
 import { type BlockMetadata } from './lib/api';
 import { activityLogger } from './utils/activityLogger';
+import { enableFeature } from './lib/featureFlags';
 
-type Page = 'documents' | 'workspace' | 'templates' | 'prompts' | 'settings';
+type Page = 'documents' | 'workspace' | 'templates' | 'prompts' | 'settings' | 'demo';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('documents');
@@ -43,7 +45,13 @@ export default function App() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const file = params.get('file');
-    if (file) {
+    const demo = params.get('demo');
+    
+    // Auto-enable singleEditor feature flag for demo
+    if (demo === 'true') {
+      enableFeature('singleEditor');
+      setCurrentPage('demo');
+    } else if (file) {
       setSelectedDocumentId(file);
       setCurrentPage('workspace');
     }
@@ -279,6 +287,11 @@ export default function App() {
         </div>
       </div>
     );
+  }
+
+  // Demo page - full screen
+  if (currentPage === 'demo') {
+    return <SingleEditorDemo />;
   }
 
   // Other pages

@@ -174,48 +174,68 @@ export function SlashCommandMenu({ position, searchQuery, onSelect, onClose }: S
 
   if (filteredCommands.length === 0) {
     return (
-      <div
-        ref={menuRef}
-        className="fixed z-50 bg-white border border-neutral-200 rounded-lg shadow-xl py-2 w-72"
-        style={{ left: position.x, top: position.y }}
-      >
-        <div className="px-4 py-2 text-sm text-neutral-500">
-          No commands found for "{searchQuery}"
+      <>
+        {/* Backdrop to close menu */}
+        <div
+          className="fixed inset-0 z-40"
+          onClick={onClose}
+        />
+        
+        <div
+          ref={menuRef}
+          className="fixed z-50 bg-white border border-neutral-200 rounded-lg shadow-xl py-2 w-72"
+          style={{ left: position.x, top: position.y }}
+        >
+          <div className="px-4 py-2 text-sm text-neutral-500">
+            No commands found for "{searchQuery}"
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div
-      ref={menuRef}
-      className="fixed z-50 bg-white border border-neutral-200 rounded-lg shadow-xl py-2 w-72 max-h-80 overflow-y-auto"
-      style={{ left: position.x, top: position.y }}
-    >
-      {filteredCommands.map((command, index) => (
-        <button
-          key={command.id}
-          data-index={index}
-          className={`w-full px-4 py-2.5 text-left flex items-start gap-3 transition-colors ${
-            index === selectedIndex
-              ? 'bg-blue-50 text-blue-900'
-              : 'hover:bg-neutral-50 text-neutral-900'
-          }`}
-          onClick={() => onSelect(command.blockType)}
-          onMouseEnter={() => setSelectedIndex(index)}
-        >
-          <div className={`mt-0.5 ${index === selectedIndex ? 'text-blue-600' : 'text-neutral-500'}`}>
-            {command.icon}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium">{command.title}</div>
-            <div className={`text-xs ${index === selectedIndex ? 'text-blue-700' : 'text-neutral-500'}`}>
-              {command.description}
+    <>
+      {/* Backdrop to close menu */}
+      <div
+        className="fixed inset-0 z-40"
+        onClick={onClose}
+      />
+      
+      <div
+        ref={menuRef}
+        className="fixed z-50 bg-white border border-neutral-200 rounded-lg shadow-xl py-2 w-72 max-h-80 overflow-y-auto"
+        style={{ left: position.x, top: position.y }}
+      >
+        {filteredCommands.map((command, index) => (
+          <button
+            key={command.id}
+            data-index={index}
+            className={`w-full px-4 py-2.5 text-left flex items-start gap-3 transition-colors ${
+              index === selectedIndex
+                ? 'bg-blue-50 text-blue-900'
+                : 'hover:bg-neutral-50 text-neutral-900'
+            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect(command.blockType);
+              onClose();
+            }}
+            onMouseEnter={() => setSelectedIndex(index)}
+          >
+            <div className={`mt-0.5 ${index === selectedIndex ? 'text-blue-600' : 'text-neutral-500'}`}>
+              {command.icon}
             </div>
-          </div>
-        </button>
-      ))}
-    </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium">{command.title}</div>
+              <div className={`text-xs ${index === selectedIndex ? 'text-blue-700' : 'text-neutral-500'}`}>
+                {command.description}
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+    </>
   );
 }
 

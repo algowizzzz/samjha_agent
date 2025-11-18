@@ -3,9 +3,9 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import {
   $getSelection,
   $isRangeSelection,
-  COMMAND_PRIORITY_LOW,
+  COMMAND_PRIORITY_EDITOR,
   FORMAT_TEXT_COMMAND,
-  KEY_MODIFIER_COMMAND,
+  KEY_DOWN_COMMAND,
 } from 'lexical';
 
 /**
@@ -18,36 +18,54 @@ export function FormattingPlugin() {
   useEffect(() => {
     // Register keyboard shortcuts for formatting
     const removeCommandListeners = [
-      // Bold: Cmd/Ctrl + B
+      // Bold, Italic, Underline: Cmd/Ctrl + B/I/U
       editor.registerCommand(
-        KEY_MODIFIER_COMMAND,
-        (payload) => {
-          const event = payload as KeyboardEvent;
-          const { code, ctrlKey, metaKey } = event;
-
-          if (code === 'KeyB' && (ctrlKey || metaKey)) {
+        KEY_DOWN_COMMAND,
+        (event: KeyboardEvent) => {
+          const { code, ctrlKey, metaKey, key } = event;
+          
+          // Bold: Cmd/Ctrl + B
+          if ((code === 'KeyB' || key === 'b') && (ctrlKey || metaKey)) {
             event.preventDefault();
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
+            event.stopPropagation();
+            editor.update(() => {
+              const selection = $getSelection();
+              if ($isRangeSelection(selection)) {
+                selection.formatText('bold');
+              }
+            });
             return true;
           }
 
           // Italic: Cmd/Ctrl + I
-          if (code === 'KeyI' && (ctrlKey || metaKey)) {
+          if ((code === 'KeyI' || key === 'i') && (ctrlKey || metaKey)) {
             event.preventDefault();
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
+            event.stopPropagation();
+            editor.update(() => {
+              const selection = $getSelection();
+              if ($isRangeSelection(selection)) {
+                selection.formatText('italic');
+              }
+            });
             return true;
           }
 
           // Underline: Cmd/Ctrl + U
-          if (code === 'KeyU' && (ctrlKey || metaKey)) {
+          if ((code === 'KeyU' || key === 'u') && (ctrlKey || metaKey)) {
             event.preventDefault();
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
+            event.stopPropagation();
+            editor.update(() => {
+              const selection = $getSelection();
+              if ($isRangeSelection(selection)) {
+                selection.formatText('underline');
+              }
+            });
             return true;
           }
 
           return false;
         },
-        COMMAND_PRIORITY_LOW
+        COMMAND_PRIORITY_EDITOR
       ),
     ];
 

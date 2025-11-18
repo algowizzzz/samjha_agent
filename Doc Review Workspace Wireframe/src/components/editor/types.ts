@@ -45,10 +45,21 @@ export interface BlockFormatting {
   size?: 'small' | 'normal' | 'large';
 }
 
+// Inline text segment with formatting (matches API BlockMetadata.InlineSegment)
+export interface InlineSegment {
+  text: string;
+  bold?: boolean;
+  italic?: boolean;
+  code?: boolean;
+  underline?: boolean;
+  link?: string;
+}
+
 export interface Block {
   id: string;
   type: BlockType;
-  content: string;
+  content: string;  // Legacy plain text/HTML - kept for backward compatibility
+  richContent?: InlineSegment[];  // NEW: Structured content with formatting
   changeType: ChangeType;
   commentCount: number;
   suggestion?: any;

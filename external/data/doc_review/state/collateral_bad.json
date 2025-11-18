@@ -2,7 +2,7 @@
   "file_id": "collateral_bad",
   "source_path": "/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/89ff186c9e4b4c6090a12d90c44cc8c3_collateral_bad.pdf",
   "status": "ready",
-  "updated_at": "2025-11-17T19:10:26.827540Z",
+  "updated_at": "2025-11-17T23:43:43.201223Z",
   "state": {
     "run_id": "collateral_bad",
     "doc_id": "89ff186c9e4b4c6090a12d90c44cc8c3_collateral_bad",
@@ -1265,9 +1265,7 @@
     "improved_md_file_id": "collateral_bad_manual_md_53d74167",
     "improved_markdown": "# Collateral Management Policy\n## 1. Purpose and Scope\nWe take collateral for loans and trades. People should check the things and make sure they look good.\nSometimes we ask legal if it's okay. Most of the time it's fine.\n\nWe mostly do bonds and stocks but sometimes other things. If something is risky then maybe apply a\ndiscount. The desk decides what works. There is no need to write everything down because people\nknow what to do.\n\n### 3.3 Exceptions\nExceptions to this Collateral Management Policy may be granted on a case-by-case basis by the Collateral Desk, in consultation with the Legal department. All exceptions must be documented and approved.\n\n## 7. Review and Updates\n\n### 7.1 Review Frequency\nThis Collateral Management Policy will be reviewed annually by the Risk Management department to ensure its continued relevance and effectiveness.\n\n### 7.2 Update Process\nAny proposed changes to this policy must be reviewed and approved by the Collateral Desk, Legal department, and the Risk Management department before implementation.\n\n### 7.3 Version Control\nThis is version 1.0 of the Collateral Management Policy, effective as of [DATE]. All previous versions are hereby superseded.",
     "improved_md_path": "external/data/doc_review/improved/collateral_bad_manual_md_53d74167.md",
-    "accepted_suggestions": [
-      "p1_b1_d41d8cd9"
-    ],
+    "accepted_suggestions": [],
     "rejected_suggestions": []
   }
 }

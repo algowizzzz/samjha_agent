@@ -17,6 +17,7 @@ from external.products.doc_review.agent import DocReviewAgent
 from external.products.doc_review.store import DocReviewStore
 from external.products.doc_review.vfs import DocReviewVFSAdapter
 from external.products.doc_review.template_processor import TemplateProcessor, load_template, list_templates
+from external.products.doc_review.comments import CommentsManager
 from external.platform.llm import get_llm_client, is_llm_available
 
 
@@ -56,6 +57,7 @@ class DocReviewRoutes(BaseRoutes):
         configure_doc_review_logging()
         self.agent = DocReviewAgent()
         self.store = DocReviewStore()
+        self.comments = CommentsManager(self.store)
         self.socketio = socketio
         self.upload_dir = Path("external/data/doc_review/uploads")
         self.upload_dir.mkdir(parents=True, exist_ok=True)
@@ -400,13 +402,14 @@ class DocReviewRoutes(BaseRoutes):
         @app.route("/api/doc_review/documents/<file_id>/run_phase1", methods=["POST"])
         @_api_key_or_login_required
         def run_phase1_only(file_id: str):
-            """Run only Phase 1 (ingestion & normalization) workflow."""
+            """Run Phase 0 ingestion only (converts document to markdown with block metadata)."""
             record = self.store.load(file_id)
             if not record:
                 return jsonify({"error": "Document not found"}), 404
             
             body = request.get_json(force=True, silent=True) or {}
             template_id = body.get("template_id")
+            use_direct_json = body.get("use_direct_json", True)  # Default to direct JSON
             
             source_path = record.get("source_path")
             if not source_path:
@@ -417,6 +420,10 @@ class DocReviewRoutes(BaseRoutes):
             
             try:
                 self.store.update_status(file_id, "running")
+                
+                # Set environment variable for tool to use
+                import os
+                os.environ['USE_DIRECT_PDF_JSON'] = 'true' if use_direct_json else 'false'
                 
                 # Run Phase 1 using the agent's method
                 state = self.agent.run_phase1(
@@ -463,9 +470,10 @@ class DocReviewRoutes(BaseRoutes):
                     )
                 return jsonify({"error": str(exc)}), 500
 
-        @app.route("/api/doc_review/handle_user_message", methods=["POST"])
-        @self.login_required
-        def handle_user_message_api():
+        # DEPRECATED: Agent planner not used by React editor
+        # @app.route("/api/doc_review/handle_user_message", methods=["POST"])
+        # @self.login_required
+        def handle_user_message_api_DEPRECATED():
             payload = request.get_json(force=True, silent=True) or {}
             file_id = (payload.get("file_id") or "").strip()
             user_message = (payload.get("message") or "").strip()
@@ -618,10 +626,11 @@ class DocReviewRoutes(BaseRoutes):
             except ValueError as exc:
                 return jsonify({"error": str(exc)}), 400
 
-        @app.route("/api/doc_review/documents/<file_id>/run_phase2", methods=["POST"])
-        @_api_key_or_login_required
-        def run_phase2_only(file_id: str):
-            """Run only Phase 2 (section extraction & reviews) workflow."""
+        # DEPRECATED: Phase 2 LLM workflow not used by React editor (uses TemplateProcessor instead)
+        # @app.route("/api/doc_review/documents/<file_id>/run_phase2", methods=["POST"])
+        # @_api_key_or_login_required
+        def run_phase2_only_DEPRECATED(file_id: str):
+            """DEPRECATED: Run only Phase 2 (section extraction & reviews) workflow."""
             record = self.store.load(file_id)
             if not record:
                 return jsonify({"error": "Document not found"}), 404
@@ -717,9 +726,10 @@ class DocReviewRoutes(BaseRoutes):
 
             return jsonify({"document": updated})
 
-        @app.route("/api/doc_review/documents/<file_id>/run", methods=["POST"])
-        @_api_key_or_login_required
-        def run_document_workflow(file_id: str):
+        # DEPRECATED: Full Phase 1/2/3 workflow not used by React editor
+        # @app.route("/api/doc_review/documents/<file_id>/run", methods=["POST"])
+        # @_api_key_or_login_required
+        def run_document_workflow_DEPRECATED(file_id: str):
             record = self.store.load(file_id)
             if not record:
                 return jsonify({"error": "Document not found"}), 404
@@ -1139,10 +1149,11 @@ class DocReviewRoutes(BaseRoutes):
                     })
                 return jsonify({"error": f"Template application failed: {str(exc)}"}), 500
 
-        @app.route("/api/doc_review/documents/<file_id>/run_phase4", methods=["POST"])
-        @_api_key_or_login_required
-        def run_phase4_only(file_id: str):
-            """Run only Phase 4 (output artefacts: TOC, assemble, annotate) workflow."""
+        # DEPRECATED: Phase 4 not used by React editor
+        # @app.route("/api/doc_review/documents/<file_id>/run_phase4", methods=["POST"])
+        # @_api_key_or_login_required
+        def run_phase4_only_DEPRECATED(file_id: str):
+            """DEPRECATED: Run only Phase 4 (output artefacts: TOC, assemble, annotate) workflow."""
             record = self.store.load(file_id)
             if not record:
                 return jsonify({"error": "Document not found"}), 404
@@ -1358,3 +1369,148 @@ class DocReviewRoutes(BaseRoutes):
             except Exception as exc:
                 logger.exception("Failed to update prompt: %s", exc)
                 return jsonify({"error": f"Failed to update prompt: {str(exc)}"}), 500
+
+        # ===================================================================
+        # COMMENT MANAGEMENT ROUTES
+        # ===================================================================
+
+        @app.route("/api/doc_review/<file_id>/comments", methods=["GET"])
+        @_api_key_or_login_required
+        def list_comments(file_id):
+            """List all comments for a document, optionally filtered by block_id."""
+            try:
+                block_id = request.args.get("block_id")
+                comments = self.comments.list_comments(file_id, block_id)
+                return jsonify({"comments": comments}), 200
+            except Exception as e:
+                logger.error("Error listing comments: %s", e, exc_info=True)
+                return jsonify({"error": str(e)}), 500
+
+        @app.route("/api/doc_review/<file_id>/comments", methods=["POST"])
+        @_api_key_or_login_required
+        def add_comment(file_id):
+            """Add a new comment to a block."""
+            try:
+                data = request.get_json() or {}
+                block_id = data.get("block_id")
+                block_title = data.get("block_title", "")
+                content = data.get("content", "")
+                author = data.get("author", "User")
+                selection_text = data.get("selection_text")
+                
+                if not block_id or not content:
+                    return jsonify({"error": "block_id and content are required"}), 400
+                
+                comment = self.comments.add_comment(
+                    file_id, block_id, block_title, content, author, selection_text
+                )
+                
+                # Emit socket event for real-time updates
+                if self.socketio:
+                    room = f"doc_review:{file_id}"
+                    self.socketio.emit("comment:added", comment, room=room)
+                
+                return jsonify(comment), 201
+            except Exception as e:
+                logger.error("Error adding comment: %s", e, exc_info=True)
+                return jsonify({"error": str(e)}), 500
+
+        @app.route("/api/doc_review/<file_id>/comments/<comment_id>/reply", methods=["POST"])
+        @_api_key_or_login_required
+        def add_reply(file_id, comment_id):
+            """Add a reply to a comment."""
+            try:
+                data = request.get_json() or {}
+                content = data.get("content", "")
+                author = data.get("author", "User")
+                
+                if not content:
+                    return jsonify({"error": "content is required"}), 400
+                
+                comment = self.comments.add_reply(file_id, comment_id, content, author)
+                if not comment:
+                    return jsonify({"error": "Comment not found"}), 404
+                
+                # Emit socket event
+                if self.socketio:
+                    room = f"doc_review:{file_id}"
+                    self.socketio.emit("comment:reply_added", comment, room=room)
+                
+                return jsonify(comment), 200
+            except Exception as e:
+                logger.error("Error adding reply: %s", e, exc_info=True)
+                return jsonify({"error": str(e)}), 500
+
+        @app.route("/api/doc_review/<file_id>/comments/<comment_id>/resolve", methods=["POST"])
+        @_api_key_or_login_required
+        def resolve_comment(file_id, comment_id):
+            """Toggle resolved status of a comment."""
+            try:
+                comment = self.comments.resolve_comment(file_id, comment_id)
+                if not comment:
+                    return jsonify({"error": "Comment not found"}), 404
+                
+                # Emit socket event
+                if self.socketio:
+                    room = f"doc_review:{file_id}"
+                    self.socketio.emit("comment:resolved", comment, room=room)
+                
+                return jsonify(comment), 200
+            except Exception as e:
+                logger.error("Error resolving comment: %s", e, exc_info=True)
+                return jsonify({"error": str(e)}), 500
+
+        @app.route("/api/doc_review/<file_id>/comments/<comment_id>", methods=["DELETE"])
+        @_api_key_or_login_required
+        def delete_comment(file_id, comment_id):
+            """Delete a comment."""
+            try:
+                success = self.comments.delete_comment(file_id, comment_id)
+                if not success:
+                    return jsonify({"error": "Comment not found"}), 404
+                
+                # Emit socket event
+                if self.socketio:
+                    room = f"doc_review:{file_id}"
+                    self.socketio.emit("comment:deleted", {"comment_id": comment_id}, room=room)
+                
+                return jsonify({"success": True}), 200
+            except Exception as e:
+                logger.error("Error deleting comment: %s", e, exc_info=True)
+                return jsonify({"error": str(e)}), 500
+
+        @app.route("/api/doc_review/<file_id>/comments/<comment_id>", methods=["PATCH"])
+        @_api_key_or_login_required
+        def update_comment(file_id, comment_id):
+            """Update a comment's content."""
+            try:
+                data = request.get_json() or {}
+                content = data.get("content")
+                
+                if not content:
+                    return jsonify({"error": "content is required"}), 400
+                
+                comment = self.comments.update_comment(file_id, comment_id, content)
+                if not comment:
+                    return jsonify({"error": "Comment not found"}), 404
+                
+                # Emit socket event
+                if self.socketio:
+                    room = f"doc_review:{file_id}"
+                    self.socketio.emit("comment:updated", comment, room=room)
+                
+                return jsonify(comment), 200
+            except Exception as e:
+                logger.error("Error updating comment: %s", e, exc_info=True)
+                return jsonify({"error": str(e)}), 500
+
+        @app.route("/api/doc_review/<file_id>/comments/counts", methods=["GET"])
+        @_api_key_or_login_required
+        def get_comment_counts(file_id):
+            """Get comment counts by block."""
+            try:
+                counts = self.comments.get_comment_count_by_block(file_id)
+                return jsonify({"counts": counts}), 200
+            except Exception as e:
+                logger.error("Error getting comment counts: %s", e, exc_info=True)
+                return jsonify({"error": str(e)}), 500

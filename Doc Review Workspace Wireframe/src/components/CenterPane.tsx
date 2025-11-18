@@ -3,10 +3,14 @@ import { Play, FileText, Upload } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { BlockEditor } from './BlockEditor';
-import { getDocument, runFull, runPhase1, runPhase2, runPhase4, type ApiDocument, updateDocumentMarkdown, type BlockMetadata, listTemplates, applyTemplate, type TemplateImprovement } from '@/lib/api';
+import { getDocument, runIngestion, type ApiDocument, updateDocumentMarkdown, type BlockMetadata, listTemplates, applyTemplate, type TemplateImprovement } from '@/lib/api';
 import { MarkdownViewer } from './MarkdownViewer';
 import { DiffView } from './DiffView';
 import { activityLogger } from '@/utils/activityLogger';
+import { isFeatureEnabled } from '@/lib/featureFlags';
+import { SingleDocumentEditor } from './singleEditor/SingleDocumentEditor';
+import { convertBlockMetadataToDocState } from './singleEditor/utils/converters';
+import type { DocState } from '@/model/docTypes';
 
 interface CenterPaneProps {
   mode: 'editing' | 'original' | 'diff';
@@ -25,14 +29,7 @@ interface CenterPaneProps {
   onSynthesisReceived?: (synthesis: any) => void; // NEW: Pass synthesis summary to parent
 }
 
-type PhaseStatus = 'idle' | 'running' | 'done';
-
 export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, onCommentClick, fileId, onSelectedBlocksChange, aiSuggestions = [], onSuggestionsListChange, selectedSuggestionId, onBlockWithSuggestionClick, onAcceptSuggestion, onRejectSuggestion, onSynthesisReceived }: CenterPaneProps) {
-  const [phaseStatuses, setPhaseStatuses] = useState<Record<string, PhaseStatus>>({
-    phase1: 'idle',
-    phase2: 'idle',
-    phase4: 'idle',
-  });
   const [doc, setDoc] = useState<ApiDocument | null>(null);
   const [loading, setLoading] = useState(false);
   const pollTimer = useRef<number | null>(null);
@@ -41,6 +38,15 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
   const [applyingTemplate, setApplyingTemplate] = useState(false);
   const [templateSuggestions, setTemplateSuggestions] = useState<Array<{ block_id: string; original: string; suggested: string; reason: string }>>([]);
+  const [useSingleEditor] = useState(() => isFeatureEnabled('singleEditor'));
+  
+  // Memoize DocState conversion - only recalculate when file changes, not on state updates
+  const initialDocState = useMemo(() => {
+    const blockMetadata = doc?.state?.block_metadata || [];
+    console.log('[CenterPane] Creating initialDocState for file:', fileId);
+    return convertBlockMetadataToDocState(blockMetadata);
+  }, [fileId]); // Only depend on fileId, not entire doc object
+  
   // sockets disabled for now to avoid connection issues
 
   function clearPoll() {
@@ -73,7 +79,6 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
   useEffect(() => {
     clearPoll();
     setDoc(null);
-    setPhaseStatuses({ phase1: 'idle', phase2: 'idle', phase4: 'idle' });
     if (fileId) {
       refreshDocument();
     }
@@ -122,15 +127,15 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
     }
   }, [doc]);
 
-  // Auto-run Phase 1 if raw_markdown is missing (Phase 0 not done yet)
+  // Auto-run ingestion if raw_markdown is missing
   useEffect(() => {
     if (!doc || !fileId) return;
     const rawMd = (doc.state as any)?.raw_markdown as string | undefined;
     const status = (doc.status || '').toLowerCase();
     if (!rawMd && status !== 'running' && status !== 'completed') {
-      activityLogger.info(`[CenterPane] Auto-running Phase 0 ingestion for ${fileId}`);
+      activityLogger.info(`[CenterPane] Auto-running ingestion for ${fileId}`);
       setLoading(true);
-      handleRun('phase1');
+      runIngestionHandler();
     }
   }, [doc, fileId]);
 
@@ -156,17 +161,7 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
 
   const rawMarkdown = (doc?.state as any)?.raw_markdown as string | undefined;
   const improvedMarkdown = (doc?.state as any)?.improved_markdown as string | undefined;
-  const leftContent = rawMarkdown || '';
-  const rightContent = improvedMarkdown || rawMarkdown || '';
-
   const docStatus = (doc?.status || 'idle').toLowerCase();
-  useEffect(() => {
-    setPhaseStatuses({
-      phase1: docStatus === 'running' ? 'running' : (docStatus === 'ready' || docStatus === 'completed') ? 'done' : 'idle',
-      phase2: docStatus === 'running' ? 'running' : (docStatus === 'ready' || docStatus === 'completed') ? 'done' : 'idle',
-      phase4: (doc?.state && (docStatus === 'ready' || docStatus === 'completed')) ? 'done' : (docStatus === 'running' ? 'running' : 'idle'),
-    });
-  }, [docStatus]);
 
   // Get display status for badge
   const getDisplayStatus = (): { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; className?: string } => {
@@ -207,21 +202,15 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
 
   const displayStatus = getDisplayStatus();
 
-  const handleRun = async (which: 'full' | 'phase1' | 'phase2' | 'phase4') => {
+  const runIngestionHandler = async () => {
     if (!fileId) return;
-    // eslint-disable-next-line no-console
-    console.debug('[UI] Click Run', which, { fileId });
+    console.debug('[CenterPane] Running ingestion', { fileId });
     setLoading(true);
     try {
-      if (which === 'full') await runFull(fileId);
-      if (which === 'phase1') await runPhase1(fileId);
-      if (which === 'phase2') await runPhase2(fileId);
-      if (which === 'phase4') await runPhase4(fileId);
+      await runIngestion(fileId);
       await refreshDocument();
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error('[CenterPane] run error', e);
-      // swallow for MVP; future: show toast
+      console.error('[CenterPane] Ingestion error', e);
     } finally {
       setLoading(false);
     }
@@ -260,11 +249,6 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
     }
   };
 
-  const getStatusBadgeClass = (status: PhaseStatus) => {
-    if (status === 'done') return 'bg-emerald-100 text-emerald-800';
-    if (status === 'running') return 'bg-blue-100 text-blue-800';
-    return 'bg-neutral-100 text-neutral-600';
-  };
 
   return (
     <div className="flex flex-col h-full">
@@ -400,83 +384,104 @@ export function CenterPane({ mode, onModeChange, onTextSelect, selectedIssueId, 
         ) : mode === 'editing' ? (
           <div className="flex h-full">
             <div className="flex-1 overflow-y-auto">
-              <div className="bg-neutral-100 px-6 py-2 sticky top-0 border-b border-neutral-200">
-                <span className="text-neutral-700 text-sm font-medium">
-                  {improvedMarkdown ? 'Improved Markdown' : rawMarkdown ? 'Original Markdown' : 'No content yet'}
-                </span>
-              </div>
-              <div className="px-10 py-6">
-                {improvedMarkdown || rawMarkdown ? (
-                  <BlockEditor 
-                      trackChangesEnabled={false}
-                      onCommentClick={onCommentClick}
-                      selectedIssueId={selectedIssueId}
-                      initialMarkdown={improvedMarkdown || rawMarkdown || ''}
-                      blockMetadata={doc?.state?.block_metadata}
-                      verificationSuggestions={doc?.state?.verification_suggestions}
-                      fileId={fileId}
-                      onSelectedBlocksChange={onSelectedBlocksChange}
-                      aiSuggestions={[...aiSuggestions, ...templateSuggestions]}
-                      onSuggestionsListChange={onSuggestionsListChange}
-                      selectedSuggestionId={selectedSuggestionId}
-                      onBlockWithSuggestionClick={onBlockWithSuggestionClick}
-                      onAcceptSuggestion={onAcceptSuggestion}
-                      onRejectSuggestion={onRejectSuggestion}
-                      onSave={async (data: { 
-                        markdown: string; 
-                        blockMetadata: any[]; 
-                        acceptedSuggestions: string[]; 
-                        rejectedSuggestions: string[] 
-                      }) => {
-                        activityLogger.info('Saving document...');
-                        console.log('[CenterPane] onSave called with data:', {
-                          markdownLength: data.markdown.length,
-                          blockMetadataCount: data.blockMetadata.length,
-                          acceptedCount: data.acceptedSuggestions.length,
-                          rejectedCount: data.rejectedSuggestions.length
-                        });
-                        
-                        try {
-                          const fileId = doc?.file_id;
-                          if (!fileId) throw new Error('No file ID available');
-                          
-                          // FIX: Pass parameters in correct order (markdown, toc_markdown, block_metadata, ...)
-                          await updateDocumentMarkdown(
-                            fileId,
-                            data.markdown,
-                            undefined, // toc_markdown
-                            data.blockMetadata,
-                            data.acceptedSuggestions,
-                            data.rejectedSuggestions
-                          );
-                          console.log('[CenterPane] ✅ Save successful! Current editor state persisted.');
-                          activityLogger.changesSaved();
-                          
-                          // Update local state with new accepted/rejected counts without reloading editor
-                          if (doc && doc.state) {
-                            setDoc({
-                              ...doc,
-                              state: {
-                                ...doc.state,
-                                accepted_suggestions: data.acceptedSuggestions,
-                                rejected_suggestions: data.rejectedSuggestions,
-                                block_metadata: data.blockMetadata,
-                                improved_markdown: data.markdown
-                              }
-                            });
-                          }
-                        } catch (e) {
-                          console.error('[CenterPane] ❌ Save failed:', e);
-                        alert(`Failed to save: ${e}`);
-                      }
-                    }}
-                  />
+              {improvedMarkdown || rawMarkdown ? (
+                useSingleEditor ? (
+                  // NEW: Single Document Editor (Option 3) - Clean Notion-like experience
+                  <div className="h-full bg-white">
+                    <SingleDocumentEditor
+                      key={fileId}
+                      initialDoc={initialDocState}
+                      onDocChange={(docState: DocState) => {
+                        console.log('[CenterPane] SingleDocumentEditor changed:', docState);
+                        // TODO: Implement auto-save or debounced save
+                      }}
+                      readOnly={false}
+                    />
+                  </div>
                 ) : (
+                  // LEGACY: Per-block editor with header
+                  <>
+                    <div className="bg-neutral-100 px-6 py-2 sticky top-0 border-b border-neutral-200">
+                      <span className="text-neutral-700 text-sm font-medium">
+                        {improvedMarkdown ? 'Improved Markdown' : rawMarkdown ? 'Original Markdown' : 'No content yet'}
+                      </span>
+                    </div>
+                    <div className="px-10 py-6">
+                    // LEGACY: Per-block editor
+                    <BlockEditor 
+                        trackChangesEnabled={false}
+                        onCommentClick={onCommentClick}
+                        selectedIssueId={selectedIssueId}
+                        initialMarkdown={improvedMarkdown || rawMarkdown || ''}
+                        blockMetadata={doc?.state?.block_metadata}
+                        verificationSuggestions={doc?.state?.verification_suggestions}
+                        fileId={fileId}
+                        onSelectedBlocksChange={onSelectedBlocksChange}
+                        aiSuggestions={[...aiSuggestions, ...templateSuggestions]}
+                        onSuggestionsListChange={onSuggestionsListChange}
+                        selectedSuggestionId={selectedSuggestionId}
+                        onBlockWithSuggestionClick={onBlockWithSuggestionClick}
+                        onAcceptSuggestion={onAcceptSuggestion}
+                        onRejectSuggestion={onRejectSuggestion}
+                        onSave={async (data: { 
+                          markdown: string; 
+                          blockMetadata: any[]; 
+                          acceptedSuggestions: string[]; 
+                          rejectedSuggestions: string[] 
+                        }) => {
+                          activityLogger.info('Saving document...');
+                          console.log('[CenterPane] onSave called with data:', {
+                            markdownLength: data.markdown.length,
+                            blockMetadataCount: data.blockMetadata.length,
+                            acceptedCount: data.acceptedSuggestions.length,
+                            rejectedCount: data.rejectedSuggestions.length
+                          });
+                          
+                          try {
+                            const fileId = doc?.file_id;
+                            if (!fileId) throw new Error('No file ID available');
+                            
+                            // FIX: Pass parameters in correct order (markdown, toc_markdown, block_metadata, ...)
+                            await updateDocumentMarkdown(
+                              fileId,
+                              data.markdown,
+                              undefined, // toc_markdown
+                              data.blockMetadata,
+                              data.acceptedSuggestions,
+                              data.rejectedSuggestions
+                            );
+                            console.log('[CenterPane] ✅ Save successful! Current editor state persisted.');
+                            activityLogger.changesSaved();
+                            
+                            // Update local state with new accepted/rejected counts without reloading editor
+                            if (doc && doc.state) {
+                              setDoc({
+                                ...doc,
+                                state: {
+                                  ...doc.state,
+                                  accepted_suggestions: data.acceptedSuggestions,
+                                  rejected_suggestions: data.rejectedSuggestions,
+                                  block_metadata: data.blockMetadata,
+                                  improved_markdown: data.markdown
+                                }
+                              });
+                            }
+                          } catch (e) {
+                            console.error('[CenterPane] ❌ Save failed:', e);
+                          alert(`Failed to save: ${e}`);
+                        }
+                      }}
+                    />
+                    </div>
+                  </>
+                )
+              ) : (
+                <div className="px-10 py-6">
                   <div className="text-sm text-neutral-600">
                     Run Phase 1 to ingest and normalize the document, then content will appear here.
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         ) : mode === 'original' ? (

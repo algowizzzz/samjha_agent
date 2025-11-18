@@ -55,6 +55,9 @@ class ConvertToMarkdownTool(BaseMCPTool):
             self.logger.warning("ANTHROPIC_API_KEY not set - vision conversion will fail")
         self.client = Anthropic(api_key=api_key) if Anthropic and api_key else None
 
+        # Use direct PDF→JSON conversion (bypass markdown)
+        self.use_direct_json = os.getenv("USE_DIRECT_PDF_JSON", "true").lower() == "true"
+
     def get_input_schema(self) -> Dict[str, Any]:
         return {
             "type": "object",
@@ -90,6 +93,227 @@ class ConvertToMarkdownTool(BaseMCPTool):
         buffered = BytesIO()
         image.save(buffered, format="PNG")
         return base64.b64encode(buffered.getvalue()).decode('utf-8')
+    
+    def _transcribe_page_direct_to_json(self, image: Image.Image, page_num: int) -> Dict[str, Any]:
+        """Transcribe PDF page image directly to BlockEditor JSON blocks (bypass markdown)."""
+        if not self.client:
+            raise RuntimeError("Anthropic client not initialized - check ANTHROPIC_API_KEY")
+        
+        image_base64 = self._image_to_base64(image)
+        
+        prompt = """You are a **high-accuracy PDF Vision Transcriber and Structural Layout Engine**.
+
+Your job is to convert this **PDF page image** directly into **structured BlockEditor JSON blocks**, preserving *all* visual, semantic, and structural features with absolute fidelity.
+
+# PRIMARY OBJECTIVE
+
+Extract ALL visible text, formatting, and structure from the PDF image and output as a JSON array of block objects.
+
+# CRITICAL RULES
+
+1. **EXACT CONTENT** - Preserve all text exactly as shown (do not fix grammar, spelling, or OCR errors)
+2. **ALL ELEMENTS** - Include headers, footers, logos, footnotes, page numbers, stamps, signatures
+3. **INLINE FORMATTING** - Detect bold, italic, underline from font styling
+4. **FONT SIZE → HEADING LEVEL** - Largest text = level 1, next = level 2, etc.
+5. **NO REWRITING** - Output what you see, not what you think it should be
+6. **PRESERVE SPACING** - Maintain line breaks, blank lines, indentation
+
+# BLOCK TYPES
+
+### 1. HEADING
+Use for large, bold, standalone text. Detect level from visual font size.
+
+```json
+{
+  "id": "b1",
+  "type": "heading",
+  "level": 1,
+  "content": "Guideline",
+  "formatting": {"bold": true, "size": "large"},
+  "bbox": [x1, y1, x2, y2]
+}
+```
+
+### 2. PARAGRAPH
+Regular text blocks. Use inline segments for mixed formatting.
+
+```json
+{
+  "id": "b2",
+  "type": "paragraph",
+  "content": [
+    {"text": "The ", "bold": false},
+    {"text": "Bank Act (BA)", "bold": true},
+    {"text": " requires...", "bold": false}
+  ],
+  "bbox": [...]
+}
+```
+
+**IMPORTANT:** If paragraph has ANY bold/italic/underline within it, use array format with segments.
+
+### 3. FIELD LABELS
+Lines like "**Label:** value" are level-3 headings.
+
+```json
+{
+  "id": "b3",
+  "type": "heading",
+  "level": 3,
+  "content": "Effective Date: November 2023 / January 2024",
+  "formatting": {"bold": true}
+}
+```
+
+### 4. LIST
+```json
+{
+  "id": "b4",
+  "type": "bulleted_list",
+  "items": [
+    {"content": "First item"},
+    {"content": "Second item", "children": [{"content": "Nested"}]}
+  ]
+}
+```
+
+### 5. TABLE
+```json
+{
+  "id": "b5",
+  "type": "table",
+  "columns": ["Name", "Value"],
+  "rows": [["Risk Type", "Market"]]
+}
+```
+
+### 6. SPECIAL ELEMENTS
+- `type: "divider"` for horizontal lines
+- `type: "image"` for logos/charts  
+- `type: "empty"` for blank lines
+- `type: "preformatted"` for fixed-width/aligned text
+- `type: "code"` for code blocks
+- `type: "blockquote"` for quoted sections
+
+### 7. SMALL TEXT
+Footnotes, subscripts, fine print:
+
+```json
+{
+  "type": "paragraph",
+  "content": "See footnote 1",
+  "formatting": {"size": "small"}
+}
+```
+
+# HEADING LEVEL DETECTION RULES
+
+- **Very large text (48pt+)**: level 1 (document title)
+- **Large bold (24-36pt)**: level 2 (chapter/section)
+- **Medium bold (14-18pt)**: level 3 (subsection)  
+- **Bold field labels** ("Date:", "Note:"): level 3
+- **Smaller bold (12pt)**: level 4
+
+# INLINE FORMATTING RULES
+
+When you see mixed formatting within a line:
+- **MUST use array format** with text segments
+- Each segment has: `text`, `bold`, `italic`, `underline`, `code`, `superscript`, `subscript`
+
+Example:
+"Risk from **credit exposure** is calculated" →
+```json
+{
+  "content": [
+    {"text": "Risk from "},
+    {"text": "credit exposure", "bold": true},
+    {"text": " is calculated"}
+  ]
+}
+```
+
+# ALIGNMENT DETECTION
+
+If visually centered, right-aligned, or justified:
+```json
+{"alignment": "center"}  // for titles
+{"alignment": "right"}   // for dates/page numbers
+```
+
+# OUTPUT FORMAT
+
+Return ONLY a valid JSON object:
+
+```json
+{
+  "blocks": [
+    { ... block 1 ... },
+    { ... block 2 ... }
+  ],
+  "page_metadata": {
+    "page_number": """ + str(page_num) + """,
+    "has_header": true,
+    "has_footer": true
+  }
+}
+```
+
+NO markdown code fences. NO explanations. ONLY JSON.
+
+# THINGS YOU MUST NOT DO
+
+❌ Do NOT fix spelling errors
+❌ Do NOT merge paragraphs  
+❌ Do NOT rewrite content
+❌ Do NOT skip headers/footers
+❌ Do NOT skip logos or images
+❌ Do NOT normalize formatting
+❌ Do NOT add words not in the image
+
+Begin transcription. Output ONLY JSON."""
+
+        try:
+            response = self.client.messages.create(
+                model="claude-3-5-sonnet-20241022",  # Use Sonnet for better accuracy
+                max_tokens=8192,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "image",
+                                "source": {
+                                    "type": "base64",
+                                    "media_type": "image/png",
+                                    "data": image_base64,
+                                },
+                            },
+                            {
+                                "type": "text",
+                                "text": prompt
+                            }
+                        ],
+                    }
+                ],
+            )
+            
+            response_text = response.content[0].text.strip()
+            
+            # Remove markdown code fences if present
+            if response_text.startswith('```'):
+                lines = response_text.split('\n')
+                response_text = '\n'.join(lines[1:-1]) if len(lines) > 2 else response_text
+            
+            # Parse JSON
+            result = json.loads(response_text)
+            blocks = result.get('blocks', [])
+            
+            self.logger.info(f"Page {page_num}: Direct JSON transcription created {len(blocks)} blocks")
+            return result
+            
+        except Exception as e:
+            self.logger.error(f"Failed direct JSON transcription for page {page_num}: {e}")
+            raise
 
     def _transcribe_page_with_vision(self, image: Image.Image, page_num: int) -> str:
         """Transcribe a single page image using Claude vision."""
@@ -257,29 +481,124 @@ Begin transcription:"""
         return 'paragraph'
     
     def _create_semantic_blocks_with_llm(self, page_md: str, page_num: int) -> List[Dict]:
-        """Use LLM to group markdown into semantic blocks (paragraphs, headings, lists, tables).
+        """Use LLM to group markdown into semantic blocks with full fidelity preservation.
         
-        Returns list of block metadata with start_line, end_line, and content.
+        Returns list of block metadata with start_line, end_line, and rich content structure.
         """
         if not self.client:
             raise RuntimeError("Anthropic client not initialized")
         
-        prompt = f"""Analyze this text and group it into semantic blocks with ALL formatting metadata.
+        prompt = f"""You are a **precise, deterministic document-structure transformer**.
+Your only job is to convert input **Markdown** into a **BlockEditor-ready JSON block array** while keeping the document's **original formatting, structure, hierarchy, spacing, indentation, whitespace, tables, headers, inline styles, and layout EXACTLY preserved**.
 
-TEXT TO ANALYZE:
-{page_md}
+This is a **mechanical conversion**, not an editing or rewriting task.
+Do **not** improve grammar, fix OCR errors, merge lines, reorganize content, or change wording.
 
-INSTRUCTIONS:
-- Group related lines into semantic blocks (entire paragraphs, headings, lists, tables)
-- Each block should be a complete unit
-- DO NOT split paragraphs or lists into multiple blocks
-- Empty lines can be their own blocks
-- Detect headings by **bold** formatting + structure
-- Infer heading level (1-3) from context
-- STRIP markdown symbols (**bold**, *italic*, ==highlight==, <small>, <center>, <right>) from content field
-- Store ALL formatting info as metadata fields
+Your output must be **100% faithful to the original visual structure of the document**.
 
-OUTPUT FORMAT (JSON array with formatting metadata):
+---
+
+# CORE OBJECTIVE
+
+Convert Markdown → BlockEditor JSON blocks.
+
+* Maintain **1:1 fidelity** with the original OCR text.
+* Preserve **all block boundaries exactly**.
+* Preserve **all line breaks, spacing, indentation, and layout**.
+* Preserve **all tables, lists, headings, inline marks, and structures**.
+* Use **fallback preformatted blocks** when fidelity cannot be maintained through semantic types.
+
+---
+
+# BLOCK MAPPING RULES
+
+Each logical unit from the Markdown becomes **one block**:
+
+### 1. Headings
+- # → heading (level: 1)
+- ## → heading (level: 2)
+- ### → heading (level: 3)
+- #### → heading (level: 4)
+- ##### → heading (level: 5)
+- ###### → heading (level: 6)
+- **Bold standalone line** → heading (detect level from context)
+
+### 2. Paragraphs
+- Normal text blocks → paragraph
+- Preserve **exact line breaks and spacing** in content
+
+### 3. Lists (IMPORTANT: Support nested structure)
+- Lines starting with "- " → bulleted_list
+- Lines starting with "1. ", "2. " → numbered_list
+- Preserve indentation levels as nested children
+- Output with "items" array containing {{content, children}}
+
+### 4. Tables (IMPORTANT: Support rich structure)
+- Markdown tables with | pipes → table
+- Output with "columns" and "rows" arrays
+- Preserve column count, order, and exact cell content
+
+### 5. Preformatted / Fixed-Width Text
+- Multi-space alignment → preformatted
+- Forms with spacing → preformatted
+- When semantic mapping loses fidelity → preformatted
+
+### 6. Code Blocks
+- Fenced code blocks → code
+- Include "language" field if specified
+
+### 7. Blockquotes
+- Lines starting with "> " → blockquote
+
+### 8. Special Elements
+- Horizontal rules (---) → divider
+- Images → image (with "src" and "alt" fields)
+- Blank lines → empty
+
+---
+
+# STRICT PRESERVATION RULES
+
+You MUST keep:
+
+1. **All spacing** - every space, newline, and indent
+2. **All indentation** - never collapse leading spaces
+3. **OCR imperfections** - do NOT fix typos, broken hyphens, misspellings, extra newlines
+4. **Block boundaries** - one logical component → one block
+5. **Exact content** - no rewriting, merging, or reorganizing
+
+---
+
+# CONTENT CLEANING (IMPORTANT)
+
+**STRIP ALL FORMATTING SYMBOLS** from the "content" field but **TRACK THEM AS METADATA**:
+
+- "**Risk Policy**" → content: "Risk Policy", formatting: {{"bold": true}}
+- "This is ==critical==" → content: "This is critical", formatting: {{"has_highlight": true}}
+- "<small>footnote</small>" → content: "footnote", formatting: {{"size": "small"}}
+- "<center>TITLE</center>" → content: "TITLE", formatting: {{"alignment": "center"}}
+
+For inline formatting within paragraphs, use inline segments:
+- "Hello **world**" → content: [{{"text": "Hello ", "bold": false}}, {{"text": "world", "bold": true}}]
+
+---
+
+# THINGS YOU MUST NOT DO
+
+* ❌ Do NOT rewrite text
+* ❌ Do NOT improve grammar
+* ❌ Do NOT merge paragraphs
+* ❌ Do NOT collapse blank lines
+* ❌ Do NOT rearrange content
+* ❌ Do NOT add, remove, or change words (except stripping formatting symbols)
+* ❌ Do NOT fix OCR mistakes
+* ❌ Do NOT convert preformatted text to paragraphs
+
+---
+
+# OUTPUT FORMAT
+
+Return ONLY a JSON array (no other text):
 [
   {{
     "start_line": 0,
@@ -305,49 +624,70 @@ OUTPUT FORMAT (JSON array with formatting metadata):
   }},
   {{
     "start_line": 10,
-    "end_line": 12,
-    "content": "- Item 1\\n  - Sub-item 1.1\\n  - Sub-item 1.2",
-    "type": "bullet",
-    "indent_level": 2
+    "end_line": 14,
+    "type": "bulleted_list",
+    "items": [
+      {{
+        "content": "Item 1",
+        "children": [
+          {{"content": "Sub-item 1.1"}},
+          {{"content": "Sub-item 1.2"}}
+        ]
+      }},
+      {{"content": "Item 2"}}
+    ]
   }},
   {{
-    "start_line": 14,
-    "end_line": 14,
+    "start_line": 16,
+    "end_line": 20,
+    "type": "table",
+    "columns": ["Name", "Value"],
+    "rows": [
+      ["Risk Type", "Market Risk"],
+      ["Severity", "High"]
+    ]
+  }},
+  {{
+    "start_line": 22,
+    "end_line": 22,
     "content": "CONFIDENTIAL",
     "type": "paragraph",
     "formatting": {{"alignment": "center", "bold": true}}
   }},
   {{
-    "start_line": 16,
-    "end_line": 16,
+    "start_line": 24,
+    "end_line": 24,
     "content": "See section 3.1 for details.",
     "type": "paragraph",
     "formatting": {{"size": "small"}}
   }},
   {{
-    "start_line": 18,
-    "end_line": 20,
-    "content": "Important: Review annually.",
-    "type": "callout"
+    "start_line": 26,
+    "end_line": 28,
+    "type": "code",
+    "language": "python",
+    "content": "def calculate_risk():\\n    return total * factor"
+  }},
+  {{
+    "start_line": 30,
+    "end_line": 30,
+    "type": "blockquote",
+    "content": "Important regulatory note"
   }}
 ]
 
-CRITICAL CONTENT CLEANING:
-- Strip ALL formatting symbols from content field
-- "**Risk Policy**" → "Risk Policy"
-- "This is ==critical==" → "This is critical"
-- "<small>footnote</small>" → "footnote"
-- "<center>TITLE</center>" → "TITLE"
-- But track what was stripped in the "formatting" object
-
-BLOCK TYPES:
-- heading (with level 1-3): **bold** + short + standalone
-- paragraph: multi-line text blocks
-- bullet: bullet lists (lines with -)
-- numbered: numbered lists (1. 2. 3.)
-- table: markdown tables with | pipes
+BLOCK TYPES (use these exact strings):
+- heading (with level 1-6): **bold** + short + standalone, or #/##/### markdown
+- paragraph: normal text blocks
+- bulleted_list: bullet lists with nested "items" array
+- numbered_list: numbered lists with nested "items" array  
+- table: markdown tables with "columns" and "rows" arrays
+- blockquote: blockquotes (> text)
 - callout: bordered/quoted sections (> Callout:)
-- quote: blockquotes (> text)
+- preformatted: multi-space aligned text, forms
+- code: code blocks (with "language" field)
+- divider: horizontal rules (---)
+- image: images (with "src" and "alt" fields)
 - empty: blank lines
 
 FORMATTING METADATA (optional fields):
@@ -360,14 +700,30 @@ FORMATTING METADATA (optional fields):
     "alignment": "center|right|left",  // Text alignment
     "size": "small|normal|large"       // Font size
   }}
-- "indent_level": 0-3      // For nested lists (spaces/2)
+- "indent_level": 0-3      // For simple indentation (when not using nested structure)
 
 HEADING LEVEL DETECTION:
-- Level 1: First heading, all caps, or no numbering
-- Level 2: "1.", "2.", "3." (section numbers)
-- Level 3: "1.1", "2.1" (subsection numbers)
+- Level 1: # or first heading, all caps, or no numbering
+- Level 2: ## or "1.", "2.", "3." (section numbers)
+- Level 3: ### or "1.1", "2.1" (subsection numbers)
+- Levels 4-6: ####, #####, ######
 
-CRITICAL: Output ONLY valid JSON array. Strip ALL symbols from content. Track formatting in metadata.
+NESTED LISTS:
+- Use "items" array with {{content, children}} structure
+- Children is optional array of nested items
+- Each level of indentation = one level of nesting
+
+TABLES:
+- Use "columns" array for header row
+- Use "rows" array for data rows (each row is array of strings)
+- Preserve exact cell content including spacing
+
+TEXT TO ANALYZE (Page {page_num}):
+{page_md}
+
+Convert the above text to BlockEditor JSON blocks following ALL preservation rules.
+Output ONLY valid JSON array. Strip ALL formatting symbols from content. Track formatting in metadata.
+Use rich structures (items, columns, rows) for lists and tables.
 """
 
         try:
@@ -564,6 +920,35 @@ If no issues found, return empty array: []
         page_markdowns = []
         
         for page_num, image in enumerate(images, start=1):
+            if self.use_direct_json:
+                # DIRECT PDF → JSON: Bypass markdown entirely
+                self.logger.info(f"Transcribing page {page_num}/{len(images)} directly to JSON...")
+                page_result = self._transcribe_page_direct_to_json(image, page_num)
+                
+                # Extract blocks from result
+                page_json_blocks = page_result.get('blocks', [])
+                semantic_blocks = page_json_blocks  # Use directly
+                
+                # Build simple markdown for debugging/fallback
+                page_md_lines = []
+                for block in page_json_blocks:
+                    content = block.get('content', '')
+                    if isinstance(content, list):
+                        text = ''.join(seg.get('text', '') for seg in content)
+                    else:
+                        text = str(content)
+                    
+                    if block.get('type') == 'heading':
+                        level = block.get('level', 1)
+                        page_md_lines.append('#' * level + ' ' + text)
+                    elif block.get('type') == 'empty':
+                        page_md_lines.append('')
+                    else:
+                        page_md_lines.append(text)
+                
+                page_md = '\n'.join(page_md_lines)
+            else:
+                # LEGACY: PDF → Markdown → JSON (2-step)
             self.logger.info(f"Transcribing page {page_num}/{len(images)}...")
             page_md = self._transcribe_page_with_vision(image, page_num)
             
@@ -574,24 +959,42 @@ If no issues found, return empty array: []
             # Generate stable IDs for each semantic block
             page_blocks = []
             for block_num, block_data in enumerate(semantic_blocks):
-                block_id = self._generate_stable_block_id(page_num, block_num, block_data['content'])
+                # Use content for ID if available, otherwise use empty string
+                content_for_id = block_data.get('content', '')
+                if isinstance(content_for_id, list):
+                    # If content is array of inline segments, use first segment
+                    content_for_id = content_for_id[0].get('text', '') if content_for_id else ''
+                
+                block_id = self._generate_stable_block_id(page_num, block_num, str(content_for_id))
+                
+                # Start with required fields
                 block_meta = {
                     'id': block_id,
                     'page': page_num,
                     'block_num': block_num,
-                    'start_line': block_data['start_line'],
-                    'end_line': block_data['end_line'],
-                    'content': block_data['content'],
-                    'type': block_data['type']
+                    'start_line': block_data.get('start_line', block_num),  # Direct JSON may not have line numbers
+                    'end_line': block_data.get('end_line', block_num),
+                    'type': block_data.get('type', 'paragraph')
                 }
                 
-                # Add optional metadata fields if present
-                if block_data.get('level'):
-                    block_meta['level'] = block_data['level']
-                if block_data.get('formatting'):
-                    block_meta['formatting'] = block_data['formatting']
-                if block_data.get('indent_level') is not None:
-                    block_meta['indent_level'] = block_data['indent_level']
+                # Add content field (can be string or array of inline segments)
+                if 'content' in block_data:
+                    block_meta['content'] = block_data['content']
+                else:
+                    block_meta['content'] = ''  # Default for blocks without content (like lists/tables)
+                
+                # Pass through ALL optional fields from LLM without filtering
+                # This preserves rich structures like items, columns, rows, language, etc.
+                optional_fields = [
+                    'level', 'formatting', 'indent_level',  # Original fields
+                    'items', 'columns', 'rows',  # Rich structures for lists and tables
+                    'language',  # For code blocks
+                    'src', 'alt',  # For images
+                    'alignment', 'bbox',  # Direct JSON layout metadata
+                ]
+                for field in optional_fields:
+                    if field in block_data:
+                        block_meta[field] = block_data[field]
                 
                 all_blocks.append(block_meta)
                 page_blocks.append(block_meta)

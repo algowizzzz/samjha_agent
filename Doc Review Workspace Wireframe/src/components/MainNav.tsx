@@ -1,6 +1,6 @@
-import { FileText, LayoutTemplate, Settings, MessageSquare } from 'lucide-react';
+import { FileText, LayoutTemplate, Settings, MessageSquare, TestTube2 } from 'lucide-react';
 
-type Page = 'documents' | 'workspace' | 'templates' | 'prompts' | 'settings';
+type Page = 'documents' | 'workspace' | 'templates' | 'prompts' | 'settings' | 'demo';
 
 interface MainNavProps {
   currentPage: Page;
@@ -62,6 +62,22 @@ export function MainNav({ currentPage, onNavigate }: MainNavProps) {
             <span>Settings</span>
           </button>
         </div>
+      </div>
+
+      {/* Demo Link (right side) */}
+      <div>
+        <button
+          onClick={() => onNavigate('demo')}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded transition-colors ${
+            currentPage === 'demo'
+              ? 'bg-blue-100 text-blue-700 font-medium'
+              : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'
+          }`}
+          title="Single Editor Demo (Option 3)"
+        >
+          <TestTube2 className="w-4 h-4" />
+          <span>Demo</span>
+        </button>
       </div>
     </nav>
   );

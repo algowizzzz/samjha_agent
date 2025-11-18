@@ -54,6 +54,15 @@ except ImportError as e:
     ModelDocRoutes = None
     MODEL_DOC_AVAILABLE = False
 
+# Import text improvement routes (optional)
+try:
+    from external.routes.text_improvement_routes import text_improvement_bp
+    TEXT_IMPROVEMENT_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Text improvement routes not available: {e}.")
+    text_improvement_bp = None
+    TEXT_IMPROVEMENT_AVAILABLE = False
+
 # Global instances
 app = None
 socketio = None
@@ -158,6 +167,16 @@ def register_all_routes(app, socketio):
             logging.error(f"Failed to register model doc routes: {e}")
     else:
         logging.info("Model documentation features not available")
+
+    # Register text improvement routes if available
+    if TEXT_IMPROVEMENT_AVAILABLE and text_improvement_bp is not None:
+        try:
+            app.register_blueprint(text_improvement_bp)
+            logging.info("Text improvement routes registered successfully")
+        except Exception as e:  # pylint: disable=broad-except
+            logging.error(f"Failed to register text improvement routes: {e}")
+    else:
+        logging.info("Text improvement features not available")
 
     logging.info("All routes registered successfully")
 

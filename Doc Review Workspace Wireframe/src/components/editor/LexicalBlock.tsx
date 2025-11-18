@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -8,15 +8,17 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { CodeNode } from '@lexical/code';
-import { $getRoot, $createParagraphNode, $createTextNode, EditorState, LexicalEditor } from 'lexical';
+import { $getRoot, $createParagraphNode, $createTextNode, EditorState, LexicalEditor, TextNode } from 'lexical';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { BlockTypePlugin } from './plugins/BlockTypePlugin';
 import { FormattingPlugin } from './plugins/FormattingPlugin';
-import type { Block, BlockType } from './types';
+import { FloatingFormattingToolbar } from './plugins/FloatingFormattingToolbar';
+import type { Block, BlockType, InlineSegment } from './types';
 
 interface LexicalBlockProps {
   block: Block;
-  onChange: (content: string, htmlContent: string) => void;
+  onChange: (content: string, htmlContent: string, richContent?: InlineSegment[]) => void;
+  onBlur?: () => void;  // NEW: Called when user stops editing
   onKeyDown?: (e: React.KeyboardEvent) => void;
   autoFocus?: boolean;
   className?: string;
@@ -60,19 +62,35 @@ function InitializeContentPlugin({ block }: { block: Block }) {
       const root = $getRoot();
       root.clear();
 
-      // For now, just set plain text content
-      // TODO: Parse HTML content to Lexical nodes
-      if (block.content) {
+      // ✅ NEW: Prefer richContent if available
+      if (block.richContent && block.richContent.length > 0) {
         const paragraph = $createParagraphNode();
-        // Strip HTML tags for now - we'll implement proper HTML parsing later
+        
+        block.richContent.forEach(segment => {
+          const textNode = $createTextNode(segment.text);
+          
+          // Apply formatting from segment
+          if (segment.bold) textNode.toggleFormat('bold');
+          if (segment.italic) textNode.toggleFormat('italic');
+          if (segment.underline) textNode.toggleFormat('underline');
+          if (segment.code) textNode.toggleFormat('code');
+          
+          paragraph.append(textNode);
+        });
+        
+        root.append(paragraph);
+      } else if (block.content) {
+        // Fallback: Plain text content (legacy)
+        const paragraph = $createParagraphNode();
+        // Strip HTML tags for legacy content
         const textContent = block.content.replace(/<[^>]*>/g, '');
         const textNode = $createTextNode(textContent);
         
-        // Apply formatting from block metadata
-        if (block.formatting?.bold) {
+        // Apply block-level formatting if available
+        if (block.formatting?.bold || block.formatting?.has_bold) {
           textNode.toggleFormat('bold');
         }
-        if (block.formatting?.italic) {
+        if (block.formatting?.italic || block.formatting?.has_italic) {
           textNode.toggleFormat('italic');
         }
         if (block.formatting?.underline) {
@@ -83,7 +101,7 @@ function InitializeContentPlugin({ block }: { block: Block }) {
         root.append(paragraph);
       }
     });
-  }, [editor, block.id]); // Re-initialize only if block.id changes
+  }, [editor]); // ✅ FIXED: Removed block.id dependency - only init once per mount
 
   return null;
 }
@@ -92,18 +110,50 @@ function InitializeContentPlugin({ block }: { block: Block }) {
 function OnChangeHandlerPlugin({ 
   onChange 
 }: { 
-  onChange: (content: string, htmlContent: string) => void;
+  onChange: (content: string, htmlContent: string, richContent?: InlineSegment[]) => void;
 }) {
   const handleChange = (editorState: EditorState, editor: LexicalEditor) => {
     editorState.read(() => {
       const root = $getRoot();
       const textContent = root.getTextContent();
       
-      // For now, use simple HTML generation
-      // TODO: Implement proper HTML generation with formatting preservation
-      const htmlContent = textContent;
+      // ✅ NEW: Serialize to InlineSegment[] to preserve formatting
+      const richContent: InlineSegment[] = [];
       
-      onChange(textContent, htmlContent);
+      root.getChildren().forEach(child => {
+        if (child.getType() === 'paragraph') {
+          const textNodes = child.getChildren();
+          textNodes.forEach(node => {
+            if (node.getType() === 'text') {
+              const textNode = node as TextNode;
+              const text = textNode.getTextContent();
+              
+              if (text.length > 0) {
+                richContent.push({
+                  text,
+                  bold: textNode.hasFormat('bold'),
+                  italic: textNode.hasFormat('italic'),
+                  underline: textNode.hasFormat('underline'),
+                  code: textNode.hasFormat('code'),
+                });
+              }
+            }
+          });
+        }
+      });
+      
+      // Generate HTML for backward compatibility
+      let htmlContent = '';
+      richContent.forEach(segment => {
+        let segmentHtml = segment.text;
+        if (segment.bold) segmentHtml = `<strong>${segmentHtml}</strong>`;
+        if (segment.italic) segmentHtml = `<em>${segmentHtml}</em>`;
+        if (segment.underline) segmentHtml = `<u>${segmentHtml}</u>`;
+        if (segment.code) segmentHtml = `<code>${segmentHtml}</code>`;
+        htmlContent += segmentHtml;
+      });
+      
+      onChange(textContent, htmlContent, richContent);
     });
   };
 
@@ -157,13 +207,15 @@ function AutoFocusPlugin({ autoFocus }: { autoFocus?: boolean }) {
   return null;
 }
 
-export function LexicalBlock({ 
+// ✅ Memoize component to prevent re-renders when parent updates
+export const LexicalBlock = React.memo(({ 
   block, 
-  onChange, 
+  onChange,
+  onBlur,
   onKeyDown,
   autoFocus,
   className = ''
-}: LexicalBlockProps) {
+}: LexicalBlockProps) => {
   const initialConfig = {
     namespace: `LexicalBlock-${block.id}`,
     theme,
@@ -181,7 +233,15 @@ export function LexicalBlock({
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <div className={`lexical-block-wrapper ${className}`}>
+      <div 
+        className={`lexical-block-wrapper ${className}`}
+        onBlur={(e) => {
+          // ✅ Sync content back to parent on blur
+          if (onBlur && !e.currentTarget.contains(e.relatedTarget as Node)) {
+            onBlur();
+          }
+        }}
+      >
         <RichTextPlugin
           contentEditable={
             <ContentEditable 
@@ -192,15 +252,21 @@ export function LexicalBlock({
           placeholder={null}
           ErrorBoundary={LexicalErrorBoundary}
         />
-        <HistoryPlugin />
-        <FormattingPlugin />
-        <BlockTypePlugin blockType={block.type} />
-        <InitializeContentPlugin block={block} />
-        <OnChangeHandlerPlugin onChange={onChange} />
-        <KeyboardShortcutsPlugin onKeyDown={onKeyDown} />
-        <AutoFocusPlugin autoFocus={autoFocus} />
+            <HistoryPlugin />
+            <FormattingPlugin />
+            <FloatingFormattingToolbar />
+            <BlockTypePlugin blockType={block.type} />
+            <InitializeContentPlugin block={block} />
+            <OnChangeHandlerPlugin onChange={onChange} />
+            <KeyboardShortcutsPlugin onKeyDown={onKeyDown} />
+            <AutoFocusPlugin autoFocus={autoFocus} />
       </div>
     </LexicalComposer>
   );
-}
+}, (prevProps, nextProps) => {
+  // Only re-render if block.id changes or autoFocus changes
+  // Don't re-render when content changes - Lexical handles that internally
+  return prevProps.block.id === nextProps.block.id && 
+         prevProps.autoFocus === nextProps.autoFocus;
+});
 

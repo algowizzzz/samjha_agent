@@ -316,8 +316,9 @@ class DocReviewAgent:
         template_id: Optional[str] = None,
     ) -> AgentState:
         """
-        Execute ingestion + deterministic stats for the supplied document. LLM-driven
-        analysis will be layered in subsequent phases of the implementation plan.
+        Execute Phase 0 ingestion only (converts document to markdown with block metadata).
+        Note: React editor uses this for ingestion, then applies templates via TemplateProcessor.
+        Phase 1/2/3 LLM workflows are deprecated for React editor.
         """
 
         state = self._initialise_state(
@@ -327,20 +328,19 @@ class DocReviewAgent:
         )
 
         self.logger.info(
-            "DocReviewAgent.run_phase1: run_id=%s doc_id=%s", state["run_id"], state["doc_id"]
+            "DocReviewAgent.run_phase1 (Phase 0 only): run_id=%s doc_id=%s", state["run_id"], state["doc_id"]
         )
 
         state["phase1_status"] = "running"
-        state["control"] = "phase0_ingestion"
-        self.orchestrate(state, stop_controls={"await_section_strategy_confirmation", "failed"})
-
-        # Make raw markdown available to the UI immediately after Phase 0+initial Phase 1 nodes
+        
+        # Run Phase 0 ingestion only (no LLM orchestration)
+        state = self._run_phase0_ingestion(state)
+        
+        # Make raw markdown available to the UI
         state = self._node_publish_raw_markdown(state)
 
-        if state["phase1"].get("section_strategy"):
-            state["phase1_status"] = "success"
-        else:
-            state["phase1_status"] = "failed"
+        state["phase1_status"] = "success"
+        state["control"] = "completed"
 
         return state
 

@@ -435,7 +435,8 @@ Based on all the page-level findings above, create a comprehensive executive sum
 
 def load_template(template_name: str) -> str:
     """Load template content by name."""
-    template_dir = Path(__file__).parent.parent.parent / "data" / "templates"
+    # Use same path as upload endpoint - relative to current working directory
+    template_dir = Path("data/templates")
     template_path = template_dir / f"{template_name}.md"
     
     if not template_path.exists():
@@ -446,7 +447,8 @@ def load_template(template_name: str) -> str:
 
 def list_templates() -> List[str]:
     """List available template names."""
-    template_dir = Path(__file__).parent.parent.parent / "data" / "templates"
+    # Use same path as upload endpoint - relative to current working directory
+    template_dir = Path("data/templates")
     if not template_dir.exists():
         return []
     

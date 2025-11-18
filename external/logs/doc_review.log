@@ -1403,3 +1403,94 @@
 {"asctime": "2025-11-17T09:41:22", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[BlockImprover] Generated 4 suggestions"}
 {"asctime": "2025-11-17T09:41:22", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 3: block_improver \u2192 end (7262.4ms)"}
 {"asctime": "2025-11-17T09:41:22", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Completed in 4 steps, 8152.8ms total"}
+{"asctime": "2025-11-17T18:45:07", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Starting workflow for file_id=collateral_bad, selected_blocks=0, prompt_len=67"}
+{"asctime": "2025-11-17T18:45:07", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 1: context_loader \u2192 intent_classifier (0.0ms)"}
+{"asctime": "2025-11-17T18:45:09", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[IntentClassifier] Classified as 'compliance_check' (confidence: 0.90) -> doc_searcher"}
+{"asctime": "2025-11-17T18:45:09", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 2: intent_classifier \u2192 doc_searcher (1709.2ms)"}
+{"asctime": "2025-11-17T18:45:12", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[DocSearcher] Generated search response (1538 chars)"}
+{"asctime": "2025-11-17T18:45:12", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 3: doc_searcher \u2192 end (2542.6ms)"}
+{"asctime": "2025-11-17T18:45:12", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Completed in 4 steps, 4252.7ms total"}
+{"asctime": "2025-11-17T20:18:11", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Starting workflow for file_id=collateral_bad, selected_blocks=3, prompt_len=16"}
+{"asctime": "2025-11-17T20:18:11", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 1: context_loader \u2192 intent_classifier (0.1ms)"}
+{"asctime": "2025-11-17T20:18:13", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[IntentClassifier] Classified as 'improve_blocks' (confidence: 0.90) -> block_improver"}
+{"asctime": "2025-11-17T20:18:13", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 2: intent_classifier \u2192 block_improver (1043.2ms)"}
+{"asctime": "2025-11-17T20:18:17", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[BlockImprover] Generated 3 suggestions"}
+{"asctime": "2025-11-17T20:18:17", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 3: block_improver \u2192 end (4701.2ms)"}
+{"asctime": "2025-11-17T20:18:17", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Completed in 4 steps, 5745.4ms total"}
+{"asctime": "2025-11-17T20:19:20", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Starting workflow for file_id=collateral_bad, selected_blocks=3, prompt_len=68"}
+{"asctime": "2025-11-17T20:19:20", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 1: context_loader \u2192 intent_classifier (0.0ms)"}
+{"asctime": "2025-11-17T20:19:21", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[IntentClassifier] Classified as 'improve_blocks' (confidence: 0.90) -> block_improver"}
+{"asctime": "2025-11-17T20:19:21", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 2: intent_classifier \u2192 block_improver (872.8ms)"}
+{"asctime": "2025-11-17T20:19:26", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[BlockImprover] Generated 3 suggestions"}
+{"asctime": "2025-11-17T20:19:26", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 3: block_improver \u2192 end (5355.7ms)"}
+{"asctime": "2025-11-17T20:19:26", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Completed in 4 steps, 6229.5ms total"}
+{"asctime": "2025-11-17T20:20:12", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Starting workflow for file_id=collateral_bad, selected_blocks=3, prompt_len=68"}
+{"asctime": "2025-11-17T20:20:12", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 1: context_loader \u2192 intent_classifier (0.0ms)"}
+{"asctime": "2025-11-17T20:20:13", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[IntentClassifier] Classified as 'improve_blocks' (confidence: 0.90) -> block_improver"}
+{"asctime": "2025-11-17T20:20:13", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 2: intent_classifier \u2192 block_improver (940.6ms)"}
+{"asctime": "2025-11-17T20:20:18", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[BlockImprover] Generated 3 suggestions"}
+{"asctime": "2025-11-17T20:20:18", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 3: block_improver \u2192 end (4508.4ms)"}
+{"asctime": "2025-11-17T20:20:18", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Completed in 4 steps, 5449.9ms total"}
+{"asctime": "2025-11-17T20:20:57", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Starting workflow for file_id=collateral_bad, selected_blocks=0, prompt_len=70"}
+{"asctime": "2025-11-17T20:20:57", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 1: context_loader \u2192 intent_classifier (0.0ms)"}
+{"asctime": "2025-11-17T20:20:59", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[IntentClassifier] Classified as 'improve_blocks' (confidence: 0.90) -> chat_responder"}
+{"asctime": "2025-11-17T20:20:59", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 2: intent_classifier \u2192 chat_responder (1125.7ms)"}
+{"asctime": "2025-11-17T20:21:01", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[ChatResponder] Generated response (1695 chars)"}
+{"asctime": "2025-11-17T20:21:01", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 3: chat_responder \u2192 end (2881.6ms)"}
+{"asctime": "2025-11-17T20:21:01", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Completed in 4 steps, 4007.9ms total"}
+{"asctime": "2025-11-17T20:21:27", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Starting workflow for file_id=collateral_bad, selected_blocks=1, prompt_len=39"}
+{"asctime": "2025-11-17T20:21:27", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 1: context_loader \u2192 intent_classifier (0.0ms)"}
+{"asctime": "2025-11-17T20:21:28", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[IntentClassifier] Classified as 'improve_blocks' (confidence: 0.90) -> block_improver"}
+{"asctime": "2025-11-17T20:21:28", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 2: intent_classifier \u2192 block_improver (810.6ms)"}
+{"asctime": "2025-11-17T20:21:30", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[BlockImprover] Generated 1 suggestions"}
+{"asctime": "2025-11-17T20:21:30", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 3: block_improver \u2192 end (1787.6ms)"}
+{"asctime": "2025-11-17T20:21:30", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Completed in 4 steps, 2599.4ms total"}
+{"asctime": "2025-11-17T20:21:55", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Starting workflow for file_id=collateral_bad, selected_blocks=1, prompt_len=36"}
+{"asctime": "2025-11-17T20:21:55", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 1: context_loader \u2192 intent_classifier (0.1ms)"}
+{"asctime": "2025-11-17T20:21:56", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[IntentClassifier] Classified as 'improve_blocks' (confidence: 0.80) -> block_improver"}
+{"asctime": "2025-11-17T20:21:56", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 2: intent_classifier \u2192 block_improver (956.4ms)"}
+{"asctime": "2025-11-17T20:21:58", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[BlockImprover] Generated 1 suggestions"}
+{"asctime": "2025-11-17T20:21:58", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 3: block_improver \u2192 end (2002.8ms)"}
+{"asctime": "2025-11-17T20:21:58", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Completed in 4 steps, 2960.5ms total"}
+{"asctime": "2025-11-17T21:19:38", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Starting workflow for file_id=collateral_bad, selected_blocks=0, prompt_len=28"}
+{"asctime": "2025-11-17T21:19:38", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 1: context_loader \u2192 intent_classifier (0.2ms)"}
+{"asctime": "2025-11-17T21:19:39", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[IntentClassifier] Classified as 'improve_blocks' (confidence: 0.90) -> chat_responder"}
+{"asctime": "2025-11-17T21:19:39", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 2: intent_classifier \u2192 chat_responder (1369.5ms)"}
+{"asctime": "2025-11-17T21:19:41", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[ChatResponder] Generated response (1027 chars)"}
+{"asctime": "2025-11-17T21:19:41", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 3: chat_responder \u2192 end (1869.7ms)"}
+{"asctime": "2025-11-17T21:19:41", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Completed in 4 steps, 3248.6ms total"}
+{"asctime": "2025-11-17T21:22:36", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=CAR_Chapter_1_First_5_Pages doc_id=a3411f2109c44c88b296efcf3af8ee41_CAR_Chapter_1_First_5_Pages"}
+{"asctime": "2025-11-17T21:24:23", "name": "external.agent.doc_review_agent", "levelname": "ERROR", "message": "Prompt template not found: external/doc_review/prompts/phase1_toc_extraction.md"}
+{"asctime": "2025-11-17T21:24:23", "name": "external.agent.doc_review_agent", "levelname": "ERROR", "message": "Prompt template not found: external/doc_review/prompts/phase1_doc_summary.md"}
+{"asctime": "2025-11-17T21:24:23", "name": "external.agent.doc_review_agent", "levelname": "ERROR", "message": "Prompt template not found: external/doc_review/prompts/phase1_toc_review.md"}
+{"asctime": "2025-11-17T21:24:23", "name": "external.agent.doc_review_agent", "levelname": "ERROR", "message": "Prompt template not found: external/doc_review/prompts/phase1_template_fitness.md"}
+{"asctime": "2025-11-17T21:24:23", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Section strategy skipped: missing upstream reports"}
+{"asctime": "2025-11-17T21:24:23", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for CAR_Chapter_1_First_5_Pages"}
+{"asctime": "2025-11-17T21:33:25", "name": "external.agent.doc_review_agent", "levelname": "INFO", "message": "DocReviewAgent.run_phase1: run_id=CAR_Chapter_1_First_5_Pages-0mpd1m doc_id=7152c8f37aa444e498d1124ef33380e2_CAR_Chapter_1_First_5_Pages"}
+{"asctime": "2025-11-17T21:35:26", "name": "external.agent.doc_review_agent", "levelname": "ERROR", "message": "Prompt template not found: external/doc_review/prompts/phase1_toc_extraction.md"}
+{"asctime": "2025-11-17T21:35:26", "name": "external.agent.doc_review_agent", "levelname": "ERROR", "message": "Prompt template not found: external/doc_review/prompts/phase1_doc_summary.md"}
+{"asctime": "2025-11-17T21:35:26", "name": "external.agent.doc_review_agent", "levelname": "ERROR", "message": "Prompt template not found: external/doc_review/prompts/phase1_toc_review.md"}
+{"asctime": "2025-11-17T21:35:26", "name": "external.agent.doc_review_agent", "levelname": "ERROR", "message": "Prompt template not found: external/doc_review/prompts/phase1_template_fitness.md"}
+{"asctime": "2025-11-17T21:35:26", "name": "external.agent.doc_review_agent", "levelname": "WARNING", "message": "Section strategy skipped: missing upstream reports"}
+{"asctime": "2025-11-17T21:35:26", "name": "external.doc_review.store", "levelname": "INFO", "message": "Preserved original_markdown for CAR_Chapter_1_First_5_Pages-0mpd1m"}
+{"asctime": "2025-11-17T21:39:07", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Starting workflow for file_id=CAR_Chapter_1_First_5_Pages-0mpd1m, selected_blocks=1, prompt_len=17"}
+{"asctime": "2025-11-17T21:39:07", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 1: context_loader \u2192 intent_classifier (0.1ms)"}
+{"asctime": "2025-11-17T21:39:08", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[IntentClassifier] Classified as 'improve_blocks' (confidence: 0.90) -> block_improver"}
+{"asctime": "2025-11-17T21:39:08", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 2: intent_classifier \u2192 block_improver (884.1ms)"}
+{"asctime": "2025-11-17T21:39:09", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[BlockImprover] Generated 1 suggestions"}
+{"asctime": "2025-11-17T21:39:09", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 3: block_improver \u2192 end (1171.6ms)"}
+{"asctime": "2025-11-17T21:39:09", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Completed in 4 steps, 2056.8ms total"}
+{"asctime": "2025-11-17T21:39:40", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Starting workflow for file_id=CAR_Chapter_1_First_5_Pages-0mpd1m, selected_blocks=0, prompt_len=28"}
+{"asctime": "2025-11-17T21:39:40", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 1: context_loader \u2192 intent_classifier (0.1ms)"}
+{"asctime": "2025-11-17T21:39:41", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[IntentClassifier] Classified as 'improve_blocks' (confidence: 0.90) -> chat_responder"}
+{"asctime": "2025-11-17T21:39:41", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 2: intent_classifier \u2192 chat_responder (1255.6ms)"}
+{"asctime": "2025-11-17T21:39:44", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Starting workflow for file_id=CAR_Chapter_1_First_5_Pages-0mpd1m, selected_blocks=0, prompt_len=33"}
+{"asctime": "2025-11-17T21:39:44", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 1: context_loader \u2192 intent_classifier (0.2ms)"}
+{"asctime": "2025-11-17T21:39:45", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[ChatResponder] Generated response (2028 chars)"}
+{"asctime": "2025-11-17T21:39:45", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 3: chat_responder \u2192 end (3762.1ms)"}
+{"asctime": "2025-11-17T21:39:45", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Completed in 4 steps, 5024.7ms total"}
+{"asctime": "2025-11-17T21:39:45", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[IntentClassifier] Classified as 'improve_blocks' (confidence: 0.90) -> chat_responder"}
+{"asctime": "2025-11-17T21:39:45", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 2: intent_classifier \u2192 chat_responder (818.8ms)"}
+{"asctime": "2025-11-17T21:39:49", "name": "external.doc_review.riskgpt_nodes", "levelname": "INFO", "message": "[ChatResponder] Generated response (1929 chars)"}
+{"asctime": "2025-11-17T21:39:49", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Step 3: chat_responder \u2192 end (4490.2ms)"}
+{"asctime": "2025-11-17T21:39:49", "name": "external.doc_review.riskgpt_agent", "levelname": "INFO", "message": "[RiskGPTAgent] Completed in 4 steps, 5319.5ms total"}

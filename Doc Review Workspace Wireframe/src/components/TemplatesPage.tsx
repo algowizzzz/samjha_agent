@@ -22,19 +22,22 @@ export function TemplatesPage() {
       setError(null);
       try {
         const res = await listTemplates();
+        console.log('[TemplatesPage] Raw API response:', res);
         // Handle both string array and object array formats
         const templateList = (res.templates || []).map((t: any) => {
           if (typeof t === 'string') {
-            return { template_id: t, path: '', size: 0, location: '' };
+            return { template_id: t, path: '', size: 0, location: 'data/templates' };
           }
           return t;
         });
+        console.log('[TemplatesPage] Processed templates:', templateList);
         setTemplates(templateList);
         if (templateList.length > 0) {
           setSelectedTemplateId(templateList[0].template_id);
         }
       } catch (e: any) {
         setError(e?.message || 'Failed to load templates');
+        console.error('[TemplatesPage] Load error:', e);
       } finally {
         setLoading(false);
       }
@@ -224,27 +227,33 @@ export function TemplatesPage() {
         <UploadTemplateModal 
           onClose={() => setUploadModalOpen(false)} 
           onSuccess={async () => {
+            console.log('[TemplatesPage] Upload success, reloading list...');
+            // Wait for backend to save file
+            await new Promise(resolve => setTimeout(resolve, 500));
             // Reload templates list after successful upload
             setLoading(true);
             setError(null);
             try {
               const res = await listTemplates();
+              console.log('[TemplatesPage] Reloaded templates after upload:', res);
               const templateList = (res.templates || []).map((t: any) => {
                 if (typeof t === 'string') {
                   return { template_id: t, path: '', size: 0, location: 'data/templates' };
                 }
                 return t;
               });
+              console.log('[TemplatesPage] Setting templates state to:', templateList);
               setTemplates(templateList);
               // Select the newly uploaded template if it's the only change
               if (templateList.length > templates.length && templateList.length > 0) {
                 const newTemplate = templateList.find(t => !templates.some(old => old.template_id === t.template_id));
                 if (newTemplate) {
+                  console.log('[TemplatesPage] Auto-selecting new template:', newTemplate.template_id);
                   setSelectedTemplateId(newTemplate.template_id);
                 }
               }
             } catch (err: any) {
-              console.error('Failed to reload templates:', err);
+              console.error('[TemplatesPage] Failed to reload templates:', err);
             } finally {
               setLoading(false);
             }

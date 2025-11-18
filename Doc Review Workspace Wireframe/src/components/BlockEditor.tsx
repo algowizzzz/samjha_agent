@@ -1,11 +1,7 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { 
   GripVertical, 
   MessageSquare, 
-  Bold, 
-  Italic, 
-  Highlighter, 
-  Link as LinkIcon, 
   Plus,
   Check,
   X as XIcon,
@@ -56,7 +52,8 @@ interface ChangeRecord {
 interface Block {
   id: string;
   type: BlockType;
-  content: string;
+  content: string;  // Legacy HTML/plain text
+  richContent?: Array<{ text: string; bold?: boolean; italic?: boolean; underline?: boolean; code?: boolean; link?: string }>;  // NEW: Structured content with formatting
   changeType: ChangeType;
   commentCount: number;
   suggestion?: VerificationSuggestion;
@@ -153,8 +150,27 @@ function parseMarkdownWithMetadata(
     // Check if this block has a suggestion
     const suggestion = suggestions.find(s => s.block_id === blockId);
     
-    // Convert markdown content to HTML for contentEditable
-    const htmlContent = markdownToHtml(meta.content);
+    // ✅ NEW: Handle InlineSegment[] content if available
+    let htmlContent: string;
+    let richContent: any[] | undefined;
+    
+    if (Array.isArray(meta.content)) {
+      // Content is InlineSegment[] - preserve it as richContent
+      richContent = meta.content;
+      // Generate HTML for display
+      htmlContent = meta.content.map((seg: any) => {
+        let text = seg.text;
+        if (seg.bold) text = `<strong>${text}</strong>`;
+        if (seg.italic) text = `<em>${text}</em>`;
+        if (seg.underline) text = `<u>${text}</u>`;
+        if (seg.code) text = `<code>${text}</code>`;
+        return text;
+      }).join('');
+    } else {
+      // Content is plain string - convert markdown to HTML
+      htmlContent = markdownToHtml(meta.content);
+      richContent = undefined;
+    }
     
     // Determine change type based on suggestion
     const changeType: ChangeType = suggestion ? 'verified' : 'none';
@@ -179,7 +195,8 @@ function parseMarkdownWithMetadata(
     blocks.push({
       id: blockId,
       type: blockType,
-      content: htmlContent,  // Use HTML content for contentEditable
+      content: htmlContent,  // HTML for backward compatibility
+      richContent,  // ✅ NEW: Structured content with formatting
       changeType,
       commentCount: 0,
       suggestion: htmlSuggestion,
@@ -224,7 +241,6 @@ function htmlToPlainText(html: string): string {
 }
 
 function markdownToHtml(markdown: string): string {
-  console.log('[markdownToHtml] Input markdown:', markdown);
   let html = markdown;
   
   // IMPORTANT: Process bold BEFORE italic to avoid conflicts
@@ -237,7 +253,6 @@ function markdownToHtml(markdown: string): string {
   html = html.replace(/(?<![*_])\*([^*]+?)\*(?![*_])/g, '<em>$1</em>');
   html = html.replace(/(?<![*_])_([^_]+?)_(?![*_])/g, '<em>$1</em>');
   
-  console.log('[markdownToHtml] Output HTML:', html);
   return html;
 }
 
@@ -276,10 +291,10 @@ interface SortableBlockItemProps {
   setHoveredBlock: (id: string | null) => void;
   getBlockClassName: (block: Block) => string;
   setContextMenu: (menu: { blockId: string; position: { x: number; y: number } } | null) => void;
-  handleInputChange: (blockId: string, value: string, e?: React.FormEvent<HTMLTextAreaElement>) => void;
+  handleInputChange: (blockId: string, value: string, e?: React.FormEvent<HTMLTextAreaElement>, richContent?: any[]) => void;
   blocks: Block[];
   blockRefs: React.MutableRefObject<Map<string, HTMLDivElement>>;
-  setBlocks: (blocks: Block[]) => void;
+  setBlocks: (blocks: Block[] | ((prev: Block[]) => Block[])) => void;
   onCommentClick: (blockId: string) => void;
   selectedBlockIds: Set<string>;
   handleBlockSelect: (blockId: string, event: React.MouseEvent) => void;
@@ -355,8 +370,19 @@ const SortableBlockItem = React.memo(({
         {block.type === 'bullet' || block.type === 'numbered' ? (
           <LexicalBlock
             block={block}
-            onChange={(textContent, htmlContent) => {
-              handleInputChange(block.id, htmlContent, null as any);
+            onChange={(textContent, htmlContent, richContent) => {
+              handleInputChange(block.id, htmlContent, null as any, richContent);
+            }}
+            onBlur={() => {
+              // ✅ Sync ref content to state on blur
+              const liveData = liveContentRef.current.get(block.id);
+              if (liveData) {
+                setBlocks(prev => prev.map(b => 
+                  b.id === block.id 
+                    ? { ...b, content: liveData.content, richContent: liveData.richContent }
+                    : b
+                ));
+              }
             }}
             onKeyDown={(e) => {
               // Handle Enter - create new list item
@@ -395,8 +421,19 @@ const SortableBlockItem = React.memo(({
         ) : (
           <LexicalBlock
             block={block}
-            onChange={(textContent, htmlContent) => {
-              handleInputChange(block.id, htmlContent, null as any);
+            onChange={(textContent, htmlContent, richContent) => {
+              handleInputChange(block.id, htmlContent, null as any, richContent);
+            }}
+            onBlur={() => {
+              // ✅ Sync ref content to state on blur
+              const liveData = liveContentRef.current.get(block.id);
+              if (liveData) {
+                setBlocks(prev => prev.map(b => 
+                  b.id === block.id 
+                    ? { ...b, content: liveData.content, richContent: liveData.richContent }
+                    : b
+                ));
+              }
             }}
             onKeyDown={(e) => {
               // Handle Enter - create new block
@@ -508,6 +545,68 @@ const SortableBlockItem = React.memo(({
 
 SortableBlockItem.displayName = 'SortableBlockItem';
 
+// Memoized block content to prevent re-renders on hover
+const BlockContent = React.memo(({ block }: { block: Block }) => {
+  return (
+    <>
+      {block.type === 'heading1' ? (
+        <h1 
+          key={`${block.id}-h1`}
+          className="text-3xl font-bold my-2" 
+          suppressContentEditableWarning
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: block.content }}
+        />
+      ) : block.type === 'heading2' ? (
+        <h2 
+          key={`${block.id}-h2`}
+          className="text-2xl font-bold my-2" 
+          suppressContentEditableWarning
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: block.content }}
+        />
+      ) : block.type === 'heading3' ? (
+        <h3 
+          key={`${block.id}-h3`}
+          className="text-xl font-semibold my-1" 
+          suppressContentEditableWarning
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: block.content }}
+        />
+      ) : block.type === 'bullet' ? (
+        <ul key={`${block.id}-ul`} className="list-disc list-inside">
+          <li 
+            suppressContentEditableWarning
+            suppressHydrationWarning
+            dangerouslySetInnerHTML={{ __html: block.content }}
+          />
+        </ul>
+      ) : block.type === 'numbered' ? (
+        <ol key={`${block.id}-ol`} className="list-decimal list-inside">
+          <li 
+            suppressContentEditableWarning
+            suppressHydrationWarning
+            dangerouslySetInnerHTML={{ __html: block.content }}
+          />
+        </ol>
+      ) : (
+        <p 
+          key={`${block.id}-p`}
+          suppressContentEditableWarning
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: block.content }}
+        />
+      )}
+    </>
+  );
+}, (prevProps, nextProps) => {
+  // Only re-render if block content or type changes
+  return prevProps.block.content === nextProps.block.content && 
+         prevProps.block.type === nextProps.block.type;
+});
+
+BlockContent.displayName = 'BlockContent';
+
 export function BlockEditor({ 
   trackChangesEnabled, 
   onCommentClick, 
@@ -525,8 +624,8 @@ export function BlockEditor({
   onAcceptSuggestion,
   onRejectSuggestion
 }: BlockEditorProps) {
-  // Enhanced: Undo/Redo state
-  const initialBlocks = (() => {
+  // Memoize initial blocks to prevent recalculation on every render
+  const initialBlocks = useMemo(() => {
     if (initialMarkdown && initialMarkdown.trim().length > 0) {
       if (blockMetadata && verificationSuggestions) {
         return parseMarkdownWithMetadata(initialMarkdown, blockMetadata, verificationSuggestions);
@@ -534,14 +633,11 @@ export function BlockEditor({
       return parseMarkdownToBlocks(initialMarkdown);
     }
     return mockBlocks;
-  })();
+  }, []); // Empty deps: only compute once on mount
   
   // ENHANCED: Undo/Redo with history
   const { state: blocks, setState: setBlocks, undo, redo, canUndo, canRedo } = useUndoRedo<Block[]>(initialBlocks);
   
-  // Debug logging
-  console.log('[BlockEditor] Blocks count:', blocks.length);
-  console.log('[BlockEditor] First 3 blocks:', blocks.slice(0, 3));
   
   const [hoveredBlock, setHoveredBlock] = useState<string | null>(null);
   const [showSlashMenu, setShowSlashMenu] = useState(false);
@@ -567,8 +663,9 @@ export function BlockEditor({
   const [lastClickedBlockId, setLastClickedBlockId] = useState<string | null>(null);
   const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
   const [dragOverBlockId, setDragOverBlockId] = useState<string | null>(null);
-  const [showFloatingToolbar, setShowFloatingToolbar] = useState(false);
-  const [floatingToolbarPosition, setFloatingToolbarPosition] = useState({ x: 0, y: 0 });
+  
+  // Track block being converted via Turn Into (separate from RiskGPT selection)
+  const [blockIdForTypeConversion, setBlockIdForTypeConversion] = useState<string | null>(null);
   
   // ENHANCED: Drag & drop sensors - only activate on drag handle
   const sensors = useSensors(
@@ -610,31 +707,29 @@ export function BlockEditor({
 
   const handleSlashSelect = useCallback((blockType: any) => {
     console.log('[SlashMenu] Selected block type:', blockType);
-    console.log('[SlashMenu] Selected block IDs:', Array.from(selectedBlockIds));
+    console.log('[SlashMenu] Block for conversion:', blockIdForTypeConversion);
     
     if (blockType === 'ai') {
       activityLogger.info('AI assistant requested');
-    } else {
-      const selectedId = Array.from(selectedBlockIds)[0];
-      console.log('[SlashMenu] Converting block:', selectedId, 'to type:', blockType);
+    } else if (blockIdForTypeConversion) {
+      console.log('[SlashMenu] Converting block:', blockIdForTypeConversion, 'to type:', blockType);
       
-      if (selectedId) {
-        setBlocks((prevBlocks) =>
-          prevBlocks.map((block) => {
-            if (block.id === selectedId) {
-              console.log('[SlashMenu] Converting block from', block.type, 'to', blockType);
-              return { ...block, type: blockType };
-            }
-            return block;
-          })
-        );
-      } else {
-        console.warn('[SlashMenu] No selected block ID found');
-      }
+      setBlocks((prevBlocks) =>
+        prevBlocks.map((block) => {
+          if (block.id === blockIdForTypeConversion) {
+            console.log('[SlashMenu] Converting block from', block.type, 'to', blockType);
+            return { ...block, type: blockType };
+          }
+          return block;
+        })
+      );
+    } else {
+      console.warn('[SlashMenu] No block ID set for conversion');
     }
     setShowSlashMenu(false);
     setSlashSearchQuery('');
-  }, [selectedBlockIds, setBlocks]);
+    setBlockIdForTypeConversion(null);
+  }, [blockIdForTypeConversion, setBlocks]);
 
   // ENHANCED: Keyboard shortcuts
   useKeyboardShortcuts({
@@ -652,14 +747,40 @@ export function BlockEditor({
     },
   });
 
+  // Track the last parsed markdown to prevent unnecessary re-parsing
+  const lastParsedMarkdown = useRef<string | undefined>(undefined);
+  const lastParsedMetadataCount = useRef<number>(0);
+  const lastParsedSuggestionsCount = useRef<number>(0);
+  
   useEffect(() => {
+    // Only re-parse if the markdown or metadata has actually changed
+    const metadataCount = blockMetadata?.length || 0;
+    const suggestionsCount = verificationSuggestions?.length || 0;
+    
+    const hasMarkdownChanged = initialMarkdown !== lastParsedMarkdown.current;
+    const hasMetadataChanged = metadataCount !== lastParsedMetadataCount.current;
+    const hasSuggestionsChanged = suggestionsCount !== lastParsedSuggestionsCount.current;
+    
+    if (!hasMarkdownChanged && !hasMetadataChanged && !hasSuggestionsChanged) {
+      // Nothing has changed, skip re-parsing
+      return;
+    }
+    
     console.log('[BlockEditor] useEffect triggered:', {
       hasInitialMarkdown: !!initialMarkdown,
       hasBlockMetadata: !!blockMetadata,
       hasSuggestions: !!verificationSuggestions,
       markdownLength: initialMarkdown?.length,
-      metadataCount: blockMetadata?.length
+      metadataCount,
+      hasMarkdownChanged,
+      hasMetadataChanged,
+      hasSuggestionsChanged
     });
+    
+    // Update refs
+    lastParsedMarkdown.current = initialMarkdown;
+    lastParsedMetadataCount.current = metadataCount;
+    lastParsedSuggestionsCount.current = suggestionsCount;
     
     if (initialMarkdown !== undefined && initialMarkdown.trim().length > 0) {
       if (blockMetadata && blockMetadata.length > 0 && verificationSuggestions) {
@@ -908,7 +1029,10 @@ export function BlockEditor({
     setBlocks(blocks.filter(b => b.id !== blockId));
   };
 
-  const handleInputChange = (blockId: string, value: string, e?: React.FormEvent<HTMLTextAreaElement>) => {
+  // ✅ NEW: Track live content in refs to prevent re-renders during editing
+  const liveContentRef = useRef<Map<string, { content: string; richContent?: any[] }>>(new Map());
+  
+  const handleInputChange = (blockId: string, value: string, e?: React.FormEvent<HTMLTextAreaElement>, richContent?: any[]) => {
     // ENHANCED: Detect slash command
     if (value.startsWith('/') && e) {
       const target = e.target as HTMLTextAreaElement;
@@ -921,7 +1045,11 @@ export function BlockEditor({
       setShowSlashMenu(false);
     }
     
-    setBlocks(prev => prev.map(b => b.id === blockId ? { ...b, content: value } : b));
+    // ✅ CRITICAL FIX: Store in ref during editing, don't trigger re-renders
+    liveContentRef.current.set(blockId, { content: value, richContent });
+    
+    // Only update state after a short debounce (prevent crashes during rapid typing)
+    // The actual content is safely stored in Lexical's internal state
   };
 
   const acceptSuggestion = (blockId: string) => {
@@ -1144,12 +1272,21 @@ export function BlockEditor({
       return;
     }
     
-    // Convert blocks back to markdown
-    const md = blocksToMarkdown(blocks);
+    // ✅ CRITICAL: Apply live content from refs before saving
+    const blocksWithLiveContent = blocks.map(b => {
+      const liveData = liveContentRef.current.get(b.id);
+      if (liveData) {
+        return { ...b, content: liveData.content, richContent: liveData.richContent };
+      }
+      return b;
+    });
     
-    // Update block metadata with current content and type (convert HTML to plain text)
+    // Convert blocks back to markdown
+    const md = blocksToMarkdown(blocksWithLiveContent);
+    
+    // ✅ NEW: Update block metadata with current content (preserve richContent if available)
     const updatedBlockMetadata = blockMetadata.map(meta => {
-      const block = blocks.find(b => b.id === meta.id);
+      const block = blocksWithLiveContent.find(b => b.id === meta.id);
       if (block) {
         // Map block type to metadata format
         let metaType = meta.type;
@@ -1178,11 +1315,18 @@ export function BlockEditor({
           metaLevel = undefined;
         }
         
+        // ✅ Prefer richContent if available, fallback to plain text
+        const content = block.richContent && block.richContent.length > 0
+          ? block.richContent  // Use InlineSegment[] to preserve formatting
+          : htmlToPlainText(block.content);  // Fallback to plain text
+        
         return {
           ...meta,
           type: metaType,
           level: metaLevel,
-          content: htmlToPlainText(block.content)
+          content,
+          formatting: block.formatting,
+          indent_level: block.indent_level
         };
       }
       return meta;
@@ -1410,40 +1554,10 @@ export function BlockEditor({
             <div
               id="editor-root"
               contentEditable={true}
+              suppressContentEditableWarning={true}
               data-editor-root="true"
               className="outline-none min-h-[200px]"
               suppressHydrationWarning
-              onMouseUp={(e) => {
-                // Show floating toolbar on text selection
-                setTimeout(() => {
-                  const selection = window.getSelection();
-                  const selectedText = selection?.toString().trim();
-                  
-                  console.log('[Toolbar] Selection:', selectedText, 'Show:', selectedText && selectedText.length > 0);
-                  
-                  if (selectedText && selectedText.length > 0) {
-                    const range = selection!.getRangeAt(0);
-                    const rect = range.getBoundingClientRect();
-                    
-                    // Position toolbar above selection (absolute positioning within viewport)
-                    setFloatingToolbarPosition({
-                      x: rect.left + rect.width / 2,
-                      y: rect.top - 50, // More space above
-                    });
-                    setShowFloatingToolbar(true);
-                    console.log('[Toolbar] Showing at:', rect.left, rect.top);
-                  } else {
-                    setShowFloatingToolbar(false);
-                  }
-                }, 50); // Slightly longer delay for selection to stabilize
-              }}
-              onClick={(e) => {
-                // Hide toolbar on click if no selection
-                const selection = window.getSelection();
-                if (!selection?.toString().trim()) {
-                  setShowFloatingToolbar(false);
-                }
-              }}
               onInput={(e) => {
                 // DOM → Model reconciliation on input (Notion-style)
                 const root = e.currentTarget;
@@ -1630,8 +1744,12 @@ export function BlockEditor({
                   }`}
                   data-block-id={block.id}
                   data-block-type={block.type}
-                  onMouseEnter={() => setHoveredBlock(block.id)}
-                  onMouseLeave={() => setHoveredBlock(null)}
+                  onMouseEnter={() => {
+                    setHoveredBlock(block.id);
+                  }}
+                  onMouseLeave={() => {
+                    setHoveredBlock(null);
+                  }}
                   onContextMenu={(e) => {
                     e.preventDefault();
                     setContextMenu({ blockId: block.id, position: { x: e.clientX, y: e.clientY } });
@@ -1697,19 +1815,7 @@ export function BlockEditor({
                   )}
 
                   {/* Block Content - Editable text */}
-                  {block.type === 'heading1' ? (
-                    <h1 dangerouslySetInnerHTML={{ __html: block.content }} />
-                  ) : block.type === 'heading2' ? (
-                    <h2 dangerouslySetInnerHTML={{ __html: block.content }} />
-                  ) : block.type === 'heading3' ? (
-                    <h3 dangerouslySetInnerHTML={{ __html: block.content }} />
-                  ) : block.type === 'bullet' ? (
-                    <ul><li dangerouslySetInnerHTML={{ __html: block.content }} /></ul>
-                  ) : block.type === 'numbered' ? (
-                    <ol><li dangerouslySetInnerHTML={{ __html: block.content }} /></ol>
-                  ) : (
-                    <p dangerouslySetInnerHTML={{ __html: block.content }} />
-                  )}
+                  <BlockContent block={block} />
 
                   {/* Right Gutter - Comment & Menu (non-editable) */}
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2" contentEditable={false}>
@@ -1749,120 +1855,6 @@ export function BlockEditor({
         </div>
       </div>
 
-      {/* Floating Toolbar on Text Selection - Notion Style */}
-      {showFloatingToolbar && (
-        <div
-          className="fixed z-[99999] flex items-center gap-0.5 bg-[#2b2b2b] text-white rounded-xl shadow-2xl px-1.5 py-1.5"
-          style={{
-            left: `${floatingToolbarPosition.x}px`,
-            top: `${floatingToolbarPosition.y}px`,
-            transform: 'translate(-50%, -100%)',
-            pointerEvents: 'auto',
-            visibility: 'visible',
-            display: 'flex',
-            opacity: '1',
-          }}
-          onMouseDown={(e) => e.preventDefault()} // Prevent losing selection
-        >
-          {/* Bold */}
-          <button
-            className="p-2 hover:bg-neutral-700 rounded-md transition-colors flex-shrink-0"
-            onClick={() => {
-              document.execCommand('bold');
-              setShowFloatingToolbar(false);
-            }}
-            title="Bold"
-          >
-            <Bold className="w-4 h-4" strokeWidth={2.5} />
-          </button>
-          
-          {/* Italic */}
-          <button
-            className="p-2 hover:bg-neutral-700 rounded-md transition-colors flex-shrink-0"
-            onClick={() => {
-              document.execCommand('italic');
-              setShowFloatingToolbar(false);
-            }}
-            title="Italic"
-          >
-            <Italic className="w-4 h-4" strokeWidth={2.5} />
-          </button>
-          
-          {/* Highlight */}
-          <button
-            className="p-2 hover:bg-neutral-700 rounded-md transition-colors flex-shrink-0"
-            onClick={() => {
-              document.execCommand('hiliteColor', false, '#fef3c7');
-              setShowFloatingToolbar(false);
-            }}
-            title="Highlight"
-          >
-            <Highlighter className="w-4 h-4" strokeWidth={2.5} />
-          </button>
-          
-          {/* Link */}
-          <button
-            className="p-2 hover:bg-neutral-700 rounded-md transition-colors flex-shrink-0"
-            onClick={() => {
-              const url = prompt('Enter URL:');
-              if (url) {
-                document.execCommand('createLink', false, url);
-                setShowFloatingToolbar(false);
-              }
-            }}
-            title="Link"
-          >
-            <LinkIcon className="w-4 h-4" strokeWidth={2.5} />
-          </button>
-          
-          {/* Divider */}
-          <div className="w-px h-5 bg-neutral-600 mx-1.5 flex-shrink-0" />
-          
-          {/* More Options */}
-          <button
-            className="p-2 hover:bg-neutral-700 rounded-md transition-colors flex-shrink-0"
-            onClick={() => {
-              // Could open more formatting options
-              setShowFloatingToolbar(false);
-            }}
-            title="More"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="1" fill="currentColor"/>
-              <circle cx="12" cy="5" r="1" fill="currentColor"/>
-              <circle cx="12" cy="19" r="1" fill="currentColor"/>
-            </svg>
-          </button>
-          
-          {/* Ask AI - Sparkle Icon */}
-          <button
-            className="p-2 hover:bg-neutral-700 rounded-md transition-colors flex-shrink-0"
-            onClick={async () => {
-              const selection = window.getSelection();
-              const selectedText = selection?.toString().trim();
-              
-              if (selectedText && fileId) {
-                setShowFloatingToolbar(false);
-                try {
-                  const result = await askRiskGPT(
-                    fileId,
-                    [],
-                    `Improve this text: "${selectedText}"`
-                  );
-                  console.log('[Floating Toolbar] RiskGPT result:', result);
-                } catch (error) {
-                  console.error('[Floating Toolbar] RiskGPT error:', error);
-                }
-              }
-            }}
-            title="Ask RiskGPT"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 22.5l-.394-1.933a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
-            </svg>
-          </button>
-        </div>
-      )}
 
       {/* ENHANCED: Slash Command Menu */}
       {showSlashMenu && (
@@ -1902,8 +1894,10 @@ export function BlockEditor({
           }}
           onTurnInto={() => {
             if (contextMenu) {
-              // Set the block as selected for the slash command handler
-              setSelectedBlockIds(new Set([contextMenu.blockId]));
+              console.log('[TurnInto] Block ID:', contextMenu.blockId);
+              
+              // Set the block for type conversion (separate from RiskGPT selection)
+              setBlockIdForTypeConversion(contextMenu.blockId);
               
               // Position slash menu near the block
               const blockEl = document.querySelector(`[data-block-id="${contextMenu.blockId}"]`);
@@ -1917,6 +1911,7 @@ export function BlockEditor({
               
               // Then show slash menu
               setTimeout(() => {
+                console.log('[TurnInto] Opening slash menu');
                 setShowSlashMenu(true);
               }, 10);
             }

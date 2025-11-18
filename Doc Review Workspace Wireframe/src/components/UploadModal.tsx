@@ -1,11 +1,18 @@
 import { useState } from 'react';
 import { X, Upload, File } from 'lucide-react';
 import { Button } from './ui/button';
-import { uploadFile, registerDocument } from '@/lib/api';
+import { uploadFile, registerDocument, runIngestion } from '@/lib/api';
+import { UploadProgress } from './UploadProgress';
 
 interface UploadModalProps {
   onClose: () => void;
 }
+
+type ProcessStep = {
+  name: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'error';
+  message?: string;
+};
 
 export function UploadModal({ onClose }: UploadModalProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -14,6 +21,9 @@ export function UploadModal({ onClose }: UploadModalProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [processSteps, setProcessSteps] = useState<ProcessStep[]>([]);
+  const [useDirectJSON, setUseDirectJSON] = useState(true); // Direct PDF→JSON vs Markdown→JSON
+  const [uploadAsTemplate, setUploadAsTemplate] = useState(false); // Simple MD upload for templates
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -45,41 +55,110 @@ export function UploadModal({ onClose }: UploadModalProps) {
     }
   };
 
+  const updateStep = (index: number, status: ProcessStep['status'], message?: string) => {
+    setProcessSteps(prev => prev.map((step, i) => 
+      i === index ? { ...step, status, message } : step
+    ));
+  };
+
   const handleUpload = async () => {
     setError(null);
     if (!selectedFile) {
       setError('Please select a file to upload.');
       return;
     }
-    // eslint-disable-next-line no-console
-    console.debug('[UI] Click Upload & Register', { name: selectedFile.name, size: selectedFile.size });
+    
+    // Initialize progress steps
+    const steps: ProcessStep[] = uploadAsTemplate 
+      ? [
+          { name: 'Uploading file', status: 'pending' },
+          { name: 'Registering document', status: 'pending' },
+          { name: 'Saving as template', status: 'pending' },
+        ]
+      : useDirectJSON
+      ? [
+          { name: 'Uploading file', status: 'pending' },
+          { name: 'Registering document', status: 'pending' },
+          { name: 'Converting PDF to images', status: 'pending' },
+          { name: 'Extracting structure & formatting (Vision AI)', status: 'pending' },
+          { name: 'Creating semantic blocks', status: 'pending' },
+          { name: 'Finalizing document', status: 'pending' },
+        ]
+      : [
+          { name: 'Uploading file', status: 'pending' },
+          { name: 'Registering document', status: 'pending' },
+          { name: 'Converting to markdown', status: 'pending' },
+          { name: 'Analyzing structure', status: 'pending' },
+          { name: 'Creating semantic blocks', status: 'pending' },
+          { name: 'Verifying content', status: 'pending' },
+          { name: 'Finalizing document', status: 'pending' },
+        ];
+    setProcessSteps(steps);
     setSubmitting(true);
+    
     try {
+      // Step 1: Upload file
+      updateStep(0, 'in_progress', 'Uploading...');
       const uploadRes = await uploadFile(selectedFile);
-      // eslint-disable-next-line no-console
-      console.debug('[UploadModal] uploadFile result', uploadRes);
-      // Try to register; if file_id collision (409), retry with suffix
+      updateStep(0, 'completed', `Uploaded ${selectedFile.name}`);
+      
+      // Step 2: Register document
+      updateStep(1, 'in_progress', 'Registering...');
+      let fileId = uploadRes.file_id;
       try {
         await registerDocument({
           source_path: uploadRes.saved_path,
-          file_id: uploadRes.file_id,
+          file_id: fileId,
         });
       } catch (e: any) {
-        // eslint-disable-next-line no-console
-        console.error('registerDocument failed:', e?.message);
         const needsRetry = typeof e?.message === 'string' && e.message.toLowerCase().includes('already exists');
-        if (!needsRetry) throw e;
-        const suffix = Math.random().toString(36).slice(2, 8);
-        await registerDocument({
-          source_path: uploadRes.saved_path,
-          file_id: `${uploadRes.file_id}-${suffix}`,
-        });
+        if (needsRetry) {
+          const suffix = Math.random().toString(36).slice(2, 8);
+          fileId = `${uploadRes.file_id}-${suffix}`;
+          await registerDocument({
+            source_path: uploadRes.saved_path,
+            file_id: fileId,
+          });
+        } else {
+          throw e;
+        }
       }
-      // eslint-disable-next-line no-console
-      console.debug('[UploadModal] registerDocument success');
+      updateStep(1, 'completed', `Document ID: ${fileId}`);
+      
+      // Step 3-7: Run full ingestion (converts PDF → markdown → blocks)
+      updateStep(2, 'in_progress', uploadAsTemplate ? 'Simple upload...' : 'Processing PDF pages...');
+      let ingestionResult;
+      if (!uploadAsTemplate) {
+        ingestionResult = await runIngestion(fileId, { useDirectJSON });
+      }
+      
+      // Update all remaining steps as completed
+      if (uploadAsTemplate) {
+        updateStep(2, 'completed', 'Template saved');
+      } else if (useDirectJSON) {
+        updateStep(2, 'completed', 'PDF converted to images');
+        updateStep(3, 'completed', 'Structure & formatting extracted');
+        updateStep(4, 'completed', 'Semantic blocks created');
+        updateStep(5, 'completed', 'Document ready!');
+      } else {
+        updateStep(2, 'completed', 'Markdown generated');
+        updateStep(3, 'completed', 'Structure analyzed');
+        updateStep(4, 'completed', 'Semantic blocks created');
+        updateStep(5, 'completed', 'Content verified');
+        updateStep(6, 'completed', 'Document ready!');
+      }
+      
+      // Wait a moment to show completion
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       onClose();
     } catch (e: any) {
-      setError(e?.message || 'Upload failed');
+      // Mark current step as error
+      const currentStepIndex = steps.findIndex(s => s.status === 'in_progress');
+      if (currentStepIndex >= 0) {
+        updateStep(currentStepIndex, 'error', e?.message || 'Failed');
+      }
+      setError(e?.message || 'Processing failed');
     } finally {
       setSubmitting(false);
     }
@@ -102,19 +181,27 @@ export function UploadModal({ onClose }: UploadModalProps) {
         {/* Body */}
         <div className="px-6 py-5 space-y-5">
           {error && (
-            <div className="text-sm text-red-600">{error}</div>
+            <div className="text-sm text-red-600 bg-red-50 p-3 rounded">{error}</div>
           )}
-          {/* File Upload Drop Zone */}
-          <div
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            className={`border-2 border-dashed rounded-lg p-10 text-center transition-colors ${
-              isDragging
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-neutral-300 bg-neutral-50'
-            }`}
-          >
+          
+          {/* Show progress if processing */}
+          {submitting && processSteps.length > 0 ? (
+            <div className="py-4">
+              <UploadProgress steps={processSteps} />
+            </div>
+          ) : (
+            <>
+              {/* File Upload Drop Zone */}
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-lg p-10 text-center transition-colors ${
+                  isDragging
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-neutral-300 bg-neutral-50'
+                }`}
+              >
             {selectedFile ? (
               <div className="flex items-center justify-center gap-3">
                 <File className="w-8 h-8 text-neutral-600" />
@@ -146,43 +233,83 @@ export function UploadModal({ onClose }: UploadModalProps) {
             )}
           </div>
 
-          {/* Optional Fields */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-neutral-700 mb-1.5 text-sm">
-                Document Title (optional)
-              </label>
-              <input
-                type="text"
-                value={documentTitle}
-                onChange={(e) => setDocumentTitle(e.target.value)}
-                placeholder="Enter document title"
-                className="w-full px-3 py-2 border border-neutral-300 rounded focus:outline-none focus:ring-2 focus:ring-neutral-900 text-sm"
-              />
-            </div>
+              {/* Optional Fields */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-neutral-700 mb-1.5 text-sm">
+                    Document Title (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={documentTitle}
+                    onChange={(e) => setDocumentTitle(e.target.value)}
+                    placeholder="Enter document title"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded focus:outline-none focus:ring-2 focus:ring-neutral-900 text-sm"
+                  />
+                </div>
 
-            <div>
-              <label className="block text-neutral-700 mb-1.5 text-sm">
-                Description (optional)
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Enter description"
-                rows={3}
-                className="w-full px-3 py-2 border border-neutral-300 rounded focus:outline-none focus:ring-2 focus:ring-neutral-900 text-sm"
-              />
-            </div>
-          </div>
+                <div>
+                  <label className="block text-neutral-700 mb-1.5 text-sm">
+                    Description (optional)
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Enter description"
+                    rows={3}
+                    className="w-full px-3 py-2 border border-neutral-300 rounded focus:outline-none focus:ring-2 focus:ring-neutral-900 text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Processing Options */}
+              {!submitting && (
+                <div className="space-y-3 pt-2 border-t border-neutral-200">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="uploadAsTemplate"
+                      checked={uploadAsTemplate}
+                      onChange={(e) => {
+                        setUploadAsTemplate(e.target.checked);
+                        if (e.target.checked) {
+                          setUseDirectJSON(false); // Template mode uses simple MD upload
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="uploadAsTemplate" className="text-sm text-neutral-700">
+                      Upload as template (simple MD, no processing)
+                    </label>
+                  </div>
+
+                  {!uploadAsTemplate && (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="useDirectJSON"
+                        checked={useDirectJSON}
+                        onChange={(e) => setUseDirectJSON(e.target.checked)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <label htmlFor="useDirectJSON" className="text-sm text-neutral-700">
+                        🚀 Use direct PDF→JSON (better formatting detection)
+                      </label>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-3 px-6 py-3 border-t border-neutral-200 bg-neutral-50">
-          <Button variant="outline" onClick={onClose} size="sm">
-            Cancel
+          <Button variant="outline" onClick={onClose} size="sm" disabled={submitting}>
+            {submitting ? 'Processing...' : 'Cancel'}
           </Button>
-          <Button onClick={handleUpload} size="sm" disabled={submitting}>
-            {submitting ? 'Uploading…' : 'Upload & Register'}
+          <Button onClick={handleUpload} size="sm" disabled={submitting || !selectedFile}>
+            {submitting ? 'Processing…' : uploadAsTemplate ? 'Upload Template' : 'Upload & Process'}
           </Button>
         </div>
       </div>

@@ -1,4 +1,42 @@
-export type BlockType = 'paragraph' | 'heading1' | 'heading2' | 'heading3' | 'bullet' | 'numbered' | 'table' | 'quote' | 'empty';
+export type BlockType = 
+  | 'paragraph' 
+  | 'heading' 
+  | 'heading1' | 'heading2' | 'heading3' | 'heading4' | 'heading5' | 'heading6'  // Legacy support
+  | 'bullet' 
+  | 'bulleted_list'  // Rich list with nested structure
+  | 'numbered' 
+  | 'numbered_list'  // Rich list with nested structure
+  | 'table' 
+  | 'quote' 
+  | 'blockquote'
+  | 'callout'
+  | 'preformatted'
+  | 'code'
+  | 'divider'
+  | 'image'
+  | 'empty';
+
+// Rich list item structure
+export type ListItem = {
+  content: string;
+  children?: ListItem[];  // Nested items
+};
+
+// Rich table structure
+export type TableData = {
+  columns: string[];
+  rows: string[][];
+};
+
+// Inline text segment with formatting
+export type InlineSegment = {
+  text: string;
+  bold?: boolean;
+  italic?: boolean;
+  code?: boolean;
+  underline?: boolean;
+  link?: string;
+};
 
 export type BlockMetadata = {
   id: string;           // Stable ID: "p1_b3_a8f2c9" (page_block_hash)
@@ -6,8 +44,29 @@ export type BlockMetadata = {
   block_num: number;    // Block number within page
   start_line: number;   // Start line in original markdown
   end_line: number;     // End line in original markdown
-  content: string;      // Full block content (can be multi-line)
+  content: string | InlineSegment[];  // Can be flat string OR rich inline segments
   type: BlockType;
+  
+  // Rich metadata from LLM
+  level?: number;       // Heading level (1-6)
+  formatting?: {
+    bold?: boolean;
+    italic?: boolean;
+    has_bold?: boolean;
+    has_italic?: boolean;
+    has_highlight?: boolean;
+    alignment?: 'left' | 'center' | 'right';
+    size?: 'small' | 'normal' | 'large';
+  };
+  indent_level?: number;  // For nested content
+  
+  // Rich structure fields
+  items?: ListItem[];     // For bulleted_list/numbered_list
+  columns?: string[];     // For tables
+  rows?: string[][];      // For tables
+  language?: string;      // For code blocks
+  src?: string;           // For images
+  alt?: string;           // For images
 };
 
 export type VerificationSuggestion = {
@@ -147,37 +206,14 @@ export async function uploadFile(file: File): Promise<{ file_id: string; saved_p
   return handleResponse(res);
 }
 
-// Runs
-export async function runFull(fileId: string): Promise<{ document: ApiDocument }> {
-  const res = await fetchWithDebug(`${API_BASE}/doc_review/documents/${encodeURIComponent(fileId)}/run`, {
-    method: 'POST',
-    headers: buildHeaders(),
-  });
-  return handleResponse(res);
-}
-
-export async function runPhase1(fileId: string, templateId?: string): Promise<{ document: ApiDocument }> {
+// Ingestion (Phase 0 only - converts document to markdown with block metadata)
+export async function runIngestion(fileId: string, options?: { useDirectJSON?: boolean }): Promise<{ document: ApiDocument }> {
   const res = await fetchWithDebug(`${API_BASE}/doc_review/documents/${encodeURIComponent(fileId)}/run_phase1`, {
     method: 'POST',
     headers: buildHeaders(),
-    body: JSON.stringify({ template_id: templateId }),
-  });
-  return handleResponse(res);
-}
-
-export async function runPhase2(fileId: string, sectionScope?: unknown): Promise<{ document: ApiDocument }> {
-  const res = await fetchWithDebug(`${API_BASE}/doc_review/documents/${encodeURIComponent(fileId)}/run_phase2`, {
-    method: 'POST',
-    headers: buildHeaders(),
-    body: JSON.stringify({ section_scope: sectionScope }),
-  });
-  return handleResponse(res);
-}
-
-export async function runPhase4(fileId: string): Promise<{ document: ApiDocument }> {
-  const res = await fetchWithDebug(`${API_BASE}/doc_review/documents/${encodeURIComponent(fileId)}/run_phase4`, {
-    method: 'POST',
-    headers: buildHeaders(),
+    body: JSON.stringify({ 
+      use_direct_json: options?.useDirectJSON ?? true  // Default to direct JSON
+    }),
   });
   return handleResponse(res);
 }

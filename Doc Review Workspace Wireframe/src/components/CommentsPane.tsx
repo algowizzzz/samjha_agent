@@ -1,76 +1,59 @@
 import { useState } from 'react';
 import { MessageSquare, Check, MoreVertical, Send } from 'lucide-react';
 import { Button } from './ui/button';
-
-interface Comment {
-  id: string;
-  blockId: string;
-  blockTitle: string;
-  author: string;
-  timestamp: string;
-  content: string;
-  resolved: boolean;
-  replies: Reply[];
-}
-
-interface Reply {
-  id: string;
-  author: string;
-  timestamp: string;
-  content: string;
-}
-
-const mockComments: Comment[] = [];
+import { useComments } from '@/hooks/useComments';
+import type { Comment } from '@/lib/comments-api';
 
 interface CommentsPaneProps {
+  fileId: string | null;
   selectedBlockId: string | null;
   onCommentClick: (blockId: string) => void;
-  commentsFromState?: Comment[];
 }
 
-export function CommentsPane({ selectedBlockId, onCommentClick, commentsFromState }: CommentsPaneProps) {
-  const [comments, setComments] = useState<Comment[]>(commentsFromState || mockComments);
+export function CommentsPane({ fileId, selectedBlockId, onCommentClick }: CommentsPaneProps) {
+  const {
+    comments,
+    loading,
+    error,
+    addComment: apiAddComment,
+    addReply: apiAddReply,
+    resolveComment: apiResolveComment,
+  } = useComments(fileId);
+  
   const [showResolved, setShowResolved] = useState(false);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [newCommentText, setNewCommentText] = useState('');
 
-  // Update if incoming comments change
-  if (commentsFromState && comments !== commentsFromState) {
-    // simple sync
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEffect(() => {
-      setComments(commentsFromState);
-    }, [commentsFromState]);
-  }
-
-  const handleResolve = (commentId: string) => {
-    setComments(comments.map(c => 
-      c.id === commentId ? { ...c, resolved: !c.resolved } : c
-    ));
+  const handleResolve = async (commentId: string) => {
+    try {
+      await apiResolveComment(commentId);
+    } catch (err) {
+      console.error('Failed to resolve comment:', err);
+    }
   };
 
-  const handleAddReply = (commentId: string) => {
+  const handleAddReply = async (commentId: string) => {
     if (!replyText.trim()) return;
 
-    setComments(comments.map(c => 
-      c.id === commentId
-        ? {
-            ...c,
-            replies: [
-              ...c.replies,
-              {
-                id: `r${Date.now()}`,
-                author: 'You',
-                timestamp: 'Just now',
-                content: replyText,
-              },
-            ],
-          }
-        : c
-    ));
-    setReplyText('');
-    setReplyingTo(null);
+    try {
+      await apiAddReply(commentId, replyText);
+      setReplyText('');
+      setReplyingTo(null);
+    } catch (err) {
+      console.error('Failed to add reply:', err);
+    }
+  };
+
+  const handleAddComment = async () => {
+    if (!newCommentText.trim() || !selectedBlockId || !fileId) return;
+
+    try {
+      await apiAddComment(selectedBlockId, 'Selected Block', newCommentText);
+      setNewCommentText('');
+    } catch (err) {
+      console.error('Failed to add comment:', err);
+    }
   };
 
   const filteredComments = showResolved 
@@ -79,13 +62,48 @@ export function CommentsPane({ selectedBlockId, onCommentClick, commentsFromStat
 
   // Group comments by block
   const groupedComments = filteredComments.reduce((acc, comment) => {
-    const key = comment.blockTitle;
+    const key = comment.block_title;
     if (!acc[key]) {
       acc[key] = [];
     }
     acc[key].push(comment);
     return acc;
   }, {} as Record<string, Comment[]>);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col h-full bg-white items-center justify-center">
+        <p className="text-neutral-600 text-sm">Loading comments...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col h-full bg-white items-center justify-center p-4 text-center">
+        <MessageSquare className="w-12 h-12 text-neutral-300 mb-3" />
+        <p className="text-neutral-700 font-medium mb-2">Unable to load comments</p>
+        <p className="text-neutral-500 text-sm">{error}</p>
+        {error.includes('NOT FOUND') && (
+          <p className="text-neutral-400 text-xs mt-2">
+            Document may not be saved yet. Try saving the document first.
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  if (!fileId) {
+    return (
+      <div className="flex flex-col h-full bg-white items-center justify-center p-4 text-center">
+        <MessageSquare className="w-12 h-12 text-neutral-300 mb-3" />
+        <p className="text-neutral-600 text-sm">No document selected</p>
+        <p className="text-neutral-400 text-xs mt-2">
+          Open a document to view and add comments
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -252,10 +270,16 @@ export function CommentsPane({ selectedBlockId, onCommentClick, commentsFromStat
                 type="text"
                 value={newCommentText}
                 onChange={(e) => setNewCommentText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleAddComment();
+                  }
+                }}
                 placeholder="Type your comment..."
                 className="flex-1 px-3 py-2 border border-neutral-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-neutral-900"
               />
-              <Button size="sm" className="px-3">
+              <Button size="sm" className="px-3" onClick={handleAddComment}>
                 <Send className="w-3 h-3" />
               </Button>
             </div>
