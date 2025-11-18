@@ -1408,20 +1408,23 @@ export function BlockEditor({
                   const selection = window.getSelection();
                   const selectedText = selection?.toString().trim();
                   
+                  console.log('[Toolbar] Selection:', selectedText, 'Show:', selectedText && selectedText.length > 0);
+                  
                   if (selectedText && selectedText.length > 0) {
                     const range = selection!.getRangeAt(0);
                     const rect = range.getBoundingClientRect();
                     
-                    // Position toolbar above selection (fixed positioning)
+                    // Position toolbar above selection (absolute positioning within viewport)
                     setFloatingToolbarPosition({
                       x: rect.left + rect.width / 2,
-                      y: rect.top + window.scrollY - 10,
+                      y: rect.top - 50, // More space above
                     });
                     setShowFloatingToolbar(true);
+                    console.log('[Toolbar] Showing at:', rect.left, rect.top);
                   } else {
                     setShowFloatingToolbar(false);
                   }
-                }, 10);
+                }, 50); // Slightly longer delay for selection to stabilize
               }}
               onClick={(e) => {
                 // Hide toolbar on click if no selection
@@ -1734,11 +1737,12 @@ export function BlockEditor({
       {/* Floating Toolbar on Text Selection - Notion Style */}
       {showFloatingToolbar && (
         <div
-          className="fixed z-[99999] flex items-center gap-0.5 bg-[#2b2b2b] text-white rounded-xl shadow-2xl px-1.5 py-1.5 animate-in fade-in zoom-in-95 duration-150"
+          className="fixed z-[99999] flex items-center gap-0.5 bg-[#2b2b2b] text-white rounded-xl shadow-2xl px-1.5 py-1.5 opacity-100"
           style={{
             left: `${floatingToolbarPosition.x}px`,
             top: `${floatingToolbarPosition.y}px`,
             transform: 'translate(-50%, -100%)',
+            pointerEvents: 'auto',
           }}
           onMouseDown={(e) => e.preventDefault()} // Prevent losing selection
         >
