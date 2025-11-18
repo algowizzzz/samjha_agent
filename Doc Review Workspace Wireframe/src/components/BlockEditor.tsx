@@ -324,15 +324,13 @@ export function BlockEditor({
   const [isAskingRiskGPT, setIsAskingRiskGPT] = useState(false);
   const blockRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   
-  // NEW: Drag-to-select state
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStartIndex, setDragStartIndex] = useState<number | null>(null);
-  const [dragCurrentIndex, setDragCurrentIndex] = useState<number | null>(null);
-  const editorContainerRef = useRef<HTMLDivElement>(null);
-  
-  // ENHANCED: Drag & drop sensors
+  // ENHANCED: Drag & drop sensors - only activate on drag handle
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Only activate after dragging 8px to avoid interfering with text selection
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -754,56 +752,6 @@ export function BlockEditor({
     }
   };
 
-  // NEW: Drag-to-select handlers
-  const handleMouseDown = (blockId: string, index: number, event: React.MouseEvent) => {
-    // Only start drag if clicking in the left margin area (not on content or buttons)
-    const target = event.target as HTMLElement;
-    if (target.closest('button') || target.closest('[contenteditable]') || target.closest('textarea')) {
-      return;
-    }
-    
-    event.preventDefault();
-    setIsDragging(true);
-    setDragStartIndex(index);
-    setDragCurrentIndex(index);
-    
-    // Start with this block selected
-    setSelectedBlockIds(new Set([blockId]));
-    console.log('[BlockEditor] Drag-to-select started at block:', blockId, 'index:', index);
-  };
-
-  const handleMouseEnterDrag = (blockId: string, index: number) => {
-    if (!isDragging || dragStartIndex === null) return;
-    
-    setDragCurrentIndex(index);
-    
-    // Select all blocks between start and current
-    const start = Math.min(dragStartIndex, index);
-    const end = Math.max(dragStartIndex, index);
-    const selectedBlocks = blocks.slice(start, end + 1);
-    const newSelectedIds: Set<string> = new Set(selectedBlocks.map(b => b.id));
-    
-    setSelectedBlockIds(newSelectedIds);
-    console.log('[BlockEditor] Drag-to-select range:', start, '-', end, 'blocks:', selectedBlocks.length);
-  };
-
-  const handleMouseUp = () => {
-    if (isDragging) {
-      console.log('[BlockEditor] Drag-to-select ended, selected:', selectedBlockIds.size, 'blocks');
-      setIsDragging(false);
-      setDragStartIndex(null);
-      setDragCurrentIndex(null);
-    }
-  };
-
-  // Add global mouseup listener for drag-to-select
-  useEffect(() => {
-    if (isDragging) {
-      window.addEventListener('mouseup', handleMouseUp);
-      return () => window.removeEventListener('mouseup', handleMouseUp);
-    }
-  }, [isDragging]);
-
   const handleAskRiskGPT = async () => {
     if (!riskGPTPrompt.trim() || selectedBlockIds.size === 0 || !fileId) return;
     
@@ -1122,24 +1070,33 @@ export function BlockEditor({
     return baseStyles;
   };
 
-  const renderBlock = (block: Block, index: number) => {
+  // Sortable Block Wrapper Component (like Notion)
+  const SortableBlockItem = ({ block, index }: { block: Block; index: number }) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: block.id });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+    };
+
     const isHovered = hoveredBlock === block.id;
-    // Show Accept/Reject buttons only for AI suggestions (not verification - those are auto-accepted)
     const showAISuggestionButtons = !!block.aiSuggestion;
 
     return (
       <div
+        ref={setNodeRef}
+        style={style}
         key={block.id}
-        ref={(el) => {
-          if (el) blockRefs.current.set(block.id, el);
-          else blockRefs.current.delete(block.id);
-        }}
         className={getBlockClassName(block)}
-        onMouseDown={(e) => handleMouseDown(block.id, index, e)}
-        onMouseEnter={() => {
-          setHoveredBlock(block.id);
-          handleMouseEnterDrag(block.id, index);
-        }}
+        onMouseEnter={() => setHoveredBlock(block.id)}
         onMouseLeave={() => setHoveredBlock(null)}
         onContextMenu={(e) => {
           e.preventDefault();
@@ -1151,8 +1108,15 @@ export function BlockEditor({
           <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-400"></div>
         )}
 
-        {/* Left Gutter - Removed to avoid editing interference */}
-        {/* Drag handle/checkbox removed - selection still tracked internally for Ask RiskGPT */}
+        {/* Left Gutter with Drag Handle (like Notion) */}
+        {isHovered && (
+          <div className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            {/* Drag Handle - 6 dots for reordering */}
+            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1 hover:bg-neutral-200 rounded transition-colors">
+              <GripVertical className="w-4 h-4 text-neutral-400" />
+            </div>
+          </div>
+        )}
 
         {/* Block Content */}
         <div className={block.changeType === 'removed' ? 'line-through opacity-50' : ''}>
@@ -1384,7 +1348,9 @@ export function BlockEditor({
               onDragEnd={handleDragEnd}
             >
               <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
-        {blocks.map(renderBlock)}
+                {blocks.map((block, index) => (
+                  <SortableBlockItem key={block.id} block={block} index={index} />
+                ))}
               </SortableContext>
             </DndContext>
           )}
