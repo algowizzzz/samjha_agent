@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { 
   GripVertical, 
   MessageSquare, 
@@ -267,6 +267,244 @@ function blocksToMarkdown(blocks: Block[]): string {
   }
   return lines.join('\n');
 }
+
+// Sortable Block Item Component (defined outside to prevent re-renders)
+interface SortableBlockItemProps {
+  block: Block;
+  index: number;
+  hoveredBlock: string | null;
+  setHoveredBlock: (id: string | null) => void;
+  getBlockClassName: (block: Block) => string;
+  setContextMenu: (menu: { blockId: string; position: { x: number; y: number } } | null) => void;
+  handleInputChange: (blockId: string, value: string, e?: React.FormEvent<HTMLTextAreaElement>) => void;
+  blocks: Block[];
+  blockRefs: React.MutableRefObject<Map<string, HTMLDivElement>>;
+  setBlocks: (blocks: Block[]) => void;
+  onCommentClick: (blockId: string) => void;
+  selectedBlockIds: Set<string>;
+  handleBlockSelect: (blockId: string, event: React.MouseEvent) => void;
+  getBlockStyles: (type: BlockType, block?: Block) => string;
+}
+
+const SortableBlockItem = React.memo(({ 
+  block, 
+  index, 
+  hoveredBlock, 
+  setHoveredBlock, 
+  getBlockClassName, 
+  setContextMenu,
+  handleInputChange,
+  blocks,
+  blockRefs,
+  setBlocks,
+  onCommentClick,
+  selectedBlockIds,
+  handleBlockSelect,
+  getBlockStyles
+}: SortableBlockItemProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: block.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const isHovered = hoveredBlock === block.id;
+  const showAISuggestionButtons = !!block.aiSuggestion;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      key={block.id}
+      className={getBlockClassName(block)}
+      onMouseEnter={() => setHoveredBlock(block.id)}
+      onMouseLeave={() => setHoveredBlock(null)}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        setContextMenu({ blockId: block.id, position: { x: e.clientX, y: e.clientY } });
+      }}
+    >
+      {/* Yellow Flag for Suggestions */}
+      {block.aiSuggestion && (
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-400"></div>
+      )}
+
+      {/* Left Gutter with Drag Handle (like Notion) */}
+      {isHovered && (
+        <div className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+          {/* Drag Handle - 6 dots for reordering */}
+          <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1 hover:bg-neutral-200 rounded transition-colors">
+            <GripVertical className="w-4 h-4 text-neutral-400" />
+          </div>
+        </div>
+      )}
+
+      {/* Block Content */}
+      <div className={block.changeType === 'removed' ? 'line-through opacity-50' : ''}>
+        {block.type === 'bullet' || block.type === 'numbered' ? (
+          <LexicalBlock
+            block={block}
+            onChange={(textContent, htmlContent) => {
+              handleInputChange(block.id, htmlContent, null as any);
+            }}
+            onKeyDown={(e) => {
+              // Handle Enter - create new list item
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                const index = blocks.findIndex(b => b.id === block.id);
+                const newBlock: Block = {
+                  id: `b${Date.now()}`,
+                  type: block.type, // Keep same list type
+                  content: '',
+                  changeType: 'none',
+                  commentCount: 0,
+                  changeHistory: [],
+                };
+                setBlocks([...blocks.slice(0, index + 1), newBlock, ...blocks.slice(index + 1)]);
+                // Focus new block after render
+                setTimeout(() => {
+                  const newEl = blockRefs.current.get(newBlock.id);
+                  if (newEl) {
+                    const contentDiv = newEl.querySelector('.lexical-content-editable') as HTMLElement;
+                    contentDiv?.focus();
+                  }
+                }, 0);
+              }
+              // Handle Backspace on empty - delete block
+              else if (e.key === 'Backspace') {
+                const target = e.target as HTMLElement;
+                if (target.textContent === '' && blocks.length > 1) {
+                  e.preventDefault();
+                  setBlocks(blocks.filter(b => b.id !== block.id));
+                }
+              }
+            }}
+            className={getBlockStyles(block.type, block)}
+          />
+        ) : (
+          <LexicalBlock
+            block={block}
+            onChange={(textContent, htmlContent) => {
+              handleInputChange(block.id, htmlContent, null as any);
+            }}
+            onKeyDown={(e) => {
+              // Handle Enter - create new block
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                const index = blocks.findIndex(b => b.id === block.id);
+                const newBlock: Block = {
+                  id: `b${Date.now()}`,
+                  type: 'paragraph',
+                  content: '',
+                  changeType: 'none',
+                  commentCount: 0,
+                  changeHistory: [],
+                };
+                setBlocks([...blocks.slice(0, index + 1), newBlock, ...blocks.slice(index + 1)]);
+                // Focus new block after render
+                setTimeout(() => {
+                  const newEl = blockRefs.current.get(newBlock.id);
+                  if (newEl) {
+                    const contentDiv = newEl.querySelector('.lexical-content-editable') as HTMLElement;
+                    contentDiv?.focus();
+                  }
+                }, 0);
+              }
+              // Handle Backspace on empty - delete block
+              else if (e.key === 'Backspace') {
+                const target = e.target as HTMLElement;
+                if (target.textContent === '' && blocks.length > 1) {
+                  e.preventDefault();
+                  setBlocks(blocks.filter(b => b.id !== block.id));
+                }
+              }
+              // Handle Tab to indent
+              else if (e.key === 'Tab') {
+                e.preventDefault();
+                const indent = e.shiftKey ? -1 : 1;
+                setBlocks(prev => prev.map(b => 
+                  b.id === block.id 
+                    ? { ...b, indent_level: Math.max(0, (b.indent_level || 0) + indent) }
+                    : b
+                ));
+              }
+            }}
+            className={getBlockStyles(block.type, block)}
+          />
+        )}
+      </div>
+
+      {/* Suggestion card removed - details shown in right panel instead */}
+
+      {/* Right Gutter - Comment & Menu */}
+      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+        {block.commentCount > 0 && (
+          <button
+            onClick={() => onCommentClick(block.id)}
+            className="relative p-1 hover:bg-neutral-200 rounded"
+          >
+            <MessageSquare className="w-4 h-4 text-blue-600" />
+            <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+              {block.commentCount}
+            </span>
+          </button>
+        )}
+
+        {(isHovered || selectedBlockIds.has(block.id)) && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleBlockSelect(block.id, e);
+            }}
+            className={`px-2 py-0.5 rounded text-xs transition-all ${
+              selectedBlockIds.has(block.id) 
+                ? 'bg-blue-600 text-white font-bold opacity-100' 
+                : 'bg-neutral-200 text-neutral-700 hover:bg-neutral-300 opacity-0 group-hover:opacity-100'
+            }`}
+            title={selectedBlockIds.has(block.id) ? "Block selected (click to deselect)" : "Ask RiskGPT about this block (Cmd/Shift to multi-select)"}
+          >
+            {selectedBlockIds.has(block.id) ? '✓ Selected' : 'Ask RiskGPT'}
+          </button>
+        )}
+      </div>
+
+      {/* ENHANCED: Add Block Button */}
+      {isHovered && (
+        <div className="absolute left-1/2 -translate-x-1/2 -bottom-3 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              const index = blocks.findIndex(b => b.id === block.id);
+              const newBlock: Block = {
+                id: `b${Date.now()}`,
+                type: 'paragraph',
+                content: '',
+                changeType: 'none',
+                commentCount: 0,
+                changeHistory: [],
+              };
+              setBlocks([...blocks.slice(0, index + 1), newBlock, ...blocks.slice(index + 1)]);
+            }}
+            className="p-1 bg-white border border-neutral-300 rounded-full hover:bg-neutral-100 shadow-sm"
+          >
+            <Plus className="w-3 h-3 text-neutral-500" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+});
+
+SortableBlockItem.displayName = 'SortableBlockItem';
 
 export function BlockEditor({ 
   trackChangesEnabled, 
@@ -1070,211 +1308,6 @@ export function BlockEditor({
     return baseStyles;
   };
 
-  // Sortable Block Wrapper Component (like Notion)
-  const SortableBlockItem = ({ block, index }: { block: Block; index: number }) => {
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-      isDragging,
-    } = useSortable({ id: block.id });
-
-    const style = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-      opacity: isDragging ? 0.5 : 1,
-    };
-
-    const isHovered = hoveredBlock === block.id;
-    const showAISuggestionButtons = !!block.aiSuggestion;
-
-    return (
-      <div
-        ref={setNodeRef}
-        style={style}
-        key={block.id}
-        className={getBlockClassName(block)}
-        onMouseEnter={() => setHoveredBlock(block.id)}
-        onMouseLeave={() => setHoveredBlock(null)}
-        onContextMenu={(e) => {
-          e.preventDefault();
-          setContextMenu({ blockId: block.id, position: { x: e.clientX, y: e.clientY } });
-        }}
-      >
-        {/* Yellow Flag for Suggestions */}
-        {block.aiSuggestion && (
-          <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-400"></div>
-        )}
-
-        {/* Left Gutter with Drag Handle (like Notion) */}
-        {isHovered && (
-          <div className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-            {/* Drag Handle - 6 dots for reordering */}
-            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1 hover:bg-neutral-200 rounded transition-colors">
-              <GripVertical className="w-4 h-4 text-neutral-400" />
-            </div>
-          </div>
-        )}
-
-        {/* Block Content */}
-        <div className={block.changeType === 'removed' ? 'line-through opacity-50' : ''}>
-          {block.type === 'bullet' || block.type === 'numbered' ? (
-            <LexicalBlock
-              block={block}
-              onChange={(textContent, htmlContent) => {
-                handleInputChange(block.id, htmlContent, null as any);
-              }}
-              onKeyDown={(e) => {
-                // Handle Enter - create new list item
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  const index = blocks.findIndex(b => b.id === block.id);
-                  const newBlock: Block = {
-                    id: `b${Date.now()}`,
-                    type: block.type, // Keep same list type
-                    content: '',
-                    changeType: 'none',
-                    commentCount: 0,
-                    changeHistory: [],
-                  };
-                  setBlocks([...blocks.slice(0, index + 1), newBlock, ...blocks.slice(index + 1)]);
-                  // Focus new block after render
-                  setTimeout(() => {
-                    const newEl = blockRefs.current.get(newBlock.id);
-                    if (newEl) {
-                      const contentDiv = newEl.querySelector('.lexical-content-editable') as HTMLElement;
-                      contentDiv?.focus();
-                    }
-                  }, 0);
-                }
-                // Handle Backspace on empty - delete block
-                else if (e.key === 'Backspace') {
-                  const target = e.target as HTMLElement;
-                  if (target.textContent === '' && blocks.length > 1) {
-                    e.preventDefault();
-                    setBlocks(blocks.filter(b => b.id !== block.id));
-                  }
-                }
-              }}
-              className={getBlockStyles(block.type, block)}
-            />
-          ) : (
-            <LexicalBlock
-              block={block}
-              onChange={(textContent, htmlContent) => {
-                handleInputChange(block.id, htmlContent, null as any);
-              }}
-              onKeyDown={(e) => {
-                // Handle Enter - create new block
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  const index = blocks.findIndex(b => b.id === block.id);
-                  const newBlock: Block = {
-                    id: `b${Date.now()}`,
-                    type: 'paragraph',
-                    content: '',
-                    changeType: 'none',
-                    commentCount: 0,
-                    changeHistory: [],
-                  };
-                  setBlocks([...blocks.slice(0, index + 1), newBlock, ...blocks.slice(index + 1)]);
-                  // Focus new block after render
-                  setTimeout(() => {
-                    const newEl = blockRefs.current.get(newBlock.id);
-                    if (newEl) {
-                      const contentDiv = newEl.querySelector('.lexical-content-editable') as HTMLElement;
-                      contentDiv?.focus();
-                    }
-                  }, 0);
-                }
-                // Handle Backspace on empty - delete block
-                else if (e.key === 'Backspace') {
-                  const target = e.target as HTMLElement;
-                  if (target.textContent === '' && blocks.length > 1) {
-                    e.preventDefault();
-                    setBlocks(blocks.filter(b => b.id !== block.id));
-                  }
-                }
-                // Handle Tab to indent
-                else if (e.key === 'Tab') {
-                  e.preventDefault();
-                  const indent = e.shiftKey ? -1 : 1;
-                  setBlocks(prev => prev.map(b => 
-                    b.id === block.id 
-                      ? { ...b, indent_level: Math.max(0, (b.indent_level || 0) + indent) }
-                      : b
-                  ));
-                }
-              }}
-              className={getBlockStyles(block.type, block)}
-            />
-          )}
-        </div>
-
-        {/* Suggestion card removed - details shown in right panel instead */}
-
-        {/* Right Gutter - Comment & Menu */}
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-          {block.commentCount > 0 && (
-            <button
-              onClick={() => onCommentClick(block.id)}
-              className="relative p-1 hover:bg-neutral-200 rounded"
-            >
-              <MessageSquare className="w-4 h-4 text-blue-600" />
-              <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                {block.commentCount}
-              </span>
-            </button>
-          )}
-
-          {(isHovered || selectedBlockIds.has(block.id)) && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleBlockSelect(block.id, e);
-              }}
-              className={`px-2 py-0.5 rounded text-xs transition-all ${
-                selectedBlockIds.has(block.id) 
-                  ? 'bg-blue-600 text-white font-bold opacity-100' 
-                  : 'bg-neutral-200 text-neutral-700 hover:bg-neutral-300 opacity-0 group-hover:opacity-100'
-              }`}
-              title={selectedBlockIds.has(block.id) ? "Block selected (click to deselect)" : "Ask RiskGPT about this block (Cmd/Shift to multi-select)"}
-            >
-              {selectedBlockIds.has(block.id) ? '✓ Selected' : 'Ask RiskGPT'}
-            </button>
-          )}
-        </div>
-
-
-
-        {/* ENHANCED: Add Block Button */}
-        {isHovered && (
-          <div className="absolute left-1/2 -translate-x-1/2 -bottom-3 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                const index = blocks.findIndex(b => b.id === block.id);
-                const newBlock: Block = {
-                  id: `b${Date.now()}`,
-                  type: 'paragraph',
-                  content: '',
-                  changeType: 'none',
-                  commentCount: 0,
-                  changeHistory: [],
-                };
-                setBlocks([...blocks.slice(0, index + 1), newBlock, ...blocks.slice(index + 1)]);
-              }}
-              className="p-1 bg-white border border-neutral-300 rounded-full hover:bg-neutral-100 shadow-sm"
-            >
-              <Plus className="w-3 h-3 text-neutral-500" />
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  };
 
   return (
     <div className="relative h-full overflow-y-auto bg-white" ref={editorRef}>
@@ -1349,7 +1382,23 @@ export function BlockEditor({
             >
               <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
                 {blocks.map((block, index) => (
-                  <SortableBlockItem key={block.id} block={block} index={index} />
+                  <SortableBlockItem 
+                    key={block.id} 
+                    block={block} 
+                    index={index}
+                    hoveredBlock={hoveredBlock}
+                    setHoveredBlock={setHoveredBlock}
+                    getBlockClassName={getBlockClassName}
+                    setContextMenu={setContextMenu}
+                    handleInputChange={handleInputChange}
+                    blocks={blocks}
+                    blockRefs={blockRefs}
+                    setBlocks={setBlocks}
+                    onCommentClick={onCommentClick}
+                    selectedBlockIds={selectedBlockIds}
+                    handleBlockSelect={handleBlockSelect}
+                    getBlockStyles={getBlockStyles}
+                  />
                 ))}
               </SortableContext>
             </DndContext>
