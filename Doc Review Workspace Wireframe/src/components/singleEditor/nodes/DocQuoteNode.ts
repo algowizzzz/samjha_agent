@@ -6,7 +6,9 @@ import {
   NodeKey,
   SerializedElementNode,
   Spread,
+  RangeSelection,
 } from 'lexical';
+import { $createDocParagraphNode } from './DocParagraphNode';
 
 export type SerializedDocQuoteNode = Spread<
   {
@@ -66,6 +68,23 @@ export class DocQuoteNode extends ElementNode {
   setBlockId(blockId: string): void {
     const writable = this.getWritable();
     writable.__blockId = blockId;
+  }
+
+  // Handle Enter key - exit quote if empty
+  insertNewAfter(selection: RangeSelection, restoreSelection: boolean): LexicalNode | null {
+    // Check if the quote is empty or we're at the end with empty content
+    const children = this.getChildren();
+    const lastChild = children[children.length - 1];
+    
+    // If quote is empty or last child is empty, exit quote
+    if (children.length === 0 || (lastChild && lastChild.getTextContent().trim() === '')) {
+      const newParagraph = $createDocParagraphNode();
+      this.insertAfter(newParagraph, restoreSelection);
+      return newParagraph;
+    }
+    
+    // Otherwise, stay in quote (return null to use default behavior)
+    return null;
   }
 }
 

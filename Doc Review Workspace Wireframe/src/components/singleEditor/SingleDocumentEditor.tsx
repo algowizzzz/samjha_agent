@@ -12,6 +12,9 @@ import { singleDocEditorConfig } from './SingleDocEditorConfig';
 import { DocInitializerPlugin } from './plugins/DocInitializerPlugin';
 import { DocExportOnChangePlugin } from './plugins/DocExportOnChangePlugin';
 import { SelectionBridgePlugin, SelectionData } from './plugins/SelectionBridgePlugin';
+import { EnterKeyPlugin } from './plugins/EnterKeyPlugin';
+import { FloatingToolbarPlugin } from './plugins/FloatingToolbarPlugin';
+import { CommentClickPlugin } from './plugins/CommentClickPlugin';
 import type { DocState } from '@/model/docTypes';
 import type { LexicalEditor } from 'lexical';
 
@@ -22,6 +25,15 @@ interface SingleDocumentEditorProps {
   className?: string;
   onEditorReady?: (editor: LexicalEditor) => void;
   onSelectionChange?: (data: SelectionData) => void;
+  // Floating toolbar handlers
+  onFormat?: (format: 'bold' | 'italic' | 'underline' | 'strikethrough') => void;
+  onTextColor?: (color: string) => void;
+  onBackgroundColor?: (color: string) => void;
+  onTurnInto?: (type: string) => void;
+  onAddComment?: () => void;
+  onImproveText?: () => void;
+  // Comment click handler
+  onCommentClick?: (commentIds: string[]) => void;
 }
 
 // Plugin to expose editor instance to parent
@@ -44,6 +56,13 @@ export function SingleDocumentEditor({
   className = '',
   onEditorReady,
   onSelectionChange,
+  onFormat,
+  onTextColor,
+  onBackgroundColor,
+  onTurnInto,
+  onAddComment,
+  onImproveText,
+  onCommentClick,
 }: SingleDocumentEditorProps) {
   const config = useMemo(
     () => ({
@@ -64,6 +83,24 @@ export function SingleDocumentEditor({
         
         {/* Track selection and extract block IDs */}
         <SelectionBridgePlugin onSelectionChange={onSelectionChange} />
+        
+        {/* Handle Enter key for custom nodes */}
+        <EnterKeyPlugin />
+        
+        {/* Handle clicks on commented text */}
+        {onCommentClick && <CommentClickPlugin onCommentClick={onCommentClick} />}
+        
+        {/* Floating toolbar on text selection */}
+        {onFormat && onTurnInto && onAddComment && onImproveText && (
+          <FloatingToolbarPlugin
+            onFormat={onFormat}
+            onTextColor={onTextColor || (() => {})}
+            onBackgroundColor={onBackgroundColor || (() => {})}
+            onTurnInto={onTurnInto}
+            onAddComment={onAddComment}
+            onImproveText={onImproveText}
+          />
+        )}
         
         {/* Main editor UI */}
         <RichTextPlugin

@@ -13396,3 +13396,67 @@ This policy establishes the framework for...
 2025-11-18 16:57:11,858 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 16:57:11] "[32mGET /api/doc_review/CAR_Chapter_1_First_5_Pages-ilvd6g/comments HTTP/1.1[0m" 302 -
 2025-11-18 16:57:11,877 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 16:57:11] "GET /login?next=http://127.0.0.1:8000/api/doc_review/CAR_Chapter_1_First_5_Pages-ilvd6g/comments HTTP/1.1" 200 -
 2025-11-18 16:57:11,878 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 16:57:11] "GET /login?next=http://127.0.0.1:8000/api/doc_review/CAR_Chapter_1_First_5_Pages-ilvd6g/comments/counts HTTP/1.1" 200 -
+2025-11-18 17:01:11,203 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 17:01:11] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 17:01:11,214 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 17:01:11] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 17:02:41,121 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 17:02:41] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 17:02:41,133 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 17:02:41] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 17:11:24,899 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 17:11:24] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 17:11:24,920 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 17:11:24] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 17:17:14,594 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 17:17:14] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 17:17:14,670 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 17:17:14] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 17:24:39,973 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 17:24:39] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 17:24:40,038 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 17:24:40] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 17:31:19,944 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 17:31:19] "OPTIONS /api/text-improvement/improve HTTP/1.1" 200 -
+2025-11-18 17:31:19,973 - external.routes.text_improvement_routes - INFO - [TextImprovement] Improving text: with...
+2025-11-18 17:31:22,053 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-18 17:31:22,344 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 17:31:22] "POST /api/text-improvement/improve HTTP/1.1" 200 -
+2025-11-18 17:32:26,386 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 17:32:26] "OPTIONS /api/text-improvement/improve HTTP/1.1" 200 -
+2025-11-18 17:32:26,399 - external.routes.text_improvement_routes - INFO - [TextImprovement] Improving text: This policy establishes the framework for risk man...
+2025-11-18 17:32:27,564 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-18 17:32:27,580 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 17:32:27] "POST /api/text-improvement/improve HTTP/1.1" 200 -
+2025-11-18 17:40:01,617 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 17:40:01] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 17:40:01,834 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 17:40:01] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 21:52:06,188 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 21:52:06] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 21:52:06,199 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 21:52:06] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 21:52:08,061 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 21:52:08] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 21:52:20,840 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 21:52:20] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 21:52:20,846 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 21:52:20] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 21:54:33,052 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 21:54:33] "OPTIONS /api/text-improvement/improve HTTP/1.1" 200 -
+2025-11-18 21:54:33,057 - external.routes.text_improvement_routes - INFO - [TextImprovement] Improving text: market...
+2025-11-18 21:54:33,783 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-18 21:54:33,793 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 21:54:33] "POST /api/text-improvement/improve HTTP/1.1" 200 -
+2025-11-18 21:55:43,254 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 21:55:43] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 21:55:43,265 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 21:55:43] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 21:57:51,052 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 21:57:51] "OPTIONS /api/text-improvement/improve HTTP/1.1" 200 -
+2025-11-18 21:57:51,054 - external.routes.text_improvement_routes - INFO - [TextImprovement] Improving text: framework...
+2025-11-18 21:57:51,637 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-18 21:57:51,640 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 21:57:51] "POST /api/text-improvement/improve HTTP/1.1" 200 -
+2025-11-18 22:13:30,896 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:13:30] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 22:13:30,906 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:13:30] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 22:14:43,982 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:14:43] "OPTIONS /api/text-improvement/improve HTTP/1.1" 200 -
+2025-11-18 22:14:43,985 - external.routes.text_improvement_routes - INFO - [TextImprovement] Improving text: operational...
+2025-11-18 22:14:44,633 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-18 22:14:44,635 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:14:44] "POST /api/text-improvement/improve HTTP/1.1" 200 -
+2025-11-18 22:14:55,477 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:14:55] "OPTIONS /api/text-improvement/improve HTTP/1.1" 200 -
+2025-11-18 22:14:55,478 - external.routes.text_improvement_routes - INFO - [TextImprovement] Improving text: market...
+2025-11-18 22:14:56,114 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-18 22:14:56,114 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:14:56] "POST /api/text-improvement/improve HTTP/1.1" 200 -
+2025-11-18 22:15:01,010 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:15:01] "OPTIONS /api/text-improvement/improve HTTP/1.1" 200 -
+2025-11-18 22:15:01,011 - external.routes.text_improvement_routes - INFO - [TextImprovement] Improving text: This policy covers market risk, credit risk, and o...
+2025-11-18 22:15:02,171 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-11-18 22:15:02,172 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:15:02] "POST /api/text-improvement/improve HTTP/1.1" 200 -
+2025-11-18 22:15:39,389 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:15:39] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 22:15:39,400 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:15:39] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 22:15:57,385 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:15:57] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 22:15:57,394 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:15:57] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 22:16:22,385 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:16:22] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 22:16:22,393 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:16:22] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 22:16:56,122 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:16:56] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 22:16:56,134 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:16:56] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 22:16:58,600 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:16:58] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 22:16:58,918 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:16:58] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 22:16:58,942 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:16:58] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 22:17:23,039 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:17:23] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 22:17:23,056 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:17:23] "GET /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 22:17:39,388 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:17:39] "OPTIONS /api/doc_review/documents HTTP/1.1" 200 -
+2025-11-18 22:17:39,396 - werkzeug - INFO - 127.0.0.1 - - [18/Nov/2025 22:17:39] "GET /api/doc_review/documents HTTP/1.1" 200 -

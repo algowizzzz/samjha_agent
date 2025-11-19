@@ -9,6 +9,11 @@ import {
   getCurrentSelectionText,
   insertAiSuggestion,
 } from './singleEditor/utils/aiSuggestionHelpers';
+import {
+  applyCommentToSelection,
+  removeCommentHighlight,
+  highlightCommentInEditor,
+} from './singleEditor/utils/commentHighlightHelpers';
 import { enableFeature, disableFeature, getAllFeatureFlags } from '@/lib/featureFlags';
 import { FORMAT_TEXT_COMMAND, $getSelection, $isRangeSelection, $createParagraphNode } from 'lexical';
 import { $findMatchingParent } from '@lexical/utils';
@@ -43,7 +48,7 @@ export function SingleEditorDemo() {
   const [showJson, setShowJson] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [selectionData, setSelectionData] = useState<SelectionData>({
-    mode: 'none',
+    selectionScope: 'none',
     blockIds: [],
     selectedText: '',
     isEmpty: true,
@@ -56,6 +61,12 @@ export function SingleEditorDemo() {
   const [showCommentPanel, setShowCommentPanel] = useState(false);
   const [editingComment, setEditingComment] = useState<Comment | null>(null);
   const [replyingTo, setReplyingTo] = useState<Comment | null>(null);
+  const [collapsedComments, setCollapsedComments] = useState<Set<string>>(new Set());
+  
+  // Controls panel state
+  const [controlsCollapsed, setControlsCollapsed] = useState(false);
+  const [controlsDragging, setControlsDragging] = useState(false);
+  const [controlsPosition, setControlsPosition] = useState<{ right: number; top: number }>({ right: 0, top: 73 });
 
   const handleDocChange = (newDocState: DocState) => {
     setDocState(newDocState);
@@ -300,15 +311,26 @@ export function SingleEditorDemo() {
   };
 
   const handleCreateComment = async (commentText: string) => {
-    if (!commentText.trim()) return;
+    if (!commentText.trim() || !editorInstance) return;
+
+    // Generate comment ID
+    const commentId = `comment-${Date.now()}`;
+
+    // Apply yellow highlighting to selected text nodes
+    const highlightData = applyCommentToSelection(editorInstance, commentId);
+    
+    if (!highlightData) {
+      alert('Failed to apply comment highlight');
+      return;
+    }
 
     const newComment: Comment = {
-      id: `comment-${Date.now()}`,
+      id: commentId,
       documentId: docState.id,
-      blockId: selectionData.blockIds[0] || 'unknown',
-      selectedText: selectionData.selectedText,
-      startOffset: 0, // TODO: Calculate actual offset
-      endOffset: selectionData.selectedText.length,
+      blockId: highlightData.blockId,
+      selectedText: highlightData.selectedText,
+      startOffset: highlightData.startOffset,
+      endOffset: highlightData.endOffset,
       commentText: commentText,
       username: 'Current User', // TODO: Get from auth
       timestamp: new Date().toISOString(),
@@ -343,6 +365,11 @@ export function SingleEditorDemo() {
 
   const handleDeleteComment = async (commentId: string) => {
     if (!confirm('Delete this comment?')) return;
+
+    // Remove yellow highlighting from text nodes
+    if (editorInstance) {
+      removeCommentHighlight(editorInstance, commentId);
+    }
 
     const updatedComments = comments.filter(c => c.id !== commentId);
     setComments(updatedComments);
@@ -388,8 +415,87 @@ export function SingleEditorDemo() {
   };
 
   const handleClickComment = (comment: Comment) => {
-    // TODO: Highlight text in editor and scroll to it
+    // Scroll to and highlight the commented text in the editor
+    if (editorInstance) {
+      highlightCommentInEditor(
+        editorInstance,
+        comment.blockId,
+        comment.startOffset,
+        comment.endOffset
+      );
+    }
     console.log('Clicked comment:', comment);
+  };
+  
+  const toggleCommentCollapse = (commentId: string) => {
+    setCollapsedComments(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(commentId)) {
+        newSet.delete(commentId);
+      } else {
+        newSet.add(commentId);
+      }
+      return newSet;
+    });
+  };
+
+  // Handle clicks on commented text in the editor
+  const handleCommentTextClick = (commentIds: string[]) => {
+    // Open the comment panel
+    setShowCommentPanel(true);
+    
+    // Expand all clicked comments (remove from collapsed set)
+    setCollapsedComments(prev => {
+      const newSet = new Set(prev);
+      commentIds.forEach(id => newSet.delete(id));
+      return newSet;
+    });
+    
+    // Scroll to the first comment in the panel
+    if (commentIds.length > 0) {
+      setTimeout(() => {
+        const firstCommentId = commentIds[0];
+        const commentElement = document.querySelector(`[data-comment-id="${firstCommentId}"]`);
+        if (commentElement) {
+          commentElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          // Flash highlight effect
+          commentElement.classList.add('flash-highlight');
+          setTimeout(() => {
+            commentElement.classList.remove('flash-highlight');
+          }, 1000);
+        }
+      }, 100);
+    }
+  };
+
+  // Wrapper for toolbar "Turn Into" handler
+  const handleToolbarTurnInto = (type: string) => {
+    switch (type) {
+      case 'paragraph':
+        handleTurnInto('paragraph');
+        break;
+      case 'heading-1':
+        handleTurnInto('heading', { level: 1 });
+        break;
+      case 'heading-2':
+        handleTurnInto('heading', { level: 2 });
+        break;
+      case 'heading-3':
+        handleTurnInto('heading', { level: 3 });
+        break;
+      case 'bulleted-list':
+        handleTurnInto('list', { listStyle: 'bullet' });
+        break;
+      case 'numbered-list':
+        handleTurnInto('list', { listStyle: 'number' });
+        break;
+      case 'code':
+        handleTurnInto('code');
+        break;
+      case 'quote':
+        handleTurnInto('quote');
+        break;
+    }
   };
 
   return (
@@ -422,17 +528,122 @@ export function SingleEditorDemo() {
               readOnly={false}
               onEditorReady={setEditorInstance}
               onSelectionChange={setSelectionData}
+              onFormat={handleFormat}
+              onTextColor={handleTextColor}
+              onBackgroundColor={handleBackgroundColor}
+              onTurnInto={handleToolbarTurnInto}
+              onAddComment={handleAddComment}
+              onImproveText={handleImproveText}
+              onCommentClick={handleCommentTextClick}
             />
           </div>
         </div>
 
-        {/* Right: Controls & Info (collapsible) */}
+        {/* Right: Controls & Info (collapsible & draggable) */}
         {showControls && (
-          <div className="w-96 flex flex-col overflow-hidden bg-white border-l border-neutral-200">
-          <div className="bg-neutral-100 px-4 py-2 border-b border-neutral-200">
-            <span className="text-sm font-medium text-neutral-700">Controls & Debug</span>
+          <div 
+            style={{
+              position: 'fixed',
+              right: `${controlsPosition.right}px`,
+              top: `${controlsPosition.top}px`,
+              width: controlsCollapsed ? '48px' : '384px',
+              maxHeight: '85vh',
+              backgroundColor: 'white',
+              border: '1px solid #e5e5e7',
+              borderRadius: '12px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+              zIndex: 200,
+              transition: 'width 0.3s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+            }}
+          >
+          {/* Header with drag handle and collapse button */}
+          <div 
+            style={{
+              backgroundColor: '#f3f4f6',
+              padding: '8px 12px',
+              borderBottom: '1px solid #e5e5e7',
+              cursor: 'grab',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              userSelect: 'none',
+            }}
+            onMouseDown={(e) => {
+              setControlsDragging(true);
+              const startX = e.clientX - controlsPosition.right;
+              const startY = e.clientY - controlsPosition.top;
+              
+              const handleMouseMove = (moveE: MouseEvent) => {
+                setControlsPosition({
+                  right: moveE.clientX - startX,
+                  top: moveE.clientY - startY,
+                });
+              };
+              
+              const handleMouseUp = () => {
+                setControlsDragging(false);
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+              };
+              
+              document.addEventListener('mousemove', handleMouseMove);
+              document.addEventListener('mouseup', handleMouseUp);
+            }}
+          >
+            {!controlsCollapsed && (
+              <span style={{ fontSize: '13px', fontWeight: '600', color: '#374151' }}>
+                🎛️ Controls
+              </span>
+            )}
+            <div style={{ display: 'flex', gap: '4px', marginLeft: 'auto' }}>
+              <button
+                onClick={() => setControlsCollapsed(!controlsCollapsed)}
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  border: 'none',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e5e7eb'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                title={controlsCollapsed ? 'Expand' : 'Collapse'}
+              >
+                {controlsCollapsed ? '→' : '←'}
+              </button>
+              <button
+                onClick={() => setShowControls(false)}
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  border: 'none',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e5e7eb'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                title="Close"
+              >
+                ✕
+              </button>
+            </div>
           </div>
           
+          {/* Content - hide when collapsed */}
+          {!controlsCollapsed && (
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {/* Pending AI Suggestion - TOP PRIORITY */}
             {pendingSuggestion && (
@@ -497,15 +708,26 @@ export function SingleEditorDemo() {
               <h3 className="text-xs font-semibold mb-1">Selection Bridge (Live)</h3>
               <div className="space-y-1 text-[10px]">
                 <div className="bg-neutral-50 p-1 rounded">
-                  <span className="font-medium">Mode:</span>
+                  <span className="font-medium">Scope:</span>
                   <span className={`ml-1 px-1 py-0.5 rounded ${
-                    selectionData.mode === 'blocks' ? 'bg-blue-100 text-blue-700' :
-                    selectionData.mode === 'text' ? 'bg-green-100 text-green-700' :
+                    selectionData.selectionScope === 'blocks' ? 'bg-blue-100 text-blue-700' :
+                    selectionData.selectionScope === 'text' ? 'bg-green-100 text-green-700' :
                     'bg-neutral-200 text-neutral-600'
                   }`}>
-                    {selectionData.mode}
+                    {selectionData.selectionScope}
                   </span>
                 </div>
+                
+                {selectionData.currentBlockType && (
+                  <div className="bg-neutral-50 p-1 rounded">
+                    <span className="font-medium">Block Type:</span>
+                    <span className="ml-1 px-1 py-0.5 rounded bg-purple-100 text-purple-700">
+                      {selectionData.currentBlockType}
+                      {selectionData.currentBlockLevel ? ` (${selectionData.currentBlockLevel})` : ''}
+                      {selectionData.currentListStyle ? ` (${selectionData.currentListStyle})` : ''}
+                    </span>
+                  </div>
+                )}
                 
                 {selectionData.selectedText && (
                   <div className="bg-neutral-50 p-1 rounded">
@@ -839,7 +1061,7 @@ export function SingleEditorDemo() {
                 <div>
                   <label className="text-xs font-medium mb-1 block">Background Color</label>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '4px' }}>
-                    {['#FFFFFF', '#F3F4F6', '#FEE2E2', '#FFEDD5', '#FEF3C7', '#FEF9C3', '#ECFCCB', '#D1FAE5', '#CFFAFE', '#DBEAFE', '#DBEAFE', '#E0E7FF', '#EDE9FE', '#F3E8FF', '#FAE8FF'].map((color) => (
+                    {['#FFFFFF', '#F3F4F6', '#FEE2E2', '#FFEDD5', '#FEF3C7', '#FEF9C3', '#ECFCCB', '#D1FAE5', '#CFFAFE', '#DBEAFE', '#C7D2FE', '#E0E7FF', '#EDE9FE', '#F3E8FF', '#FAE8FF'].map((color) => (
                       <button
                         key={color}
                         onClick={() => handleBackgroundColor(color)}
@@ -982,6 +1204,7 @@ export function SingleEditorDemo() {
               </ol>
             </div>
           </div>
+          )}
         </div>
         )}
       </div>
@@ -1119,241 +1342,330 @@ export function SingleEditorDemo() {
         </div>
       )}
 
-      {/* Comment Panel */}
+      {/* Comment Panel - Clean Bubble Style */}
       {showCommentPanel && (
-        <div style={{
-          position: 'fixed',
-          right: showControls ? '320px' : '0',
-          top: '73px',
-          bottom: 0,
-          width: '350px',
-          backgroundColor: 'white',
-          borderLeft: '1px solid #e5e5e7',
-          overflowY: 'auto',
-          zIndex: 100,
-          boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.05)',
-        }}>
-          <div style={{
-            padding: '16px',
-            borderBottom: '1px solid #e5e5e7',
-            position: 'sticky',
-            top: 0,
-            backgroundColor: 'white',
-            zIndex: 1,
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '600' }}>
-                Comments ({comments.length})
-              </h3>
-              <button
-                onClick={() => setShowCommentPanel(false)}
-                style={{
-                  padding: '4px 8px',
-                  border: 'none',
-                  background: 'none',
-                  cursor: 'pointer',
-                  fontSize: '18px',
-                }}
-              >
-                ✕
-              </button>
-            </div>
-          </div>
+        <div 
+          className="comment-panel-scroll"
+          style={{
+            position: 'fixed',
+            right: showControls && !controlsCollapsed ? '394px' : '20px',
+            top: '80px',
+            bottom: '20px',
+            width: '300px',
+            pointerEvents: 'none',
+            overflowY: 'auto',
+            zIndex: 150,
+            transition: 'right 0.3s ease',
+          }}
+        >
+          {/* Close button - floating at top right */}
+          <button
+            onClick={() => setShowCommentPanel(false)}
+            style={{
+              position: 'fixed',
+              right: showControls && !controlsCollapsed ? '396px' : '22px',
+              top: '82px',
+              width: '28px',
+              height: '28px',
+              border: 'none',
+              background: 'white',
+              cursor: 'pointer',
+              fontSize: '16px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#6b7280',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+              pointerEvents: 'auto',
+              zIndex: 151,
+              transition: 'right 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#f3f4f6';
+              e.currentTarget.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'white';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+          >
+            ✕
+          </button>
 
-          <div style={{ padding: '16px' }}>
+          {/* Comments List */}
+          <div style={{ padding: '0', pointerEvents: 'auto' }}>
             {comments.length === 0 ? (
               <div style={{
                 textAlign: 'center',
                 color: '#9ca3af',
-                padding: '32px 16px',
-                fontSize: '14px',
+                padding: '48px 16px',
+                fontSize: '13px',
+                lineHeight: '1.6',
+                backgroundColor: 'white',
+                borderRadius: '12px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
               }}>
-                No comments yet. Select text and click "Add Comment" to start.
+                <div style={{ fontSize: '32px', marginBottom: '8px' }}>💭</div>
+                No comments yet<br/>
+                <span style={{ fontSize: '11px' }}>Select text and add a comment</span>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {comments.map((comment) => (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {comments.map((comment) => {
+                  const isCollapsed = collapsedComments.has(comment.id);
+                  return (
                   <div
                     key={comment.id}
+                    data-comment-id={comment.id}
                     style={{
-                      border: '1px solid #e5e5e7',
-                      borderRadius: '8px',
+                      border: 'none',
+                      borderRadius: '12px',
                       padding: '12px',
-                      backgroundColor: '#fafafa',
+                      backgroundColor: 'white',
+                      boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
+                      transition: 'all 0.2s ease',
                       cursor: 'pointer',
                     }}
-                    onClick={() => handleClickComment(comment)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.15)';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.boxShadow = '0 2px 12px rgba(0, 0, 0, 0.1)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
                   >
-                    {/* Comment Header */}
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      marginBottom: '8px',
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{
-                          width: '24px',
-                          height: '24px',
-                          borderRadius: '50%',
-                          backgroundColor: '#f59e0b',
-                          color: 'white',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                        }}>
-                          {comment.username.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <div style={{ fontSize: '12px', fontWeight: '600' }}>
+                    {/* Comment Header - Clickable to toggle collapse */}
+                    <div 
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '8px',
+                        marginBottom: isCollapsed ? '0' : '8px',
+                        cursor: 'pointer',
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleCommentCollapse(comment.id);
+                      }}
+                    >
+                      {/* Avatar */}
+                      <div style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '50%',
+                        backgroundColor: '#f59e0b',
+                        color: 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        flexShrink: 0,
+                      }}>
+                        {comment.username.charAt(0).toUpperCase()}
+                      </div>
+                      
+                      {/* Content preview */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2px' }}>
+                          <span style={{ fontSize: '13px', fontWeight: '600', color: '#1f2937' }}>
                             {comment.username}
-                          </div>
-                          <div style={{ fontSize: '10px', color: '#6b7280' }}>
-                            {new Date(comment.timestamp).toLocaleString()}
-                          </div>
+                          </span>
+                          <span style={{ fontSize: '10px', color: '#9ca3af' }}>
+                            {new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
                         </div>
+                        
+                        {isCollapsed ? (
+                          <div style={{
+                            fontSize: '12px',
+                            color: '#6b7280',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}>
+                            {comment.commentText.length > 50 
+                              ? comment.commentText.substring(0, 50) + '...' 
+                              : comment.commentText}
+                          </div>
+                        ) : null}
+                      </div>
+                      
+                      {/* Collapse/Expand Icon */}
+                      <div style={{
+                        fontSize: '14px',
+                        color: '#9ca3af',
+                        transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s ease',
+                        flexShrink: 0,
+                      }}>
+                        ▼
                       </div>
                     </div>
 
-                    {/* Selected Text */}
-                    <div style={{
-                      backgroundColor: '#fef9c3',
-                      padding: '6px 8px',
-                      borderRadius: '4px',
-                      fontSize: '12px',
-                      marginBottom: '8px',
-                      fontStyle: 'italic',
-                    }}>
-                      "{comment.selectedText.length > 60 
-                        ? comment.selectedText.substring(0, 60) + '...' 
-                        : comment.selectedText}"
-                    </div>
-
-                    {/* Comment Text */}
-                    <div style={{
-                      fontSize: '14px',
-                      color: '#374151',
-                      marginBottom: '8px',
-                      lineHeight: '1.5',
-                    }}>
-                      {comment.commentText}
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div style={{
-                      display: 'flex',
-                      gap: '8px',
-                      fontSize: '12px',
-                    }}>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleReplyToComment(comment);
-                        }}
-                        style={{
-                          padding: '4px 8px',
-                          border: '1px solid #d1d5db',
+                    {/* Expanded Content */}
+                    {!isCollapsed && (
+                      <div style={{ paddingLeft: '36px' }}>
+                        {/* Selected Text Preview */}
+                        <div style={{
+                          backgroundColor: '#fef3c7',
+                          padding: '6px 8px',
                           borderRadius: '4px',
-                          backgroundColor: 'white',
-                          cursor: 'pointer',
                           fontSize: '11px',
-                        }}
-                      >
-                        ↩️ Reply
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditComment(comment);
-                        }}
-                        style={{
-                          padding: '4px 8px',
-                          border: '1px solid #d1d5db',
-                          borderRadius: '4px',
-                          backgroundColor: 'white',
-                          cursor: 'pointer',
-                          fontSize: '11px',
-                        }}
-                      >
-                        ✏️ Edit
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteComment(comment.id);
-                        }}
-                        style={{
-                          padding: '4px 8px',
-                          border: '1px solid #ef4444',
-                          borderRadius: '4px',
-                          backgroundColor: 'white',
-                          color: '#ef4444',
-                          cursor: 'pointer',
-                          fontSize: '11px',
-                        }}
-                      >
-                        🗑️ Delete
-                      </button>
-                    </div>
+                          marginBottom: '8px',
+                          fontStyle: 'italic',
+                          borderLeft: '3px solid #fbbf24',
+                          color: '#92400e',
+                        }}>
+                          "{comment.selectedText.length > 60 
+                            ? comment.selectedText.substring(0, 60) + '...' 
+                            : comment.selectedText}"
+                        </div>
 
-                    {/* Replies */}
-                    {comment.replies && comment.replies.length > 0 && (
-                      <div style={{
-                        marginTop: '12px',
-                        paddingLeft: '16px',
-                        borderLeft: '2px solid #e5e5e7',
-                      }}>
-                        {comment.replies.map((reply) => (
-                          <div
-                            key={reply.id}
-                            style={{
-                              marginTop: '8px',
-                              padding: '8px',
-                              backgroundColor: 'white',
-                              borderRadius: '6px',
-                              border: '1px solid #e5e5e7',
+                        {/* Comment Text */}
+                        <div style={{
+                          fontSize: '13px',
+                          color: '#374151',
+                          marginBottom: '10px',
+                          lineHeight: '1.6',
+                        }}>
+                          {comment.commentText}
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div style={{
+                          display: 'flex',
+                          gap: '6px',
+                          fontSize: '11px',
+                        }}>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleReplyToComment(comment);
                             }}
+                            style={{
+                              padding: '4px 10px',
+                              border: 'none',
+                              borderRadius: '4px',
+                              backgroundColor: '#f3f4f6',
+                              cursor: 'pointer',
+                              fontSize: '11px',
+                              color: '#374151',
+                              fontWeight: '500',
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e5e7eb'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                           >
-                            <div style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              marginBottom: '6px',
-                            }}>
-                              <div style={{
-                                width: '20px',
-                                height: '20px',
-                                borderRadius: '50%',
-                                backgroundColor: '#3b82f6',
-                                color: 'white',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '10px',
-                                fontWeight: '600',
-                              }}>
-                                {reply.username.charAt(0).toUpperCase()}
-                              </div>
-                              <div>
-                                <div style={{ fontSize: '11px', fontWeight: '600' }}>
-                                  {reply.username}
-                                </div>
-                                <div style={{ fontSize: '9px', color: '#6b7280' }}>
-                                  {new Date(reply.timestamp).toLocaleString()}
-                                </div>
-                              </div>
+                            Reply
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditComment(comment);
+                            }}
+                            style={{
+                              padding: '4px 10px',
+                              border: 'none',
+                              borderRadius: '4px',
+                              backgroundColor: '#f3f4f6',
+                              cursor: 'pointer',
+                              fontSize: '11px',
+                              color: '#374151',
+                              fontWeight: '500',
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e5e7eb'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteComment(comment.id);
+                            }}
+                            style={{
+                              padding: '4px 10px',
+                              border: 'none',
+                              borderRadius: '4px',
+                              backgroundColor: '#fee2e2',
+                              cursor: 'pointer',
+                              fontSize: '11px',
+                              color: '#dc2626',
+                              fontWeight: '500',
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fecaca'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fee2e2'}
+                          >
+                            Delete
+                          </button>
+                        </div>
+
+                        {/* Replies */}
+                        {comment.replies && comment.replies.length > 0 && (
+                          <div style={{
+                            marginTop: '12px',
+                            paddingTop: '8px',
+                            borderTop: '1px solid #f3f4f6',
+                          }}>
+                            <div style={{ fontSize: '10px', color: '#9ca3af', marginBottom: '8px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                              {comment.replies.length} {comment.replies.length === 1 ? 'Reply' : 'Replies'}
                             </div>
-                            <div style={{ fontSize: '12px', color: '#374151' }}>
-                              {reply.commentText}
-                            </div>
+                            {comment.replies.map((reply) => (
+                              <div
+                                key={reply.id}
+                                style={{
+                                  marginTop: '8px',
+                                  padding: '8px',
+                                  backgroundColor: '#f9fafb',
+                                  borderRadius: '6px',
+                                  borderLeft: '3px solid #3b82f6',
+                                }}
+                              >
+                                <div style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  marginBottom: '6px',
+                                }}>
+                                  <div style={{
+                                    width: '22px',
+                                    height: '22px',
+                                    borderRadius: '50%',
+                                    backgroundColor: '#3b82f6',
+                                    color: 'white',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '10px',
+                                    fontWeight: '600',
+                                  }}>
+                                    {reply.username.charAt(0).toUpperCase()}
+                                  </div>
+                                  <div style={{ flex: 1 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                      <span style={{ fontSize: '11px', fontWeight: '600', color: '#1f2937' }}>
+                                        {reply.username}
+                                      </span>
+                                      <span style={{ fontSize: '9px', color: '#9ca3af' }}>
+                                        {new Date(reply.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div style={{ fontSize: '12px', color: '#374151', paddingLeft: '28px', lineHeight: '1.5' }}>
+                                  {reply.commentText}
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                        ))}
+                        )}
                       </div>
                     )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

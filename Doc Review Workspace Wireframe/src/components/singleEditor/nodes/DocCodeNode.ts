@@ -6,7 +6,10 @@ import {
   NodeKey,
   SerializedElementNode,
   Spread,
+  RangeSelection,
+  $isTextNode,
 } from 'lexical';
+import { $createDocParagraphNode } from './DocParagraphNode';
 
 export type SerializedDocCodeNode = Spread<
   {
@@ -121,6 +124,26 @@ export class DocCodeNode extends ElementNode {
   // Can have TextNode children
   canBeEmpty(): boolean {
     return false;
+  }
+
+  // Handle Enter key - check if we should exit code block
+  insertNewAfter(selection: RangeSelection, restoreSelection: boolean): LexicalNode | null {
+    // Get the anchor node
+    const anchor = selection.anchor.getNode();
+    
+    // Check if we're at the end of the code block and the line is empty
+    const text = anchor.getTextContent();
+    const isEmpty = text.trim() === '' || text.endsWith('\n\n');
+    
+    // If empty, exit code block and create paragraph
+    if (isEmpty && selection.anchor.offset === text.length) {
+      const newParagraph = $createDocParagraphNode();
+      this.insertAfter(newParagraph, restoreSelection);
+      return newParagraph;
+    }
+    
+    // Otherwise, stay in code block (return null to use default behavior - line break)
+    return null;
   }
 }
 

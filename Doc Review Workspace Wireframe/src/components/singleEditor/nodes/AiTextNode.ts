@@ -49,9 +49,13 @@ export class AiTextNode extends TextNode {
 
   updateDOM(prevNode: AiTextNode, dom: HTMLElement, config: EditorConfig): boolean {
     const shouldUpdate = super.updateDOM(prevNode, dom, config);
-    if (prevNode.__aiSuggestionStatus !== this.__aiSuggestionStatus) {
+    
+    // Re-apply classes if AI status or comment IDs changed
+    const commentIdsChanged = JSON.stringify(prevNode.__commentIds) !== JSON.stringify(this.__commentIds);
+    if (prevNode.__aiSuggestionStatus !== this.__aiSuggestionStatus || commentIdsChanged) {
       this._applyAiStatusClass(dom);
     }
+    
     return shouldUpdate;
   }
 

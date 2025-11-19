@@ -6,7 +6,9 @@ import {
   NodeKey,
   SerializedElementNode,
   Spread,
+  RangeSelection,
 } from 'lexical';
+import { $createDocParagraphNode } from './DocParagraphNode';
 
 export type SerializedDocListItemNode = Spread<
   {
@@ -74,6 +76,41 @@ export class DocListItemNode extends ElementNode {
   // Not inline
   isInline(): boolean {
     return false;
+  }
+
+  // Handle Enter key behavior
+  insertNewAfter(selection: RangeSelection, restoreSelection = true): LexicalNode | null {
+    const newListItem = $createDocListItemNode();
+    this.insertAfter(newListItem);
+    
+    if (restoreSelection) {
+      newListItem.select(0, 0);
+    }
+    
+    return newListItem;
+  }
+
+  // Allow removing empty list items
+  remove(preserveEmptyParent?: boolean): void {
+    const parent = this.getParent();
+    super.remove(preserveEmptyParent);
+    
+    // If the list is now empty, remove it and create a paragraph after it
+    if (parent && parent.getChildrenSize() === 0) {
+      const newParagraph = $createDocParagraphNode();
+      parent.insertAfter(newParagraph);
+      newParagraph.select();
+      parent.remove();
+    }
+  }
+
+  // Handle backspace at start of list item
+  collapseAtStart(selection: RangeSelection): boolean {
+    const paragraph = $createDocParagraphNode();
+    const children = this.getChildren();
+    children.forEach((child) => paragraph.append(child));
+    this.replace(paragraph);
+    return true;
   }
 }
 

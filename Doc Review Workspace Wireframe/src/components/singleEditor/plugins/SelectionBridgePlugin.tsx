@@ -16,7 +16,7 @@ import { DocImageNode } from '../nodes/DocImageNode';
 import { DocEmptyNode } from '../nodes/DocEmptyNode';
 
 export interface SelectionData {
-  mode: 'blocks' | 'text' | 'none';
+  selectionScope: 'blocks' | 'text' | 'none';
   blockIds: string[];
   selectedText: string;
   isEmpty: boolean;
@@ -49,7 +49,7 @@ export function SelectionBridgePlugin({ onSelectionChange }: SelectionBridgePlug
         // No selection
         if (!selection) {
           onSelectionChange({
-            mode: 'none',
+            selectionScope: 'none',
             blockIds: [],
             selectedText: '',
             isEmpty: true,
@@ -60,7 +60,7 @@ export function SelectionBridgePlugin({ onSelectionChange }: SelectionBridgePlug
         // Not range selection - might still be near a block
         if (!$isRangeSelection(selection)) {
           onSelectionChange({
-            mode: 'none',
+            selectionScope: 'none',
             blockIds: [],
             selectedText: '',
             isEmpty: true,
@@ -121,7 +121,7 @@ export function SelectionBridgePlugin({ onSelectionChange }: SelectionBridgePlug
         // Empty selection (just cursor)
         if (isEmpty) {
           onSelectionChange({
-            mode: 'none',
+            selectionScope: 'none',
             blockIds: [],
             selectedText: '',
             isEmpty: true,
@@ -154,13 +154,13 @@ export function SelectionBridgePlugin({ onSelectionChange }: SelectionBridgePlug
           }
         });
         
-        // Determine mode:
-        // - 'text' mode: small selection within single block (for comments)
-        // - 'blocks' mode: large/multi-block selection (for RiskGPT analysis)
-        const mode = blockIds.size === 1 && selectedText.length < 500 ? 'text' : 'blocks';
+        // Determine selection scope:
+        // - 'text' scope: small selection within single block (for comments)
+        // - 'blocks' scope: large/multi-block selection (for RiskGPT analysis)
+        const selectionScope = blockIds.size === 1 && selectedText.length < 500 ? 'text' : 'blocks';
         
         onSelectionChange({
-          mode,
+          selectionScope,
           blockIds: Array.from(blockIds),
           selectedText,
           isEmpty: false,
