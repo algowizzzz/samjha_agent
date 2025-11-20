@@ -1,217 +1,228 @@
-import { useEffect, useState } from 'react';
-import { Search, Save, RotateCcw } from 'lucide-react';
-import { Button } from './ui/button';
-import { listPrompts, getPrompt, updatePrompt, type ApiPrompt } from '@/lib/api';
+import { useState, useEffect } from 'react';
+import { Save, CheckCircle2, Sparkles, ChevronDown, Download } from 'lucide-react';
+
+interface PromptConfig {
+  id: string;
+  title: string;
+  description: string;
+  filename: string;
+}
+
+const PROMPTS: PromptConfig[] = [
+  {
+    id: 'toc_review',
+    title: '1. TOC & Structure Review',
+    description: 'Analyzes document table of contents and overall structure',
+    filename: 'phase1_toc_review.md',
+  },
+  {
+    id: 'conceptual_coverage',
+    title: '2. Conceptual Coverage',
+    description: 'Evaluates completeness across universal policy domains',
+    filename: 'phase2_check_conceptual_coverage.md',
+  },
+  {
+    id: 'compliance_governance',
+    title: '3. Compliance & Governance',
+    description: 'Reviews regulatory precision and control strength',
+    filename: 'phase2_check_compliance_governance.md',
+  },
+  {
+    id: 'language_clarity',
+    title: '4. Language & Clarity',
+    description: 'Assesses writing quality, tone, and readability',
+    filename: 'phase2_check_language_clarity.md',
+  },
+  {
+    id: 'structural_presentation',
+    title: '5. Structural & Presentation',
+    description: 'Evaluates document flow and formatting',
+    filename: 'phase2_check_structural_presentation.md',
+  },
+  {
+    id: 'synthesis',
+    title: '6. Synthesis Summary',
+    description: 'Generates holistic assessment combining all checks',
+    filename: 'phase2_synthesis_summary.md',
+  },
+];
 
 export function PromptsPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [prompts, setPrompts] = useState<ApiPrompt[]>([]);
-  const [selectedPromptName, setSelectedPromptName] = useState<string | null>(null);
-  const [promptContent, setPromptContent] = useState('');
-  const [originalContent, setOriginalContent] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [selectedPrompt, setSelectedPrompt] = useState<PromptConfig>(PROMPTS[0]);
+  const [promptContent, setPromptContent] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Load prompts list on mount
+  // Load prompt when selection changes
   useEffect(() => {
-    async function load() {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await listPrompts();
-        setPrompts(res.prompts || []);
-        if ((res.prompts || []).length > 0) {
-          setSelectedPromptName(res.prompts[0].name);
-        }
-      } catch (e: any) {
-        setError(e?.message || 'Failed to load prompts');
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, []);
+    loadPrompt(selectedPrompt);
+  }, [selectedPrompt]);
 
-  // Load prompt content when selection changes
-  useEffect(() => {
-    async function loadPrompt() {
-      if (!selectedPromptName) return;
-      
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await getPrompt(selectedPromptName);
-        setPromptContent(res.content);
-        setOriginalContent(res.content);
-        setSaveSuccess(false);
-      } catch (e: any) {
-        setError(e?.message || 'Failed to load prompt');
-        setPromptContent('');
-        setOriginalContent('');
-      } finally {
-        setLoading(false);
+  const loadPrompt = async (prompt: PromptConfig) => {
+    setIsLoading(true);
+    setIsSaved(false);
+    try {
+      const response = await fetch(`/api/doc-review/prompts/${prompt.filename}`);
+      if (response.ok) {
+        const content = await response.text();
+        setPromptContent(content);
+      } else {
+        setPromptContent(`# ${prompt.title}\n\nPrompt not found.`);
       }
+    } catch (error) {
+      console.error(`Failed to load prompt ${prompt.filename}:`, error);
+      setPromptContent(`# ${prompt.title}\n\nError loading prompt.`);
+    } finally {
+      setIsLoading(false);
     }
-    loadPrompt();
-  }, [selectedPromptName]);
+  };
 
   const handleSave = async () => {
-    if (!selectedPromptName) return;
-    
-    setSaving(true);
-    setError(null);
-    setSaveSuccess(false);
-    
+    setIsSaving(true);
     try {
-      await updatePrompt(selectedPromptName, promptContent);
-      setOriginalContent(promptContent);
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (e: any) {
-      setError(e?.message || 'Failed to save prompt');
+      const response = await fetch(`/api/doc-review/prompts/${selectedPrompt.filename}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'text/plain' },
+        body: promptContent,
+      });
+
+      if (response.ok) {
+        setIsSaved(true);
+        setTimeout(() => setIsSaved(false), 3000);
+      } else {
+        alert(`Failed to save prompt: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error(`Error saving prompt:`, error);
+      alert('Error saving prompt');
     } finally {
-      setSaving(false);
+      setIsSaving(false);
     }
   };
 
-  const handleReset = () => {
-    setPromptContent(originalContent);
-    setSaveSuccess(false);
-    setError(null);
+  const handlePromptChange = (value: string) => {
+    setPromptContent(value);
+    setIsSaved(false);
   };
 
-  const filteredPrompts = prompts.filter((p) =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const hasChanges = promptContent !== originalContent;
+  const handleDownload = () => {
+    const blob = new Blob([promptContent], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = selectedPrompt.filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   return (
-    <div className="flex h-full bg-white">
-      {/* Left Sidebar */}
-      <div className="w-[260px] border-r border-neutral-200 flex flex-col">
-        <div className="p-3 border-b border-neutral-200">
-          <h2 className="text-sm font-semibold text-neutral-900 mb-3">Prompts</h2>
-          
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-            <input
-              type="text"
-              placeholder="Search prompts..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 border border-neutral-300 rounded focus:outline-none focus:ring-2 focus:ring-neutral-900 text-sm"
-            />
-          </div>
-        </div>
-
-        {/* Prompts List */}
-        <div className="flex-1 overflow-y-auto">
-          {loading && prompts.length === 0 && (
-            <div className="px-4 py-2 text-sm text-neutral-600">Loading...</div>
-          )}
-          {error && prompts.length === 0 && (
-            <div className="px-4 py-2 text-sm text-red-600">{error}</div>
-          )}
-          {!loading && !error && filteredPrompts.map((prompt) => (
-            <button
-              key={prompt.name}
-              onClick={() => setSelectedPromptName(prompt.name)}
-              className={`w-full text-left px-4 py-3 border-b border-neutral-100 hover:bg-neutral-50 transition-colors ${
-                selectedPromptName === prompt.name ? 'bg-neutral-100' : ''
-              }`}
-            >
-              <p className="text-neutral-900 mb-1 text-sm font-medium">{prompt.name}</p>
-              <p className="text-neutral-500 text-xs">{prompt.filename}</p>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+    <div className="flex flex-col h-full bg-gradient-to-br from-slate-50 via-white to-slate-50 overflow-hidden">
+      <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full px-12 py-6 overflow-hidden">
         {/* Header */}
-        <div className="border-b border-neutral-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-lg font-semibold text-neutral-900">
-                {selectedPromptName || 'Select a prompt'}
-              </h1>
-              {selectedPromptName && (
-                <p className="text-sm text-neutral-500 mt-1">
-                  Edit system prompts used for document processing
-                </p>
-              )}
+        <div className="mb-6 flex-shrink-0">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg">
+              <Sparkles className="w-6 h-6" />
             </div>
-            
-            <div className="flex gap-2">
-              {hasChanges && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleReset}
-                  disabled={saving}
-                >
-                  <RotateCcw className="w-3 h-3 mr-2" />
-                  Reset
-                </Button>
-              )}
-              
-              <Button
-                variant="default"
-                size="sm"
-                onClick={handleSave}
-                disabled={!selectedPromptName || !hasChanges || saving}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-              >
-                {saving ? (
-                  <>
-                    <div className="w-3 h-3 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-3 h-3 mr-2" />
-                    Save Changes
-                  </>
-                )}
-              </Button>
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900">Analysis Prompts</h1>
+              <p className="text-gray-500 mt-1">
+                Customize AI evaluation criteria for your documents
+              </p>
             </div>
           </div>
-          
-          {/* Status Messages */}
-          {saveSuccess && (
-            <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded text-sm text-green-800">
-              ✓ Prompt saved successfully
-            </div>
-          )}
-          {error && prompts.length > 0 && (
-            <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-800">
-              {error}
-            </div>
-          )}
         </div>
 
-        {/* Editor */}
-        <div className="flex-1 overflow-hidden">
-          {selectedPromptName ? (
-            <textarea
-              value={promptContent}
-              onChange={(e) => setPromptContent(e.target.value)}
-              className="w-full h-full p-6 font-mono text-sm resize-none focus:outline-none border-0"
-              placeholder="Enter prompt content..."
-              style={{ fontFamily: "'Fira Code', 'Courier New', monospace" }}
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full text-neutral-400">
-              Select a prompt from the sidebar to begin editing
+        {/* Prompt Selector Card */}
+        <div className="flex-1 flex flex-col bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+          {/* Dropdown Section */}
+          <div className="bg-gradient-to-r from-gray-50 to-white p-6 border-b border-gray-200 flex-shrink-0">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Select Prompt to Edit
+            </label>
+            <div className="relative">
+              <select
+                value={selectedPrompt.id}
+                onChange={(e) => {
+                  const prompt = PROMPTS.find(p => p.id === e.target.value);
+                  if (prompt) setSelectedPrompt(prompt);
+                }}
+                className="w-full px-4 py-3 pr-10 text-base border-2 border-gray-300 rounded-xl bg-white text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none cursor-pointer hover:border-gray-400"
+              >
+                {PROMPTS.map((prompt) => (
+                  <option key={prompt.id} value={prompt.id}>
+                    {prompt.title}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
             </div>
-          )}
+            <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+              {selectedPrompt.description}
+            </p>
+          </div>
+
+          {/* Textarea Section */}
+          <div className="flex-1 flex flex-col p-6 overflow-hidden">
+            <label className="block text-sm font-semibold text-gray-700 mb-3 flex-shrink-0">
+              Prompt Content
+            </label>
+            {isLoading ? (
+              <div className="flex-1 flex items-center justify-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+                <div className="text-center">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-3"></div>
+                  <p className="text-gray-500 text-sm">Loading prompt...</p>
+                </div>
+              </div>
+            ) : (
+              <textarea
+                value={promptContent}
+                onChange={(e) => handlePromptChange(e.target.value)}
+                className="flex-1 w-full px-5 py-4 border-2 border-gray-300 rounded-xl bg-white text-gray-900 font-mono text-[15px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none transition-all shadow-inner"
+                placeholder="Enter prompt content..."
+                spellCheck={false}
+              />
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="flex items-center justify-between p-6 pt-4 border-t border-gray-200 flex-shrink-0 bg-gray-50">
+            <div className="flex items-center gap-3">
+              <code className="px-3 py-1.5 bg-white text-gray-700 rounded-lg text-xs font-mono border border-gray-200 shadow-sm">
+                {selectedPrompt.filename}
+              </code>
+              {isSaved && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-100 text-green-700 text-sm font-medium border border-green-200">
+                  <CheckCircle2 className="w-4 h-4" />
+                  Saved successfully
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleDownload}
+                disabled={isLoading}
+                className="inline-flex items-center gap-2 px-5 py-3 bg-white text-gray-700 border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow font-semibold"
+                title="Download prompt as .md file"
+              >
+                <Download className="w-5 h-5" />
+                Download
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={isSaving || isLoading}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl font-semibold"
+              >
+                <Save className="w-5 h-5" />
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-

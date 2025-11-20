@@ -109,13 +109,13 @@ export function SelectionBridgePlugin({ onSelectionChange }: SelectionBridgePlug
           currentBlockType = 'quote';
         } else if (blockNode instanceof DocDividerNode) {
           currentBlockType = 'divider';
-          isConvertible = false; // Can't convert dividers
+          isConvertible = true; // Allow conversion to editable blocks
         } else if (blockNode instanceof DocImageNode) {
           currentBlockType = 'image';
-          isConvertible = false; // Can't convert images
+          isConvertible = true; // Allow conversion to editable blocks
         } else if (blockNode instanceof DocEmptyNode) {
           currentBlockType = 'empty';
-          isConvertible = false; // Can't convert empty blocks
+          isConvertible = true; // Allow conversion to editable blocks
         }
         
         // Empty selection (just cursor)

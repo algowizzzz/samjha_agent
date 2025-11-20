@@ -51,22 +51,22 @@ function createNodeFromBlock(block: DocBlock) {
   switch (block.type) {
     case 'heading': {
       const headingNode = $createDocHeadingNode(block.level, block.id, block.sectionKey);
-      appendTextRuns(headingNode, block.text);
+      appendTextRuns(headingNode, block.content);
       return headingNode;
     }
     
     case 'paragraph': {
       const pNode = $createDocParagraphNode(block.id, block.sectionKey);
-      appendTextRuns(pNode, block.text);
+      appendTextRuns(pNode, block.content);
       return pNode;
     }
     
     case 'list': {
       // Handle legacy list format with proper Lexical nodes
       const items = block.items.map(item => ({
-        content: typeof item === 'string' ? item : item.text?.map(t => t.text).join('') || ''
+        content: typeof item === 'string' ? item : item.content?.map((t: any) => t.text).join('') || ''
       }));
-      const listNode = $createDocListNode(block.id, block.style, items);
+      const listNode = $createDocListNode(block.id, block.listStyle, items);
       
       // Create ListItemNode children with TextNode content
       items.forEach((item) => {
@@ -105,7 +105,9 @@ function createNodeFromBlock(block: DocBlock) {
       // Handle code blocks with proper Lexical TextNode children
       const codeContent = typeof (block as any).content === 'string' 
         ? (block as any).content 
-        : (block as any).text?.map((t: any) => t.text).join('') || '';
+        : Array.isArray((block as any).content)
+          ? (block as any).content.map((t: any) => t.text).join('')
+          : '';
       const language = (block as any).language;
       const codeNode = $createDocCodeNode((block as any).id || block.id, codeContent, language);
       
@@ -120,7 +122,7 @@ function createNodeFromBlock(block: DocBlock) {
     case 'quote': {
       // Handle quotes
       const quoteNode = $createDocQuoteNode((block as any).id || block.id);
-      const content = (block as any).content || (block as any).text;
+      const content = (block as any).content;
       if (typeof content === 'string') {
         const textNode = $createAiTextNode(content);
         quoteNode.append(textNode);

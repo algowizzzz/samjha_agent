@@ -26,16 +26,64 @@ export function FloatingToolbarPlugin({
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [showTurnIntoMenu, setShowTurnIntoMenu] = useState(false);
   const [showLinkMenu, setShowLinkMenu] = useState(false);
+  const [showTextColorMenu, setShowTextColorMenu] = useState(false);
+  const [showBgColorMenu, setShowBgColorMenu] = useState(false);
+  const [showHighlights, setShowHighlights] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [manualPosition, setManualPosition] = useState<{ top: number; left: number } | null>(null);
+  const [recentTextColors, setRecentTextColors] = useState<string[]>([]);
+  const [recentBgColors, setRecentBgColors] = useState<string[]>([]);
+
+  // Text color palette - comprehensive
+  const textColors = [
+    { name: 'Black', value: '#000000' },
+    { name: 'Dark Gray', value: '#6b7280' },
+    { name: 'Brown', value: '#92400e' },
+    { name: 'Orange', value: '#ea580c' },
+    { name: 'Gold', value: '#ca8a04' },
+    { name: 'Green', value: '#16a34a' },
+    { name: 'Blue', value: '#2563eb' },
+    { name: 'Purple', value: '#9333ea' },
+    { name: 'Pink', value: '#db2777' },
+    { name: 'Red', value: '#dc2626' },
+  ];
+
+  // Background color palette - comprehensive
+  const bgColors = [
+    { name: 'Transparent', value: 'transparent' },
+    { name: 'Light Gray', value: '#f3f4f6' },
+    { name: 'Brown', value: '#d4a574' },
+    { name: 'Orange', value: '#fed7aa' },
+    { name: 'Yellow', value: '#fef3c7' },
+    { name: 'Green', value: '#bbf7d0' },
+    { name: 'Blue', value: '#bfdbfe' },
+    { name: 'Purple', value: '#e9d5ff' },
+    { name: 'Pink', value: '#fbcfe8' },
+    { name: 'Red', value: '#fecaca' },
+  ];
+
+  // Add color to recent colors
+  const addToRecentTextColors = (color: string) => {
+    setRecentTextColors(prev => {
+      const filtered = prev.filter(c => c !== color);
+      return [color, ...filtered].slice(0, 4);
+    });
+  };
+
+  const addToRecentBgColors = (color: string) => {
+    setRecentBgColors(prev => {
+      const filtered = prev.filter(c => c !== color);
+      return [color, ...filtered].slice(0, 4);
+    });
+  };
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
     
     if (!$isRangeSelection(selection) || selection.isCollapsed()) {
       setIsVisible(false);
-      setManualPosition(null); // Reset manual position when selection is cleared
+      setManualPosition(null);
       return;
     }
 
@@ -55,29 +103,41 @@ export function FloatingToolbarPlugin({
 
     // Only update position if not manually positioned
     if (!manualPosition) {
-      // Position toolbar above selection
-      const toolbarHeight = 40; // Reduced from 48
+      // Position toolbar above selection, aligned to left
+      const toolbarHeight = 40;
       const gap = 8;
       
-      let left = rect.left + window.scrollX + (rect.width / 2);
+      // Get editor container bounds
+      const editorContainer = document.querySelector('[data-lexical-editor="true"]')?.parentElement;
+      const containerRect = editorContainer?.getBoundingClientRect();
+      
+      // Align toolbar to left edge of selection
+      let left = rect.left + window.scrollX;
       let top = rect.top + window.scrollY - toolbarHeight - gap;
       
-      // Constrain to viewport
-      // Estimate toolbar width (will be centered, so transform will adjust)
+      // Constrain to editor container (middle panel)
       const estimatedToolbarWidth = 600;
-      const halfWidth = estimatedToolbarWidth / 2;
       
-      // Check horizontal boundaries
-      if (left - halfWidth < 10) {
-        left = halfWidth + 10;
-      } else if (left + halfWidth > window.innerWidth - 10) {
-        left = window.innerWidth - halfWidth - 10;
-      }
-      
-      // Check if toolbar would go above viewport
-      if (top < 10) {
-        // Position below selection instead
-        top = rect.bottom + window.scrollY + gap;
+      if (containerRect) {
+        // Horizontal constraints relative to container
+        const containerLeft = containerRect.left + window.scrollX;
+        const containerRight = containerLeft + containerRect.width;
+        
+        // Ensure toolbar doesn't go outside left edge
+        if (left < containerLeft + 10) {
+          left = containerLeft + 10;
+        }
+        // Ensure toolbar doesn't go outside right edge
+        if (left + estimatedToolbarWidth > containerRight - 10) {
+          left = containerRight - estimatedToolbarWidth - 10;
+        }
+        
+        // Vertical constraints relative to container
+        const containerTop = containerRect.top + window.scrollY;
+        if (top < containerTop + 10) {
+          // Position below selection instead
+          top = rect.bottom + window.scrollY + gap;
+        }
       }
       
       setPosition({ top, left });
@@ -174,7 +234,7 @@ export function FloatingToolbarPlugin({
         position: 'absolute',
         top: `${currentPosition.top}px`,
         left: `${currentPosition.left}px`,
-        transform: manualPosition ? 'none' : 'translateX(-50%)',
+        transform: 'none',
         zIndex: 1000,
         backgroundColor: '#1f2937',
         borderRadius: '6px',
@@ -288,6 +348,50 @@ export function FloatingToolbarPlugin({
         title="Add comment"
       >
         💬
+      </button>
+
+      {/* Toggle Highlights */}
+      <button
+        onClick={() => {
+          setShowHighlights(!showHighlights);
+          // Toggle CSS class on editor - find ContentEditable
+          const editorDiv = document.querySelector('[contenteditable="true"]');
+          if (editorDiv) {
+            if (showHighlights) {
+              editorDiv.classList.add('hide-highlights');
+            } else {
+              editorDiv.classList.remove('hide-highlights');
+            }
+          }
+        }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          padding: '4px 6px',
+          backgroundColor: showHighlights ? 'transparent' : '#374151',
+          color: '#e5e7eb',
+          border: 'none',
+          borderRadius: '3px',
+          cursor: 'pointer',
+          fontSize: '12px',
+          fontWeight: 500,
+        }}
+        onMouseEnter={(e) => !showHighlights && (e.currentTarget.style.backgroundColor = '#4b5563')}
+        onMouseLeave={(e) => !showHighlights && (e.currentTarget.style.backgroundColor = '#374151')}
+        title={showHighlights ? "Hide comment & AI highlights" : "Show comment & AI highlights"}
+      >
+        {showHighlights ? (
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+            <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+          </svg>
+        ) : (
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z"/>
+            <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z"/>
+            <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z"/>
+          </svg>
+        )}
       </button>
 
       {/* Emoji (dummy) */}
@@ -565,24 +669,232 @@ export function FloatingToolbarPlugin({
       {/* Divider */}
       <div style={{ width: '1px', height: '20px', backgroundColor: '#4b5563' }} />
 
-      {/* Text Color (dummy) */}
-      <button
-        onClick={() => alert('Text color picker - Use right sidebar')}
-        style={{
-          padding: '4px 6px',
-          backgroundColor: 'transparent',
-          color: '#e5e7eb',
-          border: 'none',
-          borderRadius: '3px',
-          cursor: 'pointer',
-          fontSize: '14px',
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#374151'}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-        title="Text color (Use right sidebar)"
-      >
-        A
-      </button>
+      {/* Text Color */}
+      <div style={{ position: 'relative', display: 'inline-block' }}>
+        <button
+          onClick={() => {
+            setShowTextColorMenu(!showTextColorMenu);
+            setShowBgColorMenu(false);
+            setShowTurnIntoMenu(false);
+          }}
+          style={{
+            padding: '4px 6px',
+            backgroundColor: showTextColorMenu ? '#374151' : 'transparent',
+            color: '#e5e7eb',
+            border: 'none',
+            borderRadius: '3px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 'bold',
+          }}
+          onMouseEnter={(e) => !showTextColorMenu && (e.currentTarget.style.backgroundColor = '#374151')}
+          onMouseLeave={(e) => !showTextColorMenu && (e.currentTarget.style.backgroundColor = 'transparent')}
+          title="Text color"
+        >
+          A
+        </button>
+
+        {showTextColorMenu && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '100%',
+              left: '0',
+              marginTop: '6px',
+              backgroundColor: '#2d2d2d',
+              borderRadius: '8px',
+              padding: '12px',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
+              zIndex: 1001,
+              minWidth: '200px',
+            }}
+          >
+            {/* Recently used */}
+            {recentTextColors.length > 0 && (
+              <>
+                <div style={{ color: '#9ca3af', fontSize: '11px', marginBottom: '8px', fontWeight: 500 }}>
+                  Recently used
+                </div>
+                <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
+                  {recentTextColors.map((color, idx) => (
+                    <button
+                      key={`recent-${idx}`}
+                      onClick={() => {
+                        onTextColor(color);
+                        setShowTextColorMenu(false);
+                      }}
+                      style={{
+                        width: '36px',
+                        height: '36px',
+                        backgroundColor: '#1f2937',
+                        border: '2px solid #374151',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '18px',
+                        fontWeight: 'bold',
+                        color: color,
+                      }}
+                    >
+                      A
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Text color palette */}
+            <div style={{ color: '#9ca3af', fontSize: '11px', marginBottom: '8px', fontWeight: 500 }}>
+              Text color
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px' }}>
+              {textColors.map((color) => (
+                <button
+                  key={color.value}
+                  onClick={() => {
+                    onTextColor(color.value);
+                    addToRecentTextColors(color.value);
+                    setShowTextColorMenu(false);
+                  }}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    backgroundColor: '#1f2937',
+                    border: '2px solid #374151',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    color: color.value,
+                  }}
+                  title={color.name}
+                >
+                  A
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Background Color */}
+      <div style={{ position: 'relative', display: 'inline-block' }}>
+        <button
+          onClick={() => {
+            setShowBgColorMenu(!showBgColorMenu);
+            setShowTextColorMenu(false);
+            setShowTurnIntoMenu(false);
+          }}
+          style={{
+            padding: '4px 6px',
+            backgroundColor: showBgColorMenu ? '#374151' : 'transparent',
+            color: '#e5e7eb',
+            border: 'none',
+            borderRadius: '3px',
+            cursor: 'pointer',
+            fontSize: '13px',
+          }}
+          onMouseEnter={(e) => !showBgColorMenu && (e.currentTarget.style.backgroundColor = '#374151')}
+          onMouseLeave={(e) => !showBgColorMenu && (e.currentTarget.style.backgroundColor = 'transparent')}
+          title="Background color"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <rect x="2" y="10" width="12" height="4" />
+          </svg>
+        </button>
+
+        {showBgColorMenu && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '100%',
+              left: '0',
+              marginTop: '6px',
+              backgroundColor: '#2d2d2d',
+              borderRadius: '8px',
+              padding: '12px',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
+              zIndex: 1001,
+              minWidth: '200px',
+            }}
+          >
+            {/* Recently used */}
+            {recentBgColors.length > 0 && (
+              <>
+                <div style={{ color: '#9ca3af', fontSize: '11px', marginBottom: '8px', fontWeight: 500 }}>
+                  Recently used
+                </div>
+                <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
+                  {recentBgColors.map((color, idx) => (
+                    <button
+                      key={`recent-bg-${idx}`}
+                      onClick={() => {
+                        onBackgroundColor(color);
+                        setShowBgColorMenu(false);
+                      }}
+                      style={{
+                        width: '36px',
+                        height: '36px',
+                        backgroundColor: color,
+                        border: '2px solid #374151',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                      }}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Background color palette */}
+            <div style={{ color: '#9ca3af', fontSize: '11px', marginBottom: '8px', fontWeight: 500 }}>
+              Background color
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px' }}>
+              {bgColors.map((color) => (
+                <button
+                  key={color.value}
+                  onClick={() => {
+                    onBackgroundColor(color.value);
+                    addToRecentBgColors(color.value);
+                    setShowBgColorMenu(false);
+                  }}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    backgroundColor: color.value === 'transparent' ? '#1f2937' : color.value,
+                    border: '2px solid #374151',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    position: 'relative',
+                  }}
+                  title={color.name}
+                >
+                  {color.value === 'transparent' && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%) rotate(-45deg)',
+                      width: '20px',
+                      height: '2px',
+                      backgroundColor: '#ef4444',
+                    }} />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Divider */}
+      <div style={{ width: '1px', height: '20px', backgroundColor: '#4b5563' }} />
 
       {/* More options */}
       <button

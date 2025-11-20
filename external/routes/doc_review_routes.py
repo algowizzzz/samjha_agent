@@ -18,6 +18,8 @@ from external.products.doc_review.store import DocReviewStore
 from external.products.doc_review.vfs import DocReviewVFSAdapter
 from external.products.doc_review.template_processor import TemplateProcessor, load_template, list_templates
 from external.products.doc_review.comments import CommentsManager
+from external.products.doc_review.ai_suggestions import AISuggestionsManager
+from external.products.doc_review.chat_history import ChatHistoryManager
 from external.platform.llm import get_llm_client, is_llm_available
 
 
@@ -55,9 +57,11 @@ class DocReviewRoutes(BaseRoutes):
     def __init__(self, auth_manager, tools_registry=None, mcp_handler=None, socketio=None):
         super().__init__(auth_manager, tools_registry, mcp_handler)
         configure_doc_review_logging()
-        self.agent = DocReviewAgent()
+        self.agent = DocReviewAgent(tools_registry=tools_registry)
         self.store = DocReviewStore()
         self.comments = CommentsManager(self.store)
+        self.ai_suggestions = AISuggestionsManager(self.store)
+        self.chat_history = ChatHistoryManager(self.store)
         self.socketio = socketio
         self.upload_dir = Path("external/data/doc_review/uploads")
         self.upload_dir.mkdir(parents=True, exist_ok=True)
@@ -100,6 +104,10 @@ class DocReviewRoutes(BaseRoutes):
             from functools import wraps
             @wraps(f)
             def wrapper(*args, **kwargs):
+                # Allow OPTIONS requests (CORS preflight) without authentication
+                if request.method == 'OPTIONS':
+                    return f(*args, **kwargs)
+                
                 # Check for API key in header
                 api_key = request.headers.get('X-API-Key')
                 if api_key == 'docreview_dev_key_12345':  # Simple dev key
@@ -451,6 +459,79 @@ class DocReviewRoutes(BaseRoutes):
                 return jsonify({"document": updated})
             except Exception as exc:  # pylint: disable=broad-except
                 logger.exception("Phase 1 run failed for %s", file_id)
+                self.store.update_status(file_id, "error")
+                if emitter:
+                    emitter(
+                        "log",
+                        {
+                            "node": "workflow",
+                            "message": str(exc),
+                            "level": "error",
+                        },
+                    )
+                    emitter(
+                        "status",
+                        {
+                            "status": "error",
+                            "message": str(exc),
+                        },
+                    )
+                return jsonify({"error": str(exc)}), 500
+
+        @app.route("/api/doc_review/documents/<file_id>/analyze", methods=["POST"])
+        @_api_key_or_login_required
+        def analyze_document(file_id: str):
+            """Run full document analysis workflow (TOC review + 4 holistic checks + synthesis)."""
+            record = self.store.load(file_id)
+            if not record:
+                return jsonify({"error": "Document not found"}), 404
+            
+            # Load existing state
+            existing_state = record.get("state", {})
+            if not existing_state:
+                return jsonify({"error": "Document must be ingested first. Please run Phase 1."}), 400
+            
+            source_path = record.get("source_path")
+            if not source_path:
+                return jsonify({"error": "Stored document missing source_path"}), 500
+            
+            emitter = self._make_event_emitter(file_id)
+            self.agent.set_event_emitter(emitter)
+            
+            try:
+                self.store.update_status(file_id, "running")
+                
+                # Use existing state from store
+                state = existing_state.copy()
+                state["doc_id"] = file_id
+                
+                # Always start analysis workflow from phase1_toc_review
+                state["control"] = "phase1_toc_review"
+                
+                # Run orchestrator from current control point
+                state = self.agent.orchestrate(state)
+                
+                # Save the completed state
+                updated = self.store.save(file_id, source_path, state, status="ready")
+                
+                if emitter:
+                    emitter(
+                        "status",
+                        {
+                            "status": "ready",
+                            "message": "Analysis completed successfully",
+                            "control": state.get("control"),
+                        },
+                    )
+                
+                return jsonify({
+                    "status": "completed",
+                    "control": state.get("control"),
+                    "document": updated
+                })
+                
+            except Exception as exc:  # pylint: disable=broad-except
+                logger.exception("Document analysis failed for %s", file_id)
                 self.store.update_status(file_id, "error")
                 if emitter:
                     emitter(
@@ -1287,7 +1368,7 @@ class DocReviewRoutes(BaseRoutes):
         def list_prompts():
             """List all available prompts."""
             try:
-                prompts_dir = Path("external/doc_review/prompts")
+                prompts_dir = Path("external/products/doc_review/prompts")
                 if not prompts_dir.exists():
                     return jsonify({"prompts": []})
                 
@@ -1311,7 +1392,7 @@ class DocReviewRoutes(BaseRoutes):
         def get_prompt(prompt_name: str):
             """Get prompt content by name."""
             try:
-                prompts_dir = Path("external/doc_review/prompts")
+                prompts_dir = Path("external/products/doc_review/prompts")
                 
                 # Try both .txt and .md extensions
                 prompt_path = None
@@ -1325,10 +1406,8 @@ class DocReviewRoutes(BaseRoutes):
                     return jsonify({"error": f"Prompt '{prompt_name}' not found"}), 404
                 
                 content = prompt_path.read_text(encoding="utf-8")
-                return jsonify({
-                    "name": prompt_name,
-                    "content": content
-                })
+                # Return plain text for frontend textarea
+                return content, 200, {'Content-Type': 'text/plain; charset=utf-8'}
             except Exception as exc:
                 logger.exception("Failed to get prompt: %s", exc)
                 return jsonify({"error": f"Failed to get prompt: {str(exc)}"}), 500
@@ -1338,13 +1417,13 @@ class DocReviewRoutes(BaseRoutes):
         def update_prompt(prompt_name: str):
             """Update prompt content."""
             try:
-                data = request.get_json() or {}
-                content = data.get("content")
+                # Accept plain text body
+                content = request.get_data(as_text=True)
                 
-                if content is None:
+                if not content:
                     return jsonify({"error": "content is required"}), 400
                 
-                prompts_dir = Path("external/doc_review/prompts")
+                prompts_dir = Path("external/products/doc_review/prompts")
                 prompts_dir.mkdir(parents=True, exist_ok=True)
                 
                 # Determine existing file extension or default to .md
@@ -1397,12 +1476,14 @@ class DocReviewRoutes(BaseRoutes):
                 content = data.get("content", "")
                 author = data.get("author", "User")
                 selection_text = data.get("selection_text")
+                start_offset = data.get("start_offset")
+                end_offset = data.get("end_offset")
                 
                 if not block_id or not content:
                     return jsonify({"error": "block_id and content are required"}), 400
                 
                 comment = self.comments.add_comment(
-                    file_id, block_id, block_title, content, author, selection_text
+                    file_id, block_id, block_title, content, author, selection_text, start_offset, end_offset
                 )
                 
                 # Emit socket event for real-time updates
@@ -1513,4 +1594,142 @@ class DocReviewRoutes(BaseRoutes):
                 return jsonify({"counts": counts}), 200
             except Exception as e:
                 logger.error("Error getting comment counts: %s", e, exc_info=True)
+                return jsonify({"error": str(e)}), 500
+
+        # ===================================================================
+        # AI SUGGESTIONS MANAGEMENT ROUTES
+        # ===================================================================
+
+        @app.route("/api/doc_review/<file_id>/ai_suggestions", methods=["GET", "OPTIONS"])
+        @_api_key_or_login_required
+        def list_ai_suggestions(file_id):
+            """List all AI suggestions for a document."""
+            if request.method == 'OPTIONS':
+                return '', 200
+            try:
+                block_id = request.args.get("block_id")
+                suggestions = self.ai_suggestions.list_suggestions(file_id, block_id)
+                return jsonify({"suggestions": suggestions}), 200
+            except Exception as e:
+                logger.error("Error listing AI suggestions: %s", e, exc_info=True)
+                return jsonify({"error": str(e)}), 500
+
+        @app.route("/api/doc_review/<file_id>/ai_suggestions", methods=["POST", "OPTIONS"])
+        @_api_key_or_login_required
+        def add_ai_suggestion(file_id):
+            """Add a new AI suggestion."""
+            if request.method == 'OPTIONS':
+                return '', 200
+            try:
+                data = request.get_json() or {}
+                block_id = data.get("block_id")
+                selection_text = data.get("selection_text", "")
+                improved_text = data.get("improved_text", "")
+                status = data.get("status", "pending")
+                start_offset = data.get("start_offset")
+                end_offset = data.get("end_offset")
+                
+                if not block_id or not selection_text or not improved_text:
+                    return jsonify({"error": "block_id, selection_text, and improved_text are required"}), 400
+                
+                suggestion = self.ai_suggestions.add_suggestion(
+                    file_id, block_id, selection_text, improved_text, status, start_offset, end_offset
+                )
+                
+                return jsonify(suggestion), 201
+            except Exception as e:
+                logger.error("Error adding AI suggestion: %s", e, exc_info=True)
+                return jsonify({"error": str(e)}), 500
+
+        @app.route("/api/doc_review/<file_id>/ai_suggestions/<suggestion_id>", methods=["PATCH", "OPTIONS"])
+        @_api_key_or_login_required
+        def update_ai_suggestion_status(file_id, suggestion_id):
+            """Update the status of an AI suggestion (accept/reject)."""
+            if request.method == 'OPTIONS':
+                return '', 200
+            try:
+                data = request.get_json() or {}
+                status = data.get("status")
+                
+                if not status or status not in ["pending", "accepted", "rejected"]:
+                    return jsonify({"error": "status must be 'pending', 'accepted', or 'rejected'"}), 400
+                
+                suggestion = self.ai_suggestions.update_status(file_id, suggestion_id, status)
+                if not suggestion:
+                    return jsonify({"error": "Suggestion not found"}), 404
+                
+                return jsonify(suggestion), 200
+            except Exception as e:
+                logger.error("Error updating AI suggestion: %s", e, exc_info=True)
+                return jsonify({"error": str(e)}), 500
+
+        @app.route("/api/doc_review/<file_id>/ai_suggestions/<suggestion_id>", methods=["DELETE", "OPTIONS"])
+        @_api_key_or_login_required
+        def delete_ai_suggestion(file_id, suggestion_id):
+            """Delete an AI suggestion."""
+            if request.method == 'OPTIONS':
+                return '', 200
+            try:
+                success = self.ai_suggestions.delete_suggestion(file_id, suggestion_id)
+                if not success:
+                    return jsonify({"error": "Suggestion not found"}), 404
+                
+                return jsonify({"success": True}), 200
+            except Exception as e:
+                logger.error("Error deleting AI suggestion: %s", e, exc_info=True)
+                return jsonify({"error": str(e)}), 500
+
+        # ===== Chat History Routes =====
+
+        @app.route("/api/doc_review/<file_id>/chat", methods=["GET", "OPTIONS"])
+        @_api_key_or_login_required
+        def list_chat_messages(file_id):
+            """List all chat messages for a document."""
+            if request.method == 'OPTIONS':
+                return '', 200
+            try:
+                messages = self.chat_history.list_messages(file_id)
+                return jsonify({"messages": messages}), 200
+            except Exception as e:
+                logger.error("Error listing chat messages: %s", e, exc_info=True)
+                return jsonify({"error": str(e)}), 500
+
+        @app.route("/api/doc_review/<file_id>/chat", methods=["POST", "OPTIONS"])
+        @_api_key_or_login_required
+        def add_chat_message(file_id):
+            """Add a new chat message."""
+            if request.method == 'OPTIONS':
+                return '', 200
+            try:
+                data = request.get_json() or {}
+                role = data.get("role")  # 'user' or 'assistant'
+                content = data.get("content", "")
+                context = data.get("context")  # Optional selected text
+                
+                if not role or not content:
+                    return jsonify({"error": "role and content are required"}), 400
+                
+                if role not in ['user', 'assistant']:
+                    return jsonify({"error": "role must be 'user' or 'assistant'"}), 400
+                
+                message = self.chat_history.add_message(
+                    file_id, role, content, context
+                )
+                
+                return jsonify(message), 201
+            except Exception as e:
+                logger.error("Error adding chat message: %s", e, exc_info=True)
+                return jsonify({"error": str(e)}), 500
+
+        @app.route("/api/doc_review/<file_id>/chat/clear", methods=["POST", "OPTIONS"])
+        @_api_key_or_login_required
+        def clear_chat_messages(file_id):
+            """Clear all chat messages for a document."""
+            if request.method == 'OPTIONS':
+                return '', 200
+            try:
+                success = self.chat_history.clear_messages(file_id)
+                return jsonify({"success": success}), 200
+            except Exception as e:
+                logger.error("Error clearing chat messages: %s", e, exc_info=True)
                 return jsonify({"error": str(e)}), 500

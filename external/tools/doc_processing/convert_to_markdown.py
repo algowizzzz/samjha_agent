@@ -274,8 +274,8 @@ Begin transcription. Output ONLY JSON."""
 
         try:
             response = self.client.messages.create(
-                model="claude-3-5-sonnet-20241022",  # Use Sonnet for better accuracy
-                max_tokens=8192,
+                model="claude-3-haiku-20240307",  # Use Haiku for speed
+                max_tokens=4096,
                 messages=[
                     {
                         "role": "user",
@@ -949,14 +949,14 @@ If no issues found, return empty array: []
                 page_md = '\n'.join(page_md_lines)
             else:
                 # LEGACY: PDF → Markdown → JSON (2-step)
-            self.logger.info(f"Transcribing page {page_num}/{len(images)}...")
-            page_md = self._transcribe_page_with_vision(image, page_num)
+                self.logger.info(f"Transcribing page {page_num}/{len(images)}...")
+                page_md = self._transcribe_page_with_vision(image, page_num)
+                
+                # Create semantic blocks using LLM
+                self.logger.info(f"Creating semantic blocks for page {page_num}...")
+                semantic_blocks = self._create_semantic_blocks_with_llm(page_md, page_num)
             
-            # Create semantic blocks using LLM
-            self.logger.info(f"Creating semantic blocks for page {page_num}...")
-            semantic_blocks = self._create_semantic_blocks_with_llm(page_md, page_num)
-            
-            # Generate stable IDs for each semantic block
+            # Generate stable IDs for each semantic block (common for both paths)
             page_blocks = []
             for block_num, block_data in enumerate(semantic_blocks):
                 # Use content for ID if available, otherwise use empty string

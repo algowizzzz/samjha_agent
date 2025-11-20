@@ -13,14 +13,11 @@ from external.doc_review.llm import LLMNotAvailableError, call_llm_json
 from external.doc_review.mcp_client import call_mcp
 from external.doc_review.types import (
     AgentState,
-    ChangeSelectionPlan,
-    ChangesData,
     DocMeta,
     Phase1Data,
     Phase2Data,
     StructureData,
     TemplateMeta,
-    UserInteractionState,
     VfsArtifact,
 )
 
@@ -30,49 +27,26 @@ TEMPLATE_DIR = Path("external/doc_review/templates")
 
 NODE_LABELS: Dict[str, str] = {
     "phase0_ingestion": "Phase 0 – Ingestion",
-    "phase1_doc_summary": "Phase 1 – Document Summary",
     "phase1_toc_review": "Phase 1 – TOC Review",
-    "phase1_template_fitness": "Phase 1 – Template Fitness",
-    "phase1_section_strategy": "Phase 1 – Section Strategy",
-    "phase2_extract_sections": "Phase 2 – Extract Sections",
-    "phase2_section_reviews": "Phase 2 – Section Reviews",
-    "phase2_summary": "Phase 2 – Summary",
-    "change_selection_intent": "Phase 3 – Interpret Instruction",
-    "apply_changes": "Phase 3 – Apply Changes",
-    "verify_changes": "Phase 3 – Verify Changes",
+    "phase2_holistic_checks": "Phase 2 – Quality Checks",
+    "phase2_synthesis": "Phase 2 – Synthesis",
 }
 
 NODE_KINDS: Dict[str, str] = {
     "phase0_ingestion": "tool",
-    "phase1_doc_summary": "llm",
     "phase1_toc_review": "llm",
-    "phase1_template_fitness": "llm",
-    "phase1_section_strategy": "llm",
-    "phase2_extract_sections": "orchestrator",
-    "phase2_section_reviews": "llm",
-    "phase2_summary": "llm",
-    "change_selection_intent": "llm",
-    "apply_changes": "tool",
-    "verify_changes": "llm",
+    "phase2_holistic_checks": "orchestrator",
+    "phase2_synthesis": "llm",
 }
 
 NODE_TRANSITIONS: Dict[str, str] = {
-    "phase0_ingestion": "phase1_doc_summary",
-    "phase1_doc_summary": "phase1_toc_review",
-    "phase1_toc_review": "phase1_template_fitness",
-    "phase1_template_fitness": "phase1_section_strategy",
-    "phase1_section_strategy": "await_section_strategy_confirmation",
-    "phase2_extract_sections": "phase2_section_reviews",
-    "phase2_section_reviews": "phase2_summary",
-    "phase2_summary": "await_change_instruction",
-    "change_selection_intent": "apply_changes",
-    "apply_changes": "verify_changes",
-    "verify_changes": "completed",
+    "phase0_ingestion": "phase1_toc_review",
+    "phase1_toc_review": "phase2_holistic_checks",
+    "phase2_holistic_checks": "phase2_synthesis",
+    "phase2_synthesis": "completed",
 }
 
 ORCHESTRATOR_WAIT_STATES: Set[str] = {
-    "await_section_strategy_confirmation",
-    "await_change_instruction",
     "completed",
     "failed",
 }
@@ -89,7 +63,7 @@ class DocReviewAgent:
     planner) build on the state initialised here.
     """
 
-    def __init__(self, agent_config_path: Optional[Path] = None) -> None:
+    def __init__(self, agent_config_path: Optional[Path] = None, tools_registry=None) -> None:
         self.agent_config_path = agent_config_path or DEFAULT_AGENT_CONFIG_PATH
         self.config = self._load_config(self.agent_config_path)
         self.logger = LOGGER
@@ -98,20 +72,14 @@ class DocReviewAgent:
         self.state_lock_owner: Optional[str] = None
         self.event_emitter: Optional[Callable[[str, Dict[str, Any]], None]] = None
         self.agent_log_root = Path("logs")
+        self.tools_registry = tools_registry
 
     def _build_node_registry(self) -> Dict[str, Callable[[AgentState], AgentState]]:
         return {
             "phase0_ingestion": self._run_phase0_ingestion,
-            "phase1_doc_summary": self._node_phase1_doc_summary_llm,
             "phase1_toc_review": self._node_phase1_toc_review_llm,
-            "phase1_template_fitness": self._node_phase1_template_fitness_llm,
-            "phase1_section_strategy": self._node_phase1_section_strategy_llm,
-            "phase2_extract_sections": self._node_phase2_extract_sections,
-            "phase2_section_reviews": self._node_phase2_section_reviews,
-            "phase2_summary": self._node_phase2_summary_llm,
-            "change_selection_intent": self._node_change_selection_intent_orchestrator,
-            "apply_changes": self._node_apply_changes_orchestrator,
-            "verify_changes": self._node_verify_changes_orchestrator,
+            "phase2_holistic_checks": self._node_phase2_holistic_checks,
+            "phase2_synthesis": self._node_phase2_synthesis,
         }
 
     def set_event_emitter(self, emitter: Optional[Callable[[str, Dict[str, Any]], None]]) -> None:
@@ -905,78 +873,95 @@ class DocReviewAgent:
             )
         return result
 
-    def _node_phase2_section_reviews(self, state: AgentState) -> AgentState:
-        reviews: Dict[str, Any] = {}
-        template_sections = self._get_template_sections(state)
-
-        for section_title, chunk in state["phase2"]["chunks"].items():
-            if not chunk.get("text"):
-                continue
-            expectation = self._lookup_template_description_from_list(template_sections, section_title)
-            payload = {
-                "section_title": section_title,
-                "section_text": chunk.get("text"),
-                "template_expectation": expectation,
-                "doc_summary": state["phase1"].get("doc_summary"),
-                "stats": state["phase1"].get("stats"),
-            }
-            review = self._invoke_llm_prompt(state, "phase2_section_review.md", payload)
-            if not review:
-                continue
-            reviews[section_title] = review
-            issues: List[Dict[str, Any]] = review.get("issues") or []
-
-            # Enrich issues with char_range from chunk for precise replacements
-            chunk_char_range = chunk.get("char_range")
-
-            for issue in issues:
-                if not issue.get("id"):
-                    issue["id"] = f"{section_title[:3].upper()}-{len(state['changes']['suggested_changes']) + 1:03d}"
-
-                # Add char_range if available and issue has original_text
-                # This enables precise replacements in Phase 3
-                if chunk_char_range and issue.get("original_text"):
-                    issue["char_range"] = chunk_char_range
-                    issue["source_section"] = section_title
-
-                state["changes"]["suggested_changes"].append(issue)
-
-        state["phase2"]["reviews"] = reviews
-        if state["changes"]["suggested_changes"]:
-            self._sync_vfs_artifacts(
-                state,
-                [{"path": "/changes/suggested_changes.json", "label": "Suggested Changes"}],
-            )
-        return state
-
-    def _node_phase2_summary_llm(self, state: AgentState) -> AgentState:
-        reviews = state["phase2"].get("reviews") or {}
-        if not reviews:
-            return state
-        total_issues = len(state["changes"]["suggested_changes"])
-        high_severity = [
-            change for change in state["changes"]["suggested_changes"] if change.get("severity") == "high"
+    def _node_phase2_holistic_checks(self, state: AgentState) -> AgentState:
+        """Run 4 independent document-level quality checks"""
+        raw_text = state["structure"]["raw_text"]
+        toc_review = state["phase1"].get("toc_review", {})
+        
+        checks = [
+            "conceptual_coverage",
+            "compliance_governance", 
+            "language_clarity",
+            "structural_presentation"
         ]
-        doc_meta = state.get("doc_meta") or {}
-        payload = {
-            "doc_title": doc_meta.get("doc_title") or state["doc_id"],
-            "section_reviews": list(reviews.values()),
-            "total_issues": total_issues,
-            "high_severity_count": len(high_severity),
-        }
-        summary = self._invoke_llm_prompt(state, "phase2_summary.md", payload)
-        if summary:
-            state["phase2"]["summary_report"] = summary
+        
+        check_results = {}
+        all_issues = []
+        
+        for check_name in checks:
+            self._emit_event(
+                state, 
+                "node_started", 
+                {"node": f"phase2_{check_name}", "check": check_name}
+            )
+            
+            payload = {
+                "document_text": raw_text,
+                "toc_review": toc_review,
+            }
+            
+            result = self._invoke_llm_prompt(
+                state, 
+                f"phase2_check_{check_name}.md", 
+                payload
+            )
+            
+            if result:
+                check_results[check_name] = result
+                
+                # Extract issues/gaps from result
+                issues = result.get("gaps", []) or result.get("issues", [])
+                for issue in issues:
+                    issue["check_type"] = check_name
+                    if not issue.get("id"):
+                        prefix = check_name[:3].upper()
+                        issue["id"] = f"{prefix}-{len(all_issues) + 1:03d}"
+                    all_issues.append(issue)
+            
             self._emit_event(
                 state,
                 "node_completed",
-                {"node": "phase2_summary", "overall_posture": summary.get("overall_posture")},
+                {"node": f"phase2_{check_name}", "issues_found": len(issues) if result else 0}
+            )
+        
+        state["phase2"]["check_results"] = check_results
+        state["phase2"]["all_issues"] = all_issues
+        
+        # Sync artifacts
+        self._sync_vfs_artifacts(
+            state,
+            [{"path": "/phase2/check_results.json", "label": "Quality Check Results"}],
+        )
+        
+        return state
+
+    def _node_phase2_synthesis(self, state: AgentState) -> AgentState:
+        """Synthesize 4 check results into unified report"""
+        check_results = state["phase2"].get("check_results", {})
+        if not check_results:
+            return state
+        
+        payload = {
+            "doc_title": state["doc_meta"].get("doc_title"),
+            "check_results": check_results,
+            "total_issues": len(state["phase2"].get("all_issues", [])),
+        }
+        
+        synthesis = self._invoke_llm_prompt(state, "phase2_synthesis_summary.md", payload)
+        
+        if synthesis:
+            state["phase2"]["synthesis_report"] = synthesis
+            self._emit_event(
+                state,
+                "node_completed",
+                {"node": "phase2_synthesis", "summary": "Analysis complete"}
             )
             self._sync_vfs_artifacts(
                 state,
-                [{"path": "/phase2/summary_report.json", "label": "Phase 2 Summary"}],
+                [{"path": "/phase2/synthesis_report.md", "label": "Review Summary"}],
             )
-            return state
+        
+        return state
 
     def _node_change_selection_intent_orchestrator(self, state: AgentState) -> AgentState:
         instruction = state["user_interaction"].get("user_change_instruction")
@@ -1488,29 +1473,12 @@ class DocReviewAgent:
         }
 
         phase1: Phase1Data = {
-            "stats": {},
-            "doc_summary": None,
             "toc_review": None,
-            "template_fitness_report": None,
-            "section_strategy": None,
         }
         phase2: Phase2Data = {
-            "chunks": {},
-            "reviews": {},
-            "summary_report": None,
-        }
-        changes: ChangesData = {
-            "suggested_changes": [],
-            "applied_change_ids": [],
-            "failed_changes": [],
-            "change_selection_plan": None,
-            "skipped_changes": [],
-            "new_raw_text": None,
-        }
-        user_interaction: UserInteractionState = {
-            "user_selected_section_strategy": False,
-            "selected_section_scope": None,
-            "user_change_instruction": None,
+            "check_results": {},
+            "all_issues": [],
+            "synthesis_report": None,
         }
 
         state: AgentState = {
@@ -1521,7 +1489,6 @@ class DocReviewAgent:
             "errors": [],
             "phase1_status": "pending",
             "phase2_status": "pending",
-            "phase3_status": "pending",
             "locked_by": None,
             "lock_timestamp": None,
             "doc_meta": doc_meta,
@@ -1529,8 +1496,6 @@ class DocReviewAgent:
             "template_meta": template_meta,
             "phase1": phase1,
             "phase2": phase2,
-            "changes": changes,
-            "user_interaction": user_interaction,
             "file_metadata": None,
             "vfs_artifacts": [],
             "logs": [],
@@ -1562,7 +1527,14 @@ class DocReviewAgent:
 
     def _call_tool(self, tool_name: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         try:
-            return call_mcp(tool_name, payload)
+            if self.tools_registry:
+                # Use provided registry
+                from external.doc_review.mcp_client import DocReviewMCPClient
+                client = DocReviewMCPClient(tools_registry=self.tools_registry)
+                return client.call(tool_name, payload)
+            else:
+                # Fall back to default global client
+                return call_mcp(tool_name, payload)
         except Exception as exc:  # pragma: no cover - relies on external tools
             self.logger.exception("MCP tool %s failed: %s", tool_name, exc)
             raise

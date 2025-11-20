@@ -1,10 +1,48 @@
 
-  import { defineConfig } from 'vite';
-  import react from '@vitejs/plugin-react-swc';
-  import path from 'path';
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react-swc';
+import path from 'path';
+import fs from 'fs';
 
-  export default defineConfig({
-    plugins: [react()],
+const LOG_FILE = path.join(process.cwd(), 'browser.log');
+
+export default defineConfig({
+  plugins: [
+    react(),
+    // Browser console logging middleware
+    {
+      name: 'browser-logs',
+      configureServer(server) {
+        // Clear log file on server start
+        fs.writeFileSync(LOG_FILE, `=== Session started: ${new Date().toISOString()} ===\n`);
+        console.log('📋 Browser console logging to:', LOG_FILE);
+        
+        server.middlewares.use((req, res, next) => {
+          if (req.url === '/__logs' && req.method === 'POST') {
+            let body = '';
+            req.on('data', chunk => body += chunk);
+            req.on('end', () => {
+              try {
+                const data = JSON.parse(body);
+                const entry = {
+                  ts: new Date().toISOString(),
+                  level: data.level || 'log',
+                  args: data.args || [],
+                };
+                fs.appendFile(LOG_FILE, JSON.stringify(entry) + '\n', () => {});
+              } catch (err) {
+                console.error('Failed to write log:', err);
+              }
+              res.statusCode = 204;
+              res.end();
+            });
+          } else {
+            next();
+          }
+        });
+      },
+    },
+  ],
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
       alias: {

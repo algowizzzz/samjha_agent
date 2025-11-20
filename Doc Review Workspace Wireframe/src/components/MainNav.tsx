@@ -1,6 +1,6 @@
-import { FileText, LayoutTemplate, Settings, MessageSquare, TestTube2 } from 'lucide-react';
+import { FileText, Settings, Code2, MessageSquare } from 'lucide-react';
 
-type Page = 'documents' | 'workspace' | 'templates' | 'prompts' | 'settings' | 'demo';
+type Page = 'documents' | 'workspace' | 'prompts' | 'settings' | 'demo';
 
 interface MainNavProps {
   currentPage: Page;
@@ -24,18 +24,6 @@ export function MainNav({ currentPage, onNavigate }: MainNavProps) {
           >
             <FileText className="w-4 h-4" />
             <span>Documents</span>
-          </button>
-          
-          <button
-            onClick={() => onNavigate('templates')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded transition-colors ${
-              currentPage === 'templates'
-                ? 'bg-neutral-100 text-neutral-900'
-                : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50'
-            }`}
-          >
-            <LayoutTemplate className="w-4 h-4" />
-            <span>Templates</span>
           </button>
           
           <button
@@ -64,19 +52,19 @@ export function MainNav({ currentPage, onNavigate }: MainNavProps) {
         </div>
       </div>
 
-      {/* Demo Link (right side) */}
+      {/* Dev Tools Link (right side) */}
       <div>
         <button
           onClick={() => onNavigate('demo')}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded transition-colors ${
+          className={`flex items-center gap-1.5 px-2 py-1 rounded text-xs transition-colors ${
             currentPage === 'demo'
-              ? 'bg-blue-100 text-blue-700 font-medium'
-              : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'
+              ? 'bg-gray-200 text-gray-800'
+              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
           }`}
-          title="Single Editor Demo (Option 3)"
+          title="Developer Tools & Testing"
         >
-          <TestTube2 className="w-4 h-4" />
-          <span>Demo</span>
+          <Code2 className="w-3 h-3" />
+          <span>Dev</span>
         </button>
       </div>
     </nav>

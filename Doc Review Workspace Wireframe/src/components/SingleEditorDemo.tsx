@@ -63,15 +63,24 @@ export function SingleEditorDemo() {
   const [replyingTo, setReplyingTo] = useState<Comment | null>(null);
   const [collapsedComments, setCollapsedComments] = useState<Set<string>>(new Set());
   
-  // Controls panel state
+  // Panel state for 3-panel layout with resizable widths
+  const [scratchpadCollapsed, setScratchpadCollapsed] = useState(false);
+  const [scratchpadWidth, setScratchpadWidth] = useState(20); // percentage
+  const [scratchpadDoc, setScratchpadDoc] = useState<DocState>(SCRATCHPAD_DOC_STATE);
+  const [scratchpadEditorInstance, setScratchpadEditorInstance] = useState<any>(null);
+  
+  
+  const [mainEditorCollapsed, setMainEditorCollapsed] = useState(false);
+  // Main editor uses flex: 1, no width state needed
+  
   const [controlsCollapsed, setControlsCollapsed] = useState(false);
-  const [controlsDragging, setControlsDragging] = useState(false);
-  const [controlsPosition, setControlsPosition] = useState<{ right: number; top: number }>({ right: 0, top: 73 });
+  const [controlsWidth, setControlsWidth] = useState(20); // percentage
 
   const handleDocChange = (newDocState: DocState) => {
     setDocState(newDocState);
     console.log('[Demo] Document changed:', newDocState);
   };
+
 
   const handleGetSelection = () => {
     if (!editorInstance) return;
@@ -137,13 +146,13 @@ export function SingleEditorDemo() {
     }
   };
 
-  const handleAcceptSuggestion = () => {
+  const handleAcceptPendingSuggestion = () => {
     if (!editorInstance || !pendingSuggestion) return;
     insertAiSuggestion(editorInstance, pendingSuggestion.improved, 'suggested');
     setPendingSuggestion(null);
   };
 
-  const handleRejectSuggestion = () => {
+  const handleRejectPendingSuggestion = () => {
     setPendingSuggestion(null);
   };
 
@@ -230,7 +239,10 @@ export function SingleEditorDemo() {
                  nodeType === 'doc-heading' || 
                  nodeType === 'doc-list' ||
                  nodeType === 'doc-code' ||
-                 nodeType === 'doc-quote';
+                 nodeType === 'doc-quote' ||
+                 nodeType === 'doc-divider' ||
+                 nodeType === 'doc-image' ||
+                 nodeType === 'doc-empty';
         }
       );
       
@@ -239,8 +251,10 @@ export function SingleEditorDemo() {
       // Get the block ID to preserve it
       const blockId = (blockNode as any).getBlockId?.() || `b${Date.now()}`;
       
-      // Get current text content
-      const textContent = blockNode.getTextContent();
+      // Get current text content (empty for divider/image/empty blocks)
+      const nodeType = blockNode.getType();
+      const isNonEditableBlock = nodeType === 'doc-divider' || nodeType === 'doc-image' || nodeType === 'doc-empty';
+      const textContent = isNonEditableBlock ? '' : blockNode.getTextContent();
       
       // Create new node based on type
       let newNode;
@@ -283,10 +297,17 @@ export function SingleEditorDemo() {
       if (!newNode) return;
       
       // Transfer children (for paragraph, heading, quote)
-      const children = blockNode.getChildren();
-      children.forEach(child => {
-        newNode.append(child);
-      });
+      if (isNonEditableBlock) {
+        // Non-editable blocks have no text children, create a blank text node
+        const textNode = $createAiTextNode('');
+        newNode.append(textNode);
+      } else {
+        // Transfer existing children
+        const children = blockNode.getChildren();
+        children.forEach(child => {
+          newNode.append(child);
+        });
+      }
       
       // Replace the node
       blockNode.replace(newNode);
@@ -510,87 +531,388 @@ export function SingleEditorDemo() {
             Notion-like experience: One Lexical editor for the entire document
           </p>
         </div>
-        <button
-          onClick={() => setShowControls(!showControls)}
-          className="px-4 py-2 text-sm border border-neutral-300 rounded hover:bg-neutral-50 transition-colors"
+        {/* Removed panel toggle buttons - use collapse buttons in panel headers instead */}
+      </div>
+
+      {/* 3-Panel Layout: Scratchpad | Main Editor | Controls */}
+      <div className="flex-1 flex overflow-hidden" style={{ gap: '0' }}>
+        
+        {/* LEFT PANEL: Scratchpad */}
+        <div 
+          style={{
+            width: scratchpadCollapsed ? '48px' : `${scratchpadWidth}%`,
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            backgroundColor: 'white',
+            borderRight: '1px solid #e5e5e7',
+            transition: scratchpadCollapsed ? 'width 0.3s ease' : 'none',
+            overflow: 'hidden',
+          }}
         >
-          {showControls ? 'Hide' : 'Show'} Controls
+          {/* Scratchpad Header */}
+          <div 
+            style={{
+              backgroundColor: '#fef3c7',
+              padding: '8px 12px',
+              borderBottom: '1px solid #fbbf24',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              userSelect: 'none',
+              minHeight: '40px',
+            }}
+          >
+            {!scratchpadCollapsed && (
+              <span style={{ fontSize: '13px', fontWeight: '600', color: '#92400e' }}>
+                📝 Scratchpad
+              </span>
+            )}
+        <button
+              onClick={() => setScratchpadCollapsed(!scratchpadCollapsed)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '16px',
+                padding: '4px',
+                marginLeft: 'auto',
+              }}
+              title={scratchpadCollapsed ? 'Expand Scratchpad' : 'Collapse Scratchpad'}
+            >
+              {scratchpadCollapsed ? '▶' : '◀'}
         </button>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* Main: Editor (full width when controls hidden) */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto bg-white">
+          {/* Scratchpad Content */}
+          {!scratchpadCollapsed && (
+            <div style={{ flex: 1, overflow: 'auto', padding: '16px' }}>
+              <SingleDocumentEditor
+                initialDoc={scratchpadDoc}
+                onDocChange={setScratchpadDoc}
+                readOnly={false}
+                onEditorReady={setScratchpadEditorInstance}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Resize Handle: Scratchpad <-> Main */}
+        {!scratchpadCollapsed && (
+          <div
+            style={{
+              width: '4px',
+              cursor: 'col-resize',
+              backgroundColor: '#e5e5e7',
+              transition: 'background-color 0.2s',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e5e5e7'}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              const startX = e.clientX;
+              const startScratchpadWidth = scratchpadWidth;
+
+              const handleMouseMove = (moveE: MouseEvent) => {
+                const deltaX = moveE.clientX - startX;
+                const containerWidth = window.innerWidth;
+                const deltaPercent = (deltaX / containerWidth) * 100;
+                
+                // Constrain scratchpad width (10-40%), center panel auto-fills
+                const newScratchpadWidth = Math.max(10, Math.min(40, startScratchpadWidth + deltaPercent));
+                setScratchpadWidth(newScratchpadWidth);
+              };
+
+              const handleMouseUp = () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+              };
+
+              document.addEventListener('mousemove', handleMouseMove);
+              document.addEventListener('mouseup', handleMouseUp);
+            }}
+          />
+        )}
+
+        {/* CENTER PANEL: Main Document Editor */}
+        <div 
+          style={{
+            flex: mainEditorCollapsed ? '0 0 48px' : '1 1 auto',
+            minWidth: mainEditorCollapsed ? '48px' : '300px',
+            display: 'flex',
+            flexDirection: 'column',
+            backgroundColor: 'white',
+            position: 'relative',
+            transition: mainEditorCollapsed ? 'flex 0.3s ease' : 'none',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Main Editor Header */}
+          <div 
+            style={{
+              backgroundColor: '#dbeafe',
+              padding: '8px 12px',
+              borderBottom: '1px solid #3b82f6',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              userSelect: 'none',
+              minHeight: '40px',
+            }}
+          >
+            {!mainEditorCollapsed && (
+              <span style={{ fontSize: '13px', fontWeight: '600', color: '#1e40af' }}>
+                📄 Document
+              </span>
+            )}
+            <button
+              onClick={() => setMainEditorCollapsed(!mainEditorCollapsed)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '16px',
+                padding: '4px',
+                marginLeft: 'auto',
+              }}
+              title={mainEditorCollapsed ? 'Expand Editor' : 'Collapse Editor'}
+            >
+              {mainEditorCollapsed ? '↕' : '−'}
+            </button>
+          </div>
+
+          {/* Main Editor Content with integrated comment panel */}
+          {!mainEditorCollapsed && (
+            <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+              {/* Editor Area */}
+              <div style={{ flex: 1, overflow: 'auto' }}>
             <SingleDocumentEditor
               initialDoc={docState}
               onDocChange={handleDocChange}
               readOnly={false}
               onEditorReady={setEditorInstance}
-              onSelectionChange={setSelectionData}
-              onFormat={handleFormat}
-              onTextColor={handleTextColor}
-              onBackgroundColor={handleBackgroundColor}
-              onTurnInto={handleToolbarTurnInto}
-              onAddComment={handleAddComment}
-              onImproveText={handleImproveText}
-              onCommentClick={handleCommentTextClick}
+                  onSelectionChange={setSelectionData}
+                  onFormat={handleFormat}
+                  onTextColor={handleTextColor}
+                  onBackgroundColor={handleBackgroundColor}
+                  onTurnInto={handleToolbarTurnInto}
+                  onAddComment={handleAddComment}
+                  onImproveText={handleImproveText}
+                  onCommentClick={handleCommentTextClick}
             />
           </div>
+
+              {/* Comment Panel - Right Margin (50% smaller, compact) */}
+              {showCommentPanel && (
+                <div 
+                  style={{
+                    width: '150px',
+                    borderLeft: '1px solid #e5e5e7',
+                    backgroundColor: '#f9fafb',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {/* Comment Panel Header */}
+                  <div style={{
+                    padding: '6px 8px',
+                    borderBottom: '1px solid #e5e5e7',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    backgroundColor: 'white',
+                  }}>
+                    <span style={{ fontSize: '10px', fontWeight: '600', color: '#6b7280' }}>
+                      💬 {comments.length}
+                    </span>
+                    <button
+                      onClick={() => setShowCommentPanel(false)}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        padding: '2px',
+                        color: '#9ca3af',
+                      }}
+                    >
+                      ✕
+                    </button>
         </div>
 
-        {/* Right: Controls & Info (collapsible & draggable) */}
-        {showControls && (
-          <div 
+                  {/* Comments List */}
+                  <div style={{ flex: 1, overflow: 'auto', padding: '8px' }}>
+                    {comments.length === 0 ? (
+                      <div style={{
+                        textAlign: 'center',
+                        color: '#9ca3af',
+                        padding: '16px 8px',
+                        fontSize: '9px',
+                      }}>
+                        No comments yet
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {comments.map((comment) => {
+                          const isCollapsed = collapsedComments.has(comment.id);
+                          return (
+                            <div
+                              key={comment.id}
+                              data-comment-id={comment.id}
+                              style={{
+                                borderRadius: '6px',
+                                padding: '6px',
+                                backgroundColor: 'white',
+                                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08)',
+                                fontSize: '9px',
+                                cursor: 'pointer',
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleCommentCollapse(comment.id);
+                              }}
+                            >
+                              {/* Avatar + Name */}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: isCollapsed ? '0' : '4px' }}>
+                                <div style={{
+                                  width: '14px',
+                                  height: '14px',
+                                  borderRadius: '50%',
+                                  backgroundColor: '#f59e0b',
+                                  color: 'white',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '8px',
+                                  fontWeight: '600',
+                                  flexShrink: 0,
+                                }}>
+                                  {comment.username.charAt(0).toUpperCase()}
+                                </div>
+                                <div style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '9px', fontWeight: '600' }}>
+                                  {comment.username}
+                                </div>
+          </div>
+          
+                              {/* Comment Text (truncated when collapsed) */}
+                              {!isCollapsed && (
+                                <div style={{ fontSize: '8px', color: '#374151', lineHeight: '1.4', marginBottom: '4px' }}>
+                                  {comment.commentText}
+                                </div>
+                              )}
+
+                              {/* Actions (when expanded) */}
+                              {!isCollapsed && (
+                                <div style={{ display: 'flex', gap: '4px', fontSize: '7px' }}>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditComment(comment);
+                                    }}
+                                    style={{
+                                      padding: '2px 4px',
+                                      border: 'none',
+                                      borderRadius: '3px',
+                                      backgroundColor: '#f3f4f6',
+                                      cursor: 'pointer',
+                                      fontSize: '7px',
+                                    }}
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteComment(comment.id);
+                                    }}
+                                    style={{
+                                      padding: '2px 4px',
+                                      border: 'none',
+                                      borderRadius: '3px',
+                                      backgroundColor: '#fee2e2',
+                                      cursor: 'pointer',
+                                      fontSize: '7px',
+                                      color: '#dc2626',
+                                    }}
+                                  >
+                                    Del
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Resize Handle: Main <-> Controls */}
+        {!mainEditorCollapsed && !controlsCollapsed && (
+          <div
             style={{
-              position: 'fixed',
-              right: `${controlsPosition.right}px`,
-              top: `${controlsPosition.top}px`,
-              width: controlsCollapsed ? '48px' : '384px',
-              maxHeight: '85vh',
-              backgroundColor: 'white',
-              border: '1px solid #e5e5e7',
-              borderRadius: '12px',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-              zIndex: 200,
-              transition: 'width 0.3s ease',
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
+              width: '4px',
+              cursor: 'col-resize',
+              backgroundColor: '#e5e5e7',
+              transition: 'background-color 0.2s',
             }}
-          >
-          {/* Header with drag handle and collapse button */}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e5e5e7'}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              const startX = e.clientX;
+              const startControlsWidth = controlsWidth;
+
+              const handleMouseMove = (moveE: MouseEvent) => {
+                const deltaX = moveE.clientX - startX;
+                const containerWidth = window.innerWidth;
+                const deltaPercent = (deltaX / containerWidth) * 100;
+                
+                // Constrain controls width (10-40%), center panel auto-fills
+                const newControlsWidth = Math.max(10, Math.min(40, startControlsWidth - deltaPercent));
+                setControlsWidth(newControlsWidth);
+              };
+
+              const handleMouseUp = () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+              };
+
+              document.addEventListener('mousemove', handleMouseMove);
+              document.addEventListener('mouseup', handleMouseUp);
+            }}
+          />
+        )}
+
+        {/* RIGHT PANEL: Controls */}
+        <div 
+          style={{
+            width: controlsCollapsed ? '48px' : `${controlsWidth}%`,
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            backgroundColor: 'white',
+            borderLeft: '1px solid #e5e5e7',
+            transition: controlsCollapsed ? 'width 0.3s ease' : 'none',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Controls Header */}
           <div 
             style={{
               backgroundColor: '#f3f4f6',
               padding: '8px 12px',
               borderBottom: '1px solid #e5e5e7',
-              cursor: 'grab',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               userSelect: 'none',
-            }}
-            onMouseDown={(e) => {
-              setControlsDragging(true);
-              const startX = e.clientX - controlsPosition.right;
-              const startY = e.clientY - controlsPosition.top;
-              
-              const handleMouseMove = (moveE: MouseEvent) => {
-                setControlsPosition({
-                  right: moveE.clientX - startX,
-                  top: moveE.clientY - startY,
-                });
-              };
-              
-              const handleMouseUp = () => {
-                setControlsDragging(false);
-                document.removeEventListener('mousemove', handleMouseMove);
-                document.removeEventListener('mouseup', handleMouseUp);
-              };
-              
-              document.addEventListener('mousemove', handleMouseMove);
-              document.addEventListener('mouseup', handleMouseUp);
+              minHeight: '40px',
             }}
           >
             {!controlsCollapsed && (
@@ -598,51 +920,23 @@ export function SingleEditorDemo() {
                 🎛️ Controls
               </span>
             )}
-            <div style={{ display: 'flex', gap: '4px', marginLeft: 'auto' }}>
-              <button
-                onClick={() => setControlsCollapsed(!controlsCollapsed)}
-                style={{
-                  width: '24px',
-                  height: '24px',
-                  border: 'none',
-                  background: 'transparent',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  borderRadius: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e5e7eb'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                title={controlsCollapsed ? 'Expand' : 'Collapse'}
-              >
-                {controlsCollapsed ? '→' : '←'}
-              </button>
-              <button
-                onClick={() => setShowControls(false)}
-                style={{
-                  width: '24px',
-                  height: '24px',
-                  border: 'none',
-                  background: 'transparent',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  borderRadius: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e5e7eb'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                title="Close"
-              >
-                ✕
-              </button>
-            </div>
+            <button
+              onClick={() => setControlsCollapsed(!controlsCollapsed)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '16px',
+                padding: '4px',
+                marginLeft: 'auto',
+              }}
+              title={controlsCollapsed ? 'Expand Controls' : 'Collapse Controls'}
+            >
+              {controlsCollapsed ? '◀' : '▶'}
+            </button>
           </div>
           
-          {/* Content - hide when collapsed */}
+          {/* Controls Content */}
           {!controlsCollapsed && (
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {/* Pending AI Suggestion - TOP PRIORITY */}
@@ -662,7 +956,7 @@ export function SingleEditorDemo() {
                 
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
-                    onClick={handleAcceptSuggestion}
+                    onClick={handleAcceptPendingSuggestion}
                     style={{
                       flex: 1,
                       padding: '10px',
@@ -681,7 +975,7 @@ export function SingleEditorDemo() {
                     ✓ Accept
                   </button>
                   <button
-                    onClick={handleRejectSuggestion}
+                    onClick={handleRejectPendingSuggestion}
                     style={{
                       flex: 1,
                       padding: '10px',
@@ -738,15 +1032,11 @@ export function SingleEditorDemo() {
             </div>
 
             {/* Turn Into */}
-            <div className="border border-neutral-200 rounded-lg p-2" style={{ opacity: selectionData.isConvertible === false ? 0.5 : 1 }}>
+            <div className="border border-neutral-200 rounded-lg p-2">
               <h3 className="text-xs font-semibold mb-1">Turn Into</h3>
-              {selectionData.isConvertible === false && (
-                <p className="text-xs text-gray-500 mb-2">Not available for {selectionData.currentBlockType} blocks</p>
-              )}
               <div className="space-y-1">
                 <button
                   onClick={() => handleTurnInto('paragraph')}
-                  disabled={selectionData.isConvertible === false}
                   style={{
                     width: '100%',
                     padding: '6px 8px',
@@ -774,7 +1064,6 @@ export function SingleEditorDemo() {
                 </button>
                 <button
                   onClick={() => handleTurnInto('heading', 1)}
-                  disabled={selectionData.isConvertible === false}
                   style={{
                     width: '100%',
                     padding: '6px 8px',
@@ -802,7 +1091,6 @@ export function SingleEditorDemo() {
                 </button>
                 <button
                   onClick={() => handleTurnInto('heading', 2)}
-                  disabled={selectionData.isConvertible === false}
                   style={{
                     width: '100%',
                     padding: '6px 8px',
@@ -830,7 +1118,6 @@ export function SingleEditorDemo() {
                 </button>
                 <button
                   onClick={() => handleTurnInto('heading', 3)}
-                  disabled={selectionData.isConvertible === false}
                   style={{
                     width: '100%',
                     padding: '6px 8px',
@@ -858,7 +1145,6 @@ export function SingleEditorDemo() {
                 </button>
                 <button
                   onClick={() => handleTurnInto('list', { listStyle: 'bullet' })}
-                  disabled={selectionData.isConvertible === false}
                   style={{
                     width: '100%',
                     padding: '6px 8px',
@@ -886,7 +1172,6 @@ export function SingleEditorDemo() {
                 </button>
                 <button
                   onClick={() => handleTurnInto('list', { listStyle: 'number' })}
-                  disabled={selectionData.isConvertible === false}
                   style={{
                     width: '100%',
                     padding: '6px 8px',
@@ -914,7 +1199,6 @@ export function SingleEditorDemo() {
                 </button>
                 <button
                   onClick={() => handleTurnInto('code')}
-                  disabled={selectionData.isConvertible === false}
                   style={{
                     width: '100%',
                     padding: '6px 8px',
@@ -942,7 +1226,6 @@ export function SingleEditorDemo() {
                 </button>
                 <button
                   onClick={() => handleTurnInto('quote')}
-                  disabled={selectionData.isConvertible === false}
                   style={{
                     width: '100%',
                     padding: '6px 8px',
@@ -1206,7 +1489,6 @@ export function SingleEditorDemo() {
           </div>
           )}
         </div>
-        )}
       </div>
 
       {/* Comment Modal */}
@@ -1249,8 +1531,8 @@ export function SingleEditorDemo() {
                 color: '#6b7280',
               }}>
                 <strong>Selected text:</strong> "{editingComment?.selectedText || replyingTo?.selectedText}"
-              </div>
-            )}
+        </div>
+        )}
 
             {!editingComment && !replyingTo && (
               <div style={{
@@ -1261,7 +1543,7 @@ export function SingleEditorDemo() {
                 fontSize: '14px',
               }}>
                 <strong>Selected text:</strong> "{selectionData.selectedText}"
-              </div>
+      </div>
             )}
 
             <textarea
@@ -1342,13 +1624,13 @@ export function SingleEditorDemo() {
         </div>
       )}
 
-      {/* Comment Panel - Clean Bubble Style */}
-      {showCommentPanel && (
+      {/* Old comment panel removed - now integrated into middle panel */}
+      {false && showCommentPanel && (
         <div 
           className="comment-panel-scroll"
           style={{
             position: 'fixed',
-            right: showControls && !controlsCollapsed ? '394px' : '20px',
+            right: '20px',
             top: '80px',
             bottom: '20px',
             width: '300px',
@@ -1363,7 +1645,7 @@ export function SingleEditorDemo() {
             onClick={() => setShowCommentPanel(false)}
             style={{
               position: 'fixed',
-              right: showControls && !controlsCollapsed ? '396px' : '22px',
+              right: '22px',
               top: '82px',
               width: '28px',
               height: '28px',
@@ -1769,6 +2051,41 @@ const SAMPLE_DOC_STATE: DocState = {
       text: [
         { text: '• Conduct annual risk assessments', aiSuggestionStatus: 'rejected' },
       ],
+    },
+  ],
+};
+
+// Initial scratchpad document state
+const SCRATCHPAD_DOC_STATE: DocState = {
+  id: 'scratchpad-doc-1',
+  title: 'Scratchpad',
+  version: '1.0',
+  blocks: [
+    {
+      id: 's1',
+      type: 'heading',
+      level: 2,
+      text: [{ text: '📝 AI Suggestions' }],
+    },
+    {
+      id: 's2',
+      type: 'paragraph',
+      text: [{ text: 'AI-generated suggestions will appear here...' }],
+    },
+    {
+      id: 's3',
+      type: 'divider',
+    },
+    {
+      id: 's4',
+      type: 'heading',
+      level: 2,
+      text: [{ text: '✏️ My Notes' }],
+    },
+    {
+      id: 's5',
+      type: 'paragraph',
+      text: [{ text: 'Start taking notes here...' }],
     },
   ],
 };

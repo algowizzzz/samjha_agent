@@ -218,6 +218,15 @@ export async function runIngestion(fileId: string, options?: { useDirectJSON?: b
   return handleResponse(res);
 }
 
+// Run document analysis workflow (6-prompt holistic review)
+export async function runDocumentAnalysis(fileId: string): Promise<{ status: string; control?: string }> {
+  const res = await fetchWithDebug(`${API_BASE}/doc_review/documents/${encodeURIComponent(fileId)}/analyze`, {
+    method: 'POST',
+    headers: buildHeaders(),
+  });
+  return handleResponse(res);
+}
+
 // get_template endpoint requires login; handle gracefully if blocked
 export async function getTemplate(templateId: string): Promise<{ template_id: string; content: unknown }> {
   const res = await fetchWithDebug(`${API_BASE}/doc_review/templates/${encodeURIComponent(templateId)}`, {
@@ -463,6 +472,252 @@ export async function getTemplateContent(templateName: string): Promise<{ templa
   const res = await fetchWithDebug(`${API_BASE}/doc_review/templates/${encodeURIComponent(templateName)}/content`, {
     method: 'GET',
     headers: buildHeaders(false),
+  });
+  return handleResponse(res);
+}
+
+// ========================
+// Text Improvement API
+// ========================
+
+export interface ImproveTextResponse {
+  original: string;
+  improved: string;
+  reason: string;
+  success: boolean;
+}
+
+export async function improveText(text: string, instruction?: string): Promise<ImproveTextResponse> {
+  const res = await fetchWithDebug(`${API_BASE}/text-improvement/improve`, {
+    method: 'POST',
+    headers: buildHeaders(true),
+    body: JSON.stringify({
+      text,
+      instruction: instruction || 'Improve this text for clarity and professionalism'
+    }),
+  });
+  return handleResponse(res);
+}
+
+// ========================
+// Comments API
+// ========================
+
+export interface Comment {
+  id: string;
+  documentId: string;
+  blockId: string;
+  selectedText: string;
+  startOffset: number;
+  endOffset: number;
+  commentText: string;
+  author: string;  // Backend uses 'author', not 'username'
+  timestamp: string;
+  replies: Comment[];
+  parentId?: string;
+}
+
+export interface CreateCommentRequest {
+  documentId: string;
+  blockId: string;
+  selectedText: string;
+  startOffset: number;
+  endOffset: number;
+  commentText: string;
+  username: string;
+  parentId?: string;
+}
+
+// Helper to map backend comment format to frontend Comment interface
+function mapBackendComment(backendComment: any): Comment {
+  return {
+    id: backendComment.id,
+    documentId: backendComment.file_id || '',
+    blockId: backendComment.block_id,
+    selectedText: backendComment.selection_text || '',
+    startOffset: backendComment.start_offset || 0,
+    endOffset: backendComment.end_offset || 0,
+    commentText: backendComment.content,
+    author: backendComment.author,
+    timestamp: backendComment.timestamp,
+    replies: (backendComment.replies || []).map(mapBackendComment),
+    parentId: backendComment.parent_id,
+  };
+}
+
+export async function getComments(documentId: string): Promise<{ comments: Comment[] }> {
+  console.log('[api] getComments for documentId:', documentId);
+  const res = await fetchWithDebug(`${API_BASE}/doc_review/${encodeURIComponent(documentId)}/comments`, {
+    method: 'GET',
+    headers: buildHeaders(false),
+  });
+  const data = await handleResponse(res);
+  console.log('[api] getComments response (raw):', data);
+  
+  // Map backend format to frontend format
+  const mappedData = {
+    comments: (data.comments || []).map(mapBackendComment)
+  };
+  console.log('[api] getComments response (mapped):', mappedData);
+  return mappedData;
+}
+
+export async function createComment(request: CreateCommentRequest): Promise<Comment> {
+  console.log('[api] createComment request:', request);
+  const payload = {
+    block_id: request.blockId,
+    content: request.commentText,
+    author: request.username,
+    selection_text: request.selectedText,
+    start_offset: request.startOffset,
+    end_offset: request.endOffset,
+  };
+  console.log('[api] createComment payload:', payload);
+  const res = await fetchWithDebug(`${API_BASE}/doc_review/${encodeURIComponent(request.documentId)}/comments`, {
+    method: 'POST',
+    headers: buildHeaders(true),
+    body: JSON.stringify(payload),
+  });
+  const data = await handleResponse(res);
+  console.log('[api] createComment response (raw):', data);
+  const mapped = mapBackendComment(data);
+  console.log('[api] createComment response (mapped):', mapped);
+  return mapped;
+}
+
+export async function deleteComment(documentId: string, commentId: string): Promise<{ message: string }> {
+  const res = await fetchWithDebug(`${API_BASE}/doc_review/${encodeURIComponent(documentId)}/comments/${commentId}`, {
+    method: 'DELETE',
+    headers: buildHeaders(false),
+  });
+  return handleResponse(res);
+}
+
+export async function addReply(documentId: string, commentId: string, content: string, author: string): Promise<Comment> {
+  console.log('[api] addReply request:', { documentId, commentId, content, author });
+  const res = await fetchWithDebug(`${API_BASE}/doc_review/${encodeURIComponent(documentId)}/comments/${encodeURIComponent(commentId)}/reply`, {
+    method: 'POST',
+    headers: buildHeaders(true),
+    body: JSON.stringify({ content, author }),
+  });
+  const data = await handleResponse(res);
+  console.log('[api] addReply response (raw):', data);
+  const mapped = mapBackendComment(data);
+  console.log('[api] addReply response (mapped):', mapped);
+  return mapped;
+}
+
+// ========================
+// AI Suggestions API
+// ========================
+
+export interface AISuggestion {
+  id: string;
+  block_id: string;
+  selection_text: string;
+  improved_text: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  timestamp: string;
+  updated_at?: string;
+  start_offset?: number;
+  end_offset?: number;
+}
+
+export interface CreateAISuggestionRequest {
+  block_id: string;
+  selection_text: string;
+  improved_text: string;
+  status?: 'pending' | 'accepted' | 'rejected';
+  start_offset?: number;
+  end_offset?: number;
+}
+
+// ===== Chat History Types =====
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+  context?: string;  // Optional selected text context
+}
+
+export interface CreateChatMessageRequest {
+  role: 'user' | 'assistant';
+  content: string;
+  context?: string;
+}
+
+export async function listAISuggestions(fileId: string, blockId?: string): Promise<{ suggestions: AISuggestion[] }> {
+  const url = blockId 
+    ? `${API_BASE}/doc_review/${fileId}/ai_suggestions?block_id=${blockId}`
+    : `${API_BASE}/doc_review/${fileId}/ai_suggestions`;
+  const res = await fetchWithDebug(url, {
+    method: 'GET',
+    headers: buildHeaders(true),
+  });
+  return handleResponse(res);
+}
+
+export async function createAISuggestion(fileId: string, request: CreateAISuggestionRequest): Promise<AISuggestion> {
+  console.log('[api] createAISuggestion:', fileId, request);
+  const res = await fetchWithDebug(`${API_BASE}/doc_review/${fileId}/ai_suggestions`, {
+    method: 'POST',
+    headers: buildHeaders(true),
+    body: JSON.stringify(request),
+  });
+  const data = await handleResponse(res);
+  console.log('[api] createAISuggestion response:', data);
+  return data;
+}
+
+export async function updateAISuggestionStatus(
+  fileId: string, 
+  suggestionId: string, 
+  status: 'pending' | 'accepted' | 'rejected'
+): Promise<AISuggestion> {
+  console.log('[api] updateAISuggestionStatus:', fileId, suggestionId, status);
+  const res = await fetchWithDebug(`${API_BASE}/doc_review/${fileId}/ai_suggestions/${suggestionId}`, {
+    method: 'PATCH',
+    headers: buildHeaders(true),
+    body: JSON.stringify({ status }),
+  });
+  const data = await handleResponse(res);
+  console.log('[api] updateAISuggestionStatus response:', data);
+  return data;
+}
+
+export async function deleteAISuggestion(fileId: string, suggestionId: string): Promise<{ success: boolean }> {
+  console.log('[api] deleteAISuggestion:', fileId, suggestionId);
+  const res = await fetchWithDebug(`${API_BASE}/doc_review/${fileId}/ai_suggestions/${suggestionId}`, {
+    method: 'DELETE',
+    headers: buildHeaders(true),
+  });
+  return handleResponse(res);
+}
+
+// ===== Chat History API Methods =====
+
+export async function listChatMessages(fileId: string): Promise<{ messages: ChatMessage[] }> {
+  const res = await fetchWithDebug(`${API_BASE}/doc_review/${fileId}/chat`, {
+    method: 'GET',
+    headers: buildHeaders(true),
+  });
+  return handleResponse(res);
+}
+
+export async function addChatMessage(fileId: string, data: CreateChatMessageRequest): Promise<ChatMessage> {
+  const res = await fetchWithDebug(`${API_BASE}/doc_review/${fileId}/chat`, {
+    method: 'POST',
+    headers: buildHeaders(true),
+    body: JSON.stringify(data),
+  });
+  return handleResponse(res);
+}
+
+export async function clearChatMessages(fileId: string): Promise<{ success: boolean }> {
+  const res = await fetchWithDebug(`${API_BASE}/doc_review/${fileId}/chat/clear`, {
+    method: 'POST',
+    headers: buildHeaders(true),
   });
   return handleResponse(res);
 }

@@ -3,14 +3,12 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 
 export function SettingsPage() {
-  const [defaultTemplate, setDefaultTemplate] = useState('enterprise-policy');
   const [defaultViewMode, setDefaultViewMode] = useState('editing');
   const [autosaveInterval, setAutosaveInterval] = useState('60');
   const [debugMode, setDebugMode] = useState(false);
 
   const handleSaveSettings = () => {
     console.log('Saving settings:', {
-      defaultTemplate,
       defaultViewMode,
       autosaveInterval,
       debugMode,
@@ -27,21 +25,6 @@ export function SettingsPage() {
           <section>
             <h2 className="text-neutral-900 mb-4">General Settings</h2>
             <div className="space-y-4 bg-neutral-50 p-6 rounded-lg border border-neutral-200">
-              <div>
-                <label className="block text-neutral-700 mb-2">
-                  Default Template
-                </label>
-                <select
-                  value={defaultTemplate}
-                  onChange={(e) => setDefaultTemplate(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-300 rounded bg-white text-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-900"
-                >
-                  <option value="enterprise-policy">Enterprise Policy Template</option>
-                  <option value="service-agreement">Service Agreement Template</option>
-                  <option value="risk-assessment">Risk Assessment Template</option>
-                </select>
-              </div>
-
               <div>
                 <label className="block text-neutral-700 mb-2">
                   Default Viewing Mode

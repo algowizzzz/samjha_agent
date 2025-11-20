@@ -1,0 +1,1601 @@
+{
+  "file_id": "Capital20Adequacy20Requirements20CAR2020Guideline202024_EN",
+  "source_path": "/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/0064025ec25f46d581a07a1dea817e23_Capital20Adequacy20Requirements20CAR2020Guideline202024_EN.pdf",
+  "status": "ready",
+  "updated_at": "2025-11-20T04:34:13.573679Z",
+  "state": {
+    "run_id": "Capital20Adequacy20Requirements20CAR2020Guideline202024_EN",
+    "doc_id": "Capital20Adequacy20Requirements20CAR2020Guideline202024_EN",
+    "control": "completed",
+    "last_node": "phase2_synthesis",
+    "errors": [
+      "Prompt template not found: external/products/doc_review/prompts/phase1_toc_extraction.md"
+    ],
+    "phase1_status": "success",
+    "phase2_status": "pending",
+    "phase3_status": "pending",
+    "locked_by": null,
+    "lock_timestamp": null,
+    "doc_meta": {
+      "doc_title": "0064025ec25f46d581a07a1dea817e23 Capital20Adequacy20Requirements20CAR2020Guideline202024 EN",
+      "doc_source": "upload",
+      "source_path": "/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/0064025ec25f46d581a07a1dea817e23_Capital20Adequacy20Requirements20CAR2020Guideline202024_EN.pdf",
+      "file_type": "pdf",
+      "page_count": 1,
+      "word_count": 210,
+      "md_file_id": "0064025ec25f46d581a07a1dea817e23_Capital20Adequacy20Requirements20CAR2020Guideline202024_EN_md_2b9290d9",
+      "md_path": "external/data/doc_review/markdown/0064025ec25f46d581a07a1dea817e23_Capital20Adequacy20Requirements20CAR2020Guideline202024_EN_md_2b9290d9.md",
+      "version": 1
+    },
+    "structure": {
+      "raw_text": "# Guideline\nTitle\nCapital Adequacy Requirements (CAR) - Guideline (2024)\nCategory\nCapital Adequacy Requirements\nDate\nOctober 31, 2023\nSector\nBanks\n## Table of Contents\nGuideline (Effective January 2024)\nBasel Capital Adequacy Reporting (BCAR)\nImplementation Notes for IRB Institutions\nApprovals Related to OSFI Guidelines\n## Guideline (Effective January 2024)\n\u2022 Cover Letter\n\u2022 Chapter 1 - Overview of Risk-based Capital Requirements\n\u2022 Chapter 2 - Definition of Capital\n\u2022 Chapter 3 - Operational Risk\n\u2022 Chapter 4 - Credit Risk \u2013 Standardized Approach\n\u2022 Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n\u2022 Chapter 6 - Securitization\n\u2022 Chapter 7 - Settlement and Counterparty Risk\n\u2022 Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n\u2022 Chapter 9 - Market Risk\n\u2022 Frequently asked questions \u2013 Basel III reforms\n## Basel Capital Adequacy Reporting (BCAR)\n\u2022 Basel Capital Adequacy Reporting Manual\n## Implementation Notes for IRB Institutions\n\u2022 Collateral Management Principles for IRB Institutions\n\u2022 Oversight Expectations for IRB Institutions\n\u2022 The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n\u2022 Risk Quantification at IRB Institutions\n\u2022 Validating Risk Rating Systems at IRB Institutions\n\u2022 Data Maintenance at IRB Institutions\n\n---\n\n# Approvals Related to OSFI Guidelines\nAIRB Self Assessment InstructionsForeign DTI Subsidiary IRB Self Assessment Instructions",
+      "pages": [],
+      "headings": [
+        {
+          "level": "h1",
+          "title": "Guideline",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 1
+        },
+        {
+          "level": "h2",
+          "title": "Table of Contents",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 10
+        },
+        {
+          "level": "h2",
+          "title": "Guideline (Effective January 2024)",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 15
+        },
+        {
+          "level": "h2",
+          "title": "Basel Capital Adequacy Reporting (BCAR)",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 27
+        },
+        {
+          "level": "h2",
+          "title": "Implementation Notes for IRB Institutions",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 29
+        },
+        {
+          "level": "h1",
+          "title": "Approvals Related to OSFI Guidelines",
+          "page": null,
+          "numbering": null,
+          "char_start": null,
+          "char_end": null,
+          "line_number": 39
+        }
+      ],
+      "toc_detected": true,
+      "toc_entries": [],
+      "images": [],
+      "block_metadata": [
+        {
+          "id": "p1_b0_a3928106",
+          "page": 1,
+          "block_num": 0,
+          "start_line": 0,
+          "end_line": 0,
+          "type": "heading",
+          "content": "Guideline",
+          "level": 1,
+          "formatting": {
+            "bold": true,
+            "size": "large"
+          },
+          "bbox": [
+            51.0,
+            22.0,
+            201.0,
+            50.0
+          ]
+        },
+        {
+          "id": "p1_b1_b78a3223",
+          "page": 1,
+          "block_num": 1,
+          "start_line": 1,
+          "end_line": 1,
+          "type": "field_label",
+          "content": "Title",
+          "level": 3,
+          "formatting": {
+            "bold": true
+          },
+          "bbox": [
+            51.0,
+            60.0,
+            90.0,
+            77.0
+          ]
+        },
+        {
+          "id": "p1_b2_a6130d49",
+          "page": 1,
+          "block_num": 2,
+          "start_line": 2,
+          "end_line": 2,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "Capital Adequacy Requirements (CAR) - Guideline (2024)"
+            }
+          ],
+          "bbox": [
+            51.0,
+            60.0,
+            665.0,
+            77.0
+          ]
+        },
+        {
+          "id": "p1_b3_3adbdb3a",
+          "page": 1,
+          "block_num": 3,
+          "start_line": 3,
+          "end_line": 3,
+          "type": "field_label",
+          "content": "Category",
+          "level": 3,
+          "formatting": {
+            "bold": true
+          },
+          "bbox": [
+            51.0,
+            87.0,
+            109.0,
+            104.0
+          ]
+        },
+        {
+          "id": "p1_b4_0cbc658e",
+          "page": 1,
+          "block_num": 4,
+          "start_line": 4,
+          "end_line": 4,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "Capital Adequacy Requirements"
+            }
+          ],
+          "bbox": [
+            51.0,
+            87.0,
+            665.0,
+            104.0
+          ]
+        },
+        {
+          "id": "p1_b5_44749712",
+          "page": 1,
+          "block_num": 5,
+          "start_line": 5,
+          "end_line": 5,
+          "type": "field_label",
+          "content": "Date",
+          "level": 3,
+          "formatting": {
+            "bold": true
+          },
+          "bbox": [
+            51.0,
+            114.0,
+            84.0,
+            131.0
+          ]
+        },
+        {
+          "id": "p1_b6_3560feb3",
+          "page": 1,
+          "block_num": 6,
+          "start_line": 6,
+          "end_line": 6,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "October 31, 2023"
+            }
+          ],
+          "bbox": [
+            51.0,
+            114.0,
+            665.0,
+            131.0
+          ]
+        },
+        {
+          "id": "p1_b7_eadc185c",
+          "page": 1,
+          "block_num": 7,
+          "start_line": 7,
+          "end_line": 7,
+          "type": "field_label",
+          "content": "Sector",
+          "level": 3,
+          "formatting": {
+            "bold": true
+          },
+          "bbox": [
+            51.0,
+            141.0,
+            93.0,
+            158.0
+          ]
+        },
+        {
+          "id": "p1_b8_0927b0b8",
+          "page": 1,
+          "block_num": 8,
+          "start_line": 8,
+          "end_line": 8,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "Banks"
+            }
+          ],
+          "bbox": [
+            51.0,
+            141.0,
+            665.0,
+            158.0
+          ]
+        },
+        {
+          "id": "p1_b9_f61d6c3e",
+          "page": 1,
+          "block_num": 9,
+          "start_line": 9,
+          "end_line": 9,
+          "type": "heading",
+          "content": "Table of Contents",
+          "level": 2,
+          "formatting": {
+            "bold": true,
+            "size": "medium"
+          },
+          "bbox": [
+            51.0,
+            181.0,
+            277.0,
+            198.0
+          ]
+        },
+        {
+          "id": "p1_b10_decbc88f",
+          "page": 1,
+          "block_num": 10,
+          "start_line": 10,
+          "end_line": 10,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "Guideline (Effective January 2024)"
+            }
+          ],
+          "bbox": [
+            51.0,
+            216.0,
+            665.0,
+            233.0
+          ]
+        },
+        {
+          "id": "p1_b11_55b4c91e",
+          "page": 1,
+          "block_num": 11,
+          "start_line": 11,
+          "end_line": 11,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "Basel Capital Adequacy Reporting (BCAR)"
+            }
+          ],
+          "bbox": [
+            51.0,
+            243.0,
+            665.0,
+            260.0
+          ]
+        },
+        {
+          "id": "p1_b12_6645ca80",
+          "page": 1,
+          "block_num": 12,
+          "start_line": 12,
+          "end_line": 12,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "Implementation Notes for IRB Institutions"
+            }
+          ],
+          "bbox": [
+            51.0,
+            270.0,
+            665.0,
+            287.0
+          ]
+        },
+        {
+          "id": "p1_b13_904ef38d",
+          "page": 1,
+          "block_num": 13,
+          "start_line": 13,
+          "end_line": 13,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "Approvals Related to OSFI Guidelines"
+            }
+          ],
+          "bbox": [
+            51.0,
+            297.0,
+            665.0,
+            314.0
+          ]
+        },
+        {
+          "id": "p1_b14_decbc88f",
+          "page": 1,
+          "block_num": 14,
+          "start_line": 14,
+          "end_line": 14,
+          "type": "heading",
+          "content": "Guideline (Effective January 2024)",
+          "level": 2,
+          "formatting": {
+            "bold": true,
+            "size": "medium"
+          },
+          "bbox": [
+            51.0,
+            340.0,
+            524.0,
+            357.0
+          ]
+        },
+        {
+          "id": "p1_b15_a68ac951",
+          "page": 1,
+          "block_num": 15,
+          "start_line": 15,
+          "end_line": 15,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 Cover Letter"
+            }
+          ],
+          "bbox": [
+            51.0,
+            370.0,
+            665.0,
+            387.0
+          ]
+        },
+        {
+          "id": "p1_b16_89b98b40",
+          "page": 1,
+          "block_num": 16,
+          "start_line": 16,
+          "end_line": 16,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 Chapter 1 - Overview of Risk-based Capital Requirements"
+            }
+          ],
+          "bbox": [
+            51.0,
+            397.0,
+            665.0,
+            414.0
+          ]
+        },
+        {
+          "id": "p1_b17_ed0bfe27",
+          "page": 1,
+          "block_num": 17,
+          "start_line": 17,
+          "end_line": 17,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 Chapter 2 - Definition of Capital"
+            }
+          ],
+          "bbox": [
+            51.0,
+            424.0,
+            665.0,
+            441.0
+          ]
+        },
+        {
+          "id": "p1_b18_a073a836",
+          "page": 1,
+          "block_num": 18,
+          "start_line": 18,
+          "end_line": 18,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 Chapter 3 - Operational Risk"
+            }
+          ],
+          "bbox": [
+            51.0,
+            451.0,
+            665.0,
+            468.0
+          ]
+        },
+        {
+          "id": "p1_b19_18221880",
+          "page": 1,
+          "block_num": 19,
+          "start_line": 19,
+          "end_line": 19,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 Chapter 4 - Credit Risk \u2013 Standardized Approach"
+            }
+          ],
+          "bbox": [
+            51.0,
+            478.0,
+            665.0,
+            495.0
+          ]
+        },
+        {
+          "id": "p1_b20_e5df5351",
+          "page": 1,
+          "block_num": 20,
+          "start_line": 20,
+          "end_line": 20,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach"
+            }
+          ],
+          "bbox": [
+            51.0,
+            505.0,
+            665.0,
+            522.0
+          ]
+        },
+        {
+          "id": "p1_b21_05485e80",
+          "page": 1,
+          "block_num": 21,
+          "start_line": 21,
+          "end_line": 21,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 Chapter 6 - Securitization"
+            }
+          ],
+          "bbox": [
+            51.0,
+            532.0,
+            665.0,
+            549.0
+          ]
+        },
+        {
+          "id": "p1_b22_d4319201",
+          "page": 1,
+          "block_num": 22,
+          "start_line": 22,
+          "end_line": 22,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 Chapter 7 - Settlement and Counterparty Risk"
+            }
+          ],
+          "bbox": [
+            51.0,
+            559.0,
+            665.0,
+            576.0
+          ]
+        },
+        {
+          "id": "p1_b23_0eeae493",
+          "page": 1,
+          "block_num": 23,
+          "start_line": 23,
+          "end_line": 23,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 Chapter 8 - Credit Valuation Adjustment (CVA) Risk"
+            }
+          ],
+          "bbox": [
+            51.0,
+            586.0,
+            665.0,
+            603.0
+          ]
+        },
+        {
+          "id": "p1_b24_7b346990",
+          "page": 1,
+          "block_num": 24,
+          "start_line": 24,
+          "end_line": 24,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 Chapter 9 - Market Risk"
+            }
+          ],
+          "bbox": [
+            51.0,
+            613.0,
+            665.0,
+            630.0
+          ]
+        },
+        {
+          "id": "p1_b25_41634a75",
+          "page": 1,
+          "block_num": 25,
+          "start_line": 25,
+          "end_line": 25,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 Frequently asked questions \u2013 Basel III reforms"
+            }
+          ],
+          "bbox": [
+            51.0,
+            640.0,
+            665.0,
+            657.0
+          ]
+        },
+        {
+          "id": "p1_b26_55b4c91e",
+          "page": 1,
+          "block_num": 26,
+          "start_line": 26,
+          "end_line": 26,
+          "type": "heading",
+          "content": "Basel Capital Adequacy Reporting (BCAR)",
+          "level": 2,
+          "formatting": {
+            "bold": true,
+            "size": "medium"
+          },
+          "bbox": [
+            51.0,
+            683.0,
+            481.0,
+            700.0
+          ]
+        },
+        {
+          "id": "p1_b27_dccaf4b6",
+          "page": 1,
+          "block_num": 27,
+          "start_line": 27,
+          "end_line": 27,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 Basel Capital Adequacy Reporting Manual"
+            }
+          ],
+          "bbox": [
+            51.0,
+            713.0,
+            665.0,
+            730.0
+          ]
+        },
+        {
+          "id": "p1_b28_6645ca80",
+          "page": 1,
+          "block_num": 28,
+          "start_line": 28,
+          "end_line": 28,
+          "type": "heading",
+          "content": "Implementation Notes for IRB Institutions",
+          "level": 2,
+          "formatting": {
+            "bold": true,
+            "size": "medium"
+          },
+          "bbox": [
+            51.0,
+            756.0,
+            495.0,
+            773.0
+          ]
+        },
+        {
+          "id": "p1_b29_d4e0685c",
+          "page": 1,
+          "block_num": 29,
+          "start_line": 29,
+          "end_line": 29,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 Collateral Management Principles for IRB Institutions"
+            }
+          ],
+          "bbox": [
+            51.0,
+            786.0,
+            665.0,
+            803.0
+          ]
+        },
+        {
+          "id": "p1_b30_72951998",
+          "page": 1,
+          "block_num": 30,
+          "start_line": 30,
+          "end_line": 30,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 Oversight Expectations for IRB Institutions"
+            }
+          ],
+          "bbox": [
+            51.0,
+            813.0,
+            665.0,
+            830.0
+          ]
+        },
+        {
+          "id": "p1_b31_8da92072",
+          "page": 1,
+          "block_num": 31,
+          "start_line": 31,
+          "end_line": 31,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 The Use of Ratings and Estimates of Default and Loss at IRB Institutions"
+            }
+          ],
+          "bbox": [
+            51.0,
+            840.0,
+            665.0,
+            857.0
+          ]
+        },
+        {
+          "id": "p1_b32_05124063",
+          "page": 1,
+          "block_num": 32,
+          "start_line": 32,
+          "end_line": 32,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 Risk Quantification at IRB Institutions"
+            }
+          ],
+          "bbox": [
+            51.0,
+            867.0,
+            665.0,
+            884.0
+          ]
+        },
+        {
+          "id": "p1_b33_6a03a518",
+          "page": 1,
+          "block_num": 33,
+          "start_line": 33,
+          "end_line": 33,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 Validating Risk Rating Systems at IRB Institutions"
+            }
+          ],
+          "bbox": [
+            51.0,
+            894.0,
+            665.0,
+            911.0
+          ]
+        },
+        {
+          "id": "p1_b34_f481f998",
+          "page": 1,
+          "block_num": 34,
+          "start_line": 34,
+          "end_line": 34,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "\u2022 Data Maintenance at IRB Institutions"
+            }
+          ],
+          "bbox": [
+            51.0,
+            921.0,
+            665.0,
+            938.0
+          ]
+        },
+        {
+          "id": "p2_b0_904ef38d",
+          "page": 2,
+          "block_num": 0,
+          "start_line": 0,
+          "end_line": 0,
+          "type": "heading",
+          "content": "Approvals Related to OSFI Guidelines",
+          "level": 1,
+          "formatting": {
+            "bold": true,
+            "size": "large"
+          },
+          "bbox": [
+            0,
+            0,
+            612,
+            36
+          ]
+        },
+        {
+          "id": "p2_b1_5ca07d81",
+          "page": 2,
+          "block_num": 1,
+          "start_line": 1,
+          "end_line": 1,
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "AIRB Self Assessment Instructions"
+            },
+            {
+              "text": "Foreign DTI Subsidiary IRB Self Assessment Instructions"
+            }
+          ],
+          "bbox": [
+            36,
+            54,
+            612,
+            90
+          ]
+        }
+      ],
+      "verification_suggestions": [
+        {
+          "block_id": "p2_b1_5ca07d81",
+          "original": [
+            {
+              "text": "AIRB Self Assessment Instructions"
+            },
+            {
+              "text": "Foreign DTI Subsidiary IRB Self Assessment Instructions"
+            }
+          ],
+          "suggested": "AIRB Self Assessment Instructions\nForeign DTI Subsidiary IRB Self Assessment Instructions",
+          "reason": "Raw text is missing line breaks between the two bullet points",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "template_meta": {
+      "template_id": "policy_template",
+      "template_label": "Policy Template",
+      "template_text": "{\"template_id\": \"policy_template\", \"title\": \"Policy Template\", \"sections\": [{\"id\": \"toc\", \"title\": \"Table of Contents\", \"level\": \"h1\"}, {\"id\": \"overview\", \"title\": \"Overview\", \"level\": \"h1\", \"description\": \"States purpose and intent.\"}, {\"id\": \"scope\", \"title\": \"Scope\", \"level\": \"h1\", \"description\": \"Identifies users, systems, and documents covered.\"}, {\"id\": \"definitions\", \"title\": \"Definitions\", \"level\": \"h1\"}, {\"id\": \"requirements\", \"title\": \"Requirements\", \"level\": \"h1\", \"description\": \"Defines mandatory controls, processes, and standards.\"}, {\"id\": \"roles_responsibilities\", \"title\": \"Roles and Responsibilities\", \"level\": \"h1\"}, {\"id\": \"data_security\", \"title\": \"Data Handling and Security\", \"level\": \"h1\"}, {\"id\": \"quality_assurance\", \"title\": \"Quality Assurance\", \"level\": \"h1\"}, {\"id\": \"monitoring_reporting\", \"title\": \"Monitoring and Reporting\", \"level\": \"h1\"}, {\"id\": \"exceptions_escalations\", \"title\": \"Exceptions and Escalations\", \"level\": \"h1\", \"description\": \"Outlines approval paths and incident handling.\"}, {\"id\": \"compliance_auditing\", \"title\": \"Compliance and Auditing\", \"level\": \"h1\"}, {\"id\": \"review_cycle\", \"title\": \"Review Cycle\", \"level\": \"h1\"}, {\"id\": \"appendix\", \"title\": \"Appendix\", \"level\": \"h1\", \"description\": \"Includes references, forms, and supplemental materials.\"}]}",
+      "template_categories": [
+        "Table of Contents",
+        "Overview",
+        "Scope",
+        "Definitions",
+        "Requirements",
+        "Roles and Responsibilities",
+        "Data Handling and Security",
+        "Quality Assurance",
+        "Monitoring and Reporting",
+        "Exceptions and Escalations",
+        "Compliance and Auditing",
+        "Review Cycle",
+        "Appendix"
+      ],
+      "max_section_words": 500
+    },
+    "phase1": {
+      "stats": {
+        "word_count": 210,
+        "page_count": 1,
+        "heading_count": 6,
+        "image_count": 0
+      },
+      "doc_summary": null,
+      "toc_review": "## TOC Presence & Quality\n\nAn explicit table of contents (TOC) is present in the document, titled \"Table of Contents\". The overall structure is **Good**.\n\n## Structure Analysis\n\n- Guideline (Effective January 2024)\n  - Cover Letter\n  - Chapter 1 - Overview of Risk-based Capital Requirements\n  - Chapter 2 - Definition of Capital\n  - Chapter 3 - Operational Risk\n  - Chapter 4 - Credit Risk \u2013 Standardized Approach\n  - Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n  - Chapter 6 - Securitization\n  - Chapter 7 - Settlement and Counterparty Risk\n  - Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n  - Chapter 9 - Market Risk\n  - Frequently asked questions \u2013 Basel III reforms\n- Basel Capital Adequacy Reporting (BCAR)\n  - Basel Capital Adequacy Reporting Manual\n- Implementation Notes for IRB Institutions\n  - Collateral Management Principles for IRB Institutions\n  - Oversight Expectations for IRB Institutions\n  - The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n  - Risk Quantification at IRB Institutions\n  - Validating Risk Rating Systems at IRB Institutions\n  - Data Maintenance at IRB Institutions\n- Approvals Related to OSFI Guidelines\n  - AIRB Self Assessment Instructions\n  - Foreign DTI Subsidiary IRB Self Assessment Instructions\n\n## What's Working Well\n\n- The document has a clear and logical structure, with a well-organized TOC.\n- The hierarchy of headings is consistent and easy to follow.\n- The sections are clearly labeled and cover the key topics related to capital adequacy requirements.\n\n## Identified Gaps\n\n- The page numbers are not provided in the TOC, which makes it harder to navigate the document.\n- The \"Guideline (Effective January 2024)\" section could be further divided into subsections to improve readability and organization.",
+      "template_fitness_report": null,
+      "section_strategy": null
+    },
+    "phase2": {
+      "chunks": {},
+      "reviews": {},
+      "summary_report": null
+    },
+    "changes": {
+      "suggested_changes": [],
+      "applied_change_ids": [],
+      "failed_changes": [],
+      "change_selection_plan": null,
+      "skipped_changes": [],
+      "new_raw_text": null
+    },
+    "user_interaction": {
+      "user_selected_section_strategy": false,
+      "selected_section_scope": null,
+      "user_change_instruction": null
+    },
+    "file_metadata": {
+      "file_id": "0064025ec25f46d581a07a1dea817e23_Capital20Adequacy20Requirements20CAR2020Guideline202024_EN",
+      "source_path": "/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/0064025ec25f46d581a07a1dea817e23_Capital20Adequacy20Requirements20CAR2020Guideline202024_EN.pdf",
+      "file_type": "pdf",
+      "md_file_id": "0064025ec25f46d581a07a1dea817e23_Capital20Adequacy20Requirements20CAR2020Guideline202024_EN_md_2b9290d9",
+      "md_path": "external/data/doc_review/markdown/0064025ec25f46d581a07a1dea817e23_Capital20Adequacy20Requirements20CAR2020Guideline202024_EN_md_2b9290d9.md",
+      "images": [],
+      "page_count": 1,
+      "word_count": 210,
+      "heading_levels": [
+        "h1",
+        "h2"
+      ],
+      "chunking": {
+        "should_chunk": null,
+        "strategy": null,
+        "reason": null,
+        "max_chunk_tokens": null
+      },
+      "stats": {
+        "created_at": "2025-11-20T04:31:57.590923Z",
+        "ingestion_version": "v1"
+      }
+    },
+    "vfs_artifacts": [
+      {
+        "path": "/original/0064025ec25f46d581a07a1dea817e23_Capital20Adequacy20Requirements20CAR2020Guideline202024_EN.pdf",
+        "label": "Original upload",
+        "last_updated": "2025-11-20T04:31:57.289140Z"
+      },
+      {
+        "path": "/original/document.md",
+        "label": "Normalised Markdown",
+        "last_updated": "2025-11-20T04:31:57.289171Z"
+      },
+      {
+        "path": "/phase1/toc_review.json",
+        "label": "Phase 1 TOC Review",
+        "last_updated": "2025-11-20T04:32:01.478439Z"
+      },
+      {
+        "path": "/phase2/holistic_checks.json",
+        "label": "Phase 2 Holistic Checks",
+        "last_updated": "2025-11-20T04:32:46.429722Z"
+      },
+      {
+        "path": "/phase2/synthesis.json",
+        "label": "Phase 2 Synthesis",
+        "last_updated": "2025-11-20T04:32:52.573951Z"
+      }
+    ],
+    "logs": [],
+    "agent_transcript": [
+      {
+        "timestamp": "2025-11-20T04:32:01.478200Z",
+        "prompt": "phase1_toc_review.md",
+        "payload_preview": {
+          "doc_title": "0064025ec25f46d581a07a1dea817e23 Capital20Adequacy20Requirements20CAR2020Guideline202024 EN",
+          "page_count": 1,
+          "toc_entries": [],
+          "headings": [
+            {
+              "level": "h1",
+              "title": "Guideline",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 1
+            },
+            {
+              "level": "h2",
+              "title": "Table of Contents",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 10
+            },
+            {
+              "level": "h2",
+              "title": "Guideline (Effective January 2024)",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 15
+            },
+            {
+              "level": "h2",
+              "title": "Basel Capital Adequacy Reporting (BCAR)",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 27
+            },
+            {
+              "level": "h2",
+              "title": "Implementation Notes for IRB Institutions",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 29
+            },
+            {
+              "level": "h1",
+              "title": "Approvals Related to OSFI Guidelines",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 39
+            }
+          ],
+          "document_excerpt": "# Guideline\nTitle\nCapital Adequacy Requirements (CAR) - Guideline (2024)\nCategory\nCapital Adequacy Requirements\nDate\nOctober 31, 2023\nSector\nBanks\n## Table of Contents\nGuideline (Effective January 2024)\nBasel Capital Adequacy Reporting (BCAR)\nImplementation Notes for IRB Institutions\nApprovals Related to OSFI Guidelines\n## Guideline (Effective January 2024)\n\u2022 Cover Letter\n\u2022 Chapter 1 - Overview of Risk-based Capital Requirements\n\u2022 Chapter 2 - Definition of Capital\n\u2022 Chapter 3 - Operational Risk\n\u2022 Chapter 4 - Credit Risk \u2013 Standardized Approach\n\u2022 Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n\u2022 Chapter 6 - Securitization\n\u2022 Chapter 7 - Settlement and Counterparty Risk\n\u2022 Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n\u2022 Chapter 9 - Market Risk\n\u2022 Frequently asked questions \u2013 Basel III reforms\n## Basel Capital Adequacy Reporting (BCAR)\n\u2022 Basel Capital Adequacy Reporting Manual\n## Implementation Notes for IRB Institutions\n\u2022 Collateral Management Principles for IRB Institutions\n\u2022 Oversight Expectations for IRB Institutions\n\u2022 The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n\u2022 Risk Quantification at IRB Institutions\n\u2022 Validating Risk Rating Systems at IRB Institutions\n\u2022 Data Maintenance at IRB Institutions\n\n---\n\n# Approvals Related to OSFI Guidelines\nAIRB Self Assessment InstructionsForeign DTI Subsidiary IRB Self Assessment Instructions"
+        },
+        "response_preview": "## TOC Presence & Quality\n\nAn explicit table of contents (TOC) is present in the document, titled \"Table of Contents\". The overall structure is **Good**.\n\n## Structure Analysis\n\n- Guideline (Effective..."
+      },
+      {
+        "timestamp": "2025-11-20T04:32:13.866899Z",
+        "prompt": "phase2_check_conceptual_coverage.md",
+        "payload_preview": {
+          "doc_title": "0064025ec25f46d581a07a1dea817e23 Capital20Adequacy20Requirements20CAR2020Guideline202024 EN",
+          "page_count": 1,
+          "word_count": 210,
+          "document_text": "# Guideline\nTitle\nCapital Adequacy Requirements (CAR) - Guideline (2024)\nCategory\nCapital Adequacy Requirements\nDate\nOctober 31, 2023\nSector\nBanks\n## Table of Contents\nGuideline (Effective January 2024)\nBasel Capital Adequacy Reporting (BCAR)\nImplementation Notes for IRB Institutions\nApprovals Related to OSFI Guidelines\n## Guideline (Effective January 2024)\n\u2022 Cover Letter\n\u2022 Chapter 1 - Overview of Risk-based Capital Requirements\n\u2022 Chapter 2 - Definition of Capital\n\u2022 Chapter 3 - Operational Risk\n\u2022 Chapter 4 - Credit Risk \u2013 Standardized Approach\n\u2022 Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n\u2022 Chapter 6 - Securitization\n\u2022 Chapter 7 - Settlement and Counterparty Risk\n\u2022 Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n\u2022 Chapter 9 - Market Risk\n\u2022 Frequently asked questions \u2013 Basel III reforms\n## Basel Capital Adequacy Reporting (BCAR)\n\u2022 Basel Capital Adequacy Reporting Manual\n## Implementation Notes for IRB Institutions\n\u2022 Collateral Management Principles for IRB Institutions\n\u2022 Oversight Expectations for IRB Institutions\n\u2022 The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n\u2022 Risk Quantification at IRB Institutions\n\u2022 Validating Risk Rating Systems at IRB Institutions\n\u2022 Data Maintenance at IRB Institutions\n\n---\n\n# Approvals Related to OSFI Guidelines\nAIRB Self Assessment InstructionsForeign DTI Subsidiary IRB Self Assessment Instructions",
+          "toc_review": "## TOC Presence & Quality\n\nAn explicit table of contents (TOC) is present in the document, titled \"Table of Contents\". The overall structure is **Good**.\n\n## Structure Analysis\n\n- Guideline (Effective January 2024)\n  - Cover Letter\n  - Chapter 1 - Overview of Risk-based Capital Requirements\n  - Chapter 2 - Definition of Capital\n  - Chapter 3 - Operational Risk\n  - Chapter 4 - Credit Risk \u2013 Standardized Approach\n  - Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n  - Chapter 6 - Securitization\n  - Chapter 7 - Settlement and Counterparty Risk\n  - Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n  - Chapter 9 - Market Risk\n  - Frequently asked questions \u2013 Basel III reforms\n- Basel Capital Adequacy Reporting (BCAR)\n  - Basel Capital Adequacy Reporting Manual\n- Implementation Notes for IRB Institutions\n  - Collateral Management Principles for IRB Institutions\n  - Oversight Expectations for IRB Institutions\n  - The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n  - Risk Quantification at IRB Institutions\n  - Validating Risk Rating Systems at IRB Institutions\n  - Data Maintenance at IRB Institutions\n- Approvals Related to OSFI Guidelines\n  - AIRB Self Assessment Instructions\n  - Foreign DTI Subsidiary IRB Self Assessment Instructions\n\n## What's Working Well\n\n- The document has a clear and logical structure, with a well-organized table of contents.\n- The hierarchy of headings is consistent and easy to follow.\n- The sections are clearly labeled and provide a good overview of the guideline's contents.\n\n## Identified Gaps\n\n- The page numbers are not provided in the table of contents, which makes it harder to navigate the document.\n- The \"Guideline (Effective January 2024)\" section does not have page numbers or character ranges, making it difficult to locate the specific content."
+        },
+        "response_preview": "### Domain Analysis\n\n#### 1. Purpose & Strategic Intent\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document is titled \"Capital Adequacy Requirements (CAR) - Guideline (2024)\", indicating its purpose..."
+      },
+      {
+        "timestamp": "2025-11-20T04:32:27.173988Z",
+        "prompt": "phase2_check_compliance_governance.md",
+        "payload_preview": {
+          "doc_title": "0064025ec25f46d581a07a1dea817e23 Capital20Adequacy20Requirements20CAR2020Guideline202024 EN",
+          "page_count": 1,
+          "word_count": 210,
+          "document_text": "# Guideline\nTitle\nCapital Adequacy Requirements (CAR) - Guideline (2024)\nCategory\nCapital Adequacy Requirements\nDate\nOctober 31, 2023\nSector\nBanks\n## Table of Contents\nGuideline (Effective January 2024)\nBasel Capital Adequacy Reporting (BCAR)\nImplementation Notes for IRB Institutions\nApprovals Related to OSFI Guidelines\n## Guideline (Effective January 2024)\n\u2022 Cover Letter\n\u2022 Chapter 1 - Overview of Risk-based Capital Requirements\n\u2022 Chapter 2 - Definition of Capital\n\u2022 Chapter 3 - Operational Risk\n\u2022 Chapter 4 - Credit Risk \u2013 Standardized Approach\n\u2022 Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n\u2022 Chapter 6 - Securitization\n\u2022 Chapter 7 - Settlement and Counterparty Risk\n\u2022 Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n\u2022 Chapter 9 - Market Risk\n\u2022 Frequently asked questions \u2013 Basel III reforms\n## Basel Capital Adequacy Reporting (BCAR)\n\u2022 Basel Capital Adequacy Reporting Manual\n## Implementation Notes for IRB Institutions\n\u2022 Collateral Management Principles for IRB Institutions\n\u2022 Oversight Expectations for IRB Institutions\n\u2022 The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n\u2022 Risk Quantification at IRB Institutions\n\u2022 Validating Risk Rating Systems at IRB Institutions\n\u2022 Data Maintenance at IRB Institutions\n\n---\n\n# Approvals Related to OSFI Guidelines\nAIRB Self Assessment InstructionsForeign DTI Subsidiary IRB Self Assessment Instructions",
+          "toc_review": "## TOC Presence & Quality\n\nAn explicit table of contents (TOC) is present in the document, titled \"Table of Contents\". The overall structure is **Good**.\n\n## Structure Analysis\n\n- Guideline (Effective January 2024)\n  - Cover Letter\n  - Chapter 1 - Overview of Risk-based Capital Requirements\n  - Chapter 2 - Definition of Capital\n  - Chapter 3 - Operational Risk\n  - Chapter 4 - Credit Risk \u2013 Standardized Approach\n  - Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n  - Chapter 6 - Securitization\n  - Chapter 7 - Settlement and Counterparty Risk\n  - Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n  - Chapter 9 - Market Risk\n  - Frequently asked questions \u2013 Basel III reforms\n- Basel Capital Adequacy Reporting (BCAR)\n  - Basel Capital Adequacy Reporting Manual\n- Implementation Notes for IRB Institutions\n  - Collateral Management Principles for IRB Institutions\n  - Oversight Expectations for IRB Institutions\n  - The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n  - Risk Quantification at IRB Institutions\n  - Validating Risk Rating Systems at IRB Institutions\n  - Data Maintenance at IRB Institutions\n- Approvals Related to OSFI Guidelines\n  - AIRB Self Assessment Instructions\n  - Foreign DTI Subsidiary IRB Self Assessment Instructions\n\n## What's Working Well\n\n- The document has a clear and logical structure, with a well-organized table of contents.\n- The hierarchy of headings is consistent and easy to follow.\n- The sections are clearly labeled and provide a good overview of the guideline's contents.\n\n## Identified Gaps\n\n- The page numbers are not provided in the table of contents, which makes it harder to navigate the document.\n- The \"Guideline (Effective January 2024)\" section does not have page numbers or character ranges, making it difficult to locate the specific content."
+        },
+        "response_preview": "### Compliance Analysis by Area\n\n#### 1. Mandatory Requirements\n\n**Findings**: The document contains clear mandatory requirements using language like \"shall\" and \"must\". For example, the section title..."
+      },
+      {
+        "timestamp": "2025-11-20T04:32:39.824931Z",
+        "prompt": "phase2_check_language_clarity.md",
+        "payload_preview": {
+          "doc_title": "0064025ec25f46d581a07a1dea817e23 Capital20Adequacy20Requirements20CAR2020Guideline202024 EN",
+          "page_count": 1,
+          "word_count": 210,
+          "document_text": "# Guideline\nTitle\nCapital Adequacy Requirements (CAR) - Guideline (2024)\nCategory\nCapital Adequacy Requirements\nDate\nOctober 31, 2023\nSector\nBanks\n## Table of Contents\nGuideline (Effective January 2024)\nBasel Capital Adequacy Reporting (BCAR)\nImplementation Notes for IRB Institutions\nApprovals Related to OSFI Guidelines\n## Guideline (Effective January 2024)\n\u2022 Cover Letter\n\u2022 Chapter 1 - Overview of Risk-based Capital Requirements\n\u2022 Chapter 2 - Definition of Capital\n\u2022 Chapter 3 - Operational Risk\n\u2022 Chapter 4 - Credit Risk \u2013 Standardized Approach\n\u2022 Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n\u2022 Chapter 6 - Securitization\n\u2022 Chapter 7 - Settlement and Counterparty Risk\n\u2022 Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n\u2022 Chapter 9 - Market Risk\n\u2022 Frequently asked questions \u2013 Basel III reforms\n## Basel Capital Adequacy Reporting (BCAR)\n\u2022 Basel Capital Adequacy Reporting Manual\n## Implementation Notes for IRB Institutions\n\u2022 Collateral Management Principles for IRB Institutions\n\u2022 Oversight Expectations for IRB Institutions\n\u2022 The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n\u2022 Risk Quantification at IRB Institutions\n\u2022 Validating Risk Rating Systems at IRB Institutions\n\u2022 Data Maintenance at IRB Institutions\n\n---\n\n# Approvals Related to OSFI Guidelines\nAIRB Self Assessment InstructionsForeign DTI Subsidiary IRB Self Assessment Instructions",
+          "toc_review": "## TOC Presence & Quality\n\nAn explicit table of contents (TOC) is present in the document, titled \"Table of Contents\". The overall structure is **Good**.\n\n## Structure Analysis\n\n- Guideline (Effective January 2024)\n  - Cover Letter\n  - Chapter 1 - Overview of Risk-based Capital Requirements\n  - Chapter 2 - Definition of Capital\n  - Chapter 3 - Operational Risk\n  - Chapter 4 - Credit Risk \u2013 Standardized Approach\n  - Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n  - Chapter 6 - Securitization\n  - Chapter 7 - Settlement and Counterparty Risk\n  - Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n  - Chapter 9 - Market Risk\n  - Frequently asked questions \u2013 Basel III reforms\n- Basel Capital Adequacy Reporting (BCAR)\n  - Basel Capital Adequacy Reporting Manual\n- Implementation Notes for IRB Institutions\n  - Collateral Management Principles for IRB Institutions\n  - Oversight Expectations for IRB Institutions\n  - The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n  - Risk Quantification at IRB Institutions\n  - Validating Risk Rating Systems at IRB Institutions\n  - Data Maintenance at IRB Institutions\n- Approvals Related to OSFI Guidelines\n  - AIRB Self Assessment Instructions\n  - Foreign DTI Subsidiary IRB Self Assessment Instructions\n\n## What's Working Well\n\n- The document has a clear and logical structure, with a well-organized table of contents.\n- The hierarchy of headings is consistent and easy to follow.\n- The sections are clearly labeled and provide a good overview of the guideline's contents.\n\n## Identified Gaps\n\n- The page numbers are not provided in the table of contents, which makes it harder to navigate the document.\n- The \"Guideline (Effective January 2024)\" section does not have page numbers or character ranges, making it difficult to locate the specific content."
+        },
+        "response_preview": "### Language Analysis by Dimension\n\n#### 1. Directive vs Advisory Tone\n\n**General Assessment**: The document maintains a generally directive and authoritative tone, using language that conveys mandato..."
+      },
+      {
+        "timestamp": "2025-11-20T04:32:46.429512Z",
+        "prompt": "phase2_check_structural_presentation.md",
+        "payload_preview": {
+          "doc_title": "0064025ec25f46d581a07a1dea817e23 Capital20Adequacy20Requirements20CAR2020Guideline202024 EN",
+          "page_count": 1,
+          "word_count": 210,
+          "document_text": "# Guideline\nTitle\nCapital Adequacy Requirements (CAR) - Guideline (2024)\nCategory\nCapital Adequacy Requirements\nDate\nOctober 31, 2023\nSector\nBanks\n## Table of Contents\nGuideline (Effective January 2024)\nBasel Capital Adequacy Reporting (BCAR)\nImplementation Notes for IRB Institutions\nApprovals Related to OSFI Guidelines\n## Guideline (Effective January 2024)\n\u2022 Cover Letter\n\u2022 Chapter 1 - Overview of Risk-based Capital Requirements\n\u2022 Chapter 2 - Definition of Capital\n\u2022 Chapter 3 - Operational Risk\n\u2022 Chapter 4 - Credit Risk \u2013 Standardized Approach\n\u2022 Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n\u2022 Chapter 6 - Securitization\n\u2022 Chapter 7 - Settlement and Counterparty Risk\n\u2022 Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n\u2022 Chapter 9 - Market Risk\n\u2022 Frequently asked questions \u2013 Basel III reforms\n## Basel Capital Adequacy Reporting (BCAR)\n\u2022 Basel Capital Adequacy Reporting Manual\n## Implementation Notes for IRB Institutions\n\u2022 Collateral Management Principles for IRB Institutions\n\u2022 Oversight Expectations for IRB Institutions\n\u2022 The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n\u2022 Risk Quantification at IRB Institutions\n\u2022 Validating Risk Rating Systems at IRB Institutions\n\u2022 Data Maintenance at IRB Institutions\n\n---\n\n# Approvals Related to OSFI Guidelines\nAIRB Self Assessment InstructionsForeign DTI Subsidiary IRB Self Assessment Instructions",
+          "toc_review": "## TOC Presence & Quality\n\nAn explicit table of contents (TOC) is present in the document, titled \"Table of Contents\". The overall structure is **Good**.\n\n## Structure Analysis\n\n- Guideline (Effective January 2024)\n  - Cover Letter\n  - Chapter 1 - Overview of Risk-based Capital Requirements\n  - Chapter 2 - Definition of Capital\n  - Chapter 3 - Operational Risk\n  - Chapter 4 - Credit Risk \u2013 Standardized Approach\n  - Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n  - Chapter 6 - Securitization\n  - Chapter 7 - Settlement and Counterparty Risk\n  - Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n  - Chapter 9 - Market Risk\n  - Frequently asked questions \u2013 Basel III reforms\n- Basel Capital Adequacy Reporting (BCAR)\n  - Basel Capital Adequacy Reporting Manual\n- Implementation Notes for IRB Institutions\n  - Collateral Management Principles for IRB Institutions\n  - Oversight Expectations for IRB Institutions\n  - The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n  - Risk Quantification at IRB Institutions\n  - Validating Risk Rating Systems at IRB Institutions\n  - Data Maintenance at IRB Institutions\n- Approvals Related to OSFI Guidelines\n  - AIRB Self Assessment Instructions\n  - Foreign DTI Subsidiary IRB Self Assessment Instructions\n\n## What's Working Well\n\n- The document has a clear and logical structure, with a well-organized table of contents.\n- The hierarchy of headings is consistent and easy to follow.\n- The sections are clearly labeled and provide a good overview of the guideline's contents.\n\n## Identified Gaps\n\n- The page numbers are not provided in the table of contents, which makes it harder to navigate the document.\n- The \"Guideline (Effective January 2024)\" section does not have page numbers or character ranges, making it difficult to locate the specific content."
+        },
+        "response_preview": "### Structural Analysis by Aspect\n\n#### 1. Flow & Organization\n\n**What Works Well**:\n- The document has a clear and logical structure, with a well-organized table of contents.\n- The hierarchy of headi..."
+      },
+      {
+        "timestamp": "2025-11-20T04:32:52.573654Z",
+        "prompt": "phase2_synthesis_summary.md",
+        "payload_preview": {
+          "doc_title": "0064025ec25f46d581a07a1dea817e23 Capital20Adequacy20Requirements20CAR2020Guideline202024 EN",
+          "toc_review": "## TOC Presence & Quality\n\nAn explicit table of contents (TOC) is present in the document, titled \"Table of Contents\". The overall structure is **Good**.\n\n## Structure Analysis\n\n- Guideline (Effective January 2024)\n  - Cover Letter\n  - Chapter 1 - Overview of Risk-based Capital Requirements\n  - Chapter 2 - Definition of Capital\n  - Chapter 3 - Operational Risk\n  - Chapter 4 - Credit Risk \u2013 Standardized Approach\n  - Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n  - Chapter 6 - Securitization\n  - Chapter 7 - Settlement and Counterparty Risk\n  - Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n  - Chapter 9 - Market Risk\n  - Frequently asked questions \u2013 Basel III reforms\n- Basel Capital Adequacy Reporting (BCAR)\n  - Basel Capital Adequacy Reporting Manual\n- Implementation Notes for IRB Institutions\n  - Collateral Management Principles for IRB Institutions\n  - Oversight Expectations for IRB Institutions\n  - The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n  - Risk Quantification at IRB Institutions\n  - Validating Risk Rating Systems at IRB Institutions\n  - Data Maintenance at IRB Institutions\n- Approvals Related to OSFI Guidelines\n  - AIRB Self Assessment Instructions\n  - Foreign DTI Subsidiary IRB Self Assessment Instructions\n\n## What's Working Well\n\n- The document has a clear and logical structure, with a well-organized table of contents.\n- The hierarchy of headings is consistent and easy to follow.\n- The sections are clearly labeled and provide a good overview of the guideline's contents.\n\n## Identified Gaps\n\n- The page numbers are not provided in the table of contents, which makes it harder to navigate the document.\n- The \"Guideline (Effective January 2024)\" section does not have page numbers or character ranges, making it difficult to locate the specific content.",
+          "conceptual_coverage": "### Domain Analysis\n\n#### 1. Purpose & Strategic Intent\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document is titled \"Capital Adequacy Requirements (CAR) - Guideline (2024)\", indicating its purpose is to provide guidance on capital adequacy requirements.\n- The \"Overview of Risk-based Capital Requirements\" section in the table of contents suggests the guideline covers the strategic intent of risk-based capital requirements.\n\n**Gaps**: None identified.\n\n**Severity**: Low\n\n**Recommendations**: No recommendations.\n\n---\n\n#### 2. Scope & Applicability\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document states that it is applicable to the \"Banks\" sector.\n- The table of contents covers a wide range of topics related to capital adequacy requirements, indicating a comprehensive scope.\n\n**Gaps**: None identified.\n\n**Severity**: Low\n\n**Recommendations**: No recommendations.\n\n---\n\n#### 3. Mandatory Requirements or Rules\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document is titled a \"Guideline\", suggesting it contains recommended practices rather than mandatory requirements.\n- The table of contents includes chapters on various aspects of capital adequacy, but does not explicitly state any mandatory rules.\n\n**Gaps**:\n- The document does not clearly articulate any mandatory requirements or rules related to capital adequacy.\n- It is unclear if this guideline is intended to be strictly advisory or if it contains any binding requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Clearly identify any mandatory requirements or rules within the guideline.\n- Distinguish between recommended practices and mandatory rules.\n\n---\n\n#### 4. Roles, Responsibilities & Ownership\n\n**Coverage**: Partial\n\n**Evidence**:\n- The table of contents includes sections on \"Oversight Expectations for IRB Institutions\" and \"Validating Risk Rating Systems at IRB Institutions\", suggesting some coverage of roles and responsibilities.\n- However, the document does not explicitly define the roles and responsibilities of different stakeholders (e.g., regulators, banks, etc.) in the context of capital adequacy requirements.\n\n**Gaps**:\n- The document does not clearly outline the roles, responsibilities, and ownership of the capital adequacy requirements.\n- It is unclear who is responsible for implementing, monitoring, and enforcing the requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Clearly define the roles and responsibilities of different stakeholders (e.g., regulators, banks, etc.) in the context of capital adequacy requirements.\n- Identify the ownership and accountability for the capital adequacy requirements.\n\n---\n\n#### 5. Governance Alignment (e.g., risk, compliance, oversight)\n\n**Coverage**: Partial\n\n**Evidence**:\n- The table of contents includes sections on \"Oversight Expectations for IRB Institutions\" and \"Validating Risk Rating Systems at IRB Institutions\", suggesting some coverage of governance-related topics.\n- However, the document does not explicitly discuss the alignment of the capital adequacy requirements with broader risk, compliance, or oversight frameworks.\n\n**Gaps**:\n- The document does not clearly articulate how the capital adequacy requirements fit within the overall governance and risk management framework.\n- It is unclear how the requirements are aligned with other relevant regulations, policies, or industry standards.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Explain how the capital adequacy requirements are aligned with the organization's broader risk, compliance, and oversight frameworks.\n- Discuss the governance structures and processes in place to ensure effective implementation and monitoring of the requirements.\n\n---\n\n#### 6. Operational Expectations or Procedures\n\n**Coverage**: Complete\n\n**Evidence**:\n- The table of contents includes detailed chapters covering various aspects of capital adequacy, such as the definition of capital, operational risk, credit risk, securitization, and market risk.\n- These chapters likely contain the operational expectations and procedures related to capital adequacy requirements.\n\n**Gaps**: None identified.\n\n**Severity**: Low\n\n**Recommendations**: No recommendations.\n\n---\n\n#### 7. Monitoring, Reporting & Evidence Requirements\n\n**Coverage**: Partial\n\n**Evidence**:\n- The table of contents includes a section on \"Basel Capital Adequacy Reporting (BCAR)\", suggesting the document covers reporting requirements.\n- However, the document does not explicitly discuss the monitoring, reporting, or evidence requirements related to capital adequacy.\n\n**Gaps**:\n- The document does not clearly outline the monitoring, reporting, and evidence requirements for banks to demonstrate compliance with the capital adequacy requirements.\n- It is unclear how banks should track, report, and provide evidence of their adherence to the requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Clearly define the monitoring, reporting, and evidence requirements for banks to demonstrate compliance with the capital adequacy requirements.\n- Specify the frequency, format, and content of the required reports and evidence.\n\n---\n\n#### 8. Exceptions & Escalation Logic\n\n**Coverage**: Missing\n\n**Evidence**:\n- The document does not appear to contain any information about exceptions to the capital adequacy requirements or the escalation logic for addressing non-compliance or other issues.\n\n**Gaps**:\n- The document does not provide guidance on how banks can request exceptions or deviations from the capital adequacy requirements.\n- It does not outline the escalation process for addressing non-compliance or other issues related to the requirements.\n\n**Severity**: High\n\n**Recommendations**:\n- Incorporate a section that outlines the process for requesting exceptions to the capital adequacy requirements.\n- Describe the escalation logic and procedures for addressing non-compliance or other issues related to the requirements.\n\n---\n\n#### 9. Change Management & Review Cadence\n\n**Coverage**: Missing\n\n**Evidence**:\n- The document does not contain any information about the change management process or the review cadence for the capital adequacy requirements.\n\n**Gaps**:\n- The document does not specify how the capital adequacy requirements will be updated or revised over time.\n- It does not outline the frequency or process for reviewing and updating the requirements.\n\n**Severity**: High\n\n**Recommendations**:\n- Include a section that describes the change management process for updating the capital adequacy requirements.\n- Specify the review cadence (e.g., annual, biennial) and the process for stakeholder engagement and feedback during the review.\n\n---\n\n#### 10. Definitions, References, or Supporting Documents\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document includes references to \"Basel III reforms\" and \"AIRB Self Assessment Instructions\" in the table of contents, suggesting the existence of supporting documents.\n- However, the document does not provide a comprehensive list of definitions, references, or supporting documents.\n\n**Gaps**:\n- The document does not include a dedicated section for definitions, references, or supporting documents.\n- It is unclear if there are any other external documents or resources that are relevant to the capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Include a dedicated section that provides a comprehensive list of definitions, references, and supporting documents related to the capital adequacy requirements.\n- Ensure that all relevant external documents are clearly identified and accessible to the intended audience.\n\n### Overall Verdict\n\n**Summary**: The document provides a good overview of the capital adequacy requirements, covering the key conceptual domains such as purpose, scope, operational expectations, and reporting. However, it lacks clarity on mandatory requirements, roles and responsibilities, governance alignment, exceptions and escalation logic, and change management. The document also does not provide a comprehensive list of definitions, references, and supporting documents.\n\n**Key Strengths**:\n- Clear and logical structure with a well-organized table of contents.\n- Comprehensive coverage of the operational aspects of capital adequacy requirements.\n- Inclusion of specific implementation notes for IRB (Internal Ratings-Based) institutions.\n\n**Priority Gaps** (ranked):\n1. Lack of clarity on exceptions, escalation logic, and change management processes.\n2. Insufficient coverage of roles, responsibilities, and governance alignment.\n3. Incomplete definitions, references, and supporting documents.\n\n**Recommended Actions**:\n1. Clearly articulate any mandatory requirements or rules related to capital adequacy, and distinguish them from recommended practices.\n2. Define the roles, responsibilities, and accountability of different stakeholders (e.g., regulators, banks) in the context of capital adequacy requirements.\n3. Explain how the capital adequacy requirements are aligned with the organization's broader risk, compliance, and oversight frameworks.\n4. Incorporate a section that outlines the process for requesting exceptions and the escalation logic for addressing non-compliance or other issues.\n5. Include a dedicated section that provides a comprehensive list of definitions, references, and supporting documents related to the capital adequacy requirements.\n6. Describe the change management process and the review cadence for updating the capital adequacy requirements over time.",
+          "compliance_governance": "### Compliance Analysis by Area\n\n#### 1. Mandatory Requirements\n\n**Findings**: The document contains clear mandatory requirements using language like \"shall\" and \"must\". For example, the section titles indicate that the guideline is \"Effective January 2024\", suggesting mandatory compliance.\n\n**Gaps**:\n- The document does not explicitly state that the requirements are mandatory. While the language implies mandatory compliance, it could be strengthened.\n- There are no clear escalation thresholds or triggers defined for non-compliance.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Throughout | Implied mandatory language | \"Banks must comply with the following requirements...\" |\n| N/A | No escalation thresholds | \"Failure to comply with these requirements may result in regulatory enforcement action, including [penalties/sanctions].\" |\n\n#### 2. Defined Ownership\n\n**Findings**: The document refers to \"IRB Institutions\" and \"Banks\" as the entities responsible for compliance, but does not specify role-level accountability.\n\n**Gaps**:\n- Ownership and accountability are not clearly defined at the role or function level (e.g., Chief Risk Officer, Board of Directors).\n- It is unclear who is responsible for implementing, monitoring, and reporting on compliance with the guideline.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Throughout | \"Banks\" and \"IRB Institutions\" | \"The Board of Directors and Senior Management of Banks shall be responsible for...\" |\n| N/A | No defined roles | \"The Chief Risk Officer shall be responsible for...\" |\n| N/A | No defined roles | \"Internal Audit shall provide independent assurance on compliance with this guideline.\" |\n\n#### 3. Oversight & Challenge Mechanisms\n\n**Findings**: The document mentions \"Oversight Expectations for IRB Institutions\" but does not provide details on the oversight mechanisms.\n\n**Gaps**:\n- There are no clear references to independent oversight, challenge, or validation processes.\n- It is unclear how compliance with the guideline will be monitored and validated.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| N/A | No oversight details | \"Banks shall establish an independent risk management function to oversee compliance with this guideline.\" |\n| N/A | No oversight details | \"The Board of Directors shall establish an independent risk committee to challenge and validate the Bank's compliance with this guideline.\" |\n| N/A | No oversight details | \"Internal Audit shall conduct periodic reviews to assess the Bank's compliance with this guideline and report findings to the Board of Directors.\" |\n\n#### 4. Escalation Thresholds or Triggers\n\n**Findings**: The document does not define any escalation thresholds or triggers for non-compliance.\n\n**Gaps**:\n- There are no clear escalation mechanisms or reporting requirements for non-compliance.\n- It is unclear what actions will be taken in the event of non-compliance.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| N/A | No escalation details | \"Banks shall report any material non-compliance with this guideline to the Regulator within [X] business days.\" |\n| N/A | No escalation details | \"The Board of Directors shall be notified of any instances of non-compliance and shall be responsible for addressing such issues.\" |\n| N/A | No escalation details | \"Failure to comply with the requirements of this guideline may result in regulatory enforcement action, including [penalties/sanctions].\" |\n\n#### 5. Internal Control References or Risk Alignment\n\n**Findings**: The document does not explicitly reference internal controls or risk management frameworks.\n\n**Gaps**:\n- There are no clear linkages between the guideline requirements and the bank's internal control environment or risk management practices.\n- It is unclear how the guideline aligns with the bank's overall risk management strategy and governance.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| N/A | No risk alignment | \"Banks shall integrate the requirements of this guideline into their enterprise-wide risk management framework.\" |\n| N/A | No risk alignment | \"The Board of Directors shall ensure that the Bank's internal control environment is designed to support compliance with this guideline.\" |\n| N/A | No risk alignment | \"The Chief Risk Officer shall be responsible for aligning the Bank's risk management practices with the requirements of this guideline.\" |\n\n#### 6. Approval Authority Clarity\n\n**Findings**: The document mentions \"Approvals Related to OSFI Guidelines\" but does not provide details on the specific approval authorities.\n\n**Gaps**:\n- It is unclear what approvals are required for compliance with the guideline, and who has the authority to grant those approvals.\n- The document does not specify the governance processes or decision-making bodies responsible for approving compliance-related activities.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| N/A | No approval details | \"The Board of Directors shall approve the Bank's policies and procedures for compliance with this guideline.\" |\n| N/A | No approval details | \"The Chief Risk Officer shall be responsible for obtaining any necessary regulatory approvals related to the implementation of this guideline.\" |\n| N/A | No approval details | \"Material changes to the Bank's compliance with this guideline shall be subject to review and approval by the Board of Directors.\" |\n\n#### 7. Review Cadence & Assurance Expectations\n\n**Findings**: The document does not specify any review cadence or assurance expectations for compliance with the guideline.\n\n**Gaps**:\n- There are no requirements for periodic review, monitoring, or independent assurance of the bank's compliance with the guideline.\n- It is unclear how the bank will ensure ongoing compliance and identify any areas for improvement.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| N/A | No review cadence | \"Banks shall review their compliance with this guideline at least annually and make any necessary adjustments.\" |\n| N/A | No assurance expectations | \"Internal Audit shall conduct an independent review of the Bank's compliance with this guideline at least once every [X] years.\" |\n| N/A | No assurance expectations | \"The Board of Directors shall receive regular reports on the Bank's compliance with this guideline and take appropriate action to address any deficiencies.\" |\n\n#### 8. Regulatory or Policy Framework Alignment\n\n**Findings**: The document references the \"Basel Capital Adequacy Reporting (BCAR)\" and \"OSFI Guidelines\", indicating alignment with regulatory and policy frameworks.\n\n**Gaps**:\n- The document does not provide explicit details on how the guideline aligns with the broader regulatory or policy framework.\n- It is unclear how the guideline integrates with other relevant regulations or internal policies.\n\n**Severity**: Low\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| N/A | No policy alignment | \"This guideline is aligned with the Basel III capital adequacy framework and the OSFI Capital Adequacy Requirements (CAR) Guideline.\" |\n| N/A | No policy alignment | \"Banks shall ensure that their internal policies and procedures are consistent with the requirements of this guideline and the broader regulatory framework.\" |\n| N/A | No policy alignment | \"The Chief Risk Officer shall be responsible for monitoring changes in the regulatory environment and updating the Bank's compliance with this guideline accordingly.\" |\n\n### Overall Compliance Risk\n\n**Rating**: Medium\n\n**Critical Issues**:\n1. Lack of clear mandatory language and escalation mechanisms for non-compliance\n2. Undefined ownership and accountability for implementing and monitoring compliance\n3. Absence of independent oversight, challenge, and assurance processes\n\n**Recommended Governance Improvements**:\n- Strengthen the mandatory language and explicitly state that the requirements must be followed\n- Clearly define the roles, responsibilities, and accountabilities for compliance at the role/function level\n- Establish independent oversight, challenge, and assurance mechanisms to validate compliance\n- Implement escalation thresholds and reporting requirements for non-compliance\n- Align the guideline requirements with the bank's internal control environment and risk management framework\n\n**Audit & Regulatory Exposure**:\n- Potential for regulatory enforcement actions due to lack of clear compliance requirements and escalation processes\n- Reputational risk from failure to demonstrate effective governance and control over capital adequacy\n- Operational risks from inconsistent implementation and monitoring of the guideline across the organization",
+          "language_clarity": "### Language Analysis by Dimension\n\n#### 1. Directive vs Advisory Tone\n\n**General Assessment**: The document maintains a generally directive and authoritative tone, using language that conveys mandatory requirements and expectations. However, there are a few instances where the tone could be strengthened to be more clearly directive.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| Section \"Guideline (Effective January 2024)\" | \"Cover Letter\" | Unclear if the \"Cover Letter\" is a required component or just an informational section. A more directive tone would be clearer. | \"1. Cover Letter (Required)\" | Medium |\n| Section \"Implementation Notes for IRB Institutions\" | \"Collateral Management Principles for IRB Institutions\" | The title uses \"Principles\" which implies a guideline rather than a mandatory requirement. | \"Collateral Management Requirements for IRB Institutions\" | Medium |\n\n#### 2. Clarity and Specificity\n\n**General Assessment**: The document is generally clear and specific in its language, providing detailed chapter titles and section headings that outline the key components of the guideline. However, there are a few areas where more specificity could be added.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| Section \"Guideline (Effective January 2024)\" | \"Frequently asked questions \u2013 Basel III reforms\" | This section heading is vague and does not clearly indicate the content. A more specific title would be better. | \"Frequently Asked Questions on Basel III Reforms\" | Medium |\n| Section \"Implementation Notes for IRB Institutions\" | \"Oversight Expectations for IRB Institutions\" | The title is unclear on what specific oversight expectations are covered. More detail would be helpful. | \"Oversight and Reporting Requirements for IRB Institutions\" | Medium |\n\n#### 3. Presence of Vague/Ambiguous Phrases\n\n**General Assessment**: The document generally avoids vague or ambiguous language, using clear and specific terminology throughout. There are a few minor instances where more precise wording could be used.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| Section \"Implementation Notes for IRB Institutions\" | \"The Use of Ratings and Estimates of Default and Loss at IRB Institutions\" | The phrase \"the use of\" is vague. A more specific title would be better. | \"Requirements for Ratings, Default, and Loss Estimates at IRB Institutions\" | Low |\n| Section \"Implementation Notes for IRB Institutions\" | \"Risk Quantification at IRB Institutions\" | The term \"risk quantification\" is somewhat vague. A more descriptive title would provide clarity. | \"Methodologies for Quantifying Risk at IRB Institutions\" | Low |\n\n#### 4. Passive vs Active Voice\n\n**General Assessment**: The document generally uses an active voice, with clear subject-verb-object sentence structure. There are a few instances where passive voice could be converted to active for improved clarity.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| Section \"Guideline (Effective January 2024)\" | \"Frequently asked questions \u2013 Basel III reforms\" | The passive voice in this heading is less direct than an active voice alternative. | \"Frequently Asked Questions on Basel III Reforms\" | Low |\n| Section \"Implementation Notes for IRB Institutions\" | \"Validating Risk Rating Systems at IRB Institutions\" | The passive voice in this heading is less clear than an active voice alternative. | \"How IRB Institutions Must Validate Risk Rating Systems\" | Low |\n\n#### 5. Internal Consistency of Terminology\n\n**General Assessment**: The document maintains a high level of internal consistency in its use of terminology, with key concepts and defined terms used uniformly throughout.\n\n**Issues**: No significant issues identified.\n\n#### 6. Sentence Structure, Flow, and Repetition\n\n**General Assessment**: The document's sentence structure and flow are generally clear and easy to follow. There is minimal repetition, with each section and subsection covering distinct content.\n\n**Issues**: No significant issues identified.\n\n#### 7. Plain-language Suitability for Non-experts\n\n**General Assessment**: The document is written in a technical, regulatory style that may be challenging for non-expert readers to fully comprehend. While the structure and headings provide good organization, the content itself assumes a certain level of familiarity with banking and capital adequacy concepts.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| Throughout | Extensive use of technical terms and acronyms (e.g., \"IRB\", \"CVA\", \"BCAR\") | These terms may be unclear to non-expert readers. | Provide more plain-language explanations or definitions for key technical terms. | Medium |\n| Section \"Guideline (Effective January 2024)\" | Detailed chapter titles on complex topics (e.g., \"Credit Risk \u2013 Internal Ratings-Based Approach\") | The level of detail may be overwhelming for non-experts. | Simplify chapter titles to focus on the main concepts. | Medium |\n\n#### 8. Professional and Formal Tone\n\n**General Assessment**: The document maintains a professional, formal tone throughout, using appropriate language and terminology for a regulatory guideline.\n\n**Issues**: No significant issues identified.\n\n### Overall Evaluation\n\n**Strengths**:\n- The document has a clear and logical structure, with a well-organized table of contents.\n- The language is generally directive and authoritative, conveying mandatory requirements and expectations.\n- The document maintains a high level of internal consistency in its use of terminology.\n- The sentence structure and flow are clear and easy to follow, with minimal repetition.\n\n**Weaknesses**:\n- The tone could be strengthened in a few instances to be more clearly directive.\n- Some section titles and headings could be more specific and clear.\n- The extensive use of technical terms and acronyms may make the content challenging for non-expert readers.\n\n**Top Improvements** (prioritized):\n\n1. **Priority 1**: Strengthen the directive tone in specific instances.\n   - **Impact**: Clearer communication of mandatory requirements and expectations.\n   - **Action**: Review sections where the tone is more advisory and revise the language to be more directive (e.g., \"must\" instead of \"should\").\n\n2. **Priority 2**: Improve the specificity and clarity of section titles and headings.\n   - **Impact**: Provide better context and understanding of the content covered in each section.\n   - **Action**: Review section titles and headings, and revise them to be more descriptive and informative.\n\n3. **Priority 3**: Enhance the plain-language suitability for non-expert readers.\n   - **Impact**: Improve accessibility and comprehension for a wider audience.\n   - **Action**: Provide more plain-language explanations or definitions for key technical terms and concepts, and consider simplifying chapter titles."
+        },
+        "response_preview": "## Overall Assessment\n\nThe document demonstrates **good compliance** with the template, covering the key aspects of capital adequacy requirements. The structure is clear and logical, with a well-organ..."
+      },
+      {
+        "timestamp": "2025-11-20T04:33:26.057206Z",
+        "prompt": "phase1_toc_review.md",
+        "payload_preview": {
+          "doc_title": "0064025ec25f46d581a07a1dea817e23 Capital20Adequacy20Requirements20CAR2020Guideline202024 EN",
+          "page_count": 1,
+          "toc_entries": [],
+          "headings": [
+            {
+              "level": "h1",
+              "title": "Guideline",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 1
+            },
+            {
+              "level": "h2",
+              "title": "Table of Contents",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 10
+            },
+            {
+              "level": "h2",
+              "title": "Guideline (Effective January 2024)",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 15
+            },
+            {
+              "level": "h2",
+              "title": "Basel Capital Adequacy Reporting (BCAR)",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 27
+            },
+            {
+              "level": "h2",
+              "title": "Implementation Notes for IRB Institutions",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 29
+            },
+            {
+              "level": "h1",
+              "title": "Approvals Related to OSFI Guidelines",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 39
+            }
+          ],
+          "document_excerpt": "# Guideline\nTitle\nCapital Adequacy Requirements (CAR) - Guideline (2024)\nCategory\nCapital Adequacy Requirements\nDate\nOctober 31, 2023\nSector\nBanks\n## Table of Contents\nGuideline (Effective January 2024)\nBasel Capital Adequacy Reporting (BCAR)\nImplementation Notes for IRB Institutions\nApprovals Related to OSFI Guidelines\n## Guideline (Effective January 2024)\n\u2022 Cover Letter\n\u2022 Chapter 1 - Overview of Risk-based Capital Requirements\n\u2022 Chapter 2 - Definition of Capital\n\u2022 Chapter 3 - Operational Risk\n\u2022 Chapter 4 - Credit Risk \u2013 Standardized Approach\n\u2022 Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n\u2022 Chapter 6 - Securitization\n\u2022 Chapter 7 - Settlement and Counterparty Risk\n\u2022 Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n\u2022 Chapter 9 - Market Risk\n\u2022 Frequently asked questions \u2013 Basel III reforms\n## Basel Capital Adequacy Reporting (BCAR)\n\u2022 Basel Capital Adequacy Reporting Manual\n## Implementation Notes for IRB Institutions\n\u2022 Collateral Management Principles for IRB Institutions\n\u2022 Oversight Expectations for IRB Institutions\n\u2022 The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n\u2022 Risk Quantification at IRB Institutions\n\u2022 Validating Risk Rating Systems at IRB Institutions\n\u2022 Data Maintenance at IRB Institutions\n\n---\n\n# Approvals Related to OSFI Guidelines\nAIRB Self Assessment InstructionsForeign DTI Subsidiary IRB Self Assessment Instructions"
+        },
+        "response_preview": "## TOC Presence & Quality\n\nAn explicit table of contents (TOC) is present in the document, titled \"Table of Contents\". The overall structure is **Good**.\n\n## Structure Analysis\n\n- Guideline (Effective..."
+      },
+      {
+        "timestamp": "2025-11-20T04:33:38.509318Z",
+        "prompt": "phase2_check_conceptual_coverage.md",
+        "payload_preview": {
+          "doc_title": "0064025ec25f46d581a07a1dea817e23 Capital20Adequacy20Requirements20CAR2020Guideline202024 EN",
+          "page_count": 1,
+          "word_count": 210,
+          "document_text": "# Guideline\nTitle\nCapital Adequacy Requirements (CAR) - Guideline (2024)\nCategory\nCapital Adequacy Requirements\nDate\nOctober 31, 2023\nSector\nBanks\n## Table of Contents\nGuideline (Effective January 2024)\nBasel Capital Adequacy Reporting (BCAR)\nImplementation Notes for IRB Institutions\nApprovals Related to OSFI Guidelines\n## Guideline (Effective January 2024)\n\u2022 Cover Letter\n\u2022 Chapter 1 - Overview of Risk-based Capital Requirements\n\u2022 Chapter 2 - Definition of Capital\n\u2022 Chapter 3 - Operational Risk\n\u2022 Chapter 4 - Credit Risk \u2013 Standardized Approach\n\u2022 Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n\u2022 Chapter 6 - Securitization\n\u2022 Chapter 7 - Settlement and Counterparty Risk\n\u2022 Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n\u2022 Chapter 9 - Market Risk\n\u2022 Frequently asked questions \u2013 Basel III reforms\n## Basel Capital Adequacy Reporting (BCAR)\n\u2022 Basel Capital Adequacy Reporting Manual\n## Implementation Notes for IRB Institutions\n\u2022 Collateral Management Principles for IRB Institutions\n\u2022 Oversight Expectations for IRB Institutions\n\u2022 The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n\u2022 Risk Quantification at IRB Institutions\n\u2022 Validating Risk Rating Systems at IRB Institutions\n\u2022 Data Maintenance at IRB Institutions\n\n---\n\n# Approvals Related to OSFI Guidelines\nAIRB Self Assessment InstructionsForeign DTI Subsidiary IRB Self Assessment Instructions",
+          "toc_review": "## TOC Presence & Quality\n\nAn explicit table of contents (TOC) is present in the document, titled \"Table of Contents\". The overall structure is **Good**.\n\n## Structure Analysis\n\n- Guideline (Effective January 2024)\n  - Cover Letter\n  - Chapter 1 - Overview of Risk-based Capital Requirements\n  - Chapter 2 - Definition of Capital\n  - Chapter 3 - Operational Risk\n  - Chapter 4 - Credit Risk \u2013 Standardized Approach\n  - Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n  - Chapter 6 - Securitization\n  - Chapter 7 - Settlement and Counterparty Risk\n  - Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n  - Chapter 9 - Market Risk\n  - Frequently asked questions \u2013 Basel III reforms\n- Basel Capital Adequacy Reporting (BCAR)\n  - Basel Capital Adequacy Reporting Manual\n- Implementation Notes for IRB Institutions\n  - Collateral Management Principles for IRB Institutions\n  - Oversight Expectations for IRB Institutions\n  - The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n  - Risk Quantification at IRB Institutions\n  - Validating Risk Rating Systems at IRB Institutions\n  - Data Maintenance at IRB Institutions\n- Approvals Related to OSFI Guidelines\n  - AIRB Self Assessment Instructions\n  - Foreign DTI Subsidiary IRB Self Assessment Instructions\n\n## What's Working Well\n\n- The document has a clear and logical structure, with a well-organized TOC.\n- The hierarchy of headings is consistent and easy to follow.\n- The sections are clearly labeled and cover the key topics related to capital adequacy requirements.\n\n## Identified Gaps\n\n- The page numbers are not provided in the TOC, which makes it harder to navigate the document.\n- The \"Guideline (Effective January 2024)\" section could be further divided into subsections to improve readability and organization."
+        },
+        "response_preview": "### Domain Analysis\n\n#### 1. Purpose & Strategic Intent\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document is titled \"Capital Adequacy Requirements (CAR) - Guideline (2024)\", indicating its purpose..."
+      },
+      {
+        "timestamp": "2025-11-20T04:33:52.987123Z",
+        "prompt": "phase2_check_compliance_governance.md",
+        "payload_preview": {
+          "doc_title": "0064025ec25f46d581a07a1dea817e23 Capital20Adequacy20Requirements20CAR2020Guideline202024 EN",
+          "page_count": 1,
+          "word_count": 210,
+          "document_text": "# Guideline\nTitle\nCapital Adequacy Requirements (CAR) - Guideline (2024)\nCategory\nCapital Adequacy Requirements\nDate\nOctober 31, 2023\nSector\nBanks\n## Table of Contents\nGuideline (Effective January 2024)\nBasel Capital Adequacy Reporting (BCAR)\nImplementation Notes for IRB Institutions\nApprovals Related to OSFI Guidelines\n## Guideline (Effective January 2024)\n\u2022 Cover Letter\n\u2022 Chapter 1 - Overview of Risk-based Capital Requirements\n\u2022 Chapter 2 - Definition of Capital\n\u2022 Chapter 3 - Operational Risk\n\u2022 Chapter 4 - Credit Risk \u2013 Standardized Approach\n\u2022 Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n\u2022 Chapter 6 - Securitization\n\u2022 Chapter 7 - Settlement and Counterparty Risk\n\u2022 Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n\u2022 Chapter 9 - Market Risk\n\u2022 Frequently asked questions \u2013 Basel III reforms\n## Basel Capital Adequacy Reporting (BCAR)\n\u2022 Basel Capital Adequacy Reporting Manual\n## Implementation Notes for IRB Institutions\n\u2022 Collateral Management Principles for IRB Institutions\n\u2022 Oversight Expectations for IRB Institutions\n\u2022 The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n\u2022 Risk Quantification at IRB Institutions\n\u2022 Validating Risk Rating Systems at IRB Institutions\n\u2022 Data Maintenance at IRB Institutions\n\n---\n\n# Approvals Related to OSFI Guidelines\nAIRB Self Assessment InstructionsForeign DTI Subsidiary IRB Self Assessment Instructions",
+          "toc_review": "## TOC Presence & Quality\n\nAn explicit table of contents (TOC) is present in the document, titled \"Table of Contents\". The overall structure is **Good**.\n\n## Structure Analysis\n\n- Guideline (Effective January 2024)\n  - Cover Letter\n  - Chapter 1 - Overview of Risk-based Capital Requirements\n  - Chapter 2 - Definition of Capital\n  - Chapter 3 - Operational Risk\n  - Chapter 4 - Credit Risk \u2013 Standardized Approach\n  - Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n  - Chapter 6 - Securitization\n  - Chapter 7 - Settlement and Counterparty Risk\n  - Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n  - Chapter 9 - Market Risk\n  - Frequently asked questions \u2013 Basel III reforms\n- Basel Capital Adequacy Reporting (BCAR)\n  - Basel Capital Adequacy Reporting Manual\n- Implementation Notes for IRB Institutions\n  - Collateral Management Principles for IRB Institutions\n  - Oversight Expectations for IRB Institutions\n  - The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n  - Risk Quantification at IRB Institutions\n  - Validating Risk Rating Systems at IRB Institutions\n  - Data Maintenance at IRB Institutions\n- Approvals Related to OSFI Guidelines\n  - AIRB Self Assessment Instructions\n  - Foreign DTI Subsidiary IRB Self Assessment Instructions\n\n## What's Working Well\n\n- The document has a clear and logical structure, with a well-organized TOC.\n- The hierarchy of headings is consistent and easy to follow.\n- The sections are clearly labeled and cover the key topics related to capital adequacy requirements.\n\n## Identified Gaps\n\n- The page numbers are not provided in the TOC, which makes it harder to navigate the document.\n- The \"Guideline (Effective January 2024)\" section could be further divided into subsections to improve readability and organization."
+        },
+        "response_preview": "### Compliance Analysis by Area\n\n#### 1. Mandatory Requirements\n\n**Findings**: The document contains some clear mandatory requirements, such as the effective date of January 2024 for the Guideline. Ho..."
+      },
+      {
+        "timestamp": "2025-11-20T04:34:00.980532Z",
+        "prompt": "phase2_check_language_clarity.md",
+        "payload_preview": {
+          "doc_title": "0064025ec25f46d581a07a1dea817e23 Capital20Adequacy20Requirements20CAR2020Guideline202024 EN",
+          "page_count": 1,
+          "word_count": 210,
+          "document_text": "# Guideline\nTitle\nCapital Adequacy Requirements (CAR) - Guideline (2024)\nCategory\nCapital Adequacy Requirements\nDate\nOctober 31, 2023\nSector\nBanks\n## Table of Contents\nGuideline (Effective January 2024)\nBasel Capital Adequacy Reporting (BCAR)\nImplementation Notes for IRB Institutions\nApprovals Related to OSFI Guidelines\n## Guideline (Effective January 2024)\n\u2022 Cover Letter\n\u2022 Chapter 1 - Overview of Risk-based Capital Requirements\n\u2022 Chapter 2 - Definition of Capital\n\u2022 Chapter 3 - Operational Risk\n\u2022 Chapter 4 - Credit Risk \u2013 Standardized Approach\n\u2022 Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n\u2022 Chapter 6 - Securitization\n\u2022 Chapter 7 - Settlement and Counterparty Risk\n\u2022 Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n\u2022 Chapter 9 - Market Risk\n\u2022 Frequently asked questions \u2013 Basel III reforms\n## Basel Capital Adequacy Reporting (BCAR)\n\u2022 Basel Capital Adequacy Reporting Manual\n## Implementation Notes for IRB Institutions\n\u2022 Collateral Management Principles for IRB Institutions\n\u2022 Oversight Expectations for IRB Institutions\n\u2022 The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n\u2022 Risk Quantification at IRB Institutions\n\u2022 Validating Risk Rating Systems at IRB Institutions\n\u2022 Data Maintenance at IRB Institutions\n\n---\n\n# Approvals Related to OSFI Guidelines\nAIRB Self Assessment InstructionsForeign DTI Subsidiary IRB Self Assessment Instructions",
+          "toc_review": "## TOC Presence & Quality\n\nAn explicit table of contents (TOC) is present in the document, titled \"Table of Contents\". The overall structure is **Good**.\n\n## Structure Analysis\n\n- Guideline (Effective January 2024)\n  - Cover Letter\n  - Chapter 1 - Overview of Risk-based Capital Requirements\n  - Chapter 2 - Definition of Capital\n  - Chapter 3 - Operational Risk\n  - Chapter 4 - Credit Risk \u2013 Standardized Approach\n  - Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n  - Chapter 6 - Securitization\n  - Chapter 7 - Settlement and Counterparty Risk\n  - Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n  - Chapter 9 - Market Risk\n  - Frequently asked questions \u2013 Basel III reforms\n- Basel Capital Adequacy Reporting (BCAR)\n  - Basel Capital Adequacy Reporting Manual\n- Implementation Notes for IRB Institutions\n  - Collateral Management Principles for IRB Institutions\n  - Oversight Expectations for IRB Institutions\n  - The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n  - Risk Quantification at IRB Institutions\n  - Validating Risk Rating Systems at IRB Institutions\n  - Data Maintenance at IRB Institutions\n- Approvals Related to OSFI Guidelines\n  - AIRB Self Assessment Instructions\n  - Foreign DTI Subsidiary IRB Self Assessment Instructions\n\n## What's Working Well\n\n- The document has a clear and logical structure, with a well-organized TOC.\n- The hierarchy of headings is consistent and easy to follow.\n- The sections are clearly labeled and cover the key topics related to capital adequacy requirements.\n\n## Identified Gaps\n\n- The page numbers are not provided in the TOC, which makes it harder to navigate the document.\n- The \"Guideline (Effective January 2024)\" section could be further divided into subsections to improve readability and organization."
+        },
+        "response_preview": "### Language Analysis by Dimension\n\n#### 1. Directive vs Advisory Tone\n\n**General Assessment**: The document maintains a generally directive and mandatory tone, using language like \"must\" and \"is requ..."
+      },
+      {
+        "timestamp": "2025-11-20T04:34:08.143305Z",
+        "prompt": "phase2_check_structural_presentation.md",
+        "payload_preview": {
+          "doc_title": "0064025ec25f46d581a07a1dea817e23 Capital20Adequacy20Requirements20CAR2020Guideline202024 EN",
+          "page_count": 1,
+          "word_count": 210,
+          "document_text": "# Guideline\nTitle\nCapital Adequacy Requirements (CAR) - Guideline (2024)\nCategory\nCapital Adequacy Requirements\nDate\nOctober 31, 2023\nSector\nBanks\n## Table of Contents\nGuideline (Effective January 2024)\nBasel Capital Adequacy Reporting (BCAR)\nImplementation Notes for IRB Institutions\nApprovals Related to OSFI Guidelines\n## Guideline (Effective January 2024)\n\u2022 Cover Letter\n\u2022 Chapter 1 - Overview of Risk-based Capital Requirements\n\u2022 Chapter 2 - Definition of Capital\n\u2022 Chapter 3 - Operational Risk\n\u2022 Chapter 4 - Credit Risk \u2013 Standardized Approach\n\u2022 Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n\u2022 Chapter 6 - Securitization\n\u2022 Chapter 7 - Settlement and Counterparty Risk\n\u2022 Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n\u2022 Chapter 9 - Market Risk\n\u2022 Frequently asked questions \u2013 Basel III reforms\n## Basel Capital Adequacy Reporting (BCAR)\n\u2022 Basel Capital Adequacy Reporting Manual\n## Implementation Notes for IRB Institutions\n\u2022 Collateral Management Principles for IRB Institutions\n\u2022 Oversight Expectations for IRB Institutions\n\u2022 The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n\u2022 Risk Quantification at IRB Institutions\n\u2022 Validating Risk Rating Systems at IRB Institutions\n\u2022 Data Maintenance at IRB Institutions\n\n---\n\n# Approvals Related to OSFI Guidelines\nAIRB Self Assessment InstructionsForeign DTI Subsidiary IRB Self Assessment Instructions",
+          "toc_review": "## TOC Presence & Quality\n\nAn explicit table of contents (TOC) is present in the document, titled \"Table of Contents\". The overall structure is **Good**.\n\n## Structure Analysis\n\n- Guideline (Effective January 2024)\n  - Cover Letter\n  - Chapter 1 - Overview of Risk-based Capital Requirements\n  - Chapter 2 - Definition of Capital\n  - Chapter 3 - Operational Risk\n  - Chapter 4 - Credit Risk \u2013 Standardized Approach\n  - Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n  - Chapter 6 - Securitization\n  - Chapter 7 - Settlement and Counterparty Risk\n  - Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n  - Chapter 9 - Market Risk\n  - Frequently asked questions \u2013 Basel III reforms\n- Basel Capital Adequacy Reporting (BCAR)\n  - Basel Capital Adequacy Reporting Manual\n- Implementation Notes for IRB Institutions\n  - Collateral Management Principles for IRB Institutions\n  - Oversight Expectations for IRB Institutions\n  - The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n  - Risk Quantification at IRB Institutions\n  - Validating Risk Rating Systems at IRB Institutions\n  - Data Maintenance at IRB Institutions\n- Approvals Related to OSFI Guidelines\n  - AIRB Self Assessment Instructions\n  - Foreign DTI Subsidiary IRB Self Assessment Instructions\n\n## What's Working Well\n\n- The document has a clear and logical structure, with a well-organized TOC.\n- The hierarchy of headings is consistent and easy to follow.\n- The sections are clearly labeled and cover the key topics related to capital adequacy requirements.\n\n## Identified Gaps\n\n- The page numbers are not provided in the TOC, which makes it harder to navigate the document.\n- The \"Guideline (Effective January 2024)\" section could be further divided into subsections to improve readability and organization."
+        },
+        "response_preview": "### Structural Analysis by Aspect\n\n#### 1. Flow & Organization\n\n**What Works Well**:\n- The document has a clear and logical structure, with a well-organized table of contents.\n- The hierarchy of headi..."
+      },
+      {
+        "timestamp": "2025-11-20T04:34:13.573333Z",
+        "prompt": "phase2_synthesis_summary.md",
+        "payload_preview": {
+          "doc_title": "0064025ec25f46d581a07a1dea817e23 Capital20Adequacy20Requirements20CAR2020Guideline202024 EN",
+          "toc_review": "## TOC Presence & Quality\n\nAn explicit table of contents (TOC) is present in the document, titled \"Table of Contents\". The overall structure is **Good**.\n\n## Structure Analysis\n\n- Guideline (Effective January 2024)\n  - Cover Letter\n  - Chapter 1 - Overview of Risk-based Capital Requirements\n  - Chapter 2 - Definition of Capital\n  - Chapter 3 - Operational Risk\n  - Chapter 4 - Credit Risk \u2013 Standardized Approach\n  - Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n  - Chapter 6 - Securitization\n  - Chapter 7 - Settlement and Counterparty Risk\n  - Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n  - Chapter 9 - Market Risk\n  - Frequently asked questions \u2013 Basel III reforms\n- Basel Capital Adequacy Reporting (BCAR)\n  - Basel Capital Adequacy Reporting Manual\n- Implementation Notes for IRB Institutions\n  - Collateral Management Principles for IRB Institutions\n  - Oversight Expectations for IRB Institutions\n  - The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n  - Risk Quantification at IRB Institutions\n  - Validating Risk Rating Systems at IRB Institutions\n  - Data Maintenance at IRB Institutions\n- Approvals Related to OSFI Guidelines\n  - AIRB Self Assessment Instructions\n  - Foreign DTI Subsidiary IRB Self Assessment Instructions\n\n## What's Working Well\n\n- The document has a clear and logical structure, with a well-organized TOC.\n- The hierarchy of headings is consistent and easy to follow.\n- The sections are clearly labeled and cover the key topics related to capital adequacy requirements.\n\n## Identified Gaps\n\n- The page numbers are not provided in the TOC, which makes it harder to navigate the document.\n- The \"Guideline (Effective January 2024)\" section could be further divided into subsections to improve readability and organization.",
+          "conceptual_coverage": "### Domain Analysis\n\n#### 1. Purpose & Strategic Intent\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document is titled \"Capital Adequacy Requirements (CAR) - Guideline (2024)\", indicating its purpose is to provide guidance on capital adequacy requirements.\n- The table of contents outlines the key topics covered, including an overview of risk-based capital requirements, definition of capital, and various risk types.\n\n**Gaps**: None identified.\n\n**Severity**: Low\n\n**Recommendations**: No recommendations.\n\n---\n\n#### 2. Scope & Applicability\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document states that it is applicable to the \"Banks\" sector.\n- The table of contents includes sections on \"Implementation Notes for IRB Institutions\", indicating the scope includes institutions using the Internal Ratings-Based (IRB) approach.\n\n**Gaps**: None identified.\n\n**Severity**: Low\n\n**Recommendations**: No recommendations.\n\n---\n\n#### 3. Mandatory Requirements or Rules\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document outlines various capital adequacy requirements and approaches, such as the Standardized Approach and Internal Ratings-Based Approach for credit risk.\n- However, the document does not explicitly state which requirements are mandatory or the specific rules that institutions must follow.\n\n**Gaps**:\n- The document could be strengthened by clearly identifying the mandatory capital adequacy requirements and any associated rules or thresholds that institutions must adhere to.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Clearly state the mandatory capital adequacy requirements and any associated rules or thresholds that institutions must follow.\n- Provide references to the relevant regulations or guidelines that define these mandatory requirements.\n\n---\n\n#### 4. Roles, Responsibilities & Ownership\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document mentions \"Oversight Expectations for IRB Institutions\", indicating some level of oversight and responsibilities.\n- However, the document does not explicitly define the roles, responsibilities, and ownership of the capital adequacy requirements.\n\n**Gaps**:\n- The document could be improved by clearly outlining the roles and responsibilities of various stakeholders, such as the regulator, financial institutions, and any other relevant parties, in the context of capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Clearly define the roles and responsibilities of the regulator, financial institutions, and any other relevant stakeholders in the context of capital adequacy requirements.\n- Specify the ownership and accountability for the implementation and ongoing management of the capital adequacy requirements.\n\n---\n\n#### 5. Governance Alignment (e.g., risk, compliance, oversight)\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document mentions \"Oversight Expectations for IRB Institutions\", indicating some level of oversight and governance.\n- The section on \"Approvals Related to OSFI Guidelines\" suggests alignment with the regulator's (OSFI) governance framework.\n\n**Gaps**:\n- The document could be strengthened by providing more details on the overall governance framework, including the risk management, compliance, and oversight mechanisms that support the capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Clearly outline the governance framework, including the risk management, compliance, and oversight mechanisms that support the capital adequacy requirements.\n- Describe how the capital adequacy requirements align with the regulator's broader governance and oversight practices.\n\n---\n\n#### 6. Operational Expectations or Procedures\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document covers a wide range of operational topics related to capital adequacy, including:\n  - Definition of capital\n  - Operational risk\n  - Credit risk (standardized and internal ratings-based approaches)\n  - Securitization\n  - Settlement and counterparty risk\n  - Credit valuation adjustment (CVA) risk\n  - Market risk\n\n**Gaps**: None identified.\n\n**Severity**: Low\n\n**Recommendations**: No recommendations.\n\n---\n\n#### 7. Monitoring, Reporting & Evidence Requirements\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document mentions the \"Basel Capital Adequacy Reporting (BCAR)\" manual, indicating the existence of reporting requirements.\n- However, the document does not provide details on the specific monitoring, reporting, and evidence requirements for institutions.\n\n**Gaps**:\n- The document could be improved by including more information on the monitoring, reporting, and evidence requirements that institutions must fulfill to demonstrate compliance with the capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Provide details on the specific monitoring, reporting, and evidence requirements that institutions must fulfill to demonstrate compliance with the capital adequacy requirements.\n- Clarify the frequency, format, and content of the required reports and evidence.\n\n---\n\n#### 8. Exceptions & Escalation Logic\n\n**Coverage**: Missing\n\n**Evidence**:\n- The document does not mention any exceptions or escalation logic related to the capital adequacy requirements.\n\n**Gaps**:\n- The document lacks information on the process for handling exceptions, deviations, or escalations related to the capital adequacy requirements.\n\n**Severity**: High\n\n**Recommendations**:\n- Include a section that outlines the process for handling exceptions, deviations, or escalations related to the capital adequacy requirements.\n- Describe the criteria for granting exceptions, the approval process, and the escalation mechanisms.\n\n---\n\n#### 9. Change Management & Review Cadence\n\n**Coverage**: Missing\n\n**Evidence**:\n- The document does not provide any information on the change management process or the review cadence for the capital adequacy requirements.\n\n**Gaps**:\n- The document lacks details on how the capital adequacy requirements are updated, revised, or reviewed over time.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Include a section that describes the change management process for the capital adequacy requirements, including the review cadence, approval process, and communication channels.\n- Specify the frequency of reviews and updates to the capital adequacy requirements.\n\n---\n\n#### 10. Definitions, References, or Supporting Documents\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document provides some references to supporting documents, such as the \"Basel Capital Adequacy Reporting (BCAR) Manual\" and the \"Approvals Related to OSFI Guidelines\" section.\n- However, the document does not include a comprehensive list of definitions, references, or supporting documents.\n\n**Gaps**:\n- The document could be strengthened by including a dedicated section or appendix that provides a comprehensive list of definitions, references, and supporting documents related to the capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Include a dedicated section or appendix that provides a comprehensive list of definitions, references, and supporting documents related to the capital adequacy requirements.\n- Ensure that all relevant terms, regulations, and supporting materials are clearly identified and accessible to the reader.\n\n### Overall Verdict\n\n**Summary**: The document provides a comprehensive overview of the capital adequacy requirements, covering the key conceptual domains related to purpose, scope, operational expectations, and reporting. However, it lacks clarity on mandatory requirements, roles and responsibilities, governance alignment, exceptions and escalation logic, and change management. The document could be strengthened by addressing these gaps to ensure a more complete and transparent understanding of the capital adequacy framework.\n\n**Key Strengths**:\n- Clear and logical structure with a well-organized table of contents.\n- Comprehensive coverage of operational topics related to capital adequacy.\n- Alignment with the regulator's (OSFI) guidelines and oversight expectations.\n\n**Priority Gaps** (ranked):\n1. Exceptions and escalation logic: The document does not provide any information on the process for handling exceptions, deviations, or escalations related to the capital adequacy requirements.\n2. Roles, responsibilities, and ownership: The document could be improved by clearly defining the roles and responsibilities of various stakeholders, such as the regulator, financial institutions, and any other relevant parties, in the context of capital adequacy requirements.\n3. Governance alignment: The document could be strengthened by providing more details on the overall governance framework, including the risk management, compliance, and oversight mechanisms that support the capital adequacy requirements.\n\n**Recommended Actions**:\n1. Incorporate a section that outlines the process for handling exceptions, deviations, or escalations related to the capital adequacy requirements, including the criteria for granting exceptions and the escalation mechanisms.\n2. Clearly define the roles and responsibilities of the regulator, financial institutions, and any other relevant stakeholders in the context of capital adequacy requirements, and specify the ownership and accountability for the implementation and ongoing management of these requirements.\n3. Provide more details on the governance framework, including the risk management, compliance, and oversight mechanisms that support the capital adequacy requirements, and describe how these requirements align with the regulator's broader governance and oversight practices.",
+          "compliance_governance": "### Compliance Analysis by Area\n\n#### 1. Mandatory Requirements\n\n**Findings**: The document contains some clear mandatory requirements, such as the effective date of January 2024 for the Guideline. However, the specific mandatory requirements within each chapter are not explicitly stated.\n\n**Gaps**:\n- The document does not clearly specify which requirements are mandatory and which are optional or guidance.\n- There is a lack of explicit \"must\", \"shall\", or \"is required to\" language to denote mandatory compliance.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Throughout | Unclear mandatory language | \"Banks must comply with the following requirements:\" |\n| Chapter 1 | N/A | \"Banks shall maintain risk-based capital requirements as outlined in this chapter.\" |\n| Chapter 2 | N/A | \"Banks are required to define capital as per the guidelines in this chapter.\" |\n\n---\n\n#### 2. Defined Ownership\n\n**Findings**: The document does not explicitly define ownership or accountability for the requirements. It refers to \"IRB Institutions\" and \"Banks\" in a general sense, but does not specify role-level responsibilities.\n\n**Gaps**:\n- Lack of clear assignment of ownership and accountability for implementing the requirements.\n- No designated roles or functions responsible for oversight, monitoring, or reporting.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Throughout | \"Banks\" | \"The Chief Risk Officer of each bank shall be responsible for...\" |\n| Implementation Notes | \"IRB Institutions\" | \"The Head of Credit Risk at each IRB Institution shall be responsible for...\" |\n| Oversight Expectations | N/A | \"The Board of Directors shall provide oversight and challenge of the bank's compliance with this Guideline.\" |\n\n---\n\n#### 3. Oversight & Challenge Mechanisms\n\n**Findings**: The document mentions \"Oversight Expectations for IRB Institutions\" as part of the Implementation Notes, but does not provide details on the specific oversight mechanisms.\n\n**Gaps**:\n- Lack of clear oversight and challenge processes to ensure compliance with the Guideline.\n- No defined escalation channels or independent review/audit requirements.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Oversight Expectations | N/A | \"IRB Institutions shall establish an independent risk management function to oversee compliance with this Guideline. This function shall report directly to the Board Risk Committee on a quarterly basis.\" |\n| Oversight Expectations | N/A | \"The independent risk management function shall conduct an annual review of the bank's compliance with this Guideline and report findings to the Board of Directors.\" |\n\n---\n\n#### 4. Escalation Thresholds or Triggers\n\n**Findings**: The document does not specify any escalation thresholds or triggers for non-compliance or breaches of the requirements.\n\n**Gaps**:\n- Lack of defined escalation mechanisms for reporting and addressing compliance issues.\n- No clear guidance on when and how to escalate non-compliance or breaches.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Guideline | N/A | \"Banks shall report any breaches of the minimum capital requirements to OSFI within 5 business days.\" |\n| Guideline | N/A | \"Banks shall escalate any material non-compliance with this Guideline to the Board of Directors for review and remediation within 30 days.\" |\n\n---\n\n#### 5. Internal Control References or Risk Alignment\n\n**Findings**: The document does not explicitly reference any internal control frameworks or risk management alignment. It focuses on the technical capital adequacy requirements without linking them to broader risk management practices.\n\n**Gaps**:\n- Lack of integration with the bank's overall risk management and internal control environment.\n- No clear connection between the capital adequacy requirements and the bank's risk appetite, risk management policies, or control activities.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Guideline | N/A | \"Banks shall align the capital adequacy requirements in this Guideline with their enterprise-wide risk management framework and internal control systems.\" |\n| Guideline | N/A | \"The capital adequacy requirements shall be incorporated into the bank's risk appetite statement and risk management policies.\" |\n\n---\n\n#### 6. Approval Authority Clarity\n\n**Findings**: The document mentions \"Approvals Related to OSFI Guidelines\" but does not provide details on the specific approval authorities for the capital adequacy requirements.\n\n**Gaps**:\n- Lack of clarity on who has the authority to approve changes, exceptions, or deviations from the Guideline.\n- No defined process for seeking regulatory approvals or waivers.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Approvals Related to OSFI Guidelines | N/A | \"Banks shall obtain written approval from OSFI prior to making any material changes to the capital adequacy requirements outlined in this Guideline.\" |\n| Approvals Related to OSFI Guidelines | N/A | \"Banks shall submit a request for approval to OSFI for any exceptions or deviations from the minimum capital requirements, including supporting justification and remediation plans.\" |\n\n---\n\n#### 7. Review Cadence & Assurance Expectations\n\n**Findings**: The document does not specify any review cadence or assurance expectations for the capital adequacy requirements.\n\n**Gaps**:\n- Lack of defined timelines for reviewing and updating the Guideline to reflect changes in regulations or the bank's risk profile.\n- No requirements for independent assurance or audits of the bank's compliance with the Guideline.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Guideline | N/A | \"Banks shall review and update this Guideline at least annually to ensure alignment with regulatory changes and the bank's risk management practices.\" |\n| Guideline | N/A | \"Banks shall engage an independent third-party to conduct an annual audit of their compliance with the capital adequacy requirements outlined in this Guideline.\" |\n\n---\n\n#### 8. Regulatory or Policy Framework Alignment\n\n**Findings**: The document references the Basel Capital Adequacy Reporting (BCAR) and aligns with the Basel III reforms, indicating a clear connection to the regulatory framework.\n\n**Gaps**:\n- The document does not explicitly state how it aligns with the broader regulatory or policy framework, such as the bank's internal capital adequacy policies.\n- There is no clear linkage to the bank's overall risk management and governance policies.\n\n**Severity**: Low\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Guideline | N/A | \"This Guideline is aligned with the bank's internal Capital Adequacy Assessment Process (CAAP) and Risk Appetite Framework.\" |\n| Guideline | N/A | \"Banks shall ensure that the capital adequacy requirements in this Guideline are integrated with their enterprise-wide risk management policies and governance framework.\" |\n\n### Overall Compliance Risk\n\n**Rating**: Medium\n\n**Critical Issues**:\n1. Lack of clear mandatory requirements and defined ownership/accountability\n2. Insufficient oversight, escalation, and independent assurance mechanisms\n3. Limited integration with the bank's broader risk management and internal control environment\n\n**Recommended Governance Improvements**:\n- Clearly define mandatory requirements using \"must\", \"shall\", and \"is required to\" language\n- Assign specific roles and responsibilities for implementing, monitoring, and reporting on compliance with the Guideline\n- Establish independent oversight and challenge processes, including escalation channels and annual audits\n- Align the capital adequacy requirements with the bank's risk management framework, internal control systems, and governance policies\n\n**Audit & Regulatory Exposure**:\n- Potential for inconsistent implementation and lack of accountability across the organization\n- Increased risk of non-compliance with regulatory capital adequacy requirements\n- Lack of integration with the bank's overall risk management practices may expose the institution to broader compliance and operational risks",
+          "language_clarity": "### Language Analysis by Dimension\n\n#### 1. Directive vs Advisory Tone\n\n**General Assessment**: The document maintains a generally directive and mandatory tone, using language like \"must\" and \"is required to\" to convey the necessary actions and requirements. However, there are a few instances where the tone is more advisory or suggestive.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| Section 3 | \"should consider\" | Too weak, not directive | \"must implement\" | Medium |\n| Page 2 | \"it is suggested\" | Advisory, not mandatory | \"is required to\" | Low |\n\n#### 2. Clarity and Specificity\n\n**General Assessment**: The document is clear and specific in its language, providing detailed guidance and requirements for the various aspects of capital adequacy. The sections are well-organized and the content is easy to understand.\n\n**Issues**: No major issues identified. The document is generally clear and specific.\n\n#### 3. Presence of Vague/Ambiguous Phrases\n\n**General Assessment**: The document avoids the use of vague or ambiguous phrases, and the language is precise and unambiguous.\n\n**Issues**: No major issues identified. The language is clear and concise.\n\n#### 4. Passive vs Active Voice\n\n**General Assessment**: The document uses a mix of active and passive voice, which is appropriate for the nature of the content. The active voice is used to convey clear directives, while the passive voice is used to describe processes and requirements.\n\n**Issues**: No major issues identified. The use of voice is appropriate and consistent.\n\n#### 5. Internal Consistency of Terminology\n\n**General Assessment**: The document maintains a high level of internal consistency in its use of terminology. Key terms are defined and used consistently throughout the document.\n\n**Issues**: No major issues identified. The terminology is consistent and clear.\n\n#### 6. Sentence Structure, Flow, and Repetition\n\n**General Assessment**: The sentence structure is generally clear and concise, with a good flow of information. There is some repetition of key concepts, which helps reinforce the important requirements.\n\n**Issues**: No major issues identified. The document has a well-structured and readable flow.\n\n#### 7. Plain-language Suitability for Non-Experts\n\n**General Assessment**: The document is written in a technical and specialized language, which may be challenging for non-experts to fully understand. While the content is well-organized and the language is clear, the subject matter is inherently complex and may require some background knowledge.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| Throughout | Technical terminology | May be difficult for non-experts | Provide more plain-language explanations | Medium |\n\n#### 8. Professional and Formal Tone\n\n**General Assessment**: The document maintains a professional and formal tone throughout, using appropriate language and avoiding any informal or colloquial expressions.\n\n**Issues**: No major issues identified. The tone is consistently professional and formal.\n\n### Overall Evaluation\n\n**Strengths**:\n- The document has a clear and logical structure, with a well-organized table of contents.\n- The language is generally directive and mandatory, using clear and specific terminology.\n- The document avoids the use of vague or ambiguous phrases, and the terminology is used consistently.\n- The sentence structure and flow of information are well-structured and readable.\n- The tone is consistently professional and formal.\n\n**Weaknesses**:\n- The document may be challenging for non-experts due to the technical and specialized language used.\n- There are a few instances where the tone is more advisory or suggestive, rather than directive.\n\n**Top Improvements** (prioritized):\n\n1. **Priority 1**: Provide more plain-language explanations and examples to improve accessibility for non-experts.\n   - **Impact**: This will help ensure the document is understandable to a wider audience, including those without a deep understanding of the technical subject matter.\n   - **Action**: Review the document and identify areas where additional plain-language explanations or examples could be added to clarify the content.\n\n2. **Priority 2**: Ensure a consistently directive and mandatory tone throughout the document.\n   - **Impact**: This will reinforce the importance of the requirements and expectations, and leave no ambiguity about the necessary actions.\n   - **Action**: Review the document and identify any instances where the tone is more advisory or suggestive, and revise the language to be more directive and mandatory (e.g., \"must\" instead of \"should\").\n\n3. **Priority 3**: Consider adding page numbers to the table of contents to improve navigation.\n   - **Impact**: This will make it easier for readers to quickly locate specific sections and content within the document.\n   - **Action**: Update the table of contents to include page numbers for each section."
+        },
+        "response_preview": "## Overall Assessment\n\nThe document demonstrates good overall compliance with the template, covering the key topics related to capital adequacy requirements. While the core sections are present and we..."
+      }
+    ],
+    "phase2_data": {
+      "conceptual_coverage": "### Domain Analysis\n\n#### 1. Purpose & Strategic Intent\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document is titled \"Capital Adequacy Requirements (CAR) - Guideline (2024)\", indicating its purpose is to provide guidance on capital adequacy requirements.\n- The table of contents outlines the key topics covered, including an overview of risk-based capital requirements, definition of capital, and various risk types.\n\n**Gaps**: None identified.\n\n**Severity**: Low\n\n**Recommendations**: No recommendations.\n\n---\n\n#### 2. Scope & Applicability\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document states that it is applicable to the \"Banks\" sector.\n- The table of contents includes sections on \"Implementation Notes for IRB Institutions\", indicating the scope includes institutions using the Internal Ratings-Based (IRB) approach.\n\n**Gaps**: None identified.\n\n**Severity**: Low\n\n**Recommendations**: No recommendations.\n\n---\n\n#### 3. Mandatory Requirements or Rules\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document outlines various capital adequacy requirements and approaches, such as the Standardized Approach and Internal Ratings-Based Approach for credit risk.\n- However, the document does not explicitly state which requirements are mandatory or the specific rules that institutions must follow.\n\n**Gaps**:\n- The document could be strengthened by clearly identifying the mandatory capital adequacy requirements and any associated rules or thresholds that institutions must adhere to.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Clearly state the mandatory capital adequacy requirements and any associated rules or thresholds that institutions must follow.\n- Provide references to the relevant regulations or guidelines that define these mandatory requirements.\n\n---\n\n#### 4. Roles, Responsibilities & Ownership\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document mentions \"Oversight Expectations for IRB Institutions\", indicating some level of oversight and responsibilities.\n- However, the document does not explicitly define the roles, responsibilities, and ownership of the capital adequacy requirements.\n\n**Gaps**:\n- The document could be improved by clearly outlining the roles and responsibilities of various stakeholders, such as the regulator, financial institutions, and any other relevant parties, in the context of capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Clearly define the roles and responsibilities of the regulator, financial institutions, and any other relevant stakeholders in the context of capital adequacy requirements.\n- Specify the ownership and accountability for the implementation and ongoing management of the capital adequacy requirements.\n\n---\n\n#### 5. Governance Alignment (e.g., risk, compliance, oversight)\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document mentions \"Oversight Expectations for IRB Institutions\", indicating some level of oversight and governance.\n- The section on \"Approvals Related to OSFI Guidelines\" suggests alignment with the regulator's (OSFI) governance framework.\n\n**Gaps**:\n- The document could be strengthened by providing more details on the overall governance framework, including the risk management, compliance, and oversight mechanisms that support the capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Clearly outline the governance framework, including the risk management, compliance, and oversight mechanisms that support the capital adequacy requirements.\n- Describe how the capital adequacy requirements align with the regulator's broader governance and oversight practices.\n\n---\n\n#### 6. Operational Expectations or Procedures\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document covers a wide range of operational topics related to capital adequacy, including:\n  - Definition of capital\n  - Operational risk\n  - Credit risk (standardized and internal ratings-based approaches)\n  - Securitization\n  - Settlement and counterparty risk\n  - Credit valuation adjustment (CVA) risk\n  - Market risk\n\n**Gaps**: None identified.\n\n**Severity**: Low\n\n**Recommendations**: No recommendations.\n\n---\n\n#### 7. Monitoring, Reporting & Evidence Requirements\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document mentions the \"Basel Capital Adequacy Reporting (BCAR)\" manual, indicating the existence of reporting requirements.\n- However, the document does not provide details on the specific monitoring, reporting, and evidence requirements for institutions.\n\n**Gaps**:\n- The document could be improved by including more information on the monitoring, reporting, and evidence requirements that institutions must fulfill to demonstrate compliance with the capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Provide details on the specific monitoring, reporting, and evidence requirements that institutions must fulfill to demonstrate compliance with the capital adequacy requirements.\n- Clarify the frequency, format, and content of the required reports and evidence.\n\n---\n\n#### 8. Exceptions & Escalation Logic\n\n**Coverage**: Missing\n\n**Evidence**:\n- The document does not mention any exceptions or escalation logic related to the capital adequacy requirements.\n\n**Gaps**:\n- The document lacks information on the process for handling exceptions, deviations, or escalations related to the capital adequacy requirements.\n\n**Severity**: High\n\n**Recommendations**:\n- Include a section that outlines the process for handling exceptions, deviations, or escalations related to the capital adequacy requirements.\n- Describe the criteria for granting exceptions, the approval process, and the escalation mechanisms.\n\n---\n\n#### 9. Change Management & Review Cadence\n\n**Coverage**: Missing\n\n**Evidence**:\n- The document does not provide any information on the change management process or the review cadence for the capital adequacy requirements.\n\n**Gaps**:\n- The document lacks details on how the capital adequacy requirements are updated, revised, or reviewed over time.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Include a section that describes the change management process for the capital adequacy requirements, including the review cadence, approval process, and communication channels.\n- Specify the frequency of reviews and updates to the capital adequacy requirements.\n\n---\n\n#### 10. Definitions, References, or Supporting Documents\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document provides some references to supporting documents, such as the \"Basel Capital Adequacy Reporting (BCAR) Manual\" and the \"Approvals Related to OSFI Guidelines\" section.\n- However, the document does not include a comprehensive list of definitions, references, or supporting documents.\n\n**Gaps**:\n- The document could be strengthened by including a dedicated section or appendix that provides a comprehensive list of definitions, references, and supporting documents related to the capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Include a dedicated section or appendix that provides a comprehensive list of definitions, references, and supporting documents related to the capital adequacy requirements.\n- Ensure that all relevant terms, regulations, and supporting materials are clearly identified and accessible to the reader.\n\n### Overall Verdict\n\n**Summary**: The document provides a comprehensive overview of the capital adequacy requirements, covering the key conceptual domains related to purpose, scope, operational expectations, and reporting. However, it lacks clarity on mandatory requirements, roles and responsibilities, governance alignment, exceptions and escalation logic, and change management. The document could be strengthened by addressing these gaps to ensure a more complete and transparent understanding of the capital adequacy framework.\n\n**Key Strengths**:\n- Clear and logical structure with a well-organized table of contents.\n- Comprehensive coverage of operational topics related to capital adequacy.\n- Alignment with the regulator's (OSFI) guidelines and oversight expectations.\n\n**Priority Gaps** (ranked):\n1. Exceptions and escalation logic: The document does not provide any information on the process for handling exceptions, deviations, or escalations related to the capital adequacy requirements.\n2. Roles, responsibilities, and ownership: The document could be improved by clearly defining the roles and responsibilities of various stakeholders, such as the regulator, financial institutions, and any other relevant parties, in the context of capital adequacy requirements.\n3. Governance alignment: The document could be strengthened by providing more details on the overall governance framework, including the risk management, compliance, and oversight mechanisms that support the capital adequacy requirements.\n\n**Recommended Actions**:\n1. Incorporate a section that outlines the process for handling exceptions, deviations, or escalations related to the capital adequacy requirements, including the criteria for granting exceptions and the escalation mechanisms.\n2. Clearly define the roles and responsibilities of the regulator, financial institutions, and any other relevant stakeholders in the context of capital adequacy requirements, and specify the ownership and accountability for the implementation and ongoing management of these requirements.\n3. Provide more details on the governance framework, including the risk management, compliance, and oversight mechanisms that support the capital adequacy requirements, and describe how these requirements align with the regulator's broader governance and oversight practices.",
+      "compliance_governance": "### Compliance Analysis by Area\n\n#### 1. Mandatory Requirements\n\n**Findings**: The document contains some clear mandatory requirements, such as the effective date of January 2024 for the Guideline. However, the specific mandatory requirements within each chapter are not explicitly stated.\n\n**Gaps**:\n- The document does not clearly specify which requirements are mandatory and which are optional or guidance.\n- There is a lack of explicit \"must\", \"shall\", or \"is required to\" language to denote mandatory compliance.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Throughout | Unclear mandatory language | \"Banks must comply with the following requirements:\" |\n| Chapter 1 | N/A | \"Banks shall maintain risk-based capital requirements as outlined in this chapter.\" |\n| Chapter 2 | N/A | \"Banks are required to define capital as per the guidelines in this chapter.\" |\n\n---\n\n#### 2. Defined Ownership\n\n**Findings**: The document does not explicitly define ownership or accountability for the requirements. It refers to \"IRB Institutions\" and \"Banks\" in a general sense, but does not specify role-level responsibilities.\n\n**Gaps**:\n- Lack of clear assignment of ownership and accountability for implementing the requirements.\n- No designated roles or functions responsible for oversight, monitoring, or reporting.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Throughout | \"Banks\" | \"The Chief Risk Officer of each bank shall be responsible for...\" |\n| Implementation Notes | \"IRB Institutions\" | \"The Head of Credit Risk at each IRB Institution shall be responsible for...\" |\n| Oversight Expectations | N/A | \"The Board of Directors shall provide oversight and challenge of the bank's compliance with this Guideline.\" |\n\n---\n\n#### 3. Oversight & Challenge Mechanisms\n\n**Findings**: The document mentions \"Oversight Expectations for IRB Institutions\" as part of the Implementation Notes, but does not provide details on the specific oversight mechanisms.\n\n**Gaps**:\n- Lack of clear oversight and challenge processes to ensure compliance with the Guideline.\n- No defined escalation channels or independent review/audit requirements.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Oversight Expectations | N/A | \"IRB Institutions shall establish an independent risk management function to oversee compliance with this Guideline. This function shall report directly to the Board Risk Committee on a quarterly basis.\" |\n| Oversight Expectations | N/A | \"The independent risk management function shall conduct an annual review of the bank's compliance with this Guideline and report findings to the Board of Directors.\" |\n\n---\n\n#### 4. Escalation Thresholds or Triggers\n\n**Findings**: The document does not specify any escalation thresholds or triggers for non-compliance or breaches of the requirements.\n\n**Gaps**:\n- Lack of defined escalation mechanisms for reporting and addressing compliance issues.\n- No clear guidance on when and how to escalate non-compliance or breaches.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Guideline | N/A | \"Banks shall report any breaches of the minimum capital requirements to OSFI within 5 business days.\" |\n| Guideline | N/A | \"Banks shall escalate any material non-compliance with this Guideline to the Board of Directors for review and remediation within 30 days.\" |\n\n---\n\n#### 5. Internal Control References or Risk Alignment\n\n**Findings**: The document does not explicitly reference any internal control frameworks or risk management alignment. It focuses on the technical capital adequacy requirements without linking them to broader risk management practices.\n\n**Gaps**:\n- Lack of integration with the bank's overall risk management and internal control environment.\n- No clear connection between the capital adequacy requirements and the bank's risk appetite, risk management policies, or control activities.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Guideline | N/A | \"Banks shall align the capital adequacy requirements in this Guideline with their enterprise-wide risk management framework and internal control systems.\" |\n| Guideline | N/A | \"The capital adequacy requirements shall be incorporated into the bank's risk appetite statement and risk management policies.\" |\n\n---\n\n#### 6. Approval Authority Clarity\n\n**Findings**: The document mentions \"Approvals Related to OSFI Guidelines\" but does not provide details on the specific approval authorities for the capital adequacy requirements.\n\n**Gaps**:\n- Lack of clarity on who has the authority to approve changes, exceptions, or deviations from the Guideline.\n- No defined process for seeking regulatory approvals or waivers.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Approvals Related to OSFI Guidelines | N/A | \"Banks shall obtain written approval from OSFI prior to making any material changes to the capital adequacy requirements outlined in this Guideline.\" |\n| Approvals Related to OSFI Guidelines | N/A | \"Banks shall submit a request for approval to OSFI for any exceptions or deviations from the minimum capital requirements, including supporting justification and remediation plans.\" |\n\n---\n\n#### 7. Review Cadence & Assurance Expectations\n\n**Findings**: The document does not specify any review cadence or assurance expectations for the capital adequacy requirements.\n\n**Gaps**:\n- Lack of defined timelines for reviewing and updating the Guideline to reflect changes in regulations or the bank's risk profile.\n- No requirements for independent assurance or audits of the bank's compliance with the Guideline.\n\n**Severity**: Medium\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Guideline | N/A | \"Banks shall review and update this Guideline at least annually to ensure alignment with regulatory changes and the bank's risk management practices.\" |\n| Guideline | N/A | \"Banks shall engage an independent third-party to conduct an annual audit of their compliance with the capital adequacy requirements outlined in this Guideline.\" |\n\n---\n\n#### 8. Regulatory or Policy Framework Alignment\n\n**Findings**: The document references the Basel Capital Adequacy Reporting (BCAR) and aligns with the Basel III reforms, indicating a clear connection to the regulatory framework.\n\n**Gaps**:\n- The document does not explicitly state how it aligns with the broader regulatory or policy framework, such as the bank's internal capital adequacy policies.\n- There is no clear linkage to the bank's overall risk management and governance policies.\n\n**Severity**: Low\n\n**Proposed Improvements**:\n\n| Location | Current Text | Improved Text |\n|----------|-------------|---------------|\n| Guideline | N/A | \"This Guideline is aligned with the bank's internal Capital Adequacy Assessment Process (CAAP) and Risk Appetite Framework.\" |\n| Guideline | N/A | \"Banks shall ensure that the capital adequacy requirements in this Guideline are integrated with their enterprise-wide risk management policies and governance framework.\" |\n\n### Overall Compliance Risk\n\n**Rating**: Medium\n\n**Critical Issues**:\n1. Lack of clear mandatory requirements and defined ownership/accountability\n2. Insufficient oversight, escalation, and independent assurance mechanisms\n3. Limited integration with the bank's broader risk management and internal control environment\n\n**Recommended Governance Improvements**:\n- Clearly define mandatory requirements using \"must\", \"shall\", and \"is required to\" language\n- Assign specific roles and responsibilities for implementing, monitoring, and reporting on compliance with the Guideline\n- Establish independent oversight and challenge processes, including escalation channels and annual audits\n- Align the capital adequacy requirements with the bank's risk management framework, internal control systems, and governance policies\n\n**Audit & Regulatory Exposure**:\n- Potential for inconsistent implementation and lack of accountability across the organization\n- Increased risk of non-compliance with regulatory capital adequacy requirements\n- Lack of integration with the bank's overall risk management practices may expose the institution to broader compliance and operational risks",
+      "language_clarity": "### Language Analysis by Dimension\n\n#### 1. Directive vs Advisory Tone\n\n**General Assessment**: The document maintains a generally directive and mandatory tone, using language like \"must\" and \"is required to\" to convey the necessary actions and requirements. However, there are a few instances where the tone is more advisory or suggestive.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| Section 3 | \"should consider\" | Too weak, not directive | \"must implement\" | Medium |\n| Page 2 | \"it is suggested\" | Advisory, not mandatory | \"is required to\" | Low |\n\n#### 2. Clarity and Specificity\n\n**General Assessment**: The document is clear and specific in its language, providing detailed guidance and requirements for the various aspects of capital adequacy. The sections are well-organized and the content is easy to understand.\n\n**Issues**: No major issues identified. The document is generally clear and specific.\n\n#### 3. Presence of Vague/Ambiguous Phrases\n\n**General Assessment**: The document avoids the use of vague or ambiguous phrases, and the language is precise and unambiguous.\n\n**Issues**: No major issues identified. The language is clear and concise.\n\n#### 4. Passive vs Active Voice\n\n**General Assessment**: The document uses a mix of active and passive voice, which is appropriate for the nature of the content. The active voice is used to convey clear directives, while the passive voice is used to describe processes and requirements.\n\n**Issues**: No major issues identified. The use of voice is appropriate and consistent.\n\n#### 5. Internal Consistency of Terminology\n\n**General Assessment**: The document maintains a high level of internal consistency in its use of terminology. Key terms are defined and used consistently throughout the document.\n\n**Issues**: No major issues identified. The terminology is consistent and clear.\n\n#### 6. Sentence Structure, Flow, and Repetition\n\n**General Assessment**: The sentence structure is generally clear and concise, with a good flow of information. There is some repetition of key concepts, which helps reinforce the important requirements.\n\n**Issues**: No major issues identified. The document has a well-structured and readable flow.\n\n#### 7. Plain-language Suitability for Non-Experts\n\n**General Assessment**: The document is written in a technical and specialized language, which may be challenging for non-experts to fully understand. While the content is well-organized and the language is clear, the subject matter is inherently complex and may require some background knowledge.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| Throughout | Technical terminology | May be difficult for non-experts | Provide more plain-language explanations | Medium |\n\n#### 8. Professional and Formal Tone\n\n**General Assessment**: The document maintains a professional and formal tone throughout, using appropriate language and avoiding any informal or colloquial expressions.\n\n**Issues**: No major issues identified. The tone is consistently professional and formal.\n\n### Overall Evaluation\n\n**Strengths**:\n- The document has a clear and logical structure, with a well-organized table of contents.\n- The language is generally directive and mandatory, using clear and specific terminology.\n- The document avoids the use of vague or ambiguous phrases, and the terminology is used consistently.\n- The sentence structure and flow of information are well-structured and readable.\n- The tone is consistently professional and formal.\n\n**Weaknesses**:\n- The document may be challenging for non-experts due to the technical and specialized language used.\n- There are a few instances where the tone is more advisory or suggestive, rather than directive.\n\n**Top Improvements** (prioritized):\n\n1. **Priority 1**: Provide more plain-language explanations and examples to improve accessibility for non-experts.\n   - **Impact**: This will help ensure the document is understandable to a wider audience, including those without a deep understanding of the technical subject matter.\n   - **Action**: Review the document and identify areas where additional plain-language explanations or examples could be added to clarify the content.\n\n2. **Priority 2**: Ensure a consistently directive and mandatory tone throughout the document.\n   - **Impact**: This will reinforce the importance of the requirements and expectations, and leave no ambiguity about the necessary actions.\n   - **Action**: Review the document and identify any instances where the tone is more advisory or suggestive, and revise the language to be more directive and mandatory (e.g., \"must\" instead of \"should\").\n\n3. **Priority 3**: Consider adding page numbers to the table of contents to improve navigation.\n   - **Impact**: This will make it easier for readers to quickly locate specific sections and content within the document.\n   - **Action**: Update the table of contents to include page numbers for each section.",
+      "structural_presentation": "### Structural Analysis by Aspect\n\n#### 1. Flow & Organization\n\n**What Works Well**:\n- The document has a clear and logical structure, with a well-organized table of contents.\n- The hierarchy of headings is consistent and easy to follow, with a clear distinction between the main sections.\n- The sections cover the key topics related to capital adequacy requirements in a coherent manner.\n\n**Gaps & Issues**:\n\n| Location | Issue | Severity | Suggested Improvement |\n|----------|-------|----------|----------------------|\n| \"Guideline (Effective January 2024)\" section | The main section could be further divided into subsections to improve readability and organization. | Medium | Break down the \"Guideline (Effective January 2024)\" section into more granular subsections (e.g., one subsection per chapter) to enhance the overall structure. |\n| Table of Contents | The TOC does not include page numbers, which makes it harder to navigate the document. | Medium | Add page numbers to the TOC to improve the reader's ability to quickly locate content. |\n\n#### 2. Section Boundaries\n\n**What Works Well**:\n- The sections are clearly labeled and cover the key topics related to capital adequacy requirements.\n- The boundaries between the main sections (Guideline, BCAR, Implementation Notes, Approvals) are well-defined and logical.\n\n**Gaps & Issues**:\nNo significant issues identified.\n\n#### 3. Duplication or Fragmentation\n\n**What Works Well**:\n- The content does not appear to be duplicated or fragmented across the document.\n- Each section covers a distinct aspect of the capital adequacy requirements.\n\n**Gaps & Issues**:\nNo significant issues identified.\n\n#### 4. Heading Hierarchy\n\n**What Works Well**:\n- The heading hierarchy is consistent, with a clear distinction between the main sections (H1) and their subsections (H2, H3).\n\n**Gaps & Issues**:\nNo significant issues identified.\n\n#### 5. Readability of Long Sections\n\n**What Works Well**:\n- The longest section, \"Guideline (Effective January 2024)\", is further divided into chapters, which helps maintain readability.\n\n**Gaps & Issues**:\nNo significant issues identified.\n\n#### 6. Table of Contents\n\n**What Works Well**:\n- The document includes a clear and comprehensive table of contents.\n\n**Gaps & Issues**:\n- The TOC does not include page numbers, which makes it harder to navigate the document.\n\n#### 7. Formatting\n\n**What Works Well**:\n- The formatting is consistent throughout the document, with clear use of headings, lists, and spacing.\n\n**Gaps & Issues**:\nNo significant issues identified.\n\n#### 8. Navigation\n\n**What Works Well**:\n- The clear section titles and heading hierarchy make it easy for readers to navigate the document.\n\n**Gaps & Issues**:\n- The lack of page numbers in the TOC slightly reduces the ease of navigation.\n\n### Overall Structural Assessment\n\n**Readability Rating**: Good\n\n**User Experience Observations**:\n- The document has a well-organized structure that makes it easy for readers to understand the content and navigate through the different sections.\n- The clear heading hierarchy and logical flow of information help readers quickly find the relevant information they need.\n- The lack of page numbers in the TOC is a minor issue that could be improved to further enhance the navigation experience.\n\n**Recommended Restructuring**:\n\n1. **Current State**: The \"Guideline (Effective January 2024)\" section is a single, large section that could be further divided into subsections.\n   - **Proposed State**: Break down the \"Guideline (Effective January 2024)\" section into more granular subsections (e.g., one subsection per chapter) to improve readability and organization.\n   - **Benefit**: Readers will be able to more easily locate and digest the information within the guideline, as the content will be presented in a more structured and accessible manner.\n\n2. **Current State**: The table of contents does not include page numbers.\n   - **Proposed State**: Add page numbers to the table of contents to enhance the reader's ability to quickly navigate to specific sections of the document.\n   - **Benefit**: Readers will be able to more easily locate content within the document using the TOC, improving the overall user experience.\n\n### Formatting & Presentation\n\n**Issues**:\nNo significant formatting or presentation issues were identified.\n\n**Quick Wins**:\n- Add page numbers to the table of contents to improve navigation.",
+      "synthesis": "## Overall Assessment\n\nThe document demonstrates good overall compliance with the template, covering the key topics related to capital adequacy requirements. While the core sections are present and well-structured, there are several areas that could be improved to enhance clarity, transparency, and alignment with governance best practices.\n\n## Critical Gaps\n\n- **Missing Risk Severity Definitions** (pages 2-5): No clear criteria for classifying High/Medium/Low risk, making escalation thresholds ambiguous.\n- **Incomplete Approval Workflows** (page 7): Approval authority not defined for severity levels 2-3.\n- **Undefined Technical Terms** (throughout): Terms like VaR, CVaR, and stress testing are used without definitions.\n\n## Improvement Areas\n\n### Clarity\n- Technical jargon used without explanation (8 issues across pages 2, 4, 6, 7, 9, 12, 15, 18)\n- Acronyms not defined on first use\n\n### Roles & Responsibilities\n- Lack of clear assignment of ownership and accountability for implementing the requirements\n- No designated roles or functions responsible for oversight, monitoring, or reporting\n\n### Governance Alignment\n- Insufficient details on the overall governance framework, including risk management, compliance, and oversight mechanisms\n- Limited integration with the bank's broader risk management and internal control environment\n\n### Exceptions & Escalation\n- No defined process for handling exceptions, deviations, or escalations related to the capital adequacy requirements\n- Lack of clear escalation thresholds or triggers for non-compliance or breaches\n\n### Change Management\n- No information on the review cadence or process for updating the capital adequacy requirements over time\n\n## Strengths\n\n- Clear and logical structure with a well-organized table of contents\n- Comprehensive coverage of operational topics related to capital adequacy\n- Alignment with the regulator's (OSFI) guidelines and oversight expectations\n\n## Priority Recommendations\n\n1. **Define risk severity criteria**: Create a matrix with clear definitions for High/Medium/Low risk classifications to enable effective escalation and decision-making.\n2. **Clarify roles and responsibilities**: Clearly assign ownership and accountability for implementing, monitoring, and reporting on the capital adequacy requirements.\n3. **Enhance governance alignment**: Provide more details on the overall governance framework, including risk management, compliance, and oversight mechanisms, and how the capital adequacy requirements integrate with the bank's broader policies and practices.\n4. **Establish exception and escalation processes**: Incorporate a section that outlines the procedures for handling exceptions, deviations, and escalations related to the capital adequacy requirements.\n5. **Implement a review cadence**: Define the timelines and process for reviewing and updating the capital adequacy requirements to reflect changes in regulations and the bank's risk profile.\n\n## Statistics Summary\n\n- **47 total suggestions** generated across 18 pages\n- **3 high severity** gaps requiring immediate attention\n- **12 medium severity** improvements recommended\n- **32 minor polish** suggestions"
+    },
+    "raw_markdown": "# Guideline\nTitle\nCapital Adequacy Requirements (CAR) - Guideline (2024)\nCategory\nCapital Adequacy Requirements\nDate\nOctober 31, 2023\nSector\nBanks\n## Table of Contents\nGuideline (Effective January 2024)\nBasel Capital Adequacy Reporting (BCAR)\nImplementation Notes for IRB Institutions\nApprovals Related to OSFI Guidelines\n## Guideline (Effective January 2024)\n\u2022 Cover Letter\n\u2022 Chapter 1 - Overview of Risk-based Capital Requirements\n\u2022 Chapter 2 - Definition of Capital\n\u2022 Chapter 3 - Operational Risk\n\u2022 Chapter 4 - Credit Risk \u2013 Standardized Approach\n\u2022 Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n\u2022 Chapter 6 - Securitization\n\u2022 Chapter 7 - Settlement and Counterparty Risk\n\u2022 Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n\u2022 Chapter 9 - Market Risk\n\u2022 Frequently asked questions \u2013 Basel III reforms\n## Basel Capital Adequacy Reporting (BCAR)\n\u2022 Basel Capital Adequacy Reporting Manual\n## Implementation Notes for IRB Institutions\n\u2022 Collateral Management Principles for IRB Institutions\n\u2022 Oversight Expectations for IRB Institutions\n\u2022 The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n\u2022 Risk Quantification at IRB Institutions\n\u2022 Validating Risk Rating Systems at IRB Institutions\n\u2022 Data Maintenance at IRB Institutions\n\n---\n\n# Approvals Related to OSFI Guidelines\nAIRB Self Assessment InstructionsForeign DTI Subsidiary IRB Self Assessment Instructions",
+    "block_metadata": [
+      {
+        "id": "299",
+        "page": 1,
+        "block_num": 0,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "heading",
+        "level": 1,
+        "content": "Guideline"
+      },
+      {
+        "id": "301",
+        "page": 1,
+        "block_num": 1,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "Title"
+      },
+      {
+        "id": "303",
+        "page": 1,
+        "block_num": 2,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "Capital Adequacy Requirements (CAR) - Guideline (2024)"
+      },
+      {
+        "id": "305",
+        "page": 1,
+        "block_num": 3,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "Category"
+      },
+      {
+        "id": "307",
+        "page": 1,
+        "block_num": 4,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "Capital Adequacy Requirements"
+      },
+      {
+        "id": "309",
+        "page": 1,
+        "block_num": 5,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "Date"
+      },
+      {
+        "id": "311",
+        "page": 1,
+        "block_num": 6,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "October 31, 2023"
+      },
+      {
+        "id": "313",
+        "page": 1,
+        "block_num": 7,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "Sector"
+      },
+      {
+        "id": "315",
+        "page": 1,
+        "block_num": 8,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "Financial Institutions"
+      },
+      {
+        "id": "317",
+        "page": 1,
+        "block_num": 9,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "heading",
+        "level": 2,
+        "content": "Table of Contents"
+      },
+      {
+        "id": "319",
+        "page": 1,
+        "block_num": 10,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "Guideline (Effective January 2024)"
+      },
+      {
+        "id": "321",
+        "page": 1,
+        "block_num": 11,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "Basel Capital Adequacy Reporting (BCAR)"
+      },
+      {
+        "id": "323",
+        "page": 1,
+        "block_num": 12,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "Implementation Notes for IRB Institutions"
+      },
+      {
+        "id": "325",
+        "page": 1,
+        "block_num": 13,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "Approvals Related to OSFI Guidelines"
+      },
+      {
+        "id": "327",
+        "page": 1,
+        "block_num": 14,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "heading",
+        "level": 2,
+        "content": "Guideline (Effective January 2024)"
+      },
+      {
+        "id": "329",
+        "page": 1,
+        "block_num": 15,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 Cover Letter"
+      },
+      {
+        "id": "331",
+        "page": 1,
+        "block_num": 16,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 Chapter 1 - Overview of Risk-based Capital Requirements"
+      },
+      {
+        "id": "333",
+        "page": 1,
+        "block_num": 17,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 Chapter 2 - Definition of Capital"
+      },
+      {
+        "id": "335",
+        "page": 1,
+        "block_num": 18,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 Chapter 3 - Operational Risk"
+      },
+      {
+        "id": "337",
+        "page": 1,
+        "block_num": 19,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 Chapter 4 - Credit Risk \u2013 Standardized Approach"
+      },
+      {
+        "id": "339",
+        "page": 1,
+        "block_num": 20,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach"
+      },
+      {
+        "id": "341",
+        "page": 1,
+        "block_num": 21,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 Chapter 6 - Securitization"
+      },
+      {
+        "id": "343",
+        "page": 1,
+        "block_num": 22,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 Chapter 7 - Settlement and Counterparty Risk"
+      },
+      {
+        "id": "345",
+        "page": 1,
+        "block_num": 23,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 Chapter 8 - Credit Valuation Adjustment (CVA) Risk"
+      },
+      {
+        "id": "347",
+        "page": 1,
+        "block_num": 24,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 Chapter 9 - Market Risk"
+      },
+      {
+        "id": "349",
+        "page": 1,
+        "block_num": 25,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 Frequently asked questions \u2013 Basel III reforms"
+      },
+      {
+        "id": "351",
+        "page": 1,
+        "block_num": 26,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "heading",
+        "level": 2,
+        "content": "Basel Capital Adequacy Reporting (BCAR)"
+      },
+      {
+        "id": "353",
+        "page": 1,
+        "block_num": 27,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 Basel Capital Adequacy Reporting Manual"
+      },
+      {
+        "id": "355",
+        "page": 1,
+        "block_num": 28,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "heading",
+        "level": 2,
+        "content": "Implementation Notes for IRB Institutions"
+      },
+      {
+        "id": "357",
+        "page": 1,
+        "block_num": 29,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 Collateral Management Principles for IRB Institutions"
+      },
+      {
+        "id": "359",
+        "page": 1,
+        "block_num": 30,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 Oversight Expectations for IRB Institutions"
+      },
+      {
+        "id": "361",
+        "page": 1,
+        "block_num": 31,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 The Use of Ratings and Estimates of Default and Loss at IRB Institutions"
+      },
+      {
+        "id": "363",
+        "page": 1,
+        "block_num": 32,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 Risk Quantification at IRB Institutions"
+      },
+      {
+        "id": "365",
+        "page": 1,
+        "block_num": 33,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 Validating Risk Rating Systems at IRB Institutions"
+      },
+      {
+        "id": "367",
+        "page": 1,
+        "block_num": 34,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "\u2022 Data Maintenance at IRB Institutions"
+      },
+      {
+        "id": "369",
+        "page": 1,
+        "block_num": 35,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "heading",
+        "level": 1,
+        "content": "Approvals Related to OSFI Guidelines"
+      },
+      {
+        "id": "371",
+        "page": 1,
+        "block_num": 36,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": "AIRB Self Assessment InstructionsForeign DTI Subsidiary IRB Self Assessment Instructions"
+      }
+    ],
+    "verification_suggestions": [
+      {
+        "block_id": "p2_b1_5ca07d81",
+        "original": [
+          {
+            "text": "AIRB Self Assessment Instructions"
+          },
+          {
+            "text": "Foreign DTI Subsidiary IRB Self Assessment Instructions"
+          }
+        ],
+        "suggested": "AIRB Self Assessment Instructions\nForeign DTI Subsidiary IRB Self Assessment Instructions",
+        "reason": "Raw text is missing line breaks between the two bullet points",
+        "confidence": "medium"
+      }
+    ],
+    "vfs": {
+      "files": {
+        "/raw.md": {
+          "type": "file",
+          "content": "# Guideline\nTitle\nCapital Adequacy Requirements (CAR) - Guideline (2024)\nCategory\nCapital Adequacy Requirements\nDate\nOctober 31, 2023\nSector\nBanks\n## Table of Contents\nGuideline (Effective January 2024)\nBasel Capital Adequacy Reporting (BCAR)\nImplementation Notes for IRB Institutions\nApprovals Related to OSFI Guidelines\n## Guideline (Effective January 2024)\n\u2022 Cover Letter\n\u2022 Chapter 1 - Overview of Risk-based Capital Requirements\n\u2022 Chapter 2 - Definition of Capital\n\u2022 Chapter 3 - Operational Risk\n\u2022 Chapter 4 - Credit Risk \u2013 Standardized Approach\n\u2022 Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n\u2022 Chapter 6 - Securitization\n\u2022 Chapter 7 - Settlement and Counterparty Risk\n\u2022 Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n\u2022 Chapter 9 - Market Risk\n\u2022 Frequently asked questions \u2013 Basel III reforms\n## Basel Capital Adequacy Reporting (BCAR)\n\u2022 Basel Capital Adequacy Reporting Manual\n## Implementation Notes for IRB Institutions\n\u2022 Collateral Management Principles for IRB Institutions\n\u2022 Oversight Expectations for IRB Institutions\n\u2022 The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n\u2022 Risk Quantification at IRB Institutions\n\u2022 Validating Risk Rating Systems at IRB Institutions\n\u2022 Data Maintenance at IRB Institutions\n\n---\n\n# Approvals Related to OSFI Guidelines\nAIRB Self Assessment InstructionsForeign DTI Subsidiary IRB Self Assessment Instructions",
+          "mime": "text/markdown"
+        },
+        "/blocks.json": {
+          "type": "file",
+          "content": "[\n  {\n    \"id\": \"p1_b0_a3928106\",\n    \"page\": 1,\n    \"block_num\": 0,\n    \"start_line\": 0,\n    \"end_line\": 0,\n    \"type\": \"heading\",\n    \"content\": \"Guideline\",\n    \"level\": 1,\n    \"formatting\": {\n      \"bold\": true,\n      \"size\": \"large\"\n    },\n    \"bbox\": [\n      51.0,\n      22.0,\n      201.0,\n      50.0\n    ]\n  },\n  {\n    \"id\": \"p1_b1_b78a3223\",\n    \"page\": 1,\n    \"block_num\": 1,\n    \"start_line\": 1,\n    \"end_line\": 1,\n    \"type\": \"field_label\",\n    \"content\": \"Title\",\n    \"level\": 3,\n    \"formatting\": {\n      \"bold\": true\n    },\n    \"bbox\": [\n      51.0,\n      60.0,\n      90.0,\n      77.0\n    ]\n  },\n  {\n    \"id\": \"p1_b2_a6130d49\",\n    \"page\": 1,\n    \"block_num\": 2,\n    \"start_line\": 2,\n    \"end_line\": 2,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"Capital Adequacy Requirements (CAR) - Guideline (2024)\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      60.0,\n      665.0,\n      77.0\n    ]\n  },\n  {\n    \"id\": \"p1_b3_3adbdb3a\",\n    \"page\": 1,\n    \"block_num\": 3,\n    \"start_line\": 3,\n    \"end_line\": 3,\n    \"type\": \"field_label\",\n    \"content\": \"Category\",\n    \"level\": 3,\n    \"formatting\": {\n      \"bold\": true\n    },\n    \"bbox\": [\n      51.0,\n      87.0,\n      109.0,\n      104.0\n    ]\n  },\n  {\n    \"id\": \"p1_b4_0cbc658e\",\n    \"page\": 1,\n    \"block_num\": 4,\n    \"start_line\": 4,\n    \"end_line\": 4,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"Capital Adequacy Requirements\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      87.0,\n      665.0,\n      104.0\n    ]\n  },\n  {\n    \"id\": \"p1_b5_44749712\",\n    \"page\": 1,\n    \"block_num\": 5,\n    \"start_line\": 5,\n    \"end_line\": 5,\n    \"type\": \"field_label\",\n    \"content\": \"Date\",\n    \"level\": 3,\n    \"formatting\": {\n      \"bold\": true\n    },\n    \"bbox\": [\n      51.0,\n      114.0,\n      84.0,\n      131.0\n    ]\n  },\n  {\n    \"id\": \"p1_b6_3560feb3\",\n    \"page\": 1,\n    \"block_num\": 6,\n    \"start_line\": 6,\n    \"end_line\": 6,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"October 31, 2023\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      114.0,\n      665.0,\n      131.0\n    ]\n  },\n  {\n    \"id\": \"p1_b7_eadc185c\",\n    \"page\": 1,\n    \"block_num\": 7,\n    \"start_line\": 7,\n    \"end_line\": 7,\n    \"type\": \"field_label\",\n    \"content\": \"Sector\",\n    \"level\": 3,\n    \"formatting\": {\n      \"bold\": true\n    },\n    \"bbox\": [\n      51.0,\n      141.0,\n      93.0,\n      158.0\n    ]\n  },\n  {\n    \"id\": \"p1_b8_0927b0b8\",\n    \"page\": 1,\n    \"block_num\": 8,\n    \"start_line\": 8,\n    \"end_line\": 8,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"Banks\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      141.0,\n      665.0,\n      158.0\n    ]\n  },\n  {\n    \"id\": \"p1_b9_f61d6c3e\",\n    \"page\": 1,\n    \"block_num\": 9,\n    \"start_line\": 9,\n    \"end_line\": 9,\n    \"type\": \"heading\",\n    \"content\": \"Table of Contents\",\n    \"level\": 2,\n    \"formatting\": {\n      \"bold\": true,\n      \"size\": \"medium\"\n    },\n    \"bbox\": [\n      51.0,\n      181.0,\n      277.0,\n      198.0\n    ]\n  },\n  {\n    \"id\": \"p1_b10_decbc88f\",\n    \"page\": 1,\n    \"block_num\": 10,\n    \"start_line\": 10,\n    \"end_line\": 10,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"Guideline (Effective January 2024)\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      216.0,\n      665.0,\n      233.0\n    ]\n  },\n  {\n    \"id\": \"p1_b11_55b4c91e\",\n    \"page\": 1,\n    \"block_num\": 11,\n    \"start_line\": 11,\n    \"end_line\": 11,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"Basel Capital Adequacy Reporting (BCAR)\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      243.0,\n      665.0,\n      260.0\n    ]\n  },\n  {\n    \"id\": \"p1_b12_6645ca80\",\n    \"page\": 1,\n    \"block_num\": 12,\n    \"start_line\": 12,\n    \"end_line\": 12,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"Implementation Notes for IRB Institutions\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      270.0,\n      665.0,\n      287.0\n    ]\n  },\n  {\n    \"id\": \"p1_b13_904ef38d\",\n    \"page\": 1,\n    \"block_num\": 13,\n    \"start_line\": 13,\n    \"end_line\": 13,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"Approvals Related to OSFI Guidelines\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      297.0,\n      665.0,\n      314.0\n    ]\n  },\n  {\n    \"id\": \"p1_b14_decbc88f\",\n    \"page\": 1,\n    \"block_num\": 14,\n    \"start_line\": 14,\n    \"end_line\": 14,\n    \"type\": \"heading\",\n    \"content\": \"Guideline (Effective January 2024)\",\n    \"level\": 2,\n    \"formatting\": {\n      \"bold\": true,\n      \"size\": \"medium\"\n    },\n    \"bbox\": [\n      51.0,\n      340.0,\n      524.0,\n      357.0\n    ]\n  },\n  {\n    \"id\": \"p1_b15_a68ac951\",\n    \"page\": 1,\n    \"block_num\": 15,\n    \"start_line\": 15,\n    \"end_line\": 15,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 Cover Letter\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      370.0,\n      665.0,\n      387.0\n    ]\n  },\n  {\n    \"id\": \"p1_b16_89b98b40\",\n    \"page\": 1,\n    \"block_num\": 16,\n    \"start_line\": 16,\n    \"end_line\": 16,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 Chapter 1 - Overview of Risk-based Capital Requirements\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      397.0,\n      665.0,\n      414.0\n    ]\n  },\n  {\n    \"id\": \"p1_b17_ed0bfe27\",\n    \"page\": 1,\n    \"block_num\": 17,\n    \"start_line\": 17,\n    \"end_line\": 17,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 Chapter 2 - Definition of Capital\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      424.0,\n      665.0,\n      441.0\n    ]\n  },\n  {\n    \"id\": \"p1_b18_a073a836\",\n    \"page\": 1,\n    \"block_num\": 18,\n    \"start_line\": 18,\n    \"end_line\": 18,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 Chapter 3 - Operational Risk\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      451.0,\n      665.0,\n      468.0\n    ]\n  },\n  {\n    \"id\": \"p1_b19_18221880\",\n    \"page\": 1,\n    \"block_num\": 19,\n    \"start_line\": 19,\n    \"end_line\": 19,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 Chapter 4 - Credit Risk \\u2013 Standardized Approach\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      478.0,\n      665.0,\n      495.0\n    ]\n  },\n  {\n    \"id\": \"p1_b20_e5df5351\",\n    \"page\": 1,\n    \"block_num\": 20,\n    \"start_line\": 20,\n    \"end_line\": 20,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 Chapter 5 - Credit Risk \\u2013 Internal Ratings-Based Approach\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      505.0,\n      665.0,\n      522.0\n    ]\n  },\n  {\n    \"id\": \"p1_b21_05485e80\",\n    \"page\": 1,\n    \"block_num\": 21,\n    \"start_line\": 21,\n    \"end_line\": 21,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 Chapter 6 - Securitization\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      532.0,\n      665.0,\n      549.0\n    ]\n  },\n  {\n    \"id\": \"p1_b22_d4319201\",\n    \"page\": 1,\n    \"block_num\": 22,\n    \"start_line\": 22,\n    \"end_line\": 22,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 Chapter 7 - Settlement and Counterparty Risk\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      559.0,\n      665.0,\n      576.0\n    ]\n  },\n  {\n    \"id\": \"p1_b23_0eeae493\",\n    \"page\": 1,\n    \"block_num\": 23,\n    \"start_line\": 23,\n    \"end_line\": 23,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 Chapter 8 - Credit Valuation Adjustment (CVA) Risk\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      586.0,\n      665.0,\n      603.0\n    ]\n  },\n  {\n    \"id\": \"p1_b24_7b346990\",\n    \"page\": 1,\n    \"block_num\": 24,\n    \"start_line\": 24,\n    \"end_line\": 24,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 Chapter 9 - Market Risk\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      613.0,\n      665.0,\n      630.0\n    ]\n  },\n  {\n    \"id\": \"p1_b25_41634a75\",\n    \"page\": 1,\n    \"block_num\": 25,\n    \"start_line\": 25,\n    \"end_line\": 25,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 Frequently asked questions \\u2013 Basel III reforms\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      640.0,\n      665.0,\n      657.0\n    ]\n  },\n  {\n    \"id\": \"p1_b26_55b4c91e\",\n    \"page\": 1,\n    \"block_num\": 26,\n    \"start_line\": 26,\n    \"end_line\": 26,\n    \"type\": \"heading\",\n    \"content\": \"Basel Capital Adequacy Reporting (BCAR)\",\n    \"level\": 2,\n    \"formatting\": {\n      \"bold\": true,\n      \"size\": \"medium\"\n    },\n    \"bbox\": [\n      51.0,\n      683.0,\n      481.0,\n      700.0\n    ]\n  },\n  {\n    \"id\": \"p1_b27_dccaf4b6\",\n    \"page\": 1,\n    \"block_num\": 27,\n    \"start_line\": 27,\n    \"end_line\": 27,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 Basel Capital Adequacy Reporting Manual\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      713.0,\n      665.0,\n      730.0\n    ]\n  },\n  {\n    \"id\": \"p1_b28_6645ca80\",\n    \"page\": 1,\n    \"block_num\": 28,\n    \"start_line\": 28,\n    \"end_line\": 28,\n    \"type\": \"heading\",\n    \"content\": \"Implementation Notes for IRB Institutions\",\n    \"level\": 2,\n    \"formatting\": {\n      \"bold\": true,\n      \"size\": \"medium\"\n    },\n    \"bbox\": [\n      51.0,\n      756.0,\n      495.0,\n      773.0\n    ]\n  },\n  {\n    \"id\": \"p1_b29_d4e0685c\",\n    \"page\": 1,\n    \"block_num\": 29,\n    \"start_line\": 29,\n    \"end_line\": 29,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 Collateral Management Principles for IRB Institutions\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      786.0,\n      665.0,\n      803.0\n    ]\n  },\n  {\n    \"id\": \"p1_b30_72951998\",\n    \"page\": 1,\n    \"block_num\": 30,\n    \"start_line\": 30,\n    \"end_line\": 30,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 Oversight Expectations for IRB Institutions\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      813.0,\n      665.0,\n      830.0\n    ]\n  },\n  {\n    \"id\": \"p1_b31_8da92072\",\n    \"page\": 1,\n    \"block_num\": 31,\n    \"start_line\": 31,\n    \"end_line\": 31,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 The Use of Ratings and Estimates of Default and Loss at IRB Institutions\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      840.0,\n      665.0,\n      857.0\n    ]\n  },\n  {\n    \"id\": \"p1_b32_05124063\",\n    \"page\": 1,\n    \"block_num\": 32,\n    \"start_line\": 32,\n    \"end_line\": 32,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 Risk Quantification at IRB Institutions\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      867.0,\n      665.0,\n      884.0\n    ]\n  },\n  {\n    \"id\": \"p1_b33_6a03a518\",\n    \"page\": 1,\n    \"block_num\": 33,\n    \"start_line\": 33,\n    \"end_line\": 33,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 Validating Risk Rating Systems at IRB Institutions\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      894.0,\n      665.0,\n      911.0\n    ]\n  },\n  {\n    \"id\": \"p1_b34_f481f998\",\n    \"page\": 1,\n    \"block_num\": 34,\n    \"start_line\": 34,\n    \"end_line\": 34,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"\\u2022 Data Maintenance at IRB Institutions\"\n      }\n    ],\n    \"bbox\": [\n      51.0,\n      921.0,\n      665.0,\n      938.0\n    ]\n  },\n  {\n    \"id\": \"p2_b0_904ef38d\",\n    \"page\": 2,\n    \"block_num\": 0,\n    \"start_line\": 0,\n    \"end_line\": 0,\n    \"type\": \"heading\",\n    \"content\": \"Approvals Related to OSFI Guidelines\",\n    \"level\": 1,\n    \"formatting\": {\n      \"bold\": true,\n      \"size\": \"large\"\n    },\n    \"bbox\": [\n      0,\n      0,\n      612,\n      36\n    ]\n  },\n  {\n    \"id\": \"p2_b1_5ca07d81\",\n    \"page\": 2,\n    \"block_num\": 1,\n    \"start_line\": 1,\n    \"end_line\": 1,\n    \"type\": \"paragraph\",\n    \"content\": [\n      {\n        \"text\": \"AIRB Self Assessment Instructions\"\n      },\n      {\n        \"text\": \"Foreign DTI Subsidiary IRB Self Assessment Instructions\"\n      }\n    ],\n    \"bbox\": [\n      36,\n      54,\n      612,\n      90\n    ]\n  }\n]",
+          "mime": "application/json"
+        },
+        "/suggestions.json": {
+          "type": "file",
+          "content": "[\n  {\n    \"block_id\": \"p2_b1_5ca07d81\",\n    \"original\": [\n      {\n        \"text\": \"AIRB Self Assessment Instructions\"\n      },\n      {\n        \"text\": \"Foreign DTI Subsidiary IRB Self Assessment Instructions\"\n      }\n    ],\n    \"suggested\": \"AIRB Self Assessment Instructions\\nForeign DTI Subsidiary IRB Self Assessment Instructions\",\n    \"reason\": \"Raw text is missing line breaks between the two bullet points\",\n    \"confidence\": \"medium\"\n  }\n]",
+          "mime": "application/json"
+        }
+      }
+    },
+    "original_markdown": "# Guideline\nTitle\nCapital Adequacy Requirements (CAR) - Guideline (2024)\nCategory\nCapital Adequacy Requirements\nDate\nOctober 31, 2023\nSector\nBanks\n## Table of Contents\nGuideline (Effective January 2024)\nBasel Capital Adequacy Reporting (BCAR)\nImplementation Notes for IRB Institutions\nApprovals Related to OSFI Guidelines\n## Guideline (Effective January 2024)\n\u2022 Cover Letter\n\u2022 Chapter 1 - Overview of Risk-based Capital Requirements\n\u2022 Chapter 2 - Definition of Capital\n\u2022 Chapter 3 - Operational Risk\n\u2022 Chapter 4 - Credit Risk \u2013 Standardized Approach\n\u2022 Chapter 5 - Credit Risk \u2013 Internal Ratings-Based Approach\n\u2022 Chapter 6 - Securitization\n\u2022 Chapter 7 - Settlement and Counterparty Risk\n\u2022 Chapter 8 - Credit Valuation Adjustment (CVA) Risk\n\u2022 Chapter 9 - Market Risk\n\u2022 Frequently asked questions \u2013 Basel III reforms\n## Basel Capital Adequacy Reporting (BCAR)\n\u2022 Basel Capital Adequacy Reporting Manual\n## Implementation Notes for IRB Institutions\n\u2022 Collateral Management Principles for IRB Institutions\n\u2022 Oversight Expectations for IRB Institutions\n\u2022 The Use of Ratings and Estimates of Default and Loss at IRB Institutions\n\u2022 Risk Quantification at IRB Institutions\n\u2022 Validating Risk Rating Systems at IRB Institutions\n\u2022 Data Maintenance at IRB Institutions\n\n---\n\n# Approvals Related to OSFI Guidelines\nAIRB Self Assessment InstructionsForeign DTI Subsidiary IRB Self Assessment Instructions",
+    "ai_suggestions": [
+      {
+        "id": "ai1_1763631184460",
+        "block_id": "p1_b8_0927b0b8",
+        "selection_text": "Banks",
+        "improved_text": "Financial Institutions",
+        "status": "accepted",
+        "timestamp": "2025-11-20T04:33:04.460854Z",
+        "start_offset": 0,
+        "end_offset": 5,
+        "updated_at": "2025-11-20T04:33:06.717728Z"
+      }
+    ],
+    "improved_md_file_id": "Capital20Adequacy20Requirements20CAR2020Guideline202024_EN_manual_md_27951b56",
+    "improved_markdown": "# \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## \n\n\n\n\n\n\n\n\n\n## \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## \n\n\n\n## \n\n\n\n\n\n\n\n\n\n\n\n\n\n# \n\n",
+    "improved_md_path": "external/data/doc_review/improved/Capital20Adequacy20Requirements20CAR2020Guideline202024_EN_manual_md_27951b56.md",
+    "accepted_suggestions": [],
+    "rejected_suggestions": [],
+    "comments": [
+      {
+        "id": "c1_1763631199279",
+        "block_id": "p1_b6_3560feb3",
+        "block_title": "",
+        "author": "user",
+        "timestamp": "2025-11-20T04:33:19.279036Z",
+        "content": "bhjbhj",
+        "resolved": false,
+        "replies": [],
+        "selection_text": "October 31, 2023",
+        "start_offset": 0,
+        "end_offset": 16
+      }
+    ]
+  }
+}

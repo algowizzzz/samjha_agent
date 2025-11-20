@@ -153,7 +153,7 @@ def register_all_routes(app, socketio):
             doc_review_routes.register_routes(app)
             logging.info("Document review routes registered successfully")
         except Exception as e:  # pylint: disable=broad-except
-            logging.error(f"Failed to register doc review routes: {e}")
+            logging.exception(f"Failed to register doc review routes: {e}")
     else:
         logging.info("Document review features not available")
 

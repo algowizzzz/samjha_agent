@@ -72,6 +72,8 @@ class CommentsManager:
         content: str,
         author: str = "User",
         selection_text: Optional[str] = None,
+        start_offset: Optional[int] = None,
+        end_offset: Optional[int] = None,
     ) -> Dict[str, Any]:
         """
         Add a new comment to a block.
@@ -83,6 +85,8 @@ class CommentsManager:
             content: Comment content
             author: Comment author name
             selection_text: Optional selected text that comment refers to
+            start_offset: Optional character offset where selection starts in block
+            end_offset: Optional character offset where selection ends in block
             
         Returns:
             The created comment dictionary
@@ -102,6 +106,12 @@ class CommentsManager:
         
         if selection_text:
             comment["selection_text"] = selection_text
+        
+        if start_offset is not None:
+            comment["start_offset"] = start_offset
+        
+        if end_offset is not None:
+            comment["end_offset"] = end_offset
         
         comments.append(comment)
         self._save_comments_to_state(file_id, comments)

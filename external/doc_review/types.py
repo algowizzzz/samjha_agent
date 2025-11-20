@@ -163,32 +163,13 @@ class ChangeSelectionPlan(TypedDict, total=False):
 
 
 class Phase1Data(TypedDict, total=False):
-    stats: Dict[str, Any]
-    doc_summary: Optional[DocSummaryReport]
     toc_review: Optional[TocReviewReport]
-    template_fitness_report: Optional[TemplateFitnessSummary]
-    section_strategy: Optional[SectionStrategyReport]
 
 
 class Phase2Data(TypedDict, total=False):
-    chunks: Dict[str, SectionChunk]
-    reviews: Dict[str, SectionReview]
-    summary_report: Optional[Phase2SummaryReport]
-
-
-class ChangesData(TypedDict, total=False):
-    suggested_changes: List[SuggestedChange]
-    applied_change_ids: List[str]
-    failed_changes: List[Dict[str, str]]
-    change_selection_plan: Optional[ChangeSelectionPlan]
-    skipped_changes: List[Dict[str, Any]]
-    new_raw_text: Optional[str]
-
-
-class UserInteractionState(TypedDict, total=False):
-    user_selected_section_strategy: bool
-    selected_section_scope: Optional[List[str]]
-    user_change_instruction: Optional[str]
+    check_results: Dict[str, Any]  # Results from 4 holistic checks
+    all_issues: List[Dict[str, Any]]  # Consolidated issues from all checks
+    synthesis_report: Optional[Dict[str, Any]]  # Synthesis summary
 
 
 class VfsArtifact(TypedDict, total=False):
@@ -205,7 +186,6 @@ class AgentState(TypedDict, total=False):
     errors: List[str]
     phase1_status: PhaseStatus
     phase2_status: PhaseStatus
-    phase3_status: PhaseStatus
     locked_by: Optional[str]
     lock_timestamp: Optional[str]
     doc_meta: DocMeta
@@ -213,8 +193,6 @@ class AgentState(TypedDict, total=False):
     template_meta: TemplateMeta
     phase1: Phase1Data
     phase2: Phase2Data
-    changes: ChangesData
-    user_interaction: UserInteractionState
     file_metadata: Optional[Dict[str, Any]]
     vfs_artifacts: List[VfsArtifact]
     logs: List[str]

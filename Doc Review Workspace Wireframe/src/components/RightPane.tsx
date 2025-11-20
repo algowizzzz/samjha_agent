@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, memo, useCallback } from 'react';
 import { Send, Sparkles, X, Copy, Check, RotateCcw, FileDown, Search, Moon, Sun, ChevronDown, ChevronUp, MessageSquare } from 'lucide-react';
-import { getDocument, askRiskGPT, type BlockMetadata } from '@/lib/api';
+import { getDocument, askRiskGPT, type BlockMetadata, listChatMessages, addChatMessage, type ChatMessage as ApiChatMessage } from '@/lib/api';
 import { CommentsPane } from './CommentsPane';
 
 interface ChatMessage {
@@ -29,14 +29,35 @@ interface RightPaneProps {
   synthesisData?: any; // NEW: Template synthesis summary
   onDeselectBlock?: (blockId: string) => void; // NEW: Callback to deselect a specific block
   onClearAllBlocks?: () => void; // NEW: Callback to clear all selected blocks
+  textSuggestion?: { original: string; suggested: string } | null; // NEW: AI text improvement suggestion
+  onAcceptTextSuggestion?: () => void; // NEW: Accept text suggestion
+  onRejectTextSuggestion?: () => void; // NEW: Reject text suggestion
 }
 
-export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileId, selectedBlocks = [], onSuggestionsReceived, synthesisData, onDeselectBlock, onClearAllBlocks }: RightPaneProps) {
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+function RightPaneComponent({ selectedText, selectedBlockId, onCommentClick, fileId, selectedBlocks = [], onSuggestionsReceived, synthesisData, onDeselectBlock, onClearAllBlocks, textSuggestion, onAcceptTextSuggestion, onRejectTextSuggestion }: RightPaneProps) {
+  console.log('🔵 [RightPane] RENDER START - fileId:', fileId);
+  
+  const [chatMessages, setChatMessagesRaw] = useState<ChatMessage[]>(() => {
+    console.log('🟢 [RightPane] chatMessages initial state');
+    return [];
+  });
+  
+  // Wrap setChatMessages to log all calls
+  const setChatMessages = useCallback((value: ChatMessage[] | ((prev: ChatMessage[]) => ChatMessage[])) => {
+    const stack = new Error().stack?.split('\n').slice(2, 6).join('\n');
+    console.log('🚨 [RightPane] setChatMessages CALLED! Stack:', stack);
+    console.log('🚨 [RightPane] New value:', typeof value === 'function' ? 'function' : value);
+    setChatMessagesRaw(value);
+  }, []);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const loadedFileIdRef = useRef<string | null>(null);
+  const renderCountRef = useRef(0);
+  
+  renderCountRef.current += 1;
+  console.log('🔵 [RightPane] Render #', renderCountRef.current, '- Messages count:', chatMessages.length);
   
   // NEW: Feature states
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
@@ -44,6 +65,25 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [collapsedMessages, setCollapsedMessages] = useState<Set<string>>(new Set());
+
+  // Component mount/unmount logging
+  useEffect(() => {
+    console.log('🟢 [RightPane] COMPONENT MOUNTED');
+    return () => {
+      console.log('🔴 [RightPane] COMPONENT UNMOUNTING');
+    };
+  }, []);
+
+  // Apply dark mode to entire page
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      document.body.style.backgroundColor = '#1a1a1a';
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.body.style.backgroundColor = '';
+    }
+  }, [isDarkMode]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -57,6 +97,58 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
     }
   }, [inputMessage]);
+
+  // Load chat history when fileId changes
+  useEffect(() => {
+    console.log('🟡 [RightPane] useEffect(fileId) running, fileId:', fileId, 'loadedFileIdRef:', loadedFileIdRef.current, 'current messages:', chatMessages.length);
+    console.log('🟡 [RightPane] Stack:', new Error().stack?.split('\n').slice(1, 5).join('\n'));
+    
+    // Skip if we've already loaded this fileId AND have messages
+    if (fileId && loadedFileIdRef.current === fileId && chatMessages.length > 0) {
+      console.log('⚪ [RightPane] Already loaded this fileId with messages, skipping');
+      return;
+    }
+    
+    if (!fileId) {
+      console.log('🔴 [RightPane] NO FILEID - BUT NOT CLEARING (keep messages)');
+      console.log('🔴 [RightPane] Stack:', new Error().stack?.split('\n').slice(1, 5).join('\n'));
+      // DON'T clear messages when fileId becomes null temporarily
+      // setChatMessages([]);
+      // loadedFileIdRef.current = null;
+      return;
+    }
+
+    const loadChatHistory = async () => {
+      try {
+        console.log('🟢 [RightPane] Loading chat for fileId:', fileId);
+        const result = await listChatMessages(fileId);
+        // Convert API messages to local ChatMessage format
+        const loadedMessages: ChatMessage[] = result.messages.map(apiMsg => ({
+          id: apiMsg.id,
+          role: apiMsg.role,
+          content: apiMsg.content,
+          timestamp: new Date(apiMsg.timestamp),
+        }));
+        console.log('🟢 [RightPane] Calling setChatMessages with', loadedMessages.length, 'messages');
+        setChatMessages(loadedMessages);
+        loadedFileIdRef.current = fileId;
+        console.log('✅ [RightPane] Loaded', loadedMessages.length, 'chat messages');
+      } catch (error) {
+        console.error('❌ [RightPane] Error loading chat history:', error);
+        // Don't clear existing messages on error
+      }
+    };
+
+    loadChatHistory();
+  }, [fileId]);
+
+  // Debug: Log chatMessages state changes
+  useEffect(() => {
+    console.log('💙 [RightPane] chatMessages changed to length:', chatMessages.length);
+    if (chatMessages.length === 0) {
+      console.log('💙 [RightPane] MESSAGES ARE EMPTY! Stack:', new Error().stack?.split('\n').slice(1, 5).join('\n'));
+    }
+  }, [chatMessages]);
 
   // NEW: Keyboard shortcuts
   useEffect(() => {
@@ -124,7 +216,7 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
   // NEW: Regenerate response
   const regenerateResponse = async (messageId: string) => {
     const messageIndex = chatMessages.findIndex(msg => msg.id === messageId);
-    if (messageIndex === -1) return;
+    if (messageIndex === -1 || !fileId) return;
     
     // Find the previous user message
     let userMessageIndex = messageIndex - 1;
@@ -148,19 +240,32 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
       
       const selectedBlockIds = userMessage.selectedBlocks?.map(b => b.id) || [];
       const response = await askRiskGPT(
-        fileId!, 
+        fileId, 
         selectedBlockIds,
         userMessage.content,
         conversationHistory
       );
       
+      const assistantContent = response.analysis || 'Here are my suggestions:';
+      
+      // Save regenerated assistant message to backend
+      let savedAssistantMessage: ApiChatMessage | null = null;
+      try {
+        savedAssistantMessage = await addChatMessage(fileId, {
+          role: 'assistant',
+          content: assistantContent,
+        });
+      } catch (error) {
+        console.error('[RightPane] Error saving regenerated message:', error);
+      }
+
       const newMessage: ChatMessage = {
-        id: `a${Date.now()}`,
+        id: savedAssistantMessage?.id || `a${Date.now()}`,
         role: 'assistant',
-        content: response.analysis || 'Here are my suggestions:',
+        content: assistantContent,
         analysis: response.analysis,
         suggestions: response.suggestions,
-        timestamp: new Date(),
+        timestamp: savedAssistantMessage ? new Date(savedAssistantMessage.timestamp) : new Date(),
       };
 
       // Replace the old response with the new one
@@ -186,59 +291,6 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
       onSuggestionsReceived(message.suggestions);
     }
   };
-
-  // Load chat history from backend
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      if (!fileId) {
-        setChatMessages([]);
-        return;
-      }
-      try {
-        const res = await getDocument(fileId);
-        const state: any = res.document?.state || {};
-        const history: any[] = state.chat_history || [];
-        const mappedChat: ChatMessage[] = [];
-        
-        // Check if there's a synthesis summary to inject as first message
-        if (state.template_synthesis) {
-          const synthesisMessage = formatSynthesisMessage(state.template_synthesis);
-          mappedChat.push(synthesisMessage);
-        }
-        
-        // Map chat history
-        history.forEach((h, idx) => {
-          if (h.message) {
-            mappedChat.push({
-              id: `u${idx}`,
-              role: 'user',
-              content: h.message,
-            });
-          }
-          if (h.response) {
-            mappedChat.push({
-              id: `a${idx}`,
-              role: 'assistant',
-              content: h.response,
-              analysis: h.analysis,
-              suggestions: h.suggestions,
-            });
-          }
-        });
-        
-        if (!cancelled) {
-          setChatMessages(mappedChat);
-        }
-      } catch {
-        if (!cancelled) {
-          setChatMessages([]);
-        }
-      }
-    }
-    load();
-    return () => { cancelled = true; };
-  }, [fileId]);
 
   // Auto-inject synthesis as first message when template is applied (for live updates)
   useEffect(() => {
@@ -335,13 +387,29 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || !fileId) return;
 
+    const userMessageContent = inputMessage;
+    const userContext = selectedText || undefined;
+
+    // Save user message to backend first
+    let savedUserMessage: ApiChatMessage | null = null;
+    try {
+      savedUserMessage = await addChatMessage(fileId, {
+        role: 'user',
+        content: userMessageContent,
+        context: userContext,
+      });
+    } catch (error) {
+      console.error('[RightPane] Error saving user message:', error);
+      // Continue anyway with local ID
+    }
+
     // Support both modes: with blocks (block-specific) or without (general chat)
     const userMessage: ChatMessage = {
-      id: `u${Date.now()}`,
+      id: savedUserMessage?.id || `u${Date.now()}`,
       role: 'user',
-      content: inputMessage,
+      content: userMessageContent,
       selectedBlocks: selectedBlocks.length > 0 ? selectedBlocks : undefined,
-      timestamp: new Date(), // NEW: Add timestamp
+      timestamp: savedUserMessage ? new Date(savedUserMessage.timestamp) : new Date(),
     };
 
     setChatMessages(prev => [...prev, userMessage]);
@@ -361,17 +429,31 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
       const response = await askRiskGPT(
         fileId, 
         selectedBlockIds, // Empty array for general chat
-        inputMessage,
+        userMessageContent,
         conversationHistory
       );
       
+      const assistantContent = response.analysis || 'Here are my suggestions:';
+      
+      // Save assistant message to backend
+      let savedAssistantMessage: ApiChatMessage | null = null;
+      try {
+        savedAssistantMessage = await addChatMessage(fileId, {
+          role: 'assistant',
+          content: assistantContent,
+        });
+      } catch (error) {
+        console.error('[RightPane] Error saving assistant message:', error);
+        // Continue anyway with local ID
+      }
+
       const assistantMessage: ChatMessage = {
-        id: `a${Date.now()}`,
+        id: savedAssistantMessage?.id || `a${Date.now()}`,
         role: 'assistant',
-        content: response.analysis || 'Here are my suggestions:',
+        content: assistantContent,
         analysis: response.analysis,
         suggestions: response.suggestions,
-        timestamp: new Date(), // NEW: Add timestamp
+        timestamp: savedAssistantMessage ? new Date(savedAssistantMessage.timestamp) : new Date(),
       };
 
       setChatMessages(prev => [...prev, assistantMessage]);
@@ -399,6 +481,8 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
         msg.content.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : chatMessages;
+
+  console.log('🔵 [RightPane] RENDER END - chatMessages:', chatMessages.length, 'filteredMessages:', filteredMessages.length);
 
   return (
     <div className={`flex flex-col h-full ${isDarkMode ? 'bg-neutral-900' : 'bg-white'}`}>
@@ -699,6 +783,131 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
           </div>
         )}
         
+        {/* Current Text Selection Display */}
+        {selectedText && selectedText.trim().length > 0 && (
+          <div className={`mb-3 px-3 py-2 rounded-lg border ${
+            isDarkMode 
+              ? 'bg-neutral-700/50 border-neutral-600' 
+              : 'bg-blue-50/50 border-blue-200'
+          }`}>
+            <div className={`text-xs font-medium mb-1 ${isDarkMode ? 'text-neutral-400' : 'text-neutral-600'}`}>
+              Selection:
+            </div>
+            <div className={`text-sm ${isDarkMode ? 'text-neutral-300' : 'text-neutral-700'} line-clamp-2`}>
+              "{selectedText.substring(0, 80)}{selectedText.length > 80 ? '...' : ''}"
+            </div>
+          </div>
+        )}
+        
+        {/* AI Text Suggestion Display - Compact & Pretty */}
+        {textSuggestion && (
+          <div style={{
+            marginBottom: '8px',
+            padding: '8px',
+            borderRadius: '6px',
+            border: '1px solid #3b82f6',
+            backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.08)' : '#f0f9ff',
+            boxShadow: '0 1px 3px rgba(59, 130, 246, 0.15)',
+          }}>
+            {/* Header with title and buttons */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <div style={{ fontSize: '10px', fontWeight: '600', color: isDarkMode ? '#93c5fd' : '#2563eb', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                <span style={{ fontSize: '11px' }}>✨</span>
+                AI
+              </div>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <button
+                  onClick={onAcceptTextSuggestion}
+                  style={{
+                    padding: '3px 8px',
+                    fontSize: '10px',
+                    fontWeight: '600',
+                    borderRadius: '4px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    backgroundColor: '#10b981',
+                    color: 'white',
+                    transition: 'all 0.15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#059669';
+                    e.currentTarget.style.transform = 'scale(1.05)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#10b981';
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                  title="Accept suggestion"
+                >
+                  ✓
+                </button>
+                <button
+                  onClick={onRejectTextSuggestion}
+                  style={{
+                    padding: '3px 8px',
+                    fontSize: '10px',
+                    fontWeight: '600',
+                    borderRadius: '4px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    backgroundColor: '#ef4444',
+                    color: 'white',
+                    transition: 'all 0.15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#dc2626';
+                    e.currentTarget.style.transform = 'scale(1.05)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#ef4444';
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                  title="Reject suggestion"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Original and Improved in compact layout */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {/* Original */}
+              <div style={{
+                padding: '4px 6px',
+                borderRadius: '4px',
+                backgroundColor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.02)',
+              }}>
+                <div style={{ fontSize: '8px', fontWeight: '600', marginBottom: '2px', color: isDarkMode ? '#9ca3af' : '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  From
+                </div>
+                <div style={{ fontSize: '11px', color: isDarkMode ? '#d1d5db' : '#4b5563', textDecoration: 'line-through', opacity: 0.6 }}>
+                  {textSuggestion.original}
+                </div>
+              </div>
+
+              {/* Arrow */}
+              <div style={{ textAlign: 'center', fontSize: '10px', color: isDarkMode ? '#60a5fa' : '#3b82f6', lineHeight: '1' }}>
+                ↓
+              </div>
+
+              {/* Improved */}
+              <div style={{
+                padding: '4px 6px',
+                borderRadius: '4px',
+                backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.08)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+              }}>
+                <div style={{ fontSize: '8px', fontWeight: '600', marginBottom: '2px', color: isDarkMode ? '#93c5fd' : '#2563eb', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  To
+                </div>
+                <div style={{ fontSize: '12px', fontWeight: '600', color: isDarkMode ? '#dbeafe' : '#1e40af' }}>
+                  {textSuggestion.suggested}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {/* Selected Blocks Display */}
         {selectedBlocks.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-2 items-center">
@@ -794,3 +1003,6 @@ export function RightPane({ selectedText, selectedBlockId, onCommentClick, fileI
     </div>
   );
 }
+
+// Export memoized version to prevent unnecessary remounts
+export const RightPane = memo(RightPaneComponent);

@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, memo } from 'react';
 import { Resizable } from 're-resizable';
 import { ChevronLeft, ChevronRight, PanelLeftClose, PanelRightClose } from 'lucide-react';
 import { LeftPane } from './components/LeftPane';
 import { CenterPane } from './components/CenterPane';
 import { RightPane } from './components/RightPane';
 import { DocumentsList } from './components/DocumentsList';
-import { TemplatesPage } from './components/TemplatesPage';
 import { PromptsPage } from './components/PromptsPage';
 import { SettingsPage } from './components/SettingsPage';
 import { MainNav } from './components/MainNav';
@@ -15,11 +14,19 @@ import { type BlockMetadata } from './lib/api';
 import { activityLogger } from './utils/activityLogger';
 import { enableFeature } from './lib/featureFlags';
 
-type Page = 'documents' | 'workspace' | 'templates' | 'prompts' | 'settings' | 'demo';
+type Page = 'documents' | 'workspace' | 'prompts' | 'settings' | 'demo';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<Page>('documents');
-  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+  // Initialize currentPage based on whether we have a stored document
+  const [currentPage, setCurrentPage] = useState<Page>(() => {
+    const storedDocId = localStorage.getItem('lastSelectedDocumentId');
+    return storedDocId ? 'workspace' : 'documents';
+  });
+  
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(() => {
+    // Try to restore from localStorage
+    return localStorage.getItem('lastSelectedDocumentId') || null;
+  });
   
   const [selectedText, setSelectedText] = useState<string>('');
   const [centerMode, setCenterMode] = useState<'editing' | 'original' | 'diff'>('editing');
@@ -30,12 +37,21 @@ export default function App() {
   const [suggestions, setSuggestions] = useState<Array<{ block_id: string; original: string; suggested: string; reason: string; block_content: string }>>([]); // NEW: All suggestions for left panel
   const [selectedSuggestionId, setSelectedSuggestionId] = useState<string | null>(null); // NEW: Selected suggestion in left panel
   const [synthesisData, setSynthesisData] = useState<any>(null); // NEW: Template synthesis summary
+  const [textSuggestion, setTextSuggestion] = useState<{ original: string; suggested: string } | null>(null); // NEW: AI text improvement suggestion
   const [selectedArtifact, setSelectedArtifact] = useState<{
     fileName: string;
     filePath: string;
     content: string;
     fileType: string;
   } | null>(null);
+  
+  // Text suggestion handlers (received from CenterPane)
+  const [acceptTextSuggestion, setAcceptTextSuggestion] = useState<(() => void) | null>(null);
+  const [rejectTextSuggestion, setRejectTextSuggestion] = useState<(() => void) | null>(null);
+  
+  // Analysis state (received from CenterPane)
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analyzeHandler, setAnalyzeHandler] = useState<(() => Promise<void>) | null>(null);
   
   const [leftPaneWidth, setLeftPaneWidth] = useState(280);
   const [rightPaneWidth, setRightPaneWidth] = useState(360);
@@ -53,12 +69,18 @@ export default function App() {
       setCurrentPage('demo');
     } else if (file) {
       setSelectedDocumentId(file);
+      localStorage.setItem('lastSelectedDocumentId', file); // Persist for refresh
+      setCurrentPage('workspace');
+    } else if (selectedDocumentId) {
+      // If no URL param but we have a stored documentId, go to workspace
       setCurrentPage('workspace');
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   const handleOpenDocument = (fileId: string) => {
     setSelectedDocumentId(fileId);
+    localStorage.setItem('lastSelectedDocumentId', fileId); // Persist for refresh
     setSelectedArtifact(null);
     setSelectedBlocks([]); // Clear selected blocks when switching documents
     setAiSuggestions([]); // Clear AI suggestions when switching documents
@@ -107,6 +129,61 @@ export default function App() {
     // BlockEditor will update blocks state, which triggers onSuggestionsListChange
     // to automatically update the suggestions list
   };
+
+  // Handler for AI text improvement suggestions
+  const handleAISuggestion = (original: string, suggested: string) => {
+    console.log('[App] AI text suggestion:', { original, suggested });
+    setTextSuggestion({ original, suggested });
+  };
+
+  // Receive text suggestion handlers from CenterPane
+  const handleTextSuggestionHandlers = (accept: () => void, reject: () => void) => {
+    setAcceptTextSuggestion(() => accept);
+    setRejectTextSuggestion(() => reject);
+  };
+
+  // Handler for analysis state changes from CenterPane
+  const handleAnalysisStateChange = useCallback((analyzing: boolean, handler: (() => Promise<void>) | null) => {
+    setIsAnalyzing(analyzing);
+    setAnalyzeHandler(() => handler);
+  }, []);
+
+  // Handler for accepting text suggestion
+  const handleAcceptTextSuggestion = useCallback(() => {
+    console.log('[App] Accept text suggestion');
+    if (acceptTextSuggestion) {
+      acceptTextSuggestion();
+    }
+    setTextSuggestion(null);
+  }, [acceptTextSuggestion]);
+
+  // Handler for rejecting text suggestion
+  const handleRejectTextSuggestion = useCallback(() => {
+    console.log('[App] Reject text suggestion');
+    if (rejectTextSuggestion) {
+      rejectTextSuggestion();
+    }
+    setTextSuggestion(null);
+  }, [rejectTextSuggestion]);
+
+  // Handler for deselecting a block
+  const handleDeselectBlock = useCallback((blockId: string) => {
+    setSelectedBlocks(prev => prev.filter(b => b.id !== blockId));
+    // Also deselect in BlockEditor
+    if ((window as any).__blockEditorDeselectBlock) {
+      (window as any).__blockEditorDeselectBlock(blockId);
+    }
+  }, []);
+
+  // Handler for clearing all blocks
+  const handleClearAllBlocks = useCallback(() => {
+    // Clear the state in App
+    setSelectedBlocks([]);
+    // Also clear the selection in BlockEditor
+    if ((window as any).__blockEditorClearSelection) {
+      (window as any).__blockEditorClearSelection();
+    }
+  }, []);
 
   // Handler for commenting on a suggestion (opens RiskGPT chat)
   const handleCommentSuggestion = (blockId: string) => {
@@ -161,8 +238,11 @@ export default function App() {
                 <PanelLeftClose className="w-4 h-4 text-neutral-500" />
               </button>
               <LeftPane 
+                fileId={selectedDocumentId || undefined}
                 onIssueSelect={setSelectedIssueId}
                 selectedIssueId={selectedIssueId}
+                onAnalyzeDocument={analyzeHandler ? () => analyzeHandler() : undefined}
+                isAnalyzing={isAnalyzing}
                 onArtifactSelect={handleArtifactSelect}
                 suggestions={suggestions}
                 onSuggestionSelect={setSelectedSuggestionId}
@@ -210,6 +290,9 @@ export default function App() {
                 onAcceptSuggestion={handleAcceptSuggestion}
                 onRejectSuggestion={handleRejectSuggestion}
                 onSynthesisReceived={setSynthesisData}
+                onAISuggestion={handleAISuggestion}
+                onTextSuggestionHandlers={handleTextSuggestionHandlers}
+                onAnalysisStateChange={handleAnalysisStateChange}
               // @ts-ignore
               fileId={selectedDocumentId || undefined}
               />
@@ -232,6 +315,7 @@ export default function App() {
           {/* Right Pane - Resizable & Collapsible */}
           {!rightPaneCollapsed && (
             <Resizable
+              key="right-pane-resizable"
               size={{ width: rightPaneWidth, height: '100%' }}
               onResizeStop={(e, direction, ref, d) => {
                 setRightPaneWidth(rightPaneWidth + d.width);
@@ -259,6 +343,7 @@ export default function App() {
                 <PanelRightClose className="w-4 h-4 text-neutral-500" />
               </button>
               <RightPane 
+                key="right-pane-stable"
                 selectedText={selectedText}
                 selectedBlockId={selectedBlockId}
                 onCommentClick={handleCommentClick}
@@ -266,21 +351,11 @@ export default function App() {
                 selectedBlocks={selectedBlocks}
                 onSuggestionsReceived={setAiSuggestions}
                 synthesisData={synthesisData}
-                onDeselectBlock={(blockId) => {
-                  setSelectedBlocks(prev => prev.filter(b => b.id !== blockId));
-                  // Also deselect in BlockEditor
-                  if ((window as any).__blockEditorDeselectBlock) {
-                    (window as any).__blockEditorDeselectBlock(blockId);
-                  }
-                }}
-                onClearAllBlocks={() => {
-                  // Clear the state in App
-                  setSelectedBlocks([]);
-                  // Also clear the selection in BlockEditor
-                  if ((window as any).__blockEditorClearSelection) {
-                    (window as any).__blockEditorClearSelection();
-                  }
-                }}
+                textSuggestion={textSuggestion}
+                onAcceptTextSuggestion={handleAcceptTextSuggestion}
+                onRejectTextSuggestion={handleRejectTextSuggestion}
+                onDeselectBlock={handleDeselectBlock}
+                onClearAllBlocks={handleClearAllBlocks}
               />
             </Resizable>
           )}
@@ -302,7 +377,6 @@ export default function App() {
         {currentPage === 'documents' && (
           <DocumentsList onOpenDocument={handleOpenDocument} />
         )}
-        {currentPage === 'templates' && <TemplatesPage />}
         {currentPage === 'prompts' && <PromptsPage />}
         {currentPage === 'settings' && <SettingsPage />}
       </div>

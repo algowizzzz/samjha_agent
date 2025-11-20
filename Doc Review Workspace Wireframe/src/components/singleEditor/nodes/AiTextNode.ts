@@ -12,12 +12,16 @@ export type SerializedAiTextNode = SerializedTextNode & {
   type: 'ai-text';
   version: 1;
   aiSuggestionStatus?: AiSuggestionStatus;
+  aiSuggestionId?: string;
   commentIds?: string[];
+  isUserEdit?: boolean;
 };
 
 export class AiTextNode extends TextNode {
   __aiSuggestionStatus: AiSuggestionStatus;
+  __aiSuggestionId?: string;
   __commentIds?: string[];
+  __isUserEdit?: boolean;
 
   static getType(): string {
     return 'ai-text';
@@ -30,14 +34,18 @@ export class AiTextNode extends TextNode {
     cloned.__detail = node.__detail;
     cloned.__mode = node.__mode;
     cloned.__aiSuggestionStatus = node.__aiSuggestionStatus;
+    cloned.__aiSuggestionId = node.__aiSuggestionId;
     cloned.__commentIds = node.__commentIds;
+    cloned.__isUserEdit = node.__isUserEdit;
     return cloned;
   }
 
   constructor(text: string, key?: string) {
     super(text, key);
     this.__aiSuggestionStatus = null;
+    this.__aiSuggestionId = undefined;
     this.__commentIds = undefined;
+    this.__isUserEdit = undefined;
   }
 
   // Create DOM and apply CSS classes based on AI status
@@ -50,9 +58,11 @@ export class AiTextNode extends TextNode {
   updateDOM(prevNode: AiTextNode, dom: HTMLElement, config: EditorConfig): boolean {
     const shouldUpdate = super.updateDOM(prevNode, dom, config);
     
-    // Re-apply classes if AI status or comment IDs changed
+    // Re-apply classes if AI status, comment IDs, or user edit status changed
     const commentIdsChanged = JSON.stringify(prevNode.__commentIds) !== JSON.stringify(this.__commentIds);
-    if (prevNode.__aiSuggestionStatus !== this.__aiSuggestionStatus || commentIdsChanged) {
+    if (prevNode.__aiSuggestionStatus !== this.__aiSuggestionStatus || 
+        prevNode.__isUserEdit !== this.__isUserEdit ||
+        commentIdsChanged) {
       this._applyAiStatusClass(dom);
     }
     
@@ -64,16 +74,22 @@ export class AiTextNode extends TextNode {
     dom.classList.remove(
       'ai-suggestion',
       'ai-suggestion-applied',
-      'ai-suggestion-rejected'
+      'ai-suggestion-rejected',
+      'user-edit'
     );
     
-    // Apply appropriate class based on current status
-    if (this.__aiSuggestionStatus === 'suggested') {
-      dom.classList.add('ai-suggestion');
-    } else if (this.__aiSuggestionStatus === 'applied') {
-      dom.classList.add('ai-suggestion-applied');
-    } else if (this.__aiSuggestionStatus === 'rejected') {
-      dom.classList.add('ai-suggestion-rejected');
+    // User edits take priority over AI suggestions
+    if (this.__isUserEdit) {
+      dom.classList.add('user-edit');
+    } else {
+      // Apply appropriate class based on current AI status
+      if (this.__aiSuggestionStatus === 'suggested') {
+        dom.classList.add('ai-suggestion');
+      } else if (this.__aiSuggestionStatus === 'applied') {
+        dom.classList.add('ai-suggestion-applied');
+      } else if (this.__aiSuggestionStatus === 'rejected') {
+        dom.classList.add('ai-suggestion-rejected');
+      }
     }
 
     // Add comment indicator if comments exist
@@ -83,6 +99,13 @@ export class AiTextNode extends TextNode {
     } else {
       dom.classList.remove('has-comments');
       dom.removeAttribute('data-comment-ids');
+    }
+
+    // Add AI suggestion ID if exists
+    if (this.__aiSuggestionId) {
+      dom.setAttribute('data-ai-suggestion-id', this.__aiSuggestionId);
+    } else {
+      dom.removeAttribute('data-ai-suggestion-id');
     }
   }
 
@@ -94,7 +117,9 @@ export class AiTextNode extends TextNode {
     node.__mode = serializedNode.mode;
     node.__style = serializedNode.style;
     node.__aiSuggestionStatus = serializedNode.aiSuggestionStatus ?? null;
+    node.__aiSuggestionId = serializedNode.aiSuggestionId;
     node.__commentIds = serializedNode.commentIds;
+    node.__isUserEdit = serializedNode.isUserEdit;
     return node;
   }
 
@@ -104,7 +129,9 @@ export class AiTextNode extends TextNode {
       type: 'ai-text',
       version: 1,
       aiSuggestionStatus: this.__aiSuggestionStatus ?? undefined,
+      aiSuggestionId: this.__aiSuggestionId,
       commentIds: this.__commentIds,
+      isUserEdit: this.__isUserEdit,
     };
   }
 
@@ -118,6 +145,30 @@ export class AiTextNode extends TextNode {
   getAiSuggestionStatus(): AiSuggestionStatus {
     const self = this.getLatest();
     return self.__aiSuggestionStatus;
+  }
+
+  // API for AI suggestion ID
+  setAiSuggestionId(id: string): this {
+    const self = this.getWritable();
+    self.__aiSuggestionId = id;
+    return self;
+  }
+
+  getAiSuggestionId(): string | undefined {
+    const self = this.getLatest();
+    return self.__aiSuggestionId;
+  }
+
+  // API for user edit tracking
+  setIsUserEdit(isUserEdit: boolean): this {
+    const self = this.getWritable();
+    self.__isUserEdit = isUserEdit;
+    return self;
+  }
+
+  getIsUserEdit(): boolean {
+    const self = this.getLatest();
+    return self.__isUserEdit ?? false;
   }
 
   // API for comments

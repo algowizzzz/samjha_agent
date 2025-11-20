@@ -1,679 +1,353 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { FileText, AlertCircle, FolderTree, ChevronRight, ChevronDown, MessageSquare, Sparkles, Check, X } from 'lucide-react';
-import { Badge } from './ui/badge';
-import { ArtifactPreviewModal } from './ArtifactPreviewModal';
-import { vfsReadFile, vfsTree } from '@/lib/api';
+import React, { useEffect, useState } from 'react';
+import { ChevronRight, ChevronDown, FileText, AlertCircle, CheckCircle2, XCircle, AlertTriangle, Play } from 'lucide-react';
 import { getDocument } from '@/lib/api';
-import { activityLogger } from '@/utils/activityLogger';
-
-type LeftPaneTab = 'suggestions' | 'outline' | 'issues' | 'artifacts';
-
-// Separate component for suggestions list to avoid hooks in loops
-function SuggestionsList({ 
-  suggestions, 
-  selectedSuggestionId, 
-  onAcceptSuggestion, 
-  onRejectSuggestion,
-  onCommentSuggestion,
-  onSuggestionSelect
-}: {
-  suggestions: Array<{ block_id: string; original: string; suggested: string; reason: string; block_content: string }>;
-  selectedSuggestionId: string | null;
-  onAcceptSuggestion?: (blockId: string) => void;
-  onRejectSuggestion?: (blockId: string) => void;
-  onCommentSuggestion?: (blockId: string) => void;
-  onSuggestionSelect?: (blockId: string) => void;
-}) {
-  // Refs for scrolling to suggestions
-  const suggestionRefs = React.useRef<Map<string, HTMLDivElement>>(new Map());
-
-  // State for each suggestion box (collapsed/expanded)
-  const [expandedBoxes, setExpandedBoxes] = useState<Record<string, boolean>>(() => {
-    const initial: Record<string, boolean> = {};
-    suggestions.forEach(s => {
-      initial[s.block_id] = false; // All collapsed by default
-    });
-    return initial;
-  });
-
-  // State for each suggestion's collapsible sections
-  const [expandedSections, setExpandedSections] = useState<Record<string, { original: boolean; reasoning: boolean; improved: boolean }>>(() => {
-    const initial: Record<string, { original: boolean; reasoning: boolean; improved: boolean }> = {};
-    suggestions.forEach(s => {
-      initial[s.block_id] = { original: true, reasoning: true, improved: true };
-    });
-    return initial;
-  });
-
-  const toggleBox = (blockId: string) => {
-    setExpandedBoxes(prev => ({
-      ...prev,
-      [blockId]: !prev[blockId]
-    }));
-  };
-
-  const toggleSection = (blockId: string, section: 'original' | 'reasoning' | 'improved') => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [blockId]: {
-        ...prev[blockId],
-        [section]: !prev[blockId]?.[section]
-      }
-    }));
-  };
-
-  // Scroll to suggestion when selectedSuggestionId changes
-  useEffect(() => {
-    if (selectedSuggestionId) {
-      const suggestionElement = suggestionRefs.current.get(selectedSuggestionId);
-      if (suggestionElement) {
-        // Expand the box if collapsed
-        setExpandedBoxes(prev => ({ ...prev, [selectedSuggestionId]: true }));
-        
-        // Scroll to the suggestion
-        setTimeout(() => {
-          suggestionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          // Briefly highlight with animation
-          suggestionElement.classList.add('highlight-flash');
-          setTimeout(() => {
-            suggestionElement.classList.remove('highlight-flash');
-          }, 1000);
-        }, 100);
-      }
-    }
-  }, [selectedSuggestionId]);
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Only handle if not typing in an input
-      if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA') {
-        return;
-      }
-
-      const currentIndex = selectedSuggestionId 
-        ? suggestions.findIndex(s => s.block_id === selectedSuggestionId)
-        : -1;
-
-      // j or ArrowDown - next suggestion
-      if (e.key === 'j' || e.key === 'ArrowDown') {
-        e.preventDefault();
-        const nextIndex = currentIndex < suggestions.length - 1 ? currentIndex + 1 : 0;
-        onSuggestionSelect?.(suggestions[nextIndex].block_id);
-      }
-      // k or ArrowUp - previous suggestion
-      else if (e.key === 'k' || e.key === 'ArrowUp') {
-        e.preventDefault();
-        const prevIndex = currentIndex > 0 ? currentIndex - 1 : suggestions.length - 1;
-        onSuggestionSelect?.(suggestions[prevIndex].block_id);
-      }
-      // a - accept suggestion
-      else if (e.key === 'a' && selectedSuggestionId) {
-        e.preventDefault();
-        onAcceptSuggestion?.(selectedSuggestionId);
-      }
-      // r - reject suggestion
-      else if (e.key === 'r' && selectedSuggestionId) {
-        e.preventDefault();
-        onRejectSuggestion?.(selectedSuggestionId);
-      }
-      // c - comment/ask RiskGPT
-      else if (e.key === 'c' && selectedSuggestionId) {
-        e.preventDefault();
-        onCommentSuggestion?.(selectedSuggestionId);
-      }
-      // Enter - toggle expand/collapse
-      else if (e.key === 'Enter' && selectedSuggestionId) {
-        e.preventDefault();
-        setExpandedBoxes(prev => ({
-          ...prev,
-          [selectedSuggestionId]: !prev[selectedSuggestionId]
-        }));
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [suggestions, selectedSuggestionId, onSuggestionSelect, onAcceptSuggestion, onRejectSuggestion, onCommentSuggestion]);
-
-  return (
-    <>
-      {suggestions.map((suggestion, index) => {
-        const expanded = expandedSections[suggestion.block_id] || { original: true, reasoning: true, improved: true };
-        const isBoxExpanded = expandedBoxes[suggestion.block_id] !== false;
-        
-        // Generate meaningful title from reasoning
-        const suggestionTitle = suggestion.reason 
-          ? suggestion.reason.substring(0, 60).trim() + (suggestion.reason.length > 60 ? '...' : '')
-          : `Suggestion ${index + 1}`;
-        
-        return (
-          <div
-            key={suggestion.block_id}
-            ref={(el) => {
-              if (el) suggestionRefs.current.set(suggestion.block_id, el);
-              else suggestionRefs.current.delete(suggestion.block_id);
-            }}
-            className={`group p-4 rounded-xl border transition-all duration-300 ${
-              selectedSuggestionId === suggestion.block_id
-                ? 'bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-300 shadow-lg ring-2 ring-amber-200'
-                : 'bg-white border-neutral-200 hover:border-amber-200 hover:shadow-md hover:-translate-y-0.5'
-            }`}
-            style={{
-              animation: selectedSuggestionId === suggestion.block_id ? 'none' : undefined,
-            }}
-          >
-            {/* Header with number badge, title, and metadata */}
-            <div className="flex items-start gap-3 mb-3">
-              {/* Number badge */}
-              <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-amber-400 to-yellow-500 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm">
-                {index + 1}
-              </div>
-
-              {/* Title and metadata */}
-              <button
-                onClick={() => {
-                  if (!isBoxExpanded) {
-                    setExpandedBoxes(prev => ({ ...prev, [suggestion.block_id]: true }));
-                  }
-                  onSuggestionSelect?.(suggestion.block_id);
-                }}
-                className="flex-1 min-w-0 text-left group-hover:bg-amber-50/50 rounded-lg px-2 py-1 transition-all"
-                title="Jump to block in editor"
-              >
-                <p className="text-sm font-semibold text-neutral-800 mb-1">{suggestionTitle}</p>
-                <p className="text-xs text-neutral-500 truncate leading-relaxed">
-                  {suggestion.block_content?.substring(0, 60) || 'Click to view in editor'}...
-                </p>
-              </button>
-              
-              {/* Action Icons: Comment, Accept, Reject */}
-              <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log('[LeftPane] Comment/AskRiskGPT clicked:', suggestion.block_id);
-                    onCommentSuggestion?.(suggestion.block_id);
-                  }}
-                  className="p-2 hover:bg-blue-100 rounded-lg transition-all hover:scale-110 active:scale-95"
-                  title="Ask RiskGPT (C)"
-                >
-                  <MessageSquare className="w-4 h-4 text-blue-600" />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log('[LeftPane] Accept clicked:', suggestion.block_id);
-                    activityLogger.suggestionAccepted(suggestion.block_id);
-                    onAcceptSuggestion?.(suggestion.block_id);
-                  }}
-                  className="p-2 hover:bg-green-100 rounded-lg transition-all hover:scale-110 active:scale-95"
-                  title="Accept (A)"
-                >
-                  <Check className="w-4 h-4 text-green-600" />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log('[LeftPane] Reject clicked:', suggestion.block_id);
-                    activityLogger.suggestionRejected(suggestion.block_id);
-                    onRejectSuggestion?.(suggestion.block_id);
-                  }}
-                  className="p-2 hover:bg-red-100 rounded-lg transition-all hover:scale-110 active:scale-95"
-                  title="Reject (R)"
-                >
-                  <X className="w-4 h-4 text-red-600" />
-                </button>
-              </div>
-              
-              {/* Expand/Collapse toggle */}
-              <button
-                onClick={() => toggleBox(suggestion.block_id)}
-                className="flex-shrink-0 p-1 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded transition-all"
-                title={isBoxExpanded ? 'Collapse (Enter)' : 'Expand (Enter)'}
-              >
-                {isBoxExpanded ? (
-                  <ChevronDown className="w-4 h-4" />
-                ) : (
-                  <ChevronRight className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-
-            {/* Collapsible content with smooth animation */}
-            <div
-              className="overflow-hidden transition-all duration-300 ease-in-out"
-              style={{
-                maxHeight: isBoxExpanded ? '1000px' : '0px',
-                opacity: isBoxExpanded ? 1 : 0,
-              }}
-            >
-              <div className="space-y-3 pt-2">
-                {/* Original Content Section */}
-                <div className="border border-neutral-200 rounded-lg overflow-hidden bg-neutral-50/50">
-                  <button
-                    onClick={() => toggleSection(suggestion.block_id, 'original')}
-                    className="w-full flex items-center justify-between text-left py-2 px-3 hover:bg-neutral-100 transition-colors"
-                  >
-                    <span className="text-xs font-semibold text-neutral-700">
-                      Original Content
-                    </span>
-                    {expanded.original ? (
-                      <ChevronDown className="w-3 h-3 text-neutral-400" />
-                    ) : (
-                      <ChevronRight className="w-3 h-3 text-neutral-400" />
-                    )}
-                  </button>
-                  <div
-                    className="overflow-hidden transition-all duration-200"
-                    style={{
-                      maxHeight: expanded.original ? '200px' : '0px',
-                    }}
-                  >
-                    <div className="p-3 bg-white text-xs text-neutral-600 leading-relaxed overflow-y-auto border-t border-neutral-200">
-                      {suggestion.block_content || suggestion.original || 'N/A'}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Reasoning Section */}
-                <div className="border border-blue-200 rounded-lg overflow-hidden bg-blue-50/30">
-                  <button
-                    onClick={() => toggleSection(suggestion.block_id, 'reasoning')}
-                    className="w-full flex items-center justify-between text-left py-2 px-3 hover:bg-blue-100/50 transition-colors"
-                  >
-                    <span className="text-xs font-semibold text-blue-700">
-                      Why Change This
-                    </span>
-                    {expanded.reasoning ? (
-                      <ChevronDown className="w-3 h-3 text-blue-400" />
-                    ) : (
-                      <ChevronRight className="w-3 h-3 text-blue-400" />
-                    )}
-                  </button>
-                  <div
-                    className="overflow-hidden transition-all duration-200"
-                    style={{
-                      maxHeight: expanded.reasoning ? '200px' : '0px',
-                    }}
-                  >
-                    <div className="p-3 bg-white text-xs text-neutral-700 leading-relaxed overflow-y-auto border-t border-blue-200">
-                      {suggestion.reason || 'No reasoning provided'}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Improved Content Section */}
-                <div className="border border-green-200 rounded-lg overflow-hidden bg-green-50/30">
-                  <button
-                    onClick={() => toggleSection(suggestion.block_id, 'improved')}
-                    className="w-full flex items-center justify-between text-left py-2 px-3 hover:bg-green-100/50 transition-colors"
-                  >
-                    <span className="text-xs font-semibold text-green-700">
-                      Improved Version
-                    </span>
-                    {expanded.improved ? (
-                      <ChevronDown className="w-3 h-3 text-green-400" />
-                    ) : (
-                      <ChevronRight className="w-3 h-3 text-green-400" />
-                    )}
-                  </button>
-                  <div
-                    className="overflow-hidden transition-all duration-200"
-                    style={{
-                      maxHeight: expanded.improved ? '200px' : '0px',
-                    }}
-                  >
-                    <div className="p-3 bg-white text-xs text-neutral-800 leading-relaxed overflow-y-auto border-t border-green-200 font-medium">
-                      {suggestion.suggested || 'No improved content'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </>
-  );
-}
-
-interface Issue {
-  id: string;
-  severity: 'High' | 'Medium' | 'Low';
-  section: string;
-  description: string;
-}
-
-interface OutlineItem {
-  id: string;
-  level: number;
-  title: string;
-}
-
-interface ArtifactNode {
-  name: string;
-  type: 'folder' | 'file';
-  children?: ArtifactNode[];
-}
-
-const mockIssues: Issue[] = [];
-
-const mockOutline: OutlineItem[] = [];
-
-const mockArtifacts: ArtifactNode = {
-  name: 'root',
-  type: 'folder',
-  children: [
-    {
-      name: 'phase1',
-      type: 'folder',
-      children: [
-        { name: 'initial_analysis.json', type: 'file' },
-        { name: 'risk_matrix.json', type: 'file' },
-        { name: 'section_breakdown.json', type: 'file' },
-      ],
-    },
-    {
-      name: 'phase2',
-      type: 'folder',
-      children: [
-        { name: 'detailed_review.json', type: 'file' },
-        { name: 'issue_summary.json', type: 'file' },
-        { name: 'recommendations.json', type: 'file' },
-      ],
-    },
-    {
-      name: 'phase4',
-      type: 'folder',
-      children: [
-        { name: 'final_report.md', type: 'file' },
-        { name: 'executive_summary.md', type: 'file' },
-      ],
-    },
-  ],
-};
-
-interface Suggestion {
-  block_id: string;
-  original: string;
-  suggested: string;
-  reason: string;
-  block_content: string;
-}
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface LeftPaneProps {
-  onIssueSelect: (id: string | null) => void;
-  selectedIssueId: string | null;
-  onArtifactSelect?: (artifact: { fileName: string; filePath: string; content: string; fileType: string }) => void;
   fileId?: string;
-  suggestions?: Suggestion[];
-  onSuggestionSelect?: (blockId: string) => void;
+  onIssueSelect?: (id: string | null) => void;
+  selectedIssueId?: string | null;
+  onArtifactSelect?: (artifact: any) => void;
+  suggestions?: Array<any>;
+  onSuggestionSelect?: (id: string) => void;
   selectedSuggestionId?: string | null;
-  onAcceptSuggestion?: (blockId: string) => void;
-  onRejectSuggestion?: (blockId: string) => void;
-  onCommentSuggestion?: (blockId: string) => void;
+  onAcceptSuggestion?: (id: string) => void;
+  onRejectSuggestion?: (id: string) => void;
+  onCommentSuggestion?: (id: string) => void;
+  onAnalyzeDocument?: () => void;
+  isAnalyzing?: boolean;
 }
 
-export function LeftPane({ onIssueSelect, selectedIssueId, onArtifactSelect, fileId, suggestions = [], onSuggestionSelect, selectedSuggestionId, onAcceptSuggestion, onRejectSuggestion, onCommentSuggestion }: LeftPaneProps) {
-  const [activeTab, setActiveTab] = useState<LeftPaneTab>('suggestions');
-  const [severityFilter, setSeverityFilter] = useState<string>('All');
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['phase1', 'phase2', 'phase4']));
-  const [artifactPreview, setArtifactPreview] = useState<{
-    fileName: string;
-    filePath: string;
-    content: string;
-    fileType: 'json' | 'markdown' | 'text';
-  } | null>(null);
-  const [tree, setTree] = useState<any[] | null>(null);
-  const [treeError, setTreeError] = useState<string | null>(null);
-  const [treeLoading, setTreeLoading] = useState(false);
-  const [outline, setOutline] = useState<OutlineItem[]>([]);
-  const [issues, setIssues] = useState<Issue[]>([]);
+interface AnalysisSection {
+  id: string;
+  title: string;
+  icon: React.ReactNode;
+  analysis?: string;
+  suggestions?: any[];
+}
+
+export function LeftPane({
+  fileId,
+  onAnalyzeDocument,
+  isAnalyzing = false,
+}: LeftPaneProps) {
+  const [sections, setSections] = useState<AnalysisSection[]>([]);
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const [expandedSubsections, setExpandedSubsections] = useState<Record<string, { analysis: boolean; suggestions: boolean }>>({});
 
   useEffect(() => {
-    async function loadTree() {
+    async function loadAnalysisData() {
       if (!fileId) {
-        setTree(null);
+        setSections([]);
         return;
       }
-      setTreeLoading(true);
-      setTreeError(null);
+
       try {
-        const res = await vfsTree(fileId, '/');
-        // eslint-disable-next-line no-console
-        console.debug('[LeftPane] vfsTree ->', res);
-        setTree(res.entries || []);
-      } catch (e: any) {
-        // eslint-disable-next-line no-console
-        console.error('[LeftPane] vfsTree error', e);
-        setTreeError(e?.message || 'Failed to load artifacts');
-      } finally {
-        setTreeLoading(false);
+        const response = await getDocument(fileId);
+        const doc = response?.document || response; // Handle both {document: ...} and direct {...}
+        const state = doc?.state || {};
+        const phase1 = state.phase1 || {};
+        const phase2_data = state.phase2_data || {};
+
+        const analysisData: AnalysisSection[] = [
+          {
+            id: 'toc_review',
+            title: '1. TOC & Structure Review',
+            icon: <FileText className="w-4 h-4" />,
+            analysis: phase1.toc_review,
+            suggestions: [],
+          },
+          {
+            id: 'conceptual_coverage',
+            title: '2. Conceptual Coverage',
+            icon: <FileText className="w-4 h-4" />,
+            analysis: phase2_data.conceptual_coverage,
+            suggestions: [],
+          },
+          {
+            id: 'compliance_governance',
+            title: '3. Compliance & Governance',
+            icon: <FileText className="w-4 h-4" />,
+            analysis: phase2_data.compliance_governance,
+            suggestions: [],
+          },
+          {
+            id: 'language_clarity',
+            title: '4. Language & Clarity',
+            icon: <FileText className="w-4 h-4" />,
+            analysis: phase2_data.language_clarity,
+            suggestions: [],
+          },
+          {
+            id: 'structural_presentation',
+            title: '5. Structural & Presentation',
+            icon: <FileText className="w-4 h-4" />,
+            analysis: phase2_data.structural_presentation,
+            suggestions: [],
+          },
+          {
+            id: 'synthesis',
+            title: '6. 📊 Synthesis Summary',
+            icon: <FileText className="w-4 h-4" />,
+            analysis: phase2_data.synthesis,
+            suggestions: [],
+          },
+        ];
+
+        setSections(analysisData);
+
+        // Initialize all subsections as collapsed
+        const initialSubsections: Record<string, { analysis: boolean; suggestions: boolean }> = {};
+        analysisData.forEach(section => {
+          initialSubsections[section.id] = { analysis: false, suggestions: false };
+        });
+        setExpandedSubsections(initialSubsections);
+      } catch (error) {
+        console.error('[LeftPane] Failed to load analysis:', error);
+        setSections([]);
       }
     }
-    loadTree();
+
+    loadAnalysisData();
   }, [fileId]);
 
-  useEffect(() => {
-    async function loadOutlineAndIssues() {
-      if (!fileId) {
-        setOutline([]);
-        setIssues([]);
-        return;
-      }
-      try {
-        const res = await getDocument(fileId);
-        const state: any = res.document?.state || {};
-        // Outline: prefer heading_structure; fallback parse from raw_markdown
-        const hs: any[] = state.heading_structure || [];
-        let ol: OutlineItem[] = [];
-        if (hs.length > 0) {
-          ol = hs.map((h: any, idx: number) => ({
-            id: `h${idx}`,
-            level: Math.min(3, (h.level || 1)),
-            title: String(h.title || h.text || '').trim(),
-          })).filter(o => o.title);
-        } else if (state.raw_markdown) {
-          const lines = String(state.raw_markdown).split('\\n');
-          ol = lines.map((line, idx) => {
-            if (line.startsWith('### ')) return { id: `h${idx}`, level: 3, title: line.replace(/^###\\s+/, '') };
-            if (line.startsWith('## ')) return { id: `h${idx}`, level: 2, title: line.replace(/^##\\s+/, '') };
-            if (line.startsWith('# ')) return { id: `h${idx}`, level: 1, title: line.replace(/^#\\s+/, '') };
-            return null as any;
-          }).filter(Boolean);
-        }
-        setOutline(ol);
-        // Issues: derive from phase2 or phase1 reports if present
-        const phaseIssues = (state.phase2_report?.issues || state.phase1_report?.issues || []) as any[];
-        const mappedIssues: Issue[] = (phaseIssues || []).slice(0, 50).map((it: any, i: number) => ({
-          id: `i${i}`,
-          severity: (String(it.severity || 'Medium').charAt(0).toUpperCase() + String(it.severity || 'Medium').slice(1)) as any,
-          section: String(it.section || it.location || 'Document'),
-          description: String(it.description || it.message || it.text || 'Issue'),
-        }));
-        setIssues(mappedIssues);
-      } catch {
-        setOutline([]);
-        setIssues([]);
-      }
-    }
-    loadOutlineAndIssues();
-  }, [fileId]);
-
-  const toggleFolder = (folderName: string) => {
-    // eslint-disable-next-line no-console
-    console.debug('[UI] Toggle folder', folderName);
-    const newExpanded = new Set(expandedFolders);
-    if (newExpanded.has(folderName)) {
-      newExpanded.delete(folderName);
-    } else {
-      newExpanded.add(folderName);
-    }
-    setExpandedFolders(newExpanded);
-  };
-
-  const handleArtifactClick = async (fileName: string, path: string) => {
-    if (!fileId) return;
-    // eslint-disable-next-line no-console
-    console.debug('[UI] Click artifact', { fileName, path });
-    try {
-      const res = await vfsReadFile(fileId, path);
-      // eslint-disable-next-line no-console
-      console.debug('[LeftPane] vfsReadFile ->', { path, len: (res.content || '').length });
-      const content = res.content || '';
-      let fileType: 'json' | 'markdown' | 'text' = 'text';
-      if (fileName.endsWith('.json')) fileType = 'json';
-      else if (fileName.endsWith('.md')) fileType = 'markdown';
-      const artifact = { fileName, filePath: path, content, fileType };
-      if (fileType === 'markdown' && onArtifactSelect) {
-        onArtifactSelect(artifact);
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => {
+      const next = new Set(prev);
+      if (next.has(sectionId)) {
+        next.delete(sectionId);
       } else {
-        setArtifactPreview(artifact);
+        next.add(sectionId);
       }
-    } catch (e) {
-      // Ignore for MVP
-    }
-  };
-
-  const filteredIssues = severityFilter === 'All' 
-    ? issues 
-    : issues.filter(issue => issue.severity === severityFilter);
-
-  const renderArtifactNode = (node: any, depth: number = 0, parentPath: string = ''): JSX.Element | null => {
-    if (node.name === 'root') {
-      return <>{node.children?.map((child, i) => renderArtifactNode(child, depth, '/'))}</>;
-    }
-
-    const isFolder = node.type === 'directory' || node.type === 'folder';
-    const isExpanded = expandedFolders.has(node.name);
-    const paddingLeft = depth * 16 + 12;
-    const currentPath = `${parentPath}${node.name}${isFolder ? '/' : ''}`;
-
-    if (isFolder) {
-      return (
-        <div key={node.name}>
-          <button
-            onClick={() => toggleFolder(node.name)}
-            className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-neutral-100 transition-colors"
-            style={{ paddingLeft }}
-          >
-            {isExpanded ? <ChevronDown className="w-4 h-4 text-neutral-500" /> : <ChevronRight className="w-4 h-4 text-neutral-500" />}
-            <FolderTree className="w-4 h-4 text-neutral-600" />
-            <span className="text-neutral-700">{node.name}</span>
-          </button>
-          {isExpanded && node.children?.map((child: any) => renderArtifactNode(child, depth + 1, currentPath))}
-        </div>
-      );
-    }
-
-    return (
-      <button
-        key={node.name}
-        onClick={() => handleArtifactClick(node.name, currentPath)}
-        className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-neutral-100 transition-colors"
-        style={{ paddingLeft: paddingLeft + 20 }}
-      >
-        <FileText className="w-4 h-4 text-neutral-500" />
-        <span className="text-neutral-600">{node.name}</span>
-      </button>
-    );
-  };
-
-  // Bulk actions
-  const handleAcceptAll = () => {
-    suggestions.forEach(suggestion => {
-      onAcceptSuggestion?.(suggestion.block_id);
+      return next;
     });
   };
 
-  const handleRejectAll = () => {
-    suggestions.forEach(suggestion => {
-      onRejectSuggestion?.(suggestion.block_id);
-    });
+  const toggleSubsection = (sectionId: string, subsection: 'analysis' | 'suggestions') => {
+    setExpandedSubsections(prev => ({
+      ...prev,
+      [sectionId]: {
+        ...prev[sectionId],
+        [subsection]: !prev[sectionId]?.[subsection],
+      },
+    }));
   };
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header - Suggestions Only */}
-      <div className="border-b border-neutral-200 px-4 py-3 bg-gradient-to-r from-amber-50 to-yellow-50">
-        <div className="flex items-center justify-between gap-2 mb-2">
-          <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold text-neutral-900">Template Suggestions</h2>
-            {suggestions.length > 0 && (
-              <span className="px-2 py-0.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-white rounded-full text-xs font-bold shadow-sm">
-                {suggestions.length}
-              </span>
-            )}
+    <div className="h-full flex flex-col bg-gray-50">
+      {/* Header */}
+      <div className="flex-shrink-0 px-5 py-4 border-b border-gray-200 bg-white">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <h2 className="text-sm font-semibold text-gray-900">
+              Document Analysis
+            </h2>
+            <p className="mt-1 text-xs text-gray-500">
+              Review AI-generated insights and suggestions
+            </p>
           </div>
-          {/* Bulk action buttons */}
-          {suggestions.length > 0 && (
-            <div className="flex items-center gap-1">
-              <button
-                onClick={handleAcceptAll}
-                className="px-2 py-1 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors flex items-center gap-1"
-                title="Accept all suggestions"
-              >
-                <Check className="w-3 h-3" />
-                Accept All
-              </button>
-              <button
-                onClick={handleRejectAll}
-                className="px-2 py-1 text-xs font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition-colors flex items-center gap-1"
-                title="Reject all suggestions"
-              >
-                <X className="w-3 h-3" />
-                Reject All
-              </button>
-            </div>
+          {onAnalyzeDocument && (
+            <button
+              onClick={onAnalyzeDocument}
+              disabled={isAnalyzing || !fileId}
+              className="ml-3 inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isAnalyzing ? (
+                <>
+                  <span className="animate-spin">⏳</span>
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <Play className="w-3 h-3" />
+                  Analyze
+                </>
+              )}
+            </button>
           )}
         </div>
-        {/* Keyboard shortcuts hint */}
-        {suggestions.length > 0 && (
-          <p className="text-xs text-neutral-500">
-            j/k to navigate • a to accept • r to reject • c to ask RiskGPT
-          </p>
+        {sections.some(s => s.analysis) && (
+          <div className="mt-3 inline-flex items-center rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
+            {sections.filter(s => s.analysis).length} sections analyzed
+          </div>
         )}
       </div>
 
-      {/* Suggestions Content */}
-      <div className="flex-1 overflow-y-auto" style={{ overflowY: 'auto', overflowX: 'visible' }}>
-        {/* Always show suggestions - no tabs */}
-        {(
-          <div className="p-4 space-y-3" style={{ minHeight: '100%' }}>
-            {suggestions.length === 0 ? (
-              <div className="text-center py-12 px-4">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-amber-100 to-yellow-100 rounded-full flex items-center justify-center">
-                  <Sparkles className="w-8 h-8 text-amber-500" />
+      {/* Analysis Sections */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {!fileId && (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <AlertCircle className="w-10 h-10 text-gray-300 mb-3" />
+            <p className="text-sm text-gray-500">
+              Select a document to view analysis
+            </p>
+          </div>
+        )}
+
+        {fileId && sections.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <AlertCircle className="w-10 h-10 text-gray-300 mb-3" />
+            <p className="text-sm text-gray-500">
+              Click "Analyze Document" to start
+            </p>
+          </div>
+        )}
+
+        {sections.map((section) => {
+          const isExpanded = expandedSections.has(section.id);
+          const hasAnalysis = !!section.analysis;
+          const analysisExpanded = expandedSubsections[section.id]?.analysis || false;
+          const suggestionsExpanded = expandedSubsections[section.id]?.suggestions || false;
+
+          return (
+            <div
+              key={section.id}
+              className="rounded-lg border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            >
+              {/* Section Header */}
+              <button
+                onClick={() => toggleSection(section.id)}
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  {section.icon}
+                  <span className="font-medium text-sm text-gray-900">{section.title}</span>
                 </div>
-                <h3 className="text-sm font-semibold text-neutral-800 mb-2">No suggestions yet</h3>
-                <p className="text-xs text-neutral-500 leading-relaxed max-w-xs mx-auto">
-                  Apply a template to your document to receive AI-powered improvement suggestions
-                </p>
-              </div>
-            ) : (
-              <SuggestionsList 
-                suggestions={suggestions}
-                selectedSuggestionId={selectedSuggestionId || null}
-                onAcceptSuggestion={onAcceptSuggestion}
-                onRejectSuggestion={onRejectSuggestion}
-                onCommentSuggestion={onCommentSuggestion}
-                onSuggestionSelect={onSuggestionSelect}
-              />
+                <div className="flex items-center gap-2">
+                  {hasAnalysis && (
+                    <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                      Ready
+                    </span>
+                  )}
+                  {isExpanded ? (
+                    <ChevronDown className="w-4 h-4 text-gray-400" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                  )}
+                </div>
+              </button>
+
+              {/* Section Content */}
+              {isExpanded && (
+                <div className="border-t border-gray-100">
+                  {/* Analysis Subsection */}
+                  <div className="border-b border-gray-100">
+                    <button
+                      onClick={() => toggleSubsection(section.id, 'analysis')}
+                      className="w-full flex items-center justify-between p-3 text-left hover:bg-gray-50 transition-colors"
+                    >
+                      <span className="text-xs font-semibold text-gray-700">Analysis</span>
+                      {analysisExpanded ? (
+                        <ChevronDown className="w-3 h-3 text-gray-400" />
+                      ) : (
+                        <ChevronRight className="w-3 h-3 text-gray-400" />
+                      )}
+                    </button>
+                    {analysisExpanded && (
+                      <div className="px-4 pb-4 max-h-96 overflow-y-auto bg-gradient-to-br from-white to-gray-50">
+                        {hasAnalysis ? (
+                          <div className="prose prose-sm max-w-none 
+                            prose-headings:font-semibold prose-headings:text-gray-900 prose-headings:mb-3 prose-headings:mt-4
+                            prose-h1:text-lg prose-h1:text-blue-900 prose-h1:border-b prose-h1:border-blue-100 prose-h1:pb-2
+                            prose-h2:text-base prose-h2:text-blue-800
+                            prose-h3:text-sm prose-h3:text-blue-700
+                            prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-3
+                            prose-strong:text-gray-900 prose-strong:font-semibold prose-strong:text-blue-900
+                            prose-em:text-gray-600 prose-em:italic
+                            prose-ul:my-3 prose-ul:space-y-2
+                            prose-ol:my-3 prose-ol:space-y-2
+                            prose-li:text-gray-700 prose-li:leading-relaxed prose-li:marker:text-blue-600
+                            prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
+                            prose-code:text-xs prose-code:bg-gray-100 prose-code:text-pink-600 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:before:content-none prose-code:after:content-none
+                            prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:text-xs prose-pre:p-4 prose-pre:rounded-lg prose-pre:overflow-x-auto
+                            prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-600 prose-blockquote:bg-blue-50 prose-blockquote:py-2
+                            prose-table:text-xs prose-table:border-collapse
+                            prose-th:bg-blue-100 prose-th:text-blue-900 prose-th:font-semibold prose-th:p-2 prose-th:border prose-th:border-blue-200
+                            prose-td:p-2 prose-td:border prose-td:border-gray-200 prose-td:text-gray-700
+                            prose-hr:border-gray-200 prose-hr:my-4">
+                            <ReactMarkdown 
+                              remarkPlugins={[remarkGfm]}
+                              components={{
+                                h1: ({node, ...props}) => <h1 className="flex items-center gap-2" {...props}><CheckCircle2 className="w-4 h-4 text-blue-600 inline" />{props.children}</h1>,
+                                h2: ({node, ...props}) => <h2 className="flex items-center gap-2" {...props}><FileText className="w-3.5 h-3.5 text-blue-600 inline" />{props.children}</h2>,
+                                h3: ({node, ...props}) => <h3 className="flex items-center gap-2" {...props}><ChevronRight className="w-3 h-3 text-blue-600 inline" />{props.children}</h3>,
+                                strong: ({node, ...props}) => {
+                                  const text = String(props.children);
+                                  if (text.toLowerCase().includes('gap') || text.toLowerCase().includes('issue') || text.toLowerCase().includes('missing')) {
+                                    return <strong className="text-red-700 font-semibold" {...props}><AlertTriangle className="w-3 h-3 inline mr-1 text-red-600" />{props.children}</strong>;
+                                  }
+                                  if (text.toLowerCase().includes('strength') || text.toLowerCase().includes('complete') || text.toLowerCase().includes('excellent')) {
+                                    return <strong className="text-green-700 font-semibold" {...props}><CheckCircle2 className="w-3 h-3 inline mr-1 text-green-600" />{props.children}</strong>;
+                                  }
+                                  return <strong className="text-blue-900 font-semibold" {...props} />;
+                                },
+                                ul: ({node, ...props}) => <ul className="space-y-2 ml-4" {...props} />,
+                                ol: ({node, ...props}) => <ol className="space-y-2 ml-4" {...props} />,
+                                li: ({node, ...props}) => (
+                                  <li className="relative pl-2" {...props}>
+                                    {props.children}
+                                  </li>
+                                ),
+                                table: ({node, ...props}) => (
+                                  <div className="my-4 overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+                                    <table className="min-w-full" {...props} />
+                                  </div>
+                                ),
+                                blockquote: ({node, ...props}) => (
+                                  <blockquote className="my-4 border-l-4 border-blue-500 bg-blue-50 p-4 rounded-r-lg" {...props}>
+                                    <AlertCircle className="w-4 h-4 inline mr-2 text-blue-600" />
+                                    {props.children}
+                                  </blockquote>
+                                ),
+                              }}
+                            >
+                              {section.analysis}
+                            </ReactMarkdown>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 text-gray-400 py-4">
+                            <AlertCircle className="w-4 h-4" />
+                            <span className="text-xs">No analysis available yet</span>
+                          </div>
             )}
           </div>
         )}
       </div>
 
-      {artifactPreview && (
-        <ArtifactPreviewModal
-          fileName={artifactPreview.fileName}
-          filePath={artifactPreview.filePath}
-          content={artifactPreview.content}
-          fileType={artifactPreview.fileType}
-          onClose={() => setArtifactPreview(null)}
-        />
-      )}
+                  {/* Suggestions Subsection */}
+                  <div>
+                    <button
+                      onClick={() => toggleSubsection(section.id, 'suggestions')}
+                      className="w-full flex items-center justify-between p-3 text-left hover:bg-gray-50 transition-colors"
+                    >
+                      <span className="text-xs font-semibold text-gray-700">Suggestions</span>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+                          Coming soon
+                        </span>
+                        {suggestionsExpanded ? (
+                          <ChevronDown className="w-3 h-3 text-gray-400" />
+                        ) : (
+                          <ChevronRight className="w-3 h-3 text-gray-400" />
+                        )}
+                      </div>
+                    </button>
+                    {suggestionsExpanded && (
+                      <div className="px-4 pb-4">
+                        <div className="flex items-center gap-2 text-gray-400 py-4">
+                          <AlertCircle className="w-4 h-4" />
+                          <span className="text-xs">AI-generated suggestions will appear here</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -110,6 +110,7 @@ If the text is already good, return it unchanged with reason: "No improvements n
         
         # Parse response
         response_text = response.content[0].text.strip()
+        logger.info(f"[TextImprovement] LLM raw response: {response_text}")
         
         # Remove markdown code fences if present
         if response_text.startswith('```'):
@@ -118,7 +119,50 @@ If the text is already good, return it unchanged with reason: "No improvements n
             response_text = response_text.replace('```json', '').replace('```', '').strip()
         
         import json
-        result = json.loads(response_text)
+        import re
+        
+        # Try multiple strategies to extract JSON
+        result = None
+        
+        # Strategy 1: Direct JSON parse
+        try:
+            result = json.loads(response_text)
+            logger.info(f"[TextImprovement] Direct JSON parse succeeded")
+        except json.JSONDecodeError as e:
+            logger.warning(f"[TextImprovement] Direct JSON parse failed: {e}")
+            
+            # Strategy 2: Try to find and extract just the JSON portion by brace matching
+            try:
+                # Find first { and last }
+                start = response_text.find('{')
+                end = response_text.rfind('}')
+                if start != -1 and end != -1 and end > start:
+                    json_str = response_text[start:end+1]
+                    result = json.loads(json_str)
+                    logger.info(f"[TextImprovement] Successfully extracted JSON by brace matching")
+            except (json.JSONDecodeError, ValueError) as e2:
+                logger.warning(f"[TextImprovement] Brace matching failed: {e2}")
+            
+            # Strategy 3: Extract using more flexible regex (handles nested structures)
+            if not result:
+                try:
+                    # Match JSON object that contains "improved" and "reason" keys
+                    json_match = re.search(r'\{[\s\S]*?"improved"[\s\S]*?"reason"[\s\S]*?\}', response_text)
+                    if json_match:
+                        result = json.loads(json_match.group(0))
+                        logger.info(f"[TextImprovement] Successfully extracted JSON via regex")
+                except (json.JSONDecodeError, ValueError) as e3:
+                    logger.warning(f"[TextImprovement] Regex extraction failed: {e3}")
+        
+        # If all strategies failed, return error
+        if not result:
+            logger.error(f"[TextImprovement] All JSON parsing strategies failed")
+            logger.error(f"[TextImprovement] Raw response: {response_text}")
+            return jsonify({
+                "error": "LLM returned invalid JSON format",
+                "raw_response": response_text[:500],
+                "success": False
+            }), 500
         
         # Return structured response
         return jsonify({
