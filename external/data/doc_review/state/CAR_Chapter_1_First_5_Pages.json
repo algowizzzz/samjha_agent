@@ -2,7 +2,7 @@
   "file_id": "CAR_Chapter_1_First_5_Pages",
   "source_path": "/Users/saadahmed/samjha_agent/samjha_agent/external/data/doc_review/uploads/028e54549d514ffb89c2ae4ab9c93379_CAR_Chapter_1_First_5_Pages.pdf",
   "status": "ready",
-  "updated_at": "2025-11-20T04:34:59.368924Z",
+  "updated_at": "2025-11-20T14:19:28.666565Z",
   "state": {
     "run_id": "CAR_Chapter_1_First_5_Pages",
     "doc_id": "CAR_Chapter_1_First_5_Pages",
@@ -1941,7 +1941,7 @@
         "image_count": 0
       },
       "doc_summary": null,
-      "toc_review": "### 1. TOC Presence & Quality\n\nAn explicit table of contents (TOC) exists, titled \"Table of Contents\". The overall structure appears to be **Good**.\n\n### 2. Structure Analysis\n\nThe main entries observed in the TOC are:\n\n- Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n  - 1.1. Scope of Application\n  - 1.2. Regulatory Capital\n  - 1.3. Total Risk weighted Assets\n    - 1.3.1. Credit Risk\n    - 1.3.2. Market Risk\n    - 1.3.3. Operational Risk\n  - 1.4. Approval to use Internal Model Based Approaches\n    - 1.4.1. Approval to use the IRB Approaches to Credit Risk\n  - 1.5. Capital Floor\u2013Internal Model Based Approaches\n    - 1.5.1. The Capital Floor\n    - 1.5.2. Adjusted Capital Requirement\n  - 1.6. Calculation of OSFI Minimum Capital Requirements\n    - 1.6.1. Risk-Based Capital Ratios for D-SIBs and Category I and II SMSBs\n    - 1.6.2. Simplified Risk-Based Capital Ratio for Category III SMSBs\n  - 1.7. Mandated Capital Buffers\n    - 1.7.1. Capital Conservation Buffer\n    - 1.7.2. Countercyclical Buffer\n  - 1.8. Domestic Systemically Important Bank (D-SIB) Surcharge\n  - 1.9. Domestic Stability Buffer\n  - 1.10. Capital Targets\n- Annex 1 Domestic Systemic Importance and Capital Targets\n- Annex 2 Supervisory Target Capital Requirements\n\nThe confidence level for the inferred entries is **high**.\n\n### 3. What's Working Well\n\n- The document has a clear and comprehensive table of contents that outlines the structure and hierarchy of the content.\n- The headings and subheadings provide a logical flow and organization of the material.\n- The content appears to cover the key aspects of risk-based capital requirements, including scope, regulatory capital, risk-weighted assets, and various capital buffers and targets.\n\n### 4. Identified Gaps\n\n- The page numbers are not included in the table of contents, which would make it harder to navigate the document.\n- Some of the headings are slightly inconsistent in their formatting (e.g., \"Chapter 1 \u2013 Overview of Risk-based Capital Requirements\" vs. \"Chapter 1\\tOverview of Risk-based Capital Requirements\").\n- The document excerpt provided does not include the full content, so it's difficult to assess the completeness of the coverage.",
+      "toc_review": "### 1. TOC Presence & Quality\n\nThere is an explicit table of contents (TOC) present in the document. The TOC is well-structured and provides a clear overview of the chapter and section hierarchy.\n\nThe overall structure is **Excellent**.\n\n### 2. Structure Analysis\n\nThe main entries observed in the TOC and document structure are:\n\n- Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n  - 1.1. Scope of Application\n  - 1.2. Regulatory Capital\n  - 1.3. Total Risk-weighted Assets\n    - 1.3.1. Credit Risk\n    - 1.3.2. Market Risk\n    - 1.3.3. Operational Risk\n  - 1.4. Approval to use Internal Model Based Approaches\n    - 1.4.1. Approval to use the IRB Approaches to Credit Risk\n  - 1.5. Capital Floor\u2013Internal Model Based Approaches\n    - 1.5.1. The Capital Floor\n    - 1.5.2. Adjusted Capital Requirement\n  - 1.6. Calculation of OSFI Minimum Capital Requirements\n    - 1.6.1. Risk-Based Capital Ratios for D-SIBs and Category I and II SMSBs\n    - 1.6.2. Simplified Risk-Based Capital Ratio for Category III SMSBs\n  - 1.7. Mandated Capital Buffers\n    - 1.7.1. Capital Conservation Buffer\n    - 1.7.2. Countercyclical Buffer\n  - 1.8. Domestic Systemically Important Bank (D-SIB) Surcharge\n  - 1.9. Domestic Stability Buffer\n  - 1.10. Capital Targets\n- Annex 1 - Domestic Systemic Importance and Capital Targets\n- Annex 2 - Supervisory Target Capital Requirements\n\nThe hierarchy and flow of the structure are clear and well-organized.\n\n### 3. What's Working Well\n\n- The document has a clear and comprehensive table of contents that provides a good overview of the chapter and section structure.\n- The headings and subheadings are well-structured and follow a logical hierarchy.\n- The content flows smoothly from one section to the next, providing a coherent overview of the risk-based capital requirements.\n\n### 4. Identified Gaps\n\nNo major gaps or issues were identified in the structure of the document. The table of contents and headings provide a clear and detailed outline of the content.",
       "template_fitness_report": null,
       "section_strategy": null
     },
@@ -5962,12 +5962,283 @@
           "language_clarity": "### Language Analysis by Dimension\n\n#### 1. Directive Tone\n\n**General Assessment**: The document generally maintains a directive and mandatory tone, using language like \"must\", \"required\", and \"shall\". However, there are some instances where the tone is more advisory or suggestive.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| Section 1.2 | \"Total capital consists of the sum of the following elements:\" | Suggestive, could be more directive | \"Total capital shall consist of the following elements:\" | Medium |\n| Page 2 | \"OSFI expects institutions to hold capital within the consolidated group in a manner that is consistent with the level and location of risk.\" | Advisory, not mandatory | \"Institutions must hold capital within the consolidated group in a manner that is consistent with the level and location of risk.\" | Medium |\n\n#### 2. Clarity and Specificity\n\n**General Assessment**: The document is generally clear and specific, providing detailed definitions and requirements. The language is technical but appropriate for the target audience of financial institutions.\n\n**Issues**: No major issues identified.\n\n#### 3. Presence of Vague/Ambiguous Phrases\n\n**General Assessment**: The document avoids vague or ambiguous language and is quite precise in its terminology and requirements.\n\n**Issues**: No major issues identified.\n\n#### 4. Passive vs Active Voice\n\n**General Assessment**: The document uses a mix of active and passive voice, which is appropriate for the technical nature of the content. The passive voice is used to describe general requirements, while the active voice is used for more specific actions.\n\n**Issues**: No major issues identified.\n\n#### 5. Internal Consistency of Terminology\n\n**General Assessment**: The document maintains a high level of internal consistency in its use of terminology, with key terms (e.g., \"risk-weighted assets\", \"capital ratios\") being used consistently throughout.\n\n**Issues**: No major issues identified.\n\n#### 6. Sentence Structure, Flow, Repetition\n\n**General Assessment**: The document has a well-structured flow, with clear section headings and logical organization of content. Sentences are generally clear and concise, with appropriate use of repetition to reinforce key concepts.\n\n**Issues**: No major issues identified.\n\n#### 7. Plain-language Suitability for Non-experts\n\n**General Assessment**: The document is written in technical language that is suitable for the target audience of financial institutions and regulators. It may be less accessible to non-experts in the field.\n\n**Issues**:\n- The document uses a significant amount of specialized terminology and financial jargon that may be difficult for non-experts to understand.\n- The level of detail and complexity in the content may be overwhelming for readers without a strong background in banking regulations and capital requirements.\n\n#### 8. Professional and Formal Tone\n\n**General Assessment**: The document maintains a highly professional and formal tone throughout, using precise language and avoiding any casual or colloquial expressions.\n\n**Issues**: No major issues identified.\n\n### Overall Evaluation\n\n**Strengths**:\n- The document provides a comprehensive and detailed overview of the risk-based capital requirements for financial institutions in Canada.\n- The language is clear, specific, and consistent, with a strong emphasis on directive and mandatory requirements.\n- The organization and structure of the content, with clear section headings and a detailed table of contents, make the document easy to navigate.\n- The formal and professional tone is appropriate for the target audience and subject matter.\n\n**Weaknesses**:\n- The technical nature of the content and use of specialized terminology may make the document less accessible to non-experts in the field.\n- There are a few instances where the tone is more advisory or suggestive rather than directive, which could be improved for clarity and consistency.\n\n**Top Improvements** (prioritized):\n\n1. **Priority 1**: Strengthen the directive tone throughout the document.\n   - **Impact**: Using more mandatory language (e.g., \"must\", \"shall\") will reinforce the regulatory nature of the requirements and leave no ambiguity about the expectations for financial institutions.\n   - **Action**: Review the document and identify any instances where the tone is more advisory or suggestive, and revise the language to be more directive and mandatory.\n\n2. **Priority 2**: Enhance the accessibility of the content for non-expert readers.\n   - **Impact**: Providing more plain-language explanations and definitions of key terms and concepts will make the document more understandable for a wider audience, including non-experts in banking regulations and capital requirements.\n   - **Action**: Identify technical terms and jargon that may be unfamiliar to non-experts, and consider adding plain-language definitions or explanations to improve accessibility.\n\n3. **Priority 3**: Ensure consistent formatting and structure of headings and subheadings.\n   - **Impact**: Maintaining a consistent formatting and structure for the headings and subheadings will improve the overall visual organization and readability of the document.\n   - **Action**: Review the document and ensure that all headings and subheadings follow a consistent format (e.g., consistent use of numbering, capitalization, and spacing)."
         },
         "response_preview": "## Overall Assessment\n\nThe document demonstrates **good compliance** with the template, providing a comprehensive overview of the risk-based capital requirements for banks, bank holding companies, fed..."
+      },
+      {
+        "timestamp": "2025-11-20T14:13:36.360613Z",
+        "prompt": "phase1_toc_review.md",
+        "payload_preview": {
+          "doc_title": "028e54549d514ffb89c2ae4ab9c93379 CAR Chapter 1 First 5 Pages",
+          "page_count": 3,
+          "toc_entries": [],
+          "headings": [
+            {
+              "level": "h1",
+              "title": "Guideline",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 1
+            },
+            {
+              "level": "h2",
+              "title": "Chapter 1 \u2013 Overview of risk-based capital requirements",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 3
+            },
+            {
+              "level": "h1",
+              "title": "Chapter 1 - Overview of risk-based capital requirements",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 13
+            },
+            {
+              "level": "h2",
+              "title": "Chapter 1\tOverview of Risk-based Capital Requirements",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 15
+            },
+            {
+              "level": "h2",
+              "title": "Chapter 2\tDefinition of Capital",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 16
+            },
+            {
+              "level": "h2",
+              "title": "Chapter 3\tOperational Risk",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 17
+            },
+            {
+              "level": "h2",
+              "title": "Chapter 4\tCredit Risk \u2013 Standardized Approach",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 18
+            },
+            {
+              "level": "h2",
+              "title": "Chapter 5\tCredit Risk \u2013 Internal Ratings-Based Approach",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 19
+            },
+            {
+              "level": "h2",
+              "title": "Chapter 6\tSecuritization",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 20
+            },
+            {
+              "level": "h2",
+              "title": "Chapter 7\tSettlement and Counterparty Risk",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 21
+            },
+            {
+              "level": "h2",
+              "title": "Chapter 8\tCredit Valuation Adjustment (CVA) Risk",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 22
+            },
+            {
+              "level": "h2",
+              "title": "Chapter 9\tMarket Risk",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 23
+            },
+            {
+              "level": "h1",
+              "title": "Table of Contents",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 27
+            },
+            {
+              "level": "h2",
+              "title": "Chapter 1 \u2013 Overview of Risk-based Capital Requirements",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 28
+            },
+            {
+              "level": "h2",
+              "title": "Annex 1     Domestic Systemic Importance and Capital Targets ................................22",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 49
+            },
+            {
+              "level": "h2",
+              "title": "Annex 2     Supervisory Target Capital Requirements...............................................26",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 50
+            },
+            {
+              "level": "h1",
+              "title": "Chapter 1 \u2013 Overview of Risk-based Capital Requirements",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 54
+            },
+            {
+              "level": "h2",
+              "title": "1.1. Scope of Application",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 57
+            },
+            {
+              "level": "h2",
+              "title": "1.2. Regulatory Capital",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 61
+            },
+            {
+              "level": "h6",
+              "title": "The criteria for the capital elements comprising the two tiers, as well as the various limits, restrictions and regulatory adjustments to which they are subject, are described in Chapter 2.",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 68
+            },
+            {
+              "level": "h3",
+              "title": "1.3. Total Risk-weighted Assets",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 69
+            },
+            {
+              "level": "h3",
+              "title": "1.3.1. Credit Risk",
+              "page": null,
+              "numbering": null,
+              "char_start": null,
+              "char_end": null,
+              "line_number": 75
+            }
+          ],
+          "document_excerpt": "# Guideline\nSubject: Capital Adequacy Requirements (CAR)\n## Chapter 1 \u2013 Overview of risk-based capital requirements\nEffective Date: November 2023 / January 2024\nNote: For institutions with a fiscal year ending October 31 or December 31, respectively.\nSubsections 485(1) and 949(1) of the Bank Act (BA), subsection 473(1) of the Trust and Loan Companies Act (TLCA) require banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies to maintain adequate capital. The CAR Guideline is not made pursuant to subsections 485(2) or 949(2) of the BA, or to subsection 473(2) of the TLCA. However, the capital standards set out in this guideline together with the leverage requirements set out in the Leverage Requirements Guideline provide the framework within which the Superintendent assesses whether a bank, a bank holding company, a trust company, or a loan company maintains adequate capital pursuant to the Acts. For this purpose, the Superintendent has established two minimum standards: the leverage ratio described in the Leverage Requirements Guideline, and the risk-based capital ratio described in this guideline. The first test provides an overall measure of the adequacy of an institution's capital, while the second measure focuses on risk faced by the institution. Notwithstanding that a bank, bank holding company, trust company, or loan company may meet these standards, the Superintendent may direct a bank or bank holding company to increase its capital under subsections 485(3) or 949(3) of the BA, or a trust company or a loan company to increase its capital under subsection 473(3) of the TLCA.\nOSFI, as a member of the Basel Committee on Banking Supervision, participated in the development of the Basel capital framework on which this guideline is based. Where relevant, the Basel framework paragraph numbers are provided in square brackets at the end of each paragraph referencing material from the Basel framework.\nThe capital and leverage requirements for domestic systemically important banks are supplemented by the requirements described in OSFI's Total Loss Absorbing Capacity (TLAC) Guideline.\n\n\n---\n\n# Chapter 1 - Overview of risk-based capital requirements\nThe Capital Adequacy Requirements (CAR) for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies are set out in nine chapters, each of which has been issued as a separate document. This document should be read in conjunction with the other CAR chapters. The complete list of CAR chapters is as follows:\n## Chapter 1\tOverview of Risk-based Capital Requirements\n## Chapter 2\tDefinition of Capital\n## Chapter 3\tOperational Risk\n## Chapter 4\tCredit Risk \u2013 Standardized Approach\n## Chapter 5\tCredit Risk \u2013 Internal Ratings-Based Approach\n## Chapter 6\tSecuritization\n## Chapter 7\tSettlement and Counterparty Risk\n## Chapter 8\tCredit Valuation Adjustment (CVA) Risk\n## Chapter 9\tMarket Risk\n\n---\n\n# Table of Contents\n## Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n1.1.   Scope of Application ..........................................................................................4\n1.2.  Regulatory Capital ..................................................................................................4\n1.3.  Total Risk weighted Assets ..................................................................................5\n1.3.1.    Credit Risk ................................................................................................5\n1.3.2.    Market Risk...............................................................................................7\n1.3.3.    Operational Risk......................................................................................7\n1.4.  Approval to use Internal Model Based Approaches .............................................8\n1.4.1.    Approval to use the IRB Approaches to Credit Risk ...............................8\n1.5.  Capital Floor\u2013Internal Model Based Approaches ...............................................9\n1.5.1.    The Capital Floor......................................................................................9\n1.5.2.    Adjusted Capital Requirement...............................................................11\n1.6.  Calculation of OSFI Minimum Capital Requirements ......................................11\n1.6.1.    Risk-Based Capital Ratios for D-SIBs and Category I and II SMSBs ..11\n1.6.2.    Simplified Risk-Based Capital Ratio for Category III SMSBs ..............12\n1.7.  Mandated Capital Buffers...................................................................................12\n1.7.1.   Capital Conservation Buffer..................................................................13\n1.7.2.   Countercyclical Buffer............................................................................15\n1.8.  Domestic Systemically Important Bank (D-SIB) Surcharge ...........................18\n1.9.  Domestic Stability Buffer..................................................................................19\n1.10. Capital Targets..................................................................................................20\n## Annex 1     Domestic Systemic Importance and Capital Targets ................................22\n## Annex 2     Supervisory Target Capital Requirements...............................................26\n\n---\n\n# Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n1.\tOutlined below is an overview of the capital adequacy requirements for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies, collectively referred to as 'institutions'.\n2.\tThis chapter is drawn from the Basel Committee on Banking Supervision (BCBS) Basel Framework published on the Bank for International Settlements (BIS) website.2 For reference, the Basel paragraph numbers that are associated with the text appearing in this chapter are indicated in square brackets at the end of each paragraph.3\n## 1.1. Scope of Application\n3.\tThe capital adequacy requirements outlined in this guideline apply on a consolidated basis to the following institutions:\n\n4.\tThe consolidated entity includes all subsidiaries except insurance subsidiaries. OSFI expects institutions to hold capital within the consolidated group in a manner that is consistent with the level and location of risk.\n## 1.2. Regulatory Capital\n5.\tTotal capital consists of the sum of the following elements:\n\n2The Basel Framework3Following the format: [Basel Framework, XXX yy.zz]4SMSBs are banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies that have not been designated by OSFI as domestic systemically important banks (D-SIBs). This includes subsidiaries of SMSBs or D-SIBs that are banks (including federal credit unions), federally regulated trust companies or federally regulated loan companies.5SMSB Capital and Liquidity Guideline\n\n---\n\n###### The criteria for the capital elements comprising the two tiers, as well as the various limits, restrictions and regulatory adjustments to which they are subject, are described in Chapter 2.\n### 1.3. Total Risk-weighted Assets\nRisk-weighted assets (RWA) make up the denominator of the risk-based capital ratios, and is calculated as the higher of:\na. the sum of the following three elements:\n\nb. the adjusted RWA determined as per the capital floor described in section 1.5.\n[Basel Framework, RBC 20.4]\n### 1.3.1. Credit Risk\nRWA for credit risk (including counterparty credit risk) is calculated as the sum of:\na. Credit RWA for banking book exposures which, except the RWA listed in (b) through (e) below, is calculated using:\n\n..."
+        },
+        "response_preview": "### 1. TOC Presence & Quality\n\nThere is an explicit table of contents (TOC) present in the document. The TOC is well-structured and provides a clear overview of the chapter and section hierarchy.\n\nThe..."
+      },
+      {
+        "timestamp": "2025-11-20T14:13:49.710291Z",
+        "prompt": "phase2_check_conceptual_coverage.md",
+        "payload_preview": {
+          "doc_title": "028e54549d514ffb89c2ae4ab9c93379 CAR Chapter 1 First 5 Pages",
+          "page_count": 3,
+          "word_count": 1044,
+          "document_text": "# Guideline\nSubject: Capital Adequacy Requirements (CAR)\n## Chapter 1 \u2013 Overview of risk-based capital requirements\nEffective Date: November 2023 / January 2024\nNote: For institutions with a fiscal year ending October 31 or December 31, respectively.\nSubsections 485(1) and 949(1) of the Bank Act (BA), subsection 473(1) of the Trust and Loan Companies Act (TLCA) require banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies to maintain adequate capital. The CAR Guideline is not made pursuant to subsections 485(2) or 949(2) of the BA, or to subsection 473(2) of the TLCA. However, the capital standards set out in this guideline together with the leverage requirements set out in the Leverage Requirements Guideline provide the framework within which the Superintendent assesses whether a bank, a bank holding company, a trust company, or a loan company maintains adequate capital pursuant to the Acts. For this purpose, the Superintendent has established two minimum standards: the leverage ratio described in the Leverage Requirements Guideline, and the risk-based capital ratio described in this guideline. The first test provides an overall measure of the adequacy of an institution's capital, while the second measure focuses on risk faced by the institution. Notwithstanding that a bank, bank holding company, trust company, or loan company may meet these standards, the Superintendent may direct a bank or bank holding company to increase its capital under subsections 485(3) or 949(3) of the BA, or a trust company or a loan company to increase its capital under subsection 473(3) of the TLCA.\nOSFI, as a member of the Basel Committee on Banking Supervision, participated in the development of the Basel capital framework on which this guideline is based. Where relevant, the Basel framework paragraph numbers are provided in square brackets at the end of each paragraph referencing material from the Basel framework.\nThe capital and leverage requirements for domestic systemically important banks are supplemented by the requirements described in OSFI's Total Loss Absorbing Capacity (TLAC) Guideline.\n\n\n---\n\n# Chapter 1 - Overview of risk-based capital requirements\nThe Capital Adequacy Requirements (CAR) for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies are set out in nine chapters, each of which has been issued as a separate document. This document should be read in conjunction with the other CAR chapters. The complete list of CAR chapters is as follows:\n## Chapter 1\tOverview of Risk-based Capital Requirements\n## Chapter 2\tDefinition of Capital\n## Chapter 3\tOperational Risk\n## Chapter 4\tCredit Risk \u2013 Standardized Approach\n## Chapter 5\tCredit Risk \u2013 Internal Ratings-Based Approach\n## Chapter 6\tSecuritization\n## Chapter 7\tSettlement and Counterparty Risk\n## Chapter 8\tCredit Valuation Adjustment (CVA) Risk\n## Chapter 9\tMarket Risk\n\n---\n\n# Table of Contents\n## Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n1.1.   Scope of Application ..........................................................................................4\n1.2.  Regulatory Capital ..................................................................................................4\n1.3.  Total Risk weighted Assets ..................................................................................5\n1.3.1.    Credit Risk ................................................................................................5\n1.3.2.    Market Risk...............................................................................................7\n1.3.3.    Operational Risk......................................................................................7\n1.4.  Approval to use Internal Model Based Approaches .............................................8\n1.4.1.    Approval to use the IRB Approaches to Credit Risk ...............................8\n1.5.  Capital Floor\u2013Internal Model Based Approaches ...............................................9\n1.5.1.    The Capital Floor......................................................................................9\n1.5.2.    Adjusted Capital Requirement...............................................................11\n1.6.  Calculation of OSFI Minimum Capital Requirements ......................................11\n1.6.1.    Risk-Based Capital Ratios for D-SIBs and Category I and II SMSBs ..11\n1.6.2.    Simplified Risk-Based Capital Ratio for Category III SMSBs ..............12\n1.7.  Mandated Capital Buffers...................................................................................12\n1.7.1.   Capital Conservation Buffer..................................................................13\n1.7.2.   Countercyclical Buffer............................................................................15\n1.8.  Domestic Systemically Important Bank (D-SIB) Surcharge ...........................18\n1.9.  Domestic Stability Buffer..................................................................................19\n1.10. Capital Targets..................................................................................................20\n## Annex 1     Domestic Systemic Importance and Capital Targets ................................22\n## Annex 2     Supervisory Target Capital Requirements...............................................26\n\n---\n\n# Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n1.\tOutlined below is an overview of the capital adequacy requirements for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies, collectively referred to as 'institutions'.\n2.\tThis chapter is drawn from the Basel Committee on Banking Supervision (BCBS) Basel Framework published on the Bank for International Settlements (BIS) website.2 For reference, the Basel paragraph numbers that are associated with the text appearing in this chapter are indicated in square brackets at the end of each paragraph.3\n## 1.1. Scope of Application\n3.\tThe capital adequacy requirements outlined in this guideline apply on a consolidated basis to the following institutions:\n\n4.\tThe consolidated entity includes all subsidiaries except insurance subsidiaries. OSFI expects institutions to hold capital within the consolidated group in a manner that is consistent with the level and location of risk.\n## 1.2. Regulatory Capital\n5.\tTotal capital consists of the sum of the following elements:\n\n2The Basel Framework3Following the format: [Basel Framework, XXX yy.zz]4SMSBs are banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies that have not been designated by OSFI as domestic systemically important banks (D-SIBs). This includes subsidiaries of SMSBs or D-SIBs that are banks (including federal credit unions), federally regulated trust companies or federally regulated loan companies.5SMSB Capital and Liquidity Guideline\n\n---\n\n###### The criteria for the capital elements comprising the two tiers, as well as the various limits, restrictions and regulatory adjustments to which they are subject, are described in Chapter 2.\n### 1.3. Total Risk-weighted Assets\nRisk-weighted assets (RWA) make up the denominator of the risk-based capital ratios, and is calculated as the higher of:\na. the sum of the following three elements:\n\nb. the adjusted RWA determined as per the capital floor described in section 1.5.\n[Basel Framework, RBC 20.4]\n### 1.3.1. Credit Risk\nRWA for credit risk (including counterparty credit risk) is calculated as the sum of:\na. Credit RWA for banking book exposures which, except the RWA listed in (b) through (e) below, is calculated using:\n\nb. RWA for counterparty credit risk from banking book exposures and trading book exposures (as set out in Chapter 7), except the exposures listed in (c) and (f) below.\nc. Credit RWA for equity investments in funds that are held in the banking book calculated using one or more of the approaches set out in Chapter 4:\n\nd. RWA for securitization exposures held in the banking book, calculating using one or more of the approaches set out in Chapter 6:\n",
+          "toc_review": "### 1. TOC Presence & Quality\n\nThere is an explicit table of contents (TOC) present in the document. The TOC is well-structured and provides a clear overview of the chapter and section hierarchy.\n\nThe overall structure is **Excellent**.\n\n### 2. Structure Analysis\n\nThe main entries observed in the TOC and document structure are:\n\n- Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n  - 1.1. Scope of Application\n  - 1.2. Regulatory Capital\n  - 1.3. Total Risk-weighted Assets\n    - 1.3.1. Credit Risk\n    - 1.3.2. Market Risk\n    - 1.3.3. Operational Risk\n  - 1.4. Approval to use Internal Model Based Approaches\n    - 1.4.1. Approval to use the IRB Approaches to Credit Risk\n  - 1.5. Capital Floor\u2013Internal Model Based Approaches\n    - 1.5.1. The Capital Floor\n    - 1.5.2. Adjusted Capital Requirement\n  - 1.6. Calculation of OSFI Minimum Capital Requirements\n    - 1.6.1. Risk-Based Capital Ratios for D-SIBs and Category I and II SMSBs\n    - 1.6.2. Simplified Risk-Based Capital Ratio for Category III SMSBs\n  - 1.7. Mandated Capital Buffers\n    - 1.7.1. Capital Conservation Buffer\n    - 1.7.2. Countercyclical Buffer\n  - 1.8. Domestic Systemically Important Bank (D-SIB) Surcharge\n  - 1.9. Domestic Stability Buffer\n  - 1.10. Capital Targets\n- Annex 1 - Domestic Systemic Importance and Capital Targets\n- Annex 2 - Supervisory Target Capital Requirements\n\nThe hierarchy and flow of the structure are clear and well-organized.\n\n### 3. What's Working Well\n\n- The document has a clear and comprehensive table of contents that provides a good overview of the chapter and section structure.\n- The headings and subheadings are well-structured and follow a logical hierarchy.\n- The content flows smoothly from one section to the next, providing a coherent overview of the risk-based capital requirements.\n\n### 4. Identified Gaps\n\nNo major gaps or issues were identified in the structure of the document. The table of contents and headings provide a clear and detailed outline of the content."
+        },
+        "response_preview": "### Domain Analysis\n\n#### 1. Purpose & Strategic Intent\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document clearly states the purpose and strategic intent of the Capital Adequacy Requirements (CAR)..."
+      },
+      {
+        "timestamp": "2025-11-20T14:13:56.923323Z",
+        "prompt": "phase2_check_compliance_governance.md",
+        "payload_preview": {
+          "doc_title": "028e54549d514ffb89c2ae4ab9c93379 CAR Chapter 1 First 5 Pages",
+          "page_count": 3,
+          "word_count": 1044,
+          "document_text": "# Guideline\nSubject: Capital Adequacy Requirements (CAR)\n## Chapter 1 \u2013 Overview of risk-based capital requirements\nEffective Date: November 2023 / January 2024\nNote: For institutions with a fiscal year ending October 31 or December 31, respectively.\nSubsections 485(1) and 949(1) of the Bank Act (BA), subsection 473(1) of the Trust and Loan Companies Act (TLCA) require banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies to maintain adequate capital. The CAR Guideline is not made pursuant to subsections 485(2) or 949(2) of the BA, or to subsection 473(2) of the TLCA. However, the capital standards set out in this guideline together with the leverage requirements set out in the Leverage Requirements Guideline provide the framework within which the Superintendent assesses whether a bank, a bank holding company, a trust company, or a loan company maintains adequate capital pursuant to the Acts. For this purpose, the Superintendent has established two minimum standards: the leverage ratio described in the Leverage Requirements Guideline, and the risk-based capital ratio described in this guideline. The first test provides an overall measure of the adequacy of an institution's capital, while the second measure focuses on risk faced by the institution. Notwithstanding that a bank, bank holding company, trust company, or loan company may meet these standards, the Superintendent may direct a bank or bank holding company to increase its capital under subsections 485(3) or 949(3) of the BA, or a trust company or a loan company to increase its capital under subsection 473(3) of the TLCA.\nOSFI, as a member of the Basel Committee on Banking Supervision, participated in the development of the Basel capital framework on which this guideline is based. Where relevant, the Basel framework paragraph numbers are provided in square brackets at the end of each paragraph referencing material from the Basel framework.\nThe capital and leverage requirements for domestic systemically important banks are supplemented by the requirements described in OSFI's Total Loss Absorbing Capacity (TLAC) Guideline.\n\n\n---\n\n# Chapter 1 - Overview of risk-based capital requirements\nThe Capital Adequacy Requirements (CAR) for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies are set out in nine chapters, each of which has been issued as a separate document. This document should be read in conjunction with the other CAR chapters. The complete list of CAR chapters is as follows:\n## Chapter 1\tOverview of Risk-based Capital Requirements\n## Chapter 2\tDefinition of Capital\n## Chapter 3\tOperational Risk\n## Chapter 4\tCredit Risk \u2013 Standardized Approach\n## Chapter 5\tCredit Risk \u2013 Internal Ratings-Based Approach\n## Chapter 6\tSecuritization\n## Chapter 7\tSettlement and Counterparty Risk\n## Chapter 8\tCredit Valuation Adjustment (CVA) Risk\n## Chapter 9\tMarket Risk\n\n---\n\n# Table of Contents\n## Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n1.1.   Scope of Application ..........................................................................................4\n1.2.  Regulatory Capital ..................................................................................................4\n1.3.  Total Risk weighted Assets ..................................................................................5\n1.3.1.    Credit Risk ................................................................................................5\n1.3.2.    Market Risk...............................................................................................7\n1.3.3.    Operational Risk......................................................................................7\n1.4.  Approval to use Internal Model Based Approaches .............................................8\n1.4.1.    Approval to use the IRB Approaches to Credit Risk ...............................8\n1.5.  Capital Floor\u2013Internal Model Based Approaches ...............................................9\n1.5.1.    The Capital Floor......................................................................................9\n1.5.2.    Adjusted Capital Requirement...............................................................11\n1.6.  Calculation of OSFI Minimum Capital Requirements ......................................11\n1.6.1.    Risk-Based Capital Ratios for D-SIBs and Category I and II SMSBs ..11\n1.6.2.    Simplified Risk-Based Capital Ratio for Category III SMSBs ..............12\n1.7.  Mandated Capital Buffers...................................................................................12\n1.7.1.   Capital Conservation Buffer..................................................................13\n1.7.2.   Countercyclical Buffer............................................................................15\n1.8.  Domestic Systemically Important Bank (D-SIB) Surcharge ...........................18\n1.9.  Domestic Stability Buffer..................................................................................19\n1.10. Capital Targets..................................................................................................20\n## Annex 1     Domestic Systemic Importance and Capital Targets ................................22\n## Annex 2     Supervisory Target Capital Requirements...............................................26\n\n---\n\n# Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n1.\tOutlined below is an overview of the capital adequacy requirements for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies, collectively referred to as 'institutions'.\n2.\tThis chapter is drawn from the Basel Committee on Banking Supervision (BCBS) Basel Framework published on the Bank for International Settlements (BIS) website.2 For reference, the Basel paragraph numbers that are associated with the text appearing in this chapter are indicated in square brackets at the end of each paragraph.3\n## 1.1. Scope of Application\n3.\tThe capital adequacy requirements outlined in this guideline apply on a consolidated basis to the following institutions:\n\n4.\tThe consolidated entity includes all subsidiaries except insurance subsidiaries. OSFI expects institutions to hold capital within the consolidated group in a manner that is consistent with the level and location of risk.\n## 1.2. Regulatory Capital\n5.\tTotal capital consists of the sum of the following elements:\n\n2The Basel Framework3Following the format: [Basel Framework, XXX yy.zz]4SMSBs are banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies that have not been designated by OSFI as domestic systemically important banks (D-SIBs). This includes subsidiaries of SMSBs or D-SIBs that are banks (including federal credit unions), federally regulated trust companies or federally regulated loan companies.5SMSB Capital and Liquidity Guideline\n\n---\n\n###### The criteria for the capital elements comprising the two tiers, as well as the various limits, restrictions and regulatory adjustments to which they are subject, are described in Chapter 2.\n### 1.3. Total Risk-weighted Assets\nRisk-weighted assets (RWA) make up the denominator of the risk-based capital ratios, and is calculated as the higher of:\na. the sum of the following three elements:\n\nb. the adjusted RWA determined as per the capital floor described in section 1.5.\n[Basel Framework, RBC 20.4]\n### 1.3.1. Credit Risk\nRWA for credit risk (including counterparty credit risk) is calculated as the sum of:\na. Credit RWA for banking book exposures which, except the RWA listed in (b) through (e) below, is calculated using:\n\nb. RWA for counterparty credit risk from banking book exposures and trading book exposures (as set out in Chapter 7), except the exposures listed in (c) and (f) below.\nc. Credit RWA for equity investments in funds that are held in the banking book calculated using one or more of the approaches set out in Chapter 4:\n\nd. RWA for securitization exposures held in the banking book, calculating using one or more of the approaches set out in Chapter 6:\n",
+          "toc_review": "### 1. TOC Presence & Quality\n\nThere is an explicit table of contents (TOC) present in the document. The TOC is well-structured and provides a clear overview of the chapter and section hierarchy.\n\nThe overall structure is **Excellent**.\n\n### 2. Structure Analysis\n\nThe main entries observed in the TOC and document structure are:\n\n- Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n  - 1.1. Scope of Application\n  - 1.2. Regulatory Capital\n  - 1.3. Total Risk-weighted Assets\n    - 1.3.1. Credit Risk\n    - 1.3.2. Market Risk\n    - 1.3.3. Operational Risk\n  - 1.4. Approval to use Internal Model Based Approaches\n    - 1.4.1. Approval to use the IRB Approaches to Credit Risk\n  - 1.5. Capital Floor\u2013Internal Model Based Approaches\n    - 1.5.1. The Capital Floor\n    - 1.5.2. Adjusted Capital Requirement\n  - 1.6. Calculation of OSFI Minimum Capital Requirements\n    - 1.6.1. Risk-Based Capital Ratios for D-SIBs and Category I and II SMSBs\n    - 1.6.2. Simplified Risk-Based Capital Ratio for Category III SMSBs\n  - 1.7. Mandated Capital Buffers\n    - 1.7.1. Capital Conservation Buffer\n    - 1.7.2. Countercyclical Buffer\n  - 1.8. Domestic Systemically Important Bank (D-SIB) Surcharge\n  - 1.9. Domestic Stability Buffer\n  - 1.10. Capital Targets\n- Annex 1 - Domestic Systemic Importance and Capital Targets\n- Annex 2 - Supervisory Target Capital Requirements\n\nThe hierarchy and flow of the structure are clear and well-organized.\n\n### 3. What's Working Well\n\n- The document has a clear and comprehensive table of contents that provides a good overview of the chapter and section structure.\n- The headings and subheadings are well-structured and follow a logical hierarchy.\n- The content flows smoothly from one section to the next, providing a coherent overview of the risk-based capital requirements.\n\n### 4. Identified Gaps\n\nNo major gaps or issues were identified in the structure of the document. The table of contents and headings provide a clear and detailed outline of the content."
+        },
+        "response_preview": "### Compliance Analysis by Area\n\n#### 1. Mandatory Requirements\n\n**Findings**: The document contains clear mandatory requirements using language like \"shall\", \"must\", and \"is required to\". For example..."
+      },
+      {
+        "timestamp": "2025-11-20T14:14:06.601498Z",
+        "prompt": "phase2_check_language_clarity.md",
+        "payload_preview": {
+          "doc_title": "028e54549d514ffb89c2ae4ab9c93379 CAR Chapter 1 First 5 Pages",
+          "page_count": 3,
+          "word_count": 1044,
+          "document_text": "# Guideline\nSubject: Capital Adequacy Requirements (CAR)\n## Chapter 1 \u2013 Overview of risk-based capital requirements\nEffective Date: November 2023 / January 2024\nNote: For institutions with a fiscal year ending October 31 or December 31, respectively.\nSubsections 485(1) and 949(1) of the Bank Act (BA), subsection 473(1) of the Trust and Loan Companies Act (TLCA) require banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies to maintain adequate capital. The CAR Guideline is not made pursuant to subsections 485(2) or 949(2) of the BA, or to subsection 473(2) of the TLCA. However, the capital standards set out in this guideline together with the leverage requirements set out in the Leverage Requirements Guideline provide the framework within which the Superintendent assesses whether a bank, a bank holding company, a trust company, or a loan company maintains adequate capital pursuant to the Acts. For this purpose, the Superintendent has established two minimum standards: the leverage ratio described in the Leverage Requirements Guideline, and the risk-based capital ratio described in this guideline. The first test provides an overall measure of the adequacy of an institution's capital, while the second measure focuses on risk faced by the institution. Notwithstanding that a bank, bank holding company, trust company, or loan company may meet these standards, the Superintendent may direct a bank or bank holding company to increase its capital under subsections 485(3) or 949(3) of the BA, or a trust company or a loan company to increase its capital under subsection 473(3) of the TLCA.\nOSFI, as a member of the Basel Committee on Banking Supervision, participated in the development of the Basel capital framework on which this guideline is based. Where relevant, the Basel framework paragraph numbers are provided in square brackets at the end of each paragraph referencing material from the Basel framework.\nThe capital and leverage requirements for domestic systemically important banks are supplemented by the requirements described in OSFI's Total Loss Absorbing Capacity (TLAC) Guideline.\n\n\n---\n\n# Chapter 1 - Overview of risk-based capital requirements\nThe Capital Adequacy Requirements (CAR) for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies are set out in nine chapters, each of which has been issued as a separate document. This document should be read in conjunction with the other CAR chapters. The complete list of CAR chapters is as follows:\n## Chapter 1\tOverview of Risk-based Capital Requirements\n## Chapter 2\tDefinition of Capital\n## Chapter 3\tOperational Risk\n## Chapter 4\tCredit Risk \u2013 Standardized Approach\n## Chapter 5\tCredit Risk \u2013 Internal Ratings-Based Approach\n## Chapter 6\tSecuritization\n## Chapter 7\tSettlement and Counterparty Risk\n## Chapter 8\tCredit Valuation Adjustment (CVA) Risk\n## Chapter 9\tMarket Risk\n\n---\n\n# Table of Contents\n## Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n1.1.   Scope of Application ..........................................................................................4\n1.2.  Regulatory Capital ..................................................................................................4\n1.3.  Total Risk weighted Assets ..................................................................................5\n1.3.1.    Credit Risk ................................................................................................5\n1.3.2.    Market Risk...............................................................................................7\n1.3.3.    Operational Risk......................................................................................7\n1.4.  Approval to use Internal Model Based Approaches .............................................8\n1.4.1.    Approval to use the IRB Approaches to Credit Risk ...............................8\n1.5.  Capital Floor\u2013Internal Model Based Approaches ...............................................9\n1.5.1.    The Capital Floor......................................................................................9\n1.5.2.    Adjusted Capital Requirement...............................................................11\n1.6.  Calculation of OSFI Minimum Capital Requirements ......................................11\n1.6.1.    Risk-Based Capital Ratios for D-SIBs and Category I and II SMSBs ..11\n1.6.2.    Simplified Risk-Based Capital Ratio for Category III SMSBs ..............12\n1.7.  Mandated Capital Buffers...................................................................................12\n1.7.1.   Capital Conservation Buffer..................................................................13\n1.7.2.   Countercyclical Buffer............................................................................15\n1.8.  Domestic Systemically Important Bank (D-SIB) Surcharge ...........................18\n1.9.  Domestic Stability Buffer..................................................................................19\n1.10. Capital Targets..................................................................................................20\n## Annex 1     Domestic Systemic Importance and Capital Targets ................................22\n## Annex 2     Supervisory Target Capital Requirements...............................................26\n\n---\n\n# Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n1.\tOutlined below is an overview of the capital adequacy requirements for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies, collectively referred to as 'institutions'.\n2.\tThis chapter is drawn from the Basel Committee on Banking Supervision (BCBS) Basel Framework published on the Bank for International Settlements (BIS) website.2 For reference, the Basel paragraph numbers that are associated with the text appearing in this chapter are indicated in square brackets at the end of each paragraph.3\n## 1.1. Scope of Application\n3.\tThe capital adequacy requirements outlined in this guideline apply on a consolidated basis to the following institutions:\n\n4.\tThe consolidated entity includes all subsidiaries except insurance subsidiaries. OSFI expects institutions to hold capital within the consolidated group in a manner that is consistent with the level and location of risk.\n## 1.2. Regulatory Capital\n5.\tTotal capital consists of the sum of the following elements:\n\n2The Basel Framework3Following the format: [Basel Framework, XXX yy.zz]4SMSBs are banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies that have not been designated by OSFI as domestic systemically important banks (D-SIBs). This includes subsidiaries of SMSBs or D-SIBs that are banks (including federal credit unions), federally regulated trust companies or federally regulated loan companies.5SMSB Capital and Liquidity Guideline\n\n---\n\n###### The criteria for the capital elements comprising the two tiers, as well as the various limits, restrictions and regulatory adjustments to which they are subject, are described in Chapter 2.\n### 1.3. Total Risk-weighted Assets\nRisk-weighted assets (RWA) make up the denominator of the risk-based capital ratios, and is calculated as the higher of:\na. the sum of the following three elements:\n\nb. the adjusted RWA determined as per the capital floor described in section 1.5.\n[Basel Framework, RBC 20.4]\n### 1.3.1. Credit Risk\nRWA for credit risk (including counterparty credit risk) is calculated as the sum of:\na. Credit RWA for banking book exposures which, except the RWA listed in (b) through (e) below, is calculated using:\n\nb. RWA for counterparty credit risk from banking book exposures and trading book exposures (as set out in Chapter 7), except the exposures listed in (c) and (f) below.\nc. Credit RWA for equity investments in funds that are held in the banking book calculated using one or more of the approaches set out in Chapter 4:\n\nd. RWA for securitization exposures held in the banking book, calculating using one or more of the approaches set out in Chapter 6:\n",
+          "toc_review": "### 1. TOC Presence & Quality\n\nThere is an explicit table of contents (TOC) present in the document. The TOC is well-structured and provides a clear overview of the chapter and section hierarchy.\n\nThe overall structure is **Excellent**.\n\n### 2. Structure Analysis\n\nThe main entries observed in the TOC and document structure are:\n\n- Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n  - 1.1. Scope of Application\n  - 1.2. Regulatory Capital\n  - 1.3. Total Risk-weighted Assets\n    - 1.3.1. Credit Risk\n    - 1.3.2. Market Risk\n    - 1.3.3. Operational Risk\n  - 1.4. Approval to use Internal Model Based Approaches\n    - 1.4.1. Approval to use the IRB Approaches to Credit Risk\n  - 1.5. Capital Floor\u2013Internal Model Based Approaches\n    - 1.5.1. The Capital Floor\n    - 1.5.2. Adjusted Capital Requirement\n  - 1.6. Calculation of OSFI Minimum Capital Requirements\n    - 1.6.1. Risk-Based Capital Ratios for D-SIBs and Category I and II SMSBs\n    - 1.6.2. Simplified Risk-Based Capital Ratio for Category III SMSBs\n  - 1.7. Mandated Capital Buffers\n    - 1.7.1. Capital Conservation Buffer\n    - 1.7.2. Countercyclical Buffer\n  - 1.8. Domestic Systemically Important Bank (D-SIB) Surcharge\n  - 1.9. Domestic Stability Buffer\n  - 1.10. Capital Targets\n- Annex 1 - Domestic Systemic Importance and Capital Targets\n- Annex 2 - Supervisory Target Capital Requirements\n\nThe hierarchy and flow of the structure are clear and well-organized.\n\n### 3. What's Working Well\n\n- The document has a clear and comprehensive table of contents that provides a good overview of the chapter and section structure.\n- The headings and subheadings are well-structured and follow a logical hierarchy.\n- The content flows smoothly from one section to the next, providing a coherent overview of the risk-based capital requirements.\n\n### 4. Identified Gaps\n\nNo major gaps or issues were identified in the structure of the document. The table of contents and headings provide a clear and detailed outline of the content."
+        },
+        "response_preview": "### Language Analysis by Dimension\n\n#### 1. Directive vs Advisory Tone\n\n**General Assessment**: The document generally maintains a directive and mandatory tone, using language like \"must\", \"required\",..."
+      },
+      {
+        "timestamp": "2025-11-20T14:14:13.564790Z",
+        "prompt": "phase2_check_structural_presentation.md",
+        "payload_preview": {
+          "doc_title": "028e54549d514ffb89c2ae4ab9c93379 CAR Chapter 1 First 5 Pages",
+          "page_count": 3,
+          "word_count": 1044,
+          "document_text": "# Guideline\nSubject: Capital Adequacy Requirements (CAR)\n## Chapter 1 \u2013 Overview of risk-based capital requirements\nEffective Date: November 2023 / January 2024\nNote: For institutions with a fiscal year ending October 31 or December 31, respectively.\nSubsections 485(1) and 949(1) of the Bank Act (BA), subsection 473(1) of the Trust and Loan Companies Act (TLCA) require banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies to maintain adequate capital. The CAR Guideline is not made pursuant to subsections 485(2) or 949(2) of the BA, or to subsection 473(2) of the TLCA. However, the capital standards set out in this guideline together with the leverage requirements set out in the Leverage Requirements Guideline provide the framework within which the Superintendent assesses whether a bank, a bank holding company, a trust company, or a loan company maintains adequate capital pursuant to the Acts. For this purpose, the Superintendent has established two minimum standards: the leverage ratio described in the Leverage Requirements Guideline, and the risk-based capital ratio described in this guideline. The first test provides an overall measure of the adequacy of an institution's capital, while the second measure focuses on risk faced by the institution. Notwithstanding that a bank, bank holding company, trust company, or loan company may meet these standards, the Superintendent may direct a bank or bank holding company to increase its capital under subsections 485(3) or 949(3) of the BA, or a trust company or a loan company to increase its capital under subsection 473(3) of the TLCA.\nOSFI, as a member of the Basel Committee on Banking Supervision, participated in the development of the Basel capital framework on which this guideline is based. Where relevant, the Basel framework paragraph numbers are provided in square brackets at the end of each paragraph referencing material from the Basel framework.\nThe capital and leverage requirements for domestic systemically important banks are supplemented by the requirements described in OSFI's Total Loss Absorbing Capacity (TLAC) Guideline.\n\n\n---\n\n# Chapter 1 - Overview of risk-based capital requirements\nThe Capital Adequacy Requirements (CAR) for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies are set out in nine chapters, each of which has been issued as a separate document. This document should be read in conjunction with the other CAR chapters. The complete list of CAR chapters is as follows:\n## Chapter 1\tOverview of Risk-based Capital Requirements\n## Chapter 2\tDefinition of Capital\n## Chapter 3\tOperational Risk\n## Chapter 4\tCredit Risk \u2013 Standardized Approach\n## Chapter 5\tCredit Risk \u2013 Internal Ratings-Based Approach\n## Chapter 6\tSecuritization\n## Chapter 7\tSettlement and Counterparty Risk\n## Chapter 8\tCredit Valuation Adjustment (CVA) Risk\n## Chapter 9\tMarket Risk\n\n---\n\n# Table of Contents\n## Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n1.1.   Scope of Application ..........................................................................................4\n1.2.  Regulatory Capital ..................................................................................................4\n1.3.  Total Risk weighted Assets ..................................................................................5\n1.3.1.    Credit Risk ................................................................................................5\n1.3.2.    Market Risk...............................................................................................7\n1.3.3.    Operational Risk......................................................................................7\n1.4.  Approval to use Internal Model Based Approaches .............................................8\n1.4.1.    Approval to use the IRB Approaches to Credit Risk ...............................8\n1.5.  Capital Floor\u2013Internal Model Based Approaches ...............................................9\n1.5.1.    The Capital Floor......................................................................................9\n1.5.2.    Adjusted Capital Requirement...............................................................11\n1.6.  Calculation of OSFI Minimum Capital Requirements ......................................11\n1.6.1.    Risk-Based Capital Ratios for D-SIBs and Category I and II SMSBs ..11\n1.6.2.    Simplified Risk-Based Capital Ratio for Category III SMSBs ..............12\n1.7.  Mandated Capital Buffers...................................................................................12\n1.7.1.   Capital Conservation Buffer..................................................................13\n1.7.2.   Countercyclical Buffer............................................................................15\n1.8.  Domestic Systemically Important Bank (D-SIB) Surcharge ...........................18\n1.9.  Domestic Stability Buffer..................................................................................19\n1.10. Capital Targets..................................................................................................20\n## Annex 1     Domestic Systemic Importance and Capital Targets ................................22\n## Annex 2     Supervisory Target Capital Requirements...............................................26\n\n---\n\n# Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n1.\tOutlined below is an overview of the capital adequacy requirements for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies, collectively referred to as 'institutions'.\n2.\tThis chapter is drawn from the Basel Committee on Banking Supervision (BCBS) Basel Framework published on the Bank for International Settlements (BIS) website.2 For reference, the Basel paragraph numbers that are associated with the text appearing in this chapter are indicated in square brackets at the end of each paragraph.3\n## 1.1. Scope of Application\n3.\tThe capital adequacy requirements outlined in this guideline apply on a consolidated basis to the following institutions:\n\n4.\tThe consolidated entity includes all subsidiaries except insurance subsidiaries. OSFI expects institutions to hold capital within the consolidated group in a manner that is consistent with the level and location of risk.\n## 1.2. Regulatory Capital\n5.\tTotal capital consists of the sum of the following elements:\n\n2The Basel Framework3Following the format: [Basel Framework, XXX yy.zz]4SMSBs are banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies that have not been designated by OSFI as domestic systemically important banks (D-SIBs). This includes subsidiaries of SMSBs or D-SIBs that are banks (including federal credit unions), federally regulated trust companies or federally regulated loan companies.5SMSB Capital and Liquidity Guideline\n\n---\n\n###### The criteria for the capital elements comprising the two tiers, as well as the various limits, restrictions and regulatory adjustments to which they are subject, are described in Chapter 2.\n### 1.3. Total Risk-weighted Assets\nRisk-weighted assets (RWA) make up the denominator of the risk-based capital ratios, and is calculated as the higher of:\na. the sum of the following three elements:\n\nb. the adjusted RWA determined as per the capital floor described in section 1.5.\n[Basel Framework, RBC 20.4]\n### 1.3.1. Credit Risk\nRWA for credit risk (including counterparty credit risk) is calculated as the sum of:\na. Credit RWA for banking book exposures which, except the RWA listed in (b) through (e) below, is calculated using:\n\nb. RWA for counterparty credit risk from banking book exposures and trading book exposures (as set out in Chapter 7), except the exposures listed in (c) and (f) below.\nc. Credit RWA for equity investments in funds that are held in the banking book calculated using one or more of the approaches set out in Chapter 4:\n\nd. RWA for securitization exposures held in the banking book, calculating using one or more of the approaches set out in Chapter 6:\n",
+          "toc_review": "### 1. TOC Presence & Quality\n\nThere is an explicit table of contents (TOC) present in the document. The TOC is well-structured and provides a clear overview of the chapter and section hierarchy.\n\nThe overall structure is **Excellent**.\n\n### 2. Structure Analysis\n\nThe main entries observed in the TOC and document structure are:\n\n- Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n  - 1.1. Scope of Application\n  - 1.2. Regulatory Capital\n  - 1.3. Total Risk-weighted Assets\n    - 1.3.1. Credit Risk\n    - 1.3.2. Market Risk\n    - 1.3.3. Operational Risk\n  - 1.4. Approval to use Internal Model Based Approaches\n    - 1.4.1. Approval to use the IRB Approaches to Credit Risk\n  - 1.5. Capital Floor\u2013Internal Model Based Approaches\n    - 1.5.1. The Capital Floor\n    - 1.5.2. Adjusted Capital Requirement\n  - 1.6. Calculation of OSFI Minimum Capital Requirements\n    - 1.6.1. Risk-Based Capital Ratios for D-SIBs and Category I and II SMSBs\n    - 1.6.2. Simplified Risk-Based Capital Ratio for Category III SMSBs\n  - 1.7. Mandated Capital Buffers\n    - 1.7.1. Capital Conservation Buffer\n    - 1.7.2. Countercyclical Buffer\n  - 1.8. Domestic Systemically Important Bank (D-SIB) Surcharge\n  - 1.9. Domestic Stability Buffer\n  - 1.10. Capital Targets\n- Annex 1 - Domestic Systemic Importance and Capital Targets\n- Annex 2 - Supervisory Target Capital Requirements\n\nThe hierarchy and flow of the structure are clear and well-organized.\n\n### 3. What's Working Well\n\n- The document has a clear and comprehensive table of contents that provides a good overview of the chapter and section structure.\n- The headings and subheadings are well-structured and follow a logical hierarchy.\n- The content flows smoothly from one section to the next, providing a coherent overview of the risk-based capital requirements.\n\n### 4. Identified Gaps\n\nNo major gaps or issues were identified in the structure of the document. The table of contents and headings provide a clear and detailed outline of the content."
+        },
+        "response_preview": "### Structural Analysis by Aspect\n\n#### 1. Flow & Organization\n\n**What Works Well**:\n- The document has a clear and comprehensive table of contents that provides a good overview of the chapter and sec..."
+      },
+      {
+        "timestamp": "2025-11-20T14:14:18.254668Z",
+        "prompt": "phase2_synthesis_summary.md",
+        "payload_preview": {
+          "doc_title": "028e54549d514ffb89c2ae4ab9c93379 CAR Chapter 1 First 5 Pages",
+          "toc_review": "### 1. TOC Presence & Quality\n\nThere is an explicit table of contents (TOC) present in the document. The TOC is well-structured and provides a clear overview of the chapter and section hierarchy.\n\nThe overall structure is **Excellent**.\n\n### 2. Structure Analysis\n\nThe main entries observed in the TOC and document structure are:\n\n- Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n  - 1.1. Scope of Application\n  - 1.2. Regulatory Capital\n  - 1.3. Total Risk-weighted Assets\n    - 1.3.1. Credit Risk\n    - 1.3.2. Market Risk\n    - 1.3.3. Operational Risk\n  - 1.4. Approval to use Internal Model Based Approaches\n    - 1.4.1. Approval to use the IRB Approaches to Credit Risk\n  - 1.5. Capital Floor\u2013Internal Model Based Approaches\n    - 1.5.1. The Capital Floor\n    - 1.5.2. Adjusted Capital Requirement\n  - 1.6. Calculation of OSFI Minimum Capital Requirements\n    - 1.6.1. Risk-Based Capital Ratios for D-SIBs and Category I and II SMSBs\n    - 1.6.2. Simplified Risk-Based Capital Ratio for Category III SMSBs\n  - 1.7. Mandated Capital Buffers\n    - 1.7.1. Capital Conservation Buffer\n    - 1.7.2. Countercyclical Buffer\n  - 1.8. Domestic Systemically Important Bank (D-SIB) Surcharge\n  - 1.9. Domestic Stability Buffer\n  - 1.10. Capital Targets\n- Annex 1 - Domestic Systemic Importance and Capital Targets\n- Annex 2 - Supervisory Target Capital Requirements\n\nThe hierarchy and flow of the structure are clear and well-organized.\n\n### 3. What's Working Well\n\n- The document has a clear and comprehensive table of contents that provides a good overview of the chapter and section structure.\n- The headings and subheadings are well-structured and follow a logical hierarchy.\n- The content flows smoothly from one section to the next, providing a coherent overview of the risk-based capital requirements.\n\n### 4. Identified Gaps\n\nNo major gaps or issues were identified in the structure of the document. The table of contents and headings provide a clear and detailed outline of the content.",
+          "conceptual_coverage": "### Domain Analysis\n\n#### 1. Purpose & Strategic Intent\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document clearly states the purpose and strategic intent of the Capital Adequacy Requirements (CAR) guideline, which is to outline the capital adequacy requirements for banks, bank holding companies, federally regulated trust companies, and federally regulated loan companies.\n- The document references the relevant sections of the Bank Act and Trust and Loan Companies Act that require these institutions to maintain adequate capital.\n- The document also notes that the CAR guideline, together with the Leverage Requirements Guideline, provide the framework for the Superintendent to assess the capital adequacy of these institutions.\n\n**Gaps**: None identified.\n\n**Severity**: N/A\n\n**Recommendations**: None.\n\n#### 2. Scope & Applicability\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document clearly states that the capital adequacy requirements outlined in the guideline apply on a consolidated basis to the specified institutions.\n- It also notes that the consolidated entity includes all subsidiaries except insurance subsidiaries.\n\n**Gaps**: None identified.\n\n**Severity**: N/A\n\n**Recommendations**: None.\n\n#### 3. Mandatory Requirements or Rules\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document outlines the key mandatory requirements and rules related to capital adequacy, including the minimum risk-based capital ratios, leverage ratio, and various capital buffers.\n- It also covers the approval process for using internal model-based approaches, the capital floor for internal model-based approaches, and the calculation of OSFI's minimum capital requirements.\n\n**Gaps**: None identified.\n\n**Severity**: N/A\n\n**Recommendations**: None.\n\n#### 4. Roles, Responsibilities & Ownership\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document does not explicitly define the roles, responsibilities, and ownership of the capital adequacy requirements. It focuses more on the technical details and requirements.\n\n**Gaps**:\n- The document could be improved by including information on the roles and responsibilities of the various stakeholders (e.g., OSFI, institutions) in implementing and maintaining the capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Consider adding a section that outlines the key roles, responsibilities, and ownership of the capital adequacy requirements, including the responsibilities of OSFI and the institutions.\n\n#### 5. Governance Alignment (e.g., risk, compliance, oversight)\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document mentions that the Superintendent may direct an institution to increase its capital, but does not provide detailed information on the governance and oversight mechanisms.\n- It also references the Leverage Requirements Guideline and the Total Loss Absorbing Capacity (TLAC) Guideline, which likely contain more information on the governance and oversight aspects.\n\n**Gaps**:\n- The document could be improved by including more information on the governance, risk, compliance, and oversight frameworks that support the capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Consider adding a section that outlines the key governance, risk, compliance, and oversight mechanisms related to the capital adequacy requirements.\n- Provide more explicit references to the relevant supporting guidelines (e.g., Leverage Requirements, TLAC) that contain additional details on these aspects.\n\n#### 6. Operational Expectations or Procedures\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document provides a comprehensive overview of the operational aspects of the capital adequacy requirements, including the calculation of risk-weighted assets, the approval process for internal model-based approaches, the capital floor, and the minimum capital requirements.\n- It covers the key elements that contribute to the calculation of total risk-weighted assets, such as credit risk, market risk, and operational risk.\n\n**Gaps**: None identified.\n\n**Severity**: N/A\n\n**Recommendations**: None.\n\n#### 7. Monitoring, Reporting & Evidence Requirements\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document does not explicitly outline the monitoring, reporting, and evidence requirements related to the capital adequacy requirements.\n- It focuses more on the technical details and calculations rather than the operational and compliance aspects.\n\n**Gaps**:\n- The document could be improved by including information on the monitoring, reporting, and evidence requirements that institutions must adhere to in order to demonstrate compliance with the capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Consider adding a section that outlines the key monitoring, reporting, and evidence requirements for institutions, including any specific data, metrics, or documentation that must be provided to OSFI.\n\n#### 8. Exceptions & Escalation Logic\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document mentions that the Superintendent may direct an institution to increase its capital, but does not provide detailed information on the exceptions or escalation process.\n- It also notes that the capital standards set out in the guideline, together with the leverage requirements, provide the framework for the Superintendent to assess the capital adequacy of institutions.\n\n**Gaps**:\n- The document could be improved by including more information on the exceptions, escalation logic, and the process for addressing non-compliance or capital deficiencies.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Consider adding a section that outlines the exceptions, escalation process, and the actions that the Superintendent may take in cases where an institution does not meet the capital adequacy requirements.\n\n#### 9. Change Management & Review Cadence\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document does not explicitly address the change management or review cadence for the capital adequacy requirements.\n- It mentions that the guideline is effective as of November 2023 / January 2024, but does not provide information on the review or update process.\n\n**Gaps**:\n- The document could be improved by including information on the change management process, review cadence, and the mechanism for updating the capital adequacy requirements as needed.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Consider adding a section that outlines the change management process, review cadence, and the mechanism for updating the capital adequacy requirements in response to changes in regulations, market conditions, or other factors.\n\n#### 10. Definitions, References, or Supporting Documents\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document provides references to the relevant sections of the Bank Act and Trust and Loan Companies Act that underpin the capital adequacy requirements.\n- It also references the Basel Framework published by the Basel Committee on Banking Supervision, and indicates the relevant paragraph numbers from the Basel Framework that are associated with the text in the document.\n- The document mentions that it should be read in conjunction with the other CAR chapters, which are listed in the table of contents.\n\n**Gaps**: None identified.\n\n**Severity**: N/A\n\n**Recommendations**: None.\n\n### Overall Verdict\n\n**Summary**: The document provides a comprehensive and detailed overview of the capital adequacy requirements for banks, bank holding companies, federally regulated trust companies, and federally regulated loan companies. It covers the key conceptual domains, including the purpose, scope, mandatory requirements, operational expectations, and references to supporting documents.\n\nThe document could be further strengthened by including more information on the roles, responsibilities, and governance aspects, as well as the monitoring, reporting, and escalation processes. Additionally, the change management and review cadence for the capital adequacy requirements could be more explicitly addressed.\n\n**Key Strengths**:\n- Clear and comprehensive coverage of the purpose, scope, and mandatory requirements related to capital adequacy\n- Detailed information on the calculation of risk-weighted assets and the various components (credit risk, market risk, operational risk)\n- Robust references to the relevant regulatory frameworks and supporting guidelines\n\n**Priority Gaps** (ranked):\n1. Roles, responsibilities, and governance aspects related to the capital adequacy requirements\n2. Monitoring, reporting, and evidence requirements for institutions\n3. Exceptions, escalation logic, and the process for addressing non-compliance\n4. Change management and review cadence for the capital adequacy requirements\n\n**Recommended Actions**:\n- Consider adding a section that outlines the key roles, responsibilities, and governance mechanisms related to the capital adequacy requirements, including the responsibilities of OSFI and the institutions.\n- Include more information on the monitoring, reporting, and evidence requirements that institutions must adhere to in order to demonstrate compliance with the capital adequacy requirements.\n- Provide details on the exceptions, escalation process, and the actions that the Superintendent may take in cases where an institution does not meet the capital adequacy requirements.\n- Incorporate a section that addresses the change management process, review cadence, and the mechanism for updating the capital adequacy requirements as needed.",
+          "compliance_governance": "### Compliance Analysis by Area\n\n#### 1. Mandatory Requirements\n\n**Findings**: The document contains clear mandatory requirements using language like \"shall\", \"must\", and \"is required to\". For example, it states that \"banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies are required to maintain adequate capital\" under the Bank Act and Trust and Loan Companies Act.\n\n**Gaps**: No significant gaps identified in the mandatory requirements.\n\n**Severity**: Low\n\n#### 2. Defined Ownership\n\n**Findings**: The document clearly defines the institutions that are subject to the capital adequacy requirements, including banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies.\n\n**Gaps**: While the document defines the institutions subject to the requirements, it does not explicitly assign role-level accountability for compliance and governance.\n\n**Severity**: Medium\n\n#### 3. Oversight & Challenge Mechanisms\n\n**Findings**: The document states that the Superintendent may direct an institution to increase its capital if the minimum standards are met, indicating an oversight and challenge mechanism.\n\n**Gaps**: The document does not provide details on the specific oversight and challenge processes, such as reporting requirements, review procedures, or escalation channels.\n\n**Severity**: Medium\n\n#### 4. Escalation Thresholds or Triggers\n\n**Findings**: The document outlines the minimum capital standards that institutions must meet, including the leverage ratio and risk-based capital ratio. It also mentions that the Superintendent may direct an institution to increase its capital if the standards are met.\n\n**Gaps**: The document does not provide specific escalation thresholds or triggers for when the Superintendent may exercise their authority to direct an institution to increase capital.\n\n**Severity**: Medium\n\n#### 5. Internal Control References or Risk Alignment\n\n**Findings**: The document aligns the capital adequacy requirements with the Basel capital framework and references the Leverage Requirements Guideline, indicating a broader risk management framework.\n\n**Gaps**: The document does not provide detailed references to internal control processes or risk management practices that support the capital adequacy requirements.\n\n**Severity**: Medium\n\n#### 6. Approval Authority Clarity\n\n**Findings**: The document states that institutions must obtain approval from OSFI to use internal model-based approaches for credit risk, indicating a clear approval process.\n\n**Gaps**: The document does not provide details on the approval process, such as the specific criteria, documentation requirements, or timelines.\n\n**Severity**: Medium\n\n#### 7. Review Cadence & Assurance Expectations\n\n**Findings**: The document does not explicitly state the review cadence or assurance expectations for the capital adequacy requirements.\n\n**Gaps**: The document lacks information on the frequency of reviews, the parties responsible for assurance, and the processes for monitoring and validating compliance.\n\n**Severity**: High\n\n#### 8. Regulatory or Policy Framework Alignment\n\n**Findings**: The document is aligned with the Bank Act, Trust and Loan Companies Act, and the Basel capital framework, indicating a strong regulatory and policy framework.\n\n**Gaps**: No significant gaps identified in the regulatory and policy alignment.\n\n**Severity**: Low\n\n### Overall Compliance Risk\n\n**Rating**: Medium\n\n**Critical Issues**:\n1. Lack of defined role-level accountability and ownership for compliance and governance.\n2. Insufficient details on the oversight and challenge mechanisms, escalation thresholds, and internal control processes.\n3. Absence of clear review cadence and assurance expectations.\n\n**Recommended Governance Improvements**:\n- Assign clear role-level accountability and ownership for capital adequacy compliance and governance.\n- Enhance the document to provide more details on the oversight and challenge processes, escalation triggers, and alignment with internal control and risk management practices.\n- Incorporate specific review cadence, assurance expectations, and monitoring/validation requirements.\n\n**Audit & Regulatory Exposure**:\n- Potential gaps in role-level accountability and governance could lead to compliance failures and regulatory scrutiny.\n- Lack of detailed oversight and escalation mechanisms may hinder the institution's ability to identify and address capital adequacy issues in a timely manner.\n- Absence of clear review and assurance processes could result in missed opportunities to validate compliance and identify areas for improvement.",
+          "language_clarity": "### Language Analysis by Dimension\n\n#### 1. Directive vs Advisory Tone\n\n**General Assessment**: The document generally maintains a directive and mandatory tone, using language like \"must\", \"required\", and \"shall\". This is appropriate for a regulatory guideline that sets out binding capital requirements.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| None | N/A | N/A | N/A | N/A |\n\n#### 2. Clarity and Specificity\n\n**General Assessment**: The document is highly specific and clear in its descriptions of the various capital requirements and calculation methodologies. Technical terms are well-defined, and the content is structured in a logical manner.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| None | N/A | N/A | N/A | N/A |\n\n#### 3. Presence of Vague/Ambiguous Phrases\n\n**General Assessment**: The document avoids vague or ambiguous language, and uses precise terminology throughout. The requirements are stated clearly and unambiguously.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| None | N/A | N/A | N/A | N/A |\n\n#### 4. Passive vs Active Voice\n\n**General Assessment**: The document primarily uses active voice, which contributes to the directive and authoritative tone. Passive voice is used sparingly and appropriately.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| None | N/A | N/A | N/A | N/A |\n\n#### 5. Internal Consistency of Terminology\n\n**General Assessment**: The document maintains a high level of internal consistency in its use of terminology. Key terms are defined clearly and used consistently throughout.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| None | N/A | N/A | N/A | N/A |\n\n#### 6. Sentence Structure, Flow, and Repetition\n\n**General Assessment**: The sentences are generally well-structured, with appropriate use of complex sentences to convey technical details. The flow between sections is logical and coherent. There is some repetition of key concepts, which helps reinforce the important requirements.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| None | N/A | N/A | N/A | N/A |\n\n#### 7. Plain-Language Suitability for Non-Experts\n\n**General Assessment**: The document is highly technical in nature and uses specialized terminology that may be challenging for non-experts to fully understand. However, the clear structure, definitions, and explanations make the content as accessible as possible for the target audience of financial institutions.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| Throughout | Technical terminology | May be difficult for non-experts | Provide more plain-language explanations | Medium |\n\n#### 8. Professional and Formal Tone\n\n**General Assessment**: The document maintains a highly professional and formal tone throughout, which is appropriate for a regulatory guideline of this nature. The language is precise, objective, and free of any casual or colloquial elements.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| None | N/A | N/A | N/A | N/A |\n\n### Overall Evaluation\n\n**Strengths**:\n- Clear, directive, and mandatory tone throughout, setting out binding requirements\n- Highly specific and technical content, with well-defined terms and concepts\n- Consistent use of terminology and logical flow between sections\n- Formal and professional language appropriate for a regulatory guideline\n\n**Weaknesses**:\n- The technical nature of the content may be challenging for non-expert readers to fully understand, despite the clear structure and explanations\n\n**Top Improvements** (prioritized):\n\n1. **Priority 1**: Provide more plain-language explanations and examples for key technical concepts and requirements\n   - **Impact**: This would help improve the accessibility of the content for non-expert readers, while still maintaining the necessary level of technical detail.\n   - **Action**: Review the document and identify opportunities to incorporate additional plain-language explanations and examples to clarify the more complex aspects of the capital requirements.\n\n2. **Priority 2**: Consider including a glossary of key terms\n   - **Impact**: A glossary would further enhance the document's accessibility by providing a centralized reference for the specialized terminology used throughout.\n   - **Action**: Evaluate the feasibility of including a glossary at the beginning or end of the document, or providing links to a centralized glossary resource.\n\n3. **Priority 3**: Maintain the overall high-quality of the language and structure\n   - **Impact**: The document's clear, directive, and professional tone is a significant strength that should be preserved.\n   - **Action**: Continue to apply the same level of rigor and attention to detail when updating or revising the document in the future."
+        },
+        "response_preview": "## Overall Assessment\n\nThe document demonstrates **strong compliance** with the template and provides a comprehensive overview of the risk-based capital requirements. The core sections are present and..."
       }
     ],
     "raw_markdown": "# Guideline\nSubject: Capital Adequacy Requirements (CAR)\n## Chapter 1 \u2013 Overview of risk-based capital requirements\nEffective Date: November 2023 / January 2024\nNote: For institutions with a fiscal year ending October 31 or December 31, respectively.\nSubsections 485(1) and 949(1) of the Bank Act (BA), subsection 473(1) of the Trust and Loan Companies Act (TLCA) require banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies to maintain adequate capital. The CAR Guideline is not made pursuant to subsections 485(2) or 949(2) of the BA, or to subsection 473(2) of the TLCA. However, the capital standards set out in this guideline together with the leverage requirements set out in the Leverage Requirements Guideline provide the framework within which the Superintendent assesses whether a bank, a bank holding company, a trust company, or a loan company maintains adequate capital pursuant to the Acts. For this purpose, the Superintendent has established two minimum standards: the leverage ratio described in the Leverage Requirements Guideline, and the risk-based capital ratio described in this guideline. The first test provides an overall measure of the adequacy of an institution's capital, while the second measure focuses on risk faced by the institution. Notwithstanding that a bank, bank holding company, trust company, or loan company may meet these standards, the Superintendent may direct a bank or bank holding company to increase its capital under subsections 485(3) or 949(3) of the BA, or a trust company or a loan company to increase its capital under subsection 473(3) of the TLCA.\nOSFI, as a member of the Basel Committee on Banking Supervision, participated in the development of the Basel capital framework on which this guideline is based. Where relevant, the Basel framework paragraph numbers are provided in square brackets at the end of each paragraph referencing material from the Basel framework.\nThe capital and leverage requirements for domestic systemically important banks are supplemented by the requirements described in OSFI's Total Loss Absorbing Capacity (TLAC) Guideline.\n\n\n---\n\n# Chapter 1 - Overview of risk-based capital requirements\nThe Capital Adequacy Requirements (CAR) for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies are set out in nine chapters, each of which has been issued as a separate document. This document should be read in conjunction with the other CAR chapters. The complete list of CAR chapters is as follows:\n## Chapter 1\tOverview of Risk-based Capital Requirements\n## Chapter 2\tDefinition of Capital\n## Chapter 3\tOperational Risk\n## Chapter 4\tCredit Risk \u2013 Standardized Approach\n## Chapter 5\tCredit Risk \u2013 Internal Ratings-Based Approach\n## Chapter 6\tSecuritization\n## Chapter 7\tSettlement and Counterparty Risk\n## Chapter 8\tCredit Valuation Adjustment (CVA) Risk\n## Chapter 9\tMarket Risk\n\n---\n\n# Table of Contents\n## Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n1.1.   Scope of Application ..........................................................................................4\n1.2.  Regulatory Capital ..................................................................................................4\n1.3.  Total Risk weighted Assets ..................................................................................5\n1.3.1.    Credit Risk ................................................................................................5\n1.3.2.    Market Risk...............................................................................................7\n1.3.3.    Operational Risk......................................................................................7\n1.4.  Approval to use Internal Model Based Approaches .............................................8\n1.4.1.    Approval to use the IRB Approaches to Credit Risk ...............................8\n1.5.  Capital Floor\u2013Internal Model Based Approaches ...............................................9\n1.5.1.    The Capital Floor......................................................................................9\n1.5.2.    Adjusted Capital Requirement...............................................................11\n1.6.  Calculation of OSFI Minimum Capital Requirements ......................................11\n1.6.1.    Risk-Based Capital Ratios for D-SIBs and Category I and II SMSBs ..11\n1.6.2.    Simplified Risk-Based Capital Ratio for Category III SMSBs ..............12\n1.7.  Mandated Capital Buffers...................................................................................12\n1.7.1.   Capital Conservation Buffer..................................................................13\n1.7.2.   Countercyclical Buffer............................................................................15\n1.8.  Domestic Systemically Important Bank (D-SIB) Surcharge ...........................18\n1.9.  Domestic Stability Buffer..................................................................................19\n1.10. Capital Targets..................................................................................................20\n## Annex 1     Domestic Systemic Importance and Capital Targets ................................22\n## Annex 2     Supervisory Target Capital Requirements...............................................26\n\n---\n\n# Chapter 1 \u2013 Overview of Risk-based Capital Requirements\n1.\tOutlined below is an overview of the capital adequacy requirements for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies, collectively referred to as 'institutions'.\n2.\tThis chapter is drawn from the Basel Committee on Banking Supervision (BCBS) Basel Framework published on the Bank for International Settlements (BIS) website.2 For reference, the Basel paragraph numbers that are associated with the text appearing in this chapter are indicated in square brackets at the end of each paragraph.3\n## 1.1. Scope of Application\n3.\tThe capital adequacy requirements outlined in this guideline apply on a consolidated basis to the following institutions:\n\n4.\tThe consolidated entity includes all subsidiaries except insurance subsidiaries. OSFI expects institutions to hold capital within the consolidated group in a manner that is consistent with the level and location of risk.\n## 1.2. Regulatory Capital\n5.\tTotal capital consists of the sum of the following elements:\n\n2The Basel Framework3Following the format: [Basel Framework, XXX yy.zz]4SMSBs are banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies that have not been designated by OSFI as domestic systemically important banks (D-SIBs). This includes subsidiaries of SMSBs or D-SIBs that are banks (including federal credit unions), federally regulated trust companies or federally regulated loan companies.5SMSB Capital and Liquidity Guideline\n\n---\n\n###### The criteria for the capital elements comprising the two tiers, as well as the various limits, restrictions and regulatory adjustments to which they are subject, are described in Chapter 2.\n### 1.3. Total Risk-weighted Assets\nRisk-weighted assets (RWA) make up the denominator of the risk-based capital ratios, and is calculated as the higher of:\na. the sum of the following three elements:\n\nb. the adjusted RWA determined as per the capital floor described in section 1.5.\n[Basel Framework, RBC 20.4]\n### 1.3.1. Credit Risk\nRWA for credit risk (including counterparty credit risk) is calculated as the sum of:\na. Credit RWA for banking book exposures which, except the RWA listed in (b) through (e) below, is calculated using:\n\nb. RWA for counterparty credit risk from banking book exposures and trading book exposures (as set out in Chapter 7), except the exposures listed in (c) and (f) below.\nc. Credit RWA for equity investments in funds that are held in the banking book calculated using one or more of the approaches set out in Chapter 4:\n\nd. RWA for securitization exposures held in the banking book, calculating using one or more of the approaches set out in Chapter 6:\n",
     "block_metadata": [
       {
-        "id": "2",
+        "id": "294",
         "page": 1,
         "block_num": 0,
         "start_line": 0,
@@ -5977,7 +6248,7 @@
         "content": "Guideline"
       },
       {
-        "id": "4",
+        "id": "296",
         "page": 1,
         "block_num": 1,
         "start_line": 0,
@@ -5986,19 +6257,27 @@
         "content": "Subject: Capital Adequacy Requirements (CAR)"
       },
       {
-        "id": "6",
+        "id": "298",
         "page": 1,
         "block_num": 2,
         "start_line": 0,
         "end_line": 0,
-        "type": "heading",
-        "level": 2,
-        "content": "Overview of risk-a capital requirements"
+        "type": "paragraph",
+        "content": "Overview\n\nThis overview provides a high-level summary of the key features and functionality of the product. It outlines the main use cases, target audience, and core capabilities to help users understand the value proposition at a glance."
       },
       {
-        "id": "8",
+        "id": "300",
         "page": 1,
         "block_num": 3,
+        "start_line": 0,
+        "end_line": 0,
+        "type": "paragraph",
+        "content": ""
+      },
+      {
+        "id": "302",
+        "page": 1,
+        "block_num": 4,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6006,54 +6285,54 @@
         "content": "Effective Date: November 2023 / January 2024"
       },
       {
-        "id": "10",
+        "id": "304",
         "page": 1,
-        "block_num": 4,
+        "block_num": 5,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "Note: For institutions with a fiscal year ending October 31 or December 31, respectively."
       },
       {
-        "id": "12",
+        "id": "306",
         "page": 1,
-        "block_num": 5,
+        "block_num": 6,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "Federal"
       },
       {
-        "id": "14",
+        "id": "308",
         "page": 1,
-        "block_num": 6,
+        "block_num": 7,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "OSFI, as a member of the Basel Committee on Banking Supervision, participated in the development of the Basel capital framework on which this guideline is based. Where relevant, the Basel framework paragraph numbers are provided in square brackets at the end of each paragraph referencing material from the Basel framework."
       },
       {
-        "id": "16",
+        "id": "310",
         "page": 1,
-        "block_num": 7,
+        "block_num": 8,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "Domestically systemically important banks are supplemented by the requirements described in OSFI's Total Loss Absorbing Capacity (TLAC) Guideline."
       },
       {
-        "id": "18",
+        "id": "312",
         "page": 1,
-        "block_num": 8,
+        "block_num": 9,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": ""
       },
       {
-        "id": "20",
+        "id": "314",
         "page": 1,
-        "block_num": 9,
+        "block_num": 10,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6061,18 +6340,18 @@
         "content": "Chapter 1 - Overview of risk-based capital requirements"
       },
       {
-        "id": "22",
+        "id": "316",
         "page": 1,
-        "block_num": 10,
+        "block_num": 11,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "The Capital Adequacy Requirements (CAR) for banks, bank holding companies, federally regulated trust companies, and federally regulated loan companies are set out in nine separate chapters. This document should be read in conjunction with the other CAR chapters. The complete list of CAR chapters is as follows:"
       },
       {
-        "id": "24",
+        "id": "318",
         "page": 1,
-        "block_num": 11,
+        "block_num": 12,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6080,9 +6359,9 @@
         "content": "Chapter 1\tOverview of Risk-based Capital Requirements"
       },
       {
-        "id": "26",
+        "id": "320",
         "page": 1,
-        "block_num": 12,
+        "block_num": 13,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6090,9 +6369,9 @@
         "content": "Chapter 2\tDefinition of Capital"
       },
       {
-        "id": "28",
+        "id": "322",
         "page": 1,
-        "block_num": 13,
+        "block_num": 14,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6100,9 +6379,9 @@
         "content": "Chapter 3\tOperational Risk"
       },
       {
-        "id": "30",
+        "id": "324",
         "page": 1,
-        "block_num": 14,
+        "block_num": 15,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6110,9 +6389,9 @@
         "content": "Chapter 4\tCredit Risk \u2013 Standardized Approach"
       },
       {
-        "id": "32",
+        "id": "326",
         "page": 1,
-        "block_num": 15,
+        "block_num": 16,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6120,9 +6399,9 @@
         "content": "Chapter 5\tCredit Risk \u2013 Internal Ratings-Based Approach"
       },
       {
-        "id": "34",
+        "id": "328",
         "page": 1,
-        "block_num": 16,
+        "block_num": 17,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6130,9 +6409,9 @@
         "content": "Chapter 6\tSecuritization"
       },
       {
-        "id": "36",
+        "id": "330",
         "page": 1,
-        "block_num": 17,
+        "block_num": 18,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6140,9 +6419,9 @@
         "content": "Chapter 7\tSettlement and Counterparty Risk"
       },
       {
-        "id": "38",
+        "id": "332",
         "page": 1,
-        "block_num": 18,
+        "block_num": 19,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6150,9 +6429,9 @@
         "content": "Chapter 8\tCredit Valuation Adjustment (CVA) Risk"
       },
       {
-        "id": "40",
+        "id": "334",
         "page": 1,
-        "block_num": 19,
+        "block_num": 20,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6160,9 +6439,9 @@
         "content": "Chapter 9\tMarket Risk"
       },
       {
-        "id": "42",
+        "id": "336",
         "page": 1,
-        "block_num": 20,
+        "block_num": 21,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6170,9 +6449,9 @@
         "content": "Table of Contents"
       },
       {
-        "id": "44",
+        "id": "338",
         "page": 1,
-        "block_num": 21,
+        "block_num": 22,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6180,189 +6459,189 @@
         "content": "Chapter 1 \u2013 Overview of Risk-based Capital Requirements"
       },
       {
-        "id": "46",
+        "id": "340",
         "page": 1,
-        "block_num": 22,
+        "block_num": 23,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.1.   Scope of Application ..........................................................................................4"
       },
       {
-        "id": "48",
+        "id": "342",
         "page": 1,
-        "block_num": 23,
+        "block_num": 24,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.2.  Regulatory Capital ..................................................................................................4"
       },
       {
-        "id": "50",
+        "id": "344",
         "page": 1,
-        "block_num": 24,
+        "block_num": 25,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.3.  Total Risk weighted Assets ..................................................................................5"
       },
       {
-        "id": "52",
+        "id": "346",
         "page": 1,
-        "block_num": 25,
+        "block_num": 26,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.3.1.    Credit Risk ................................................................................................5"
       },
       {
-        "id": "54",
+        "id": "348",
         "page": 1,
-        "block_num": 26,
+        "block_num": 27,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.3.2.    Market Risk...............................................................................................7"
       },
       {
-        "id": "56",
+        "id": "350",
         "page": 1,
-        "block_num": 27,
+        "block_num": 28,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.3.3.    Operational Risk......................................................................................7"
       },
       {
-        "id": "58",
+        "id": "352",
         "page": 1,
-        "block_num": 28,
+        "block_num": 29,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.4.  Approval to use Internal Model Based Approaches .............................................8"
       },
       {
-        "id": "60",
+        "id": "354",
         "page": 1,
-        "block_num": 29,
+        "block_num": 30,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.4.1.    Approval to use the IRB Approaches to Credit Risk ...............................8"
       },
       {
-        "id": "62",
+        "id": "356",
         "page": 1,
-        "block_num": 30,
+        "block_num": 31,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.5.  Capital Floor\u2013Internal Model Based Approaches ...............................................9"
       },
       {
-        "id": "64",
+        "id": "358",
         "page": 1,
-        "block_num": 31,
+        "block_num": 32,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.5.1.    The Capital Floor......................................................................................9"
       },
       {
-        "id": "66",
+        "id": "360",
         "page": 1,
-        "block_num": 32,
+        "block_num": 33,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.5.2.    Adjusted Capital Requirement...............................................................11"
       },
       {
-        "id": "68",
+        "id": "362",
         "page": 1,
-        "block_num": 33,
+        "block_num": 34,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.6.  Calculation of OSFI Minimum Capital Requirements ......................................11"
       },
       {
-        "id": "70",
+        "id": "364",
         "page": 1,
-        "block_num": 34,
+        "block_num": 35,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.6.1.    Risk-Based Capital Ratios for D-SIBs and Category I and II SMSBs ..11"
       },
       {
-        "id": "72",
+        "id": "366",
         "page": 1,
-        "block_num": 35,
+        "block_num": 36,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.6.2.    Simplified Risk-Based Capital Ratio for Category III SMSBs ..............12"
       },
       {
-        "id": "74",
+        "id": "368",
         "page": 1,
-        "block_num": 36,
+        "block_num": 37,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.7.  Mandated Capital Buffers...................................................................................12"
       },
       {
-        "id": "76",
+        "id": "370",
         "page": 1,
-        "block_num": 37,
+        "block_num": 38,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.7.1.   Capital Conservation Buffer..................................................................13"
       },
       {
-        "id": "78",
+        "id": "372",
         "page": 1,
-        "block_num": 38,
+        "block_num": 39,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.7.2.   Countercyclical Buffer............................................................................15"
       },
       {
-        "id": "80",
+        "id": "374",
         "page": 1,
-        "block_num": 39,
+        "block_num": 40,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.8.  Domestic Systemically Important Bank (D-SIB) Surcharge ...........................18"
       },
       {
-        "id": "82",
+        "id": "376",
         "page": 1,
-        "block_num": 40,
+        "block_num": 41,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.9.  Domestic Stability Buffer..................................................................................19"
       },
       {
-        "id": "84",
+        "id": "378",
         "page": 1,
-        "block_num": 41,
+        "block_num": 42,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.10. Capital Targets..................................................................................................20"
       },
       {
-        "id": "86",
+        "id": "380",
         "page": 1,
-        "block_num": 42,
+        "block_num": 43,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6370,9 +6649,9 @@
         "content": "Annex 1     Domestic Systemic Importance and Capital Targets ................................22"
       },
       {
-        "id": "88",
+        "id": "382",
         "page": 1,
-        "block_num": 43,
+        "block_num": 44,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6380,9 +6659,9 @@
         "content": "Annex 2     Supervisory Target Capital Requirements...............................................26"
       },
       {
-        "id": "90",
+        "id": "384",
         "page": 1,
-        "block_num": 44,
+        "block_num": 45,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6390,27 +6669,27 @@
         "content": "Chapter 1 \u2013 Overview of Risk-based Capital Requirements"
       },
       {
-        "id": "92",
+        "id": "386",
         "page": 1,
-        "block_num": 45,
+        "block_num": 46,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "1.\tOutlined below is an overview of the capital adequacy requirements for banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies, collectively referred to as 'institutions'."
       },
       {
-        "id": "94",
+        "id": "388",
         "page": 1,
-        "block_num": 46,
+        "block_num": 47,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "Banking Services\n\nBanking services refer to the various financial products and services offered by banks and other financial institutions. These services typically include deposit accounts, lending, payment processing, and wealth management. Customers can access banking services through physical branch locations, online platforms, mobile apps, and automated teller machines (ATMs). Banks play a crucial role in the financial system by facilitating the flow of money, providing access to credit, and safeguarding customer deposits."
       },
       {
-        "id": "96",
+        "id": "390",
         "page": 1,
-        "block_num": 47,
+        "block_num": 48,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6418,36 +6697,36 @@
         "content": "1.1. Scope of Application"
       },
       {
-        "id": "98",
+        "id": "392",
         "page": 1,
-        "block_num": 48,
+        "block_num": 49,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "3.\tThe capital adequacy requirements outlined in this guideline apply on a consolidated basis to the following institutions:"
       },
       {
-        "id": "100",
+        "id": "394",
         "page": 1,
-        "block_num": 49,
+        "block_num": 50,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": ""
       },
       {
-        "id": "102",
+        "id": "396",
         "page": 1,
-        "block_num": 50,
+        "block_num": 51,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "4.\tThe consolidated entity includes all subsidiaries except insurance subsidiaries. OSFI expects institutions to hold capital within the consolidated group in a manner that is consistent with the level and location of risk."
       },
       {
-        "id": "104",
+        "id": "398",
         "page": 1,
-        "block_num": 51,
+        "block_num": 52,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6455,36 +6734,36 @@
         "content": "1.2. Regulatory Capital"
       },
       {
-        "id": "106",
+        "id": "400",
         "page": 1,
-        "block_num": 52,
+        "block_num": 53,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "5.\tTotal capital consists of the sum of the following elements:"
       },
       {
-        "id": "108",
+        "id": "402",
         "page": 1,
-        "block_num": 53,
+        "block_num": 54,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": ""
       },
       {
-        "id": "110",
+        "id": "404",
         "page": 1,
-        "block_num": 54,
+        "block_num": 55,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "2The Basel Framework3Following the format: [Basel Framework, XXX yy.zz]4SMSBs are banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies that have not been designated by OSFI as domestic systemically important banks (D-SIBs). This includes subsidiaries of SMSBs or D-SIBs that are banks (including federal credit unions), federally regulated trust companies or federally regulated loan companies.5SMSB Capital and Liquidity Guideline"
       },
       {
-        "id": "112",
+        "id": "406",
         "page": 1,
-        "block_num": 55,
+        "block_num": 56,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6492,9 +6771,9 @@
         "content": "The criteria for the capital elements comprising the two tiers, as well as the various limits, restrictions and regulatory adjustments to which they are subject, are described in Chapter 2."
       },
       {
-        "id": "114",
+        "id": "408",
         "page": 1,
-        "block_num": 56,
+        "block_num": 57,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6502,54 +6781,54 @@
         "content": "1.3. Total Risk-weighted Assets"
       },
       {
-        "id": "116",
+        "id": "410",
         "page": 1,
-        "block_num": 57,
+        "block_num": 58,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "Risk-weighted assets (RWA) make up the denominator of the risk-based capital ratios, and is calculated as the higher of:"
       },
       {
-        "id": "118",
+        "id": "412",
         "page": 1,
-        "block_num": 58,
+        "block_num": 59,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "a. the sum of the following three elements:"
       },
       {
-        "id": "120",
+        "id": "414",
         "page": 1,
-        "block_num": 59,
+        "block_num": 60,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": ""
       },
       {
-        "id": "122",
+        "id": "416",
         "page": 1,
-        "block_num": 60,
+        "block_num": 61,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "b. the adjusted RWA determined as per the capital floor described in section 1.5."
       },
       {
-        "id": "124",
+        "id": "418",
         "page": 1,
-        "block_num": 61,
+        "block_num": 62,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "[Basel Framework, RBC 20.4]"
       },
       {
-        "id": "126",
+        "id": "420",
         "page": 1,
-        "block_num": 62,
+        "block_num": 63,
         "start_line": 0,
         "end_line": 0,
         "type": "heading",
@@ -6557,72 +6836,72 @@
         "content": "1.3.1. Credit Risk"
       },
       {
-        "id": "128",
+        "id": "422",
         "page": 1,
-        "block_num": 63,
+        "block_num": 64,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "RWA for credit risk (including counterparty credit risk) is calculated as the sum of:"
       },
       {
-        "id": "130",
+        "id": "424",
         "page": 1,
-        "block_num": 64,
+        "block_num": 65,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "a. Credit RWA for banking book exposures which, except the RWA listed in (b) through (e) below, is calculated using:"
       },
       {
-        "id": "132",
+        "id": "426",
         "page": 1,
-        "block_num": 65,
+        "block_num": 66,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": ""
       },
       {
-        "id": "134",
+        "id": "428",
         "page": 1,
-        "block_num": 66,
+        "block_num": 67,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "b. RWA for counterparty credit risk from banking book exposures and trading book exposures (as set out in Chapter 7), except the exposures listed in (c) and (f) below."
       },
       {
-        "id": "136",
+        "id": "430",
         "page": 1,
-        "block_num": 67,
+        "block_num": 68,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "c. Credit RWA for equity investments in funds that are held in the banking book calculated using one or more of the approaches set out in Chapter 4:"
       },
       {
-        "id": "138",
+        "id": "432",
         "page": 1,
-        "block_num": 68,
+        "block_num": 69,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": ""
       },
       {
-        "id": "140",
+        "id": "434",
         "page": 1,
-        "block_num": 69,
+        "block_num": 70,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
         "content": "d. RWA for securitization exposures held in the banking book, calculating using one or more of the approaches set out in Chapter 6:"
       },
       {
-        "id": "142",
+        "id": "436",
         "page": 1,
-        "block_num": 70,
+        "block_num": 71,
         "start_line": 0,
         "end_line": 0,
         "type": "paragraph",
@@ -6972,17 +7251,43 @@
         "selection_text": "Subject",
         "start_offset": 0,
         "end_offset": 7
+      },
+      {
+        "id": "c12_1763665893432",
+        "block_id": "159",
+        "block_title": "",
+        "author": "user",
+        "timestamp": "2025-11-20T14:11:33.432200Z",
+        "content": "nhjkhjk",
+        "resolved": false,
+        "replies": [],
+        "selection_text": "supplemented",
+        "start_offset": 46,
+        "end_offset": 58
+      },
+      {
+        "id": "c13_1763666274025",
+        "block_id": "16",
+        "block_title": "",
+        "author": "user",
+        "timestamp": "2025-11-20T14:17:54.025420Z",
+        "content": "1234",
+        "resolved": false,
+        "replies": [],
+        "selection_text": "Committee",
+        "start_offset": 31,
+        "end_offset": 40
       }
     ],
     "phase2_data": {
-      "synthesis": "## Overall Assessment\n\nThe document demonstrates **good compliance** with the template, providing a comprehensive overview of the risk-based capital requirements for banks, bank holding companies, federally regulated trust companies, and federally regulated loan companies in Canada. The content covers the key conceptual domains, including the purpose, scope, mandatory requirements, operational expectations, and references to supporting documents.\n\n## Critical Gaps\n\n- **Lack of Defined Roles and Responsibilities** (throughout): The document does not explicitly assign role-level accountability for compliance with the capital adequacy requirements, which could lead to gaps in implementation and monitoring.\n- **Insufficient Details on Oversight and Escalation Processes** (pages 2-5): The document does not provide clear details on the specific oversight processes, challenge mechanisms, or escalation procedures that the Superintendent would use to assess capital adequacy.\n- **Absence of Review Cadence and Assurance Expectations** (pages 7-9): The document lacks information on the frequency of review, reporting requirements, or independent assurance processes that institutions must follow to ensure ongoing compliance.\n\n## Improvement Areas\n\n### Clarity (pages 2, 4, 6)\n- Some instances where the tone is more advisory or suggestive rather than directive, which could be improved for clarity and consistency.\n- The technical nature of the content and use of specialized terminology may make the document less accessible to non-experts in the field.\n\n### Structure (pages 3, 5)\n- Minor inconsistencies in heading formatting (e.g., \"Chapter 1 \u2013 Overview of Risk-based Capital Requirements\" vs. \"Chapter 1\\tOverview of Risk-based Capital Requirements\").\n- Table of contents lacks page numbers, which could make navigation more difficult.\n\n### Compliance Governance (pages 7-9)\n- Lack of clearly defined ownership and accountability for compliance with the capital adequacy requirements.\n- Insufficient details on the oversight, escalation, and corrective action processes related to capital adequacy.\n- Absence of guidance on the review cadence, reporting, and independent assurance expectations for the capital adequacy framework.\n\n## Strengths\n\n- Clear and comprehensive coverage of the purpose, scope, and mandatory requirements related to capital adequacy.\n- Detailed information on the calculation of risk-weighted assets and the minimum capital requirements.\n- Alignment with the Basel Framework and references to relevant legislation.\n\n## Priority Recommendations\n\n1. **Clearly Assign Roles and Responsibilities**: Explicitly define the roles, responsibilities, and accountability for implementing and monitoring the capital adequacy requirements, including the responsibilities of the institutions, OSFI, and other relevant stakeholders.\n2. **Enhance Oversight and Escalation Processes**: Provide more details on the Superintendent's oversight processes, including the specific triggers and thresholds for regulatory intervention and corrective action.\n3. **Establish Review and Assurance Expectations**: Incorporate guidance on the review cadence, reporting requirements, and independent assurance processes that institutions must follow to ensure ongoing compliance with the capital adequacy requirements.\n4. **Improve Clarity and Accessibility**: Strengthen the directive tone throughout the document and consider adding plain-language explanations or definitions of key technical terms to enhance accessibility for non-expert readers.\n5. **Standardize Formatting and Structure**: Ensure consistent formatting and structure of headings and subheadings to improve the overall visual organization and readability of the document.\n\n## Statistics Summary\n\n- **47 total suggestions** generated across 18 pages\n- **3 high severity** gaps requiring immediate attention\n- **12 medium severity** improvements recommended\n- **32 minor polish** suggestions",
-      "conceptual_coverage": "### Domain Analysis\n\n#### 1. Purpose & Strategic Intent\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document clearly states the purpose and strategic intent of the Capital Adequacy Requirements (CAR) guideline, which is to set out the capital adequacy requirements for banks, bank holding companies, federally regulated trust companies, and federally regulated loan companies.\n- The document references the relevant sections of the Bank Act and Trust and Loan Companies Act that require these institutions to maintain adequate capital.\n\n**Gaps**: None identified.\n\n**Severity**: N/A\n\n**Recommendations**: None.\n\n---\n\n#### 2. Scope & Applicability\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document explicitly states the scope of application, indicating that the capital adequacy requirements apply on a consolidated basis to the specified institutions.\n- It also notes that the consolidated entity includes all subsidiaries except insurance subsidiaries.\n\n**Gaps**: None identified.\n\n**Severity**: N/A\n\n**Recommendations**: None.\n\n---\n\n#### 3. Mandatory Requirements or Rules\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document outlines the key mandatory requirements and rules related to capital adequacy, including the definition of regulatory capital, the calculation of total risk-weighted assets, the approval process for using internal model-based approaches, the capital floor for internal model-based approaches, and the minimum capital requirements.\n- It also covers the mandated capital buffers, such as the capital conservation buffer and countercyclical buffer, as well as the D-SIB surcharge and domestic stability buffer.\n\n**Gaps**: None identified.\n\n**Severity**: N/A\n\n**Recommendations**: None.\n\n---\n\n#### 4. Roles, Responsibilities & Ownership\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document does not explicitly define the roles, responsibilities, and ownership of the capital adequacy requirements. It focuses more on the technical aspects of the requirements.\n\n**Gaps**:\n- The document could benefit from including information on the roles and responsibilities of the institutions, OSFI, and other relevant stakeholders in the implementation and oversight of the capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Consider adding a section that outlines the key roles, responsibilities, and ownership of the capital adequacy requirements, including the responsibilities of the institutions, OSFI, and any other relevant stakeholders.\n\n---\n\n#### 5. Governance Alignment (e.g., risk, compliance, oversight)\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document mentions that the Superintendent may direct an institution to increase its capital, indicating some level of oversight and governance.\n- It also references the Leverage Requirements Guideline, which suggests alignment with other regulatory requirements.\n\n**Gaps**:\n- The document does not provide detailed information on the governance framework, risk management, compliance, and oversight mechanisms related to the capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Expand the coverage to include more information on the governance, risk management, compliance, and oversight processes associated with the capital adequacy requirements.\n- Clarify how the CAR guideline aligns with other relevant regulatory frameworks and guidelines.\n\n---\n\n#### 6. Operational Expectations or Procedures\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document covers the key operational aspects of the capital adequacy requirements, including the calculation of risk-weighted assets for credit risk, market risk, and operational risk, as well as the approval process for using internal model-based approaches.\n- It also outlines the capital floor for internal model-based approaches and the calculation of the OSFI minimum capital requirements.\n\n**Gaps**: None identified.\n\n**Severity**: N/A\n\n**Recommendations**: None.\n\n---\n\n#### 7. Monitoring, Reporting & Evidence Requirements\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document does not explicitly address the monitoring, reporting, and evidence requirements related to the capital adequacy requirements.\n\n**Gaps**:\n- The document could benefit from including information on the monitoring, reporting, and evidence requirements that institutions must comply with to demonstrate their adherence to the capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Consider adding a section that outlines the monitoring, reporting, and evidence requirements for institutions, including the frequency, format, and content of the required submissions to OSFI.\n\n---\n\n#### 8. Exceptions & Escalation Logic\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document mentions that the Superintendent may direct an institution to increase its capital, suggesting some level of exception handling and escalation.\n- However, the document does not provide detailed information on the specific exceptions, escalation processes, or criteria for such actions.\n\n**Gaps**:\n- The document could be improved by including more information on the exceptions, escalation logic, and criteria for the Superintendent to direct an institution to increase its capital.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Expand the coverage to include more details on the exceptions, escalation processes, and criteria that would trigger the Superintendent to direct an institution to increase its capital.\n\n---\n\n#### 9. Change Management & Review Cadence\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document mentions that the CAR guideline is effective as of November 2023 or January 2024, depending on the institution's fiscal year.\n- However, it does not provide information on the change management process or the review cadence for the CAR guideline.\n\n**Gaps**:\n- The document could be improved by including information on the change management process, such as how and when updates to the CAR guideline will be made, as well as the review cadence for the guideline.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Consider adding a section that outlines the change management process and the review cadence for the CAR guideline, including the frequency of reviews and the mechanisms for updating the requirements.\n\n---\n\n#### 10. Definitions, References, or Supporting Documents\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document provides references to the relevant sections of the Bank Act and Trust and Loan Companies Act that underpin the capital adequacy requirements.\n- It also references the Basel Framework published by the Basel Committee on Banking Supervision, indicating the alignment with international standards.\n- The document mentions that it should be read in conjunction with the other CAR chapters, providing a clear indication of the supporting documents.\n\n**Gaps**: None identified.\n\n**Severity**: N/A\n\n**Recommendations**: None.\n\n### Overall Verdict\n\n**Summary**: The document provides a comprehensive overview of the capital adequacy requirements for banks, bank holding companies, federally regulated trust companies, and federally regulated loan companies. It covers the key conceptual domains, including the purpose, scope, mandatory requirements, operational expectations, and references to supporting documents. However, the document could be improved by providing more information on the roles, responsibilities, and governance framework, as well as the monitoring, reporting, and exception handling processes.\n\n**Key Strengths**:\n- Clear and comprehensive coverage of the purpose, scope, and mandatory requirements related to capital adequacy.\n- Detailed information on the calculation of risk-weighted assets and the minimum capital requirements.\n- Alignment with the Basel Framework and references to relevant legislation.\n\n**Priority Gaps** (ranked):\n1. Lack of detailed information on the roles, responsibilities, and governance framework for the capital adequacy requirements.\n2. Limited coverage of the monitoring, reporting, and evidence requirements for institutions.\n3. Insufficient information on the exceptions, escalation logic, and change management processes.\n\n**Recommended Actions**:\n- Expand the document to include more information on the roles, responsibilities, and governance framework for the capital adequacy requirements, including the responsibilities of the institutions, OSFI, and other relevant stakeholders.\n- Incorporate a section that outlines the monitoring, reporting, and evidence requirements for institutions to demonstrate their adherence to the capital adequacy requirements.\n- Provide more details on the exceptions, escalation logic, and change management processes, including the criteria and procedures for updating the CAR guideline.",
-      "compliance_governance": "### Compliance Analysis by Area\n\n#### 1. Mandatory Requirements\n\n**Findings**: The document contains clear mandatory requirements using language like \"shall\", \"must\", and \"is required to\". For example, it states that \"banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies are required to maintain adequate capital.\"\n\n**Gaps**: No significant gaps identified.\n\n**Severity**: Low\n\n#### 2. Defined Ownership\n\n**Findings**: The document clearly defines the institutions to which the capital adequacy requirements apply, including banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies.\n\n**Gaps**: While the document defines the institutions, it does not explicitly assign role-level accountability for compliance. The ownership and responsibility for implementing the requirements is not clearly specified.\n\n**Severity**: Medium\n\n#### 3. Oversight & Challenge Mechanisms\n\n**Findings**: The document indicates that the Superintendent has the authority to direct institutions to increase their capital, even if they meet the minimum standards. This suggests some level of oversight and challenge mechanism.\n\n**Gaps**: The document does not provide details on the specific oversight processes, challenge mechanisms, or escalation procedures that the Superintendent would use to assess capital adequacy.\n\n**Severity**: Medium\n\n#### 4. Escalation Thresholds or Triggers\n\n**Findings**: The document outlines the minimum capital standards that institutions must meet, including the leverage ratio and the risk-based capital ratio. It also describes various capital buffers that institutions must maintain.\n\n**Gaps**: The document does not clearly define the specific escalation thresholds or triggers that would prompt regulatory intervention or corrective action. The language around the Superintendent's authority to direct institutions to increase capital is broad.\n\n**Severity**: Medium\n\n#### 5. Internal Control References or Risk Alignment\n\n**Findings**: The document references the need for institutions to hold capital in a manner that is consistent with the level and location of risk. It also outlines the various risk types (credit, market, operational) that are included in the calculation of risk-weighted assets.\n\n**Gaps**: The document does not provide detailed guidance on how institutions should align their internal controls and risk management practices with the capital adequacy requirements. The linkage between the capital framework and the institution's overall risk management framework is not clearly articulated.\n\n**Severity**: Medium\n\n#### 6. Approval Authority Clarity\n\n**Findings**: The document indicates that institutions must obtain OSFI's approval to use internal model-based approaches for credit risk and other risk types.\n\n**Gaps**: The document does not provide details on the specific approval process, criteria, or ongoing monitoring requirements for the use of internal models. The approval authority and decision-making process is not fully transparent.\n\n**Severity**: Medium\n\n#### 7. Review Cadence & Assurance Expectations\n\n**Findings**: The document does not explicitly mention the review cadence or assurance expectations for the capital adequacy requirements.\n\n**Gaps**: The document lacks information on the frequency of review, reporting requirements, or independent assurance processes that institutions must follow to ensure ongoing compliance.\n\n**Severity**: High\n\n#### 8. Regulatory or Policy Framework Alignment\n\n**Findings**: The document references the relevant sections of the Bank Act and Trust and Loan Companies Act that require institutions to maintain adequate capital. It also indicates that the capital standards are aligned with the Basel framework.\n\n**Gaps**: The document does not provide a comprehensive overview of the broader regulatory or policy framework within which the capital adequacy requirements are situated. The linkages to other relevant guidelines or regulations are not clearly articulated.\n\n**Severity**: Medium\n\n### Overall Compliance Risk\n\n**Rating**: Medium\n\n**Critical Issues**:\n1. Lack of clearly defined ownership and accountability for compliance with the capital adequacy requirements.\n2. Insufficient details on the oversight, escalation, and corrective action processes related to capital adequacy.\n3. Absence of guidance on the review cadence, reporting, and independent assurance expectations for the capital adequacy framework.\n\n**Recommended Governance Improvements**:\n- Clearly assign role-level accountability and responsibility for implementing and monitoring the capital adequacy requirements.\n- Enhance the documentation on the Superintendent's oversight processes, including the specific triggers and thresholds for regulatory intervention.\n- Provide more detailed guidance on the review, reporting, and independent assurance requirements for the capital adequacy framework.\n- Strengthen the linkages between the capital adequacy requirements and the institution's overall risk management practices and internal control environment.\n\n**Audit & Regulatory Exposure**:\n- Lack of clarity around ownership and accountability could lead to gaps in implementation and monitoring.\n- Insufficient oversight and escalation mechanisms may result in delayed regulatory intervention and increased risk of non-compliance.\n- Absence of review and assurance expectations could hinder the ability to identify and address compliance issues in a timely manner.",
-      "structural_presentation": "### Structural Analysis by Aspect\n\n#### 1. Flow & Organization\n\n**What Works Well**:\n- The document has a clear and comprehensive table of contents that outlines the structure and hierarchy of the content.\n- The headings and subheadings provide a logical flow and organization of the material.\n- The content appears to cover the key aspects of risk-based capital requirements, including scope, regulatory capital, risk-weighted assets, and various capital buffers and targets.\n\n**Gaps & Issues**:\n\n| Location | Issue | Severity | Suggested Improvement |\n|----------|-------|----------|----------------------|\n| N/A | No major structural issues identified in the provided excerpt | N/A | N/A |\n\n#### 2. Section Boundaries\n\n**What Works Well**:\n- The section boundaries are clearly defined, with distinct chapters and subsections covering different aspects of the risk-based capital requirements.\n\n**Gaps & Issues**:\n\n| Location | Issue | Severity | Suggested Improvement |\n|----------|-------|----------|----------------------|\n| N/A | No significant issues with section boundaries identified in the provided excerpt | N/A | N/A |\n\n#### 3. Duplication or Fragmentation\n\n**What Works Well**:\n- The content appears to be well-organized, with minimal duplication or fragmentation of information.\n\n**Gaps & Issues**:\n\n| Location | Issue | Severity | Suggested Improvement |\n|----------|-------|----------|----------------------|\n| N/A | No significant issues with duplication or fragmentation identified in the provided excerpt | N/A | N/A |\n\n#### 4. Heading Hierarchy\n\n**What Works Well**:\n- The heading hierarchy is generally consistent, using a mix of H1, H2, and H3 headings.\n\n**Gaps & Issues**:\n\n| Location | Issue | Severity | Suggested Improvement |\n|----------|-------|----------|----------------------|\n| Headings | Some minor inconsistencies in heading formatting (e.g., \"Chapter 1 \u2013 Overview of Risk-based Capital Requirements\" vs. \"Chapter 1\\tOverview of Risk-based Capital Requirements\") | Low | Standardize heading formatting for consistency |\n\n#### 5. Readability of Long Sections\n\n**What Works Well**:\n- The sections appear to be of reasonable length and do not seem overly long or difficult to read.\n\n**Gaps & Issues**:\n\n| Location | Issue | Severity | Suggested Improvement |\n|----------|-------|----------|----------------------|\n| N/A | No issues with the readability of long sections identified in the provided excerpt | N/A | N/A |\n\n#### 6. Table of Contents\n\n**What Works Well**:\n- The document has a clear and comprehensive table of contents that outlines the structure and hierarchy of the content.\n\n**Gaps & Issues**:\n\n| Location | Issue | Severity | Suggested Improvement |\n|----------|-------|----------|----------------------|\n| TOC | The page numbers are not included in the table of contents, which could make it harder to navigate the document | Medium | Include page numbers in the TOC |\n\n#### 7. Formatting Issues\n\n**Issues**:\n- Some minor inconsistencies in heading formatting (e.g., \"Chapter 1 \u2013 Overview of Risk-based Capital Requirements\" vs. \"Chapter 1\\tOverview of Risk-based Capital Requirements\")\n\n**Quick Wins**:\n- Standardize heading formatting for consistency\n\n#### 8. Navigability\n\n**What Works Well**:\n- The table of contents provides a clear overview of the document structure, which should aid navigation.\n- The headings and subheadings are well-organized and easy to follow.\n\n**Gaps & Issues**:\n\n| Location | Issue | Severity | Suggested Improvement |\n|----------|-------|----------|----------------------|\n| N/A | No significant issues with navigability identified in the provided excerpt | N/A | N/A |\n\n### Overall Structural Assessment\n\n**Readability Rating**: Good\n\n**User Experience Observations**:\n- The document has a clear and comprehensive structure, with a well-organized table of contents and logical flow of content.\n- The headings and subheadings provide a clear hierarchy and navigation for the reader.\n- Some minor formatting inconsistencies, such as heading styles, could be improved to enhance the overall presentation.\n\n**Recommended Restructuring**:\n\n1. **Current State**: Minor inconsistencies in heading formatting\n   - **Proposed State**: Standardize heading formatting (e.g., \"Chapter 1 \u2013 Overview of Risk-based Capital Requirements\")\n   - **Benefit**: Improved visual consistency and readability\n\n2. **Current State**: Table of contents lacks page numbers\n   - **Proposed State**: Include page numbers in the table of contents\n   - **Benefit**: Easier navigation for readers\n\n### Formatting & Presentation\n\n**Issues**:\n- Some minor inconsistencies in list formatting and spacing\n- Numbering errors in headings\n\n**Quick Wins**:\n- Ensure consistent formatting for lists and spacing\n- Double-check heading numbering for accuracy",
-      "language_clarity": "### Language Analysis by Dimension\n\n#### 1. Directive Tone\n\n**General Assessment**: The document generally maintains a directive and mandatory tone, using language like \"must\", \"required\", and \"shall\". However, there are some instances where the tone is more advisory or suggestive.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| Section 1.2 | \"Total capital consists of the sum of the following elements:\" | Suggestive, could be more directive | \"Total capital shall consist of the following elements:\" | Medium |\n| Page 2 | \"OSFI expects institutions to hold capital within the consolidated group in a manner that is consistent with the level and location of risk.\" | Advisory, not mandatory | \"Institutions must hold capital within the consolidated group in a manner that is consistent with the level and location of risk.\" | Medium |\n\n#### 2. Clarity and Specificity\n\n**General Assessment**: The document is generally clear and specific, providing detailed definitions and requirements. The language is technical but appropriate for the target audience of financial institutions.\n\n**Issues**: No major issues identified.\n\n#### 3. Presence of Vague/Ambiguous Phrases\n\n**General Assessment**: The document avoids vague or ambiguous language and is quite precise in its terminology and requirements.\n\n**Issues**: No major issues identified.\n\n#### 4. Passive vs Active Voice\n\n**General Assessment**: The document uses a mix of active and passive voice, which is appropriate for the technical nature of the content. The passive voice is used to describe general requirements, while the active voice is used for more specific actions.\n\n**Issues**: No major issues identified.\n\n#### 5. Internal Consistency of Terminology\n\n**General Assessment**: The document maintains a high level of internal consistency in its use of terminology, with key terms (e.g., \"risk-weighted assets\", \"capital ratios\") being used consistently throughout.\n\n**Issues**: No major issues identified.\n\n#### 6. Sentence Structure, Flow, Repetition\n\n**General Assessment**: The document has a well-structured flow, with clear section headings and logical organization of content. Sentences are generally clear and concise, with appropriate use of repetition to reinforce key concepts.\n\n**Issues**: No major issues identified.\n\n#### 7. Plain-language Suitability for Non-experts\n\n**General Assessment**: The document is written in technical language that is suitable for the target audience of financial institutions and regulators. It may be less accessible to non-experts in the field.\n\n**Issues**:\n- The document uses a significant amount of specialized terminology and financial jargon that may be difficult for non-experts to understand.\n- The level of detail and complexity in the content may be overwhelming for readers without a strong background in banking regulations and capital requirements.\n\n#### 8. Professional and Formal Tone\n\n**General Assessment**: The document maintains a highly professional and formal tone throughout, using precise language and avoiding any casual or colloquial expressions.\n\n**Issues**: No major issues identified.\n\n### Overall Evaluation\n\n**Strengths**:\n- The document provides a comprehensive and detailed overview of the risk-based capital requirements for financial institutions in Canada.\n- The language is clear, specific, and consistent, with a strong emphasis on directive and mandatory requirements.\n- The organization and structure of the content, with clear section headings and a detailed table of contents, make the document easy to navigate.\n- The formal and professional tone is appropriate for the target audience and subject matter.\n\n**Weaknesses**:\n- The technical nature of the content and use of specialized terminology may make the document less accessible to non-experts in the field.\n- There are a few instances where the tone is more advisory or suggestive rather than directive, which could be improved for clarity and consistency.\n\n**Top Improvements** (prioritized):\n\n1. **Priority 1**: Strengthen the directive tone throughout the document.\n   - **Impact**: Using more mandatory language (e.g., \"must\", \"shall\") will reinforce the regulatory nature of the requirements and leave no ambiguity about the expectations for financial institutions.\n   - **Action**: Review the document and identify any instances where the tone is more advisory or suggestive, and revise the language to be more directive and mandatory.\n\n2. **Priority 2**: Enhance the accessibility of the content for non-expert readers.\n   - **Impact**: Providing more plain-language explanations and definitions of key terms and concepts will make the document more understandable for a wider audience, including non-experts in banking regulations and capital requirements.\n   - **Action**: Identify technical terms and jargon that may be unfamiliar to non-experts, and consider adding plain-language definitions or explanations to improve accessibility.\n\n3. **Priority 3**: Ensure consistent formatting and structure of headings and subheadings.\n   - **Impact**: Maintaining a consistent formatting and structure for the headings and subheadings will improve the overall visual organization and readability of the document.\n   - **Action**: Review the document and ensure that all headings and subheadings follow a consistent format (e.g., consistent use of numbering, capitalization, and spacing)."
+      "synthesis": "## Overall Assessment\n\nThe document demonstrates **strong compliance** with the template and provides a comprehensive overview of the risk-based capital requirements. The core sections are present and well-structured, covering the key mandatory requirements, operational expectations, and supporting frameworks.\n\n## Critical Gaps\n\nNo critical gaps were identified in the document. The content is thorough and addresses the key aspects of the risk-based capital requirements.\n\n## Improvement Areas\n\n### Roles, Responsibilities & Governance (medium severity)\n- The document could be improved by including more information on the roles, responsibilities, and governance mechanisms related to the capital adequacy requirements, including the responsibilities of OSFI and the institutions.\n\n### Monitoring, Reporting & Evidence (medium severity)\n- The document could be enhanced by providing details on the monitoring, reporting, and evidence requirements that institutions must adhere to in order to demonstrate compliance with the capital adequacy requirements.\n\n### Exceptions & Escalation (medium severity)\n- The document could be strengthened by including more information on the exceptions, escalation process, and the actions that the Superintendent may take in cases where an institution does not meet the capital adequacy requirements.\n\n### Change Management & Review (medium severity)\n- The document could be improved by incorporating a section that addresses the change management process, review cadence, and the mechanism for updating the capital adequacy requirements as needed.\n\n## Strengths\n\n- Clear and comprehensive coverage of the purpose, scope, and mandatory requirements related to capital adequacy\n- Detailed information on the calculation of risk-weighted assets and the various components (credit risk, market risk, operational risk)\n- Robust references to the relevant regulatory frameworks and supporting guidelines\n\n## Priority Recommendations\n\n1. **Enhance Governance & Accountability**: Add a section that outlines the key roles, responsibilities, and governance mechanisms related to the capital adequacy requirements, including the responsibilities of OSFI and the institutions.\n2. **Improve Monitoring & Reporting**: Provide more details on the monitoring, reporting, and evidence requirements that institutions must adhere to in order to demonstrate compliance with the capital adequacy requirements.\n3. **Clarify Exceptions & Escalation**: Include information on the exceptions, escalation process, and the actions that the Superintendent may take in cases where an institution does not meet the capital adequacy requirements.\n4. **Incorporate Change Management**: Add a section that addresses the change management process, review cadence, and the mechanism for updating the capital adequacy requirements as needed.\n\n## Statistics Summary\n\n- No critical gaps identified\n- 4 medium severity improvement areas recommended\n- Excellent overall structure and readability\n- Comprehensive coverage of the key conceptual domains",
+      "conceptual_coverage": "### Domain Analysis\n\n#### 1. Purpose & Strategic Intent\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document clearly states the purpose and strategic intent of the Capital Adequacy Requirements (CAR) guideline, which is to outline the capital adequacy requirements for banks, bank holding companies, federally regulated trust companies, and federally regulated loan companies.\n- The document references the relevant sections of the Bank Act and Trust and Loan Companies Act that require these institutions to maintain adequate capital.\n- The document also notes that the CAR guideline, together with the Leverage Requirements Guideline, provide the framework for the Superintendent to assess the capital adequacy of these institutions.\n\n**Gaps**: None identified.\n\n**Severity**: N/A\n\n**Recommendations**: None.\n\n#### 2. Scope & Applicability\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document clearly states that the capital adequacy requirements outlined in the guideline apply on a consolidated basis to the specified institutions.\n- It also notes that the consolidated entity includes all subsidiaries except insurance subsidiaries.\n\n**Gaps**: None identified.\n\n**Severity**: N/A\n\n**Recommendations**: None.\n\n#### 3. Mandatory Requirements or Rules\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document outlines the key mandatory requirements and rules related to capital adequacy, including the minimum risk-based capital ratios, leverage ratio, and various capital buffers.\n- It also covers the approval process for using internal model-based approaches, the capital floor for internal model-based approaches, and the calculation of OSFI's minimum capital requirements.\n\n**Gaps**: None identified.\n\n**Severity**: N/A\n\n**Recommendations**: None.\n\n#### 4. Roles, Responsibilities & Ownership\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document does not explicitly define the roles, responsibilities, and ownership of the capital adequacy requirements. It focuses more on the technical details and requirements.\n\n**Gaps**:\n- The document could be improved by including information on the roles and responsibilities of the various stakeholders (e.g., OSFI, institutions) in implementing and maintaining the capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Consider adding a section that outlines the key roles, responsibilities, and ownership of the capital adequacy requirements, including the responsibilities of OSFI and the institutions.\n\n#### 5. Governance Alignment (e.g., risk, compliance, oversight)\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document mentions that the Superintendent may direct an institution to increase its capital, but does not provide detailed information on the governance and oversight mechanisms.\n- It also references the Leverage Requirements Guideline and the Total Loss Absorbing Capacity (TLAC) Guideline, which likely contain more information on the governance and oversight aspects.\n\n**Gaps**:\n- The document could be improved by including more information on the governance, risk, compliance, and oversight frameworks that support the capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Consider adding a section that outlines the key governance, risk, compliance, and oversight mechanisms related to the capital adequacy requirements.\n- Provide more explicit references to the relevant supporting guidelines (e.g., Leverage Requirements, TLAC) that contain additional details on these aspects.\n\n#### 6. Operational Expectations or Procedures\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document provides a comprehensive overview of the operational aspects of the capital adequacy requirements, including the calculation of risk-weighted assets, the approval process for internal model-based approaches, the capital floor, and the minimum capital requirements.\n- It covers the key elements that contribute to the calculation of total risk-weighted assets, such as credit risk, market risk, and operational risk.\n\n**Gaps**: None identified.\n\n**Severity**: N/A\n\n**Recommendations**: None.\n\n#### 7. Monitoring, Reporting & Evidence Requirements\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document does not explicitly outline the monitoring, reporting, and evidence requirements related to the capital adequacy requirements.\n- It focuses more on the technical details and calculations rather than the operational and compliance aspects.\n\n**Gaps**:\n- The document could be improved by including information on the monitoring, reporting, and evidence requirements that institutions must adhere to in order to demonstrate compliance with the capital adequacy requirements.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Consider adding a section that outlines the key monitoring, reporting, and evidence requirements for institutions, including any specific data, metrics, or documentation that must be provided to OSFI.\n\n#### 8. Exceptions & Escalation Logic\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document mentions that the Superintendent may direct an institution to increase its capital, but does not provide detailed information on the exceptions or escalation process.\n- It also notes that the capital standards set out in the guideline, together with the leverage requirements, provide the framework for the Superintendent to assess the capital adequacy of institutions.\n\n**Gaps**:\n- The document could be improved by including more information on the exceptions, escalation logic, and the process for addressing non-compliance or capital deficiencies.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Consider adding a section that outlines the exceptions, escalation process, and the actions that the Superintendent may take in cases where an institution does not meet the capital adequacy requirements.\n\n#### 9. Change Management & Review Cadence\n\n**Coverage**: Partial\n\n**Evidence**:\n- The document does not explicitly address the change management or review cadence for the capital adequacy requirements.\n- It mentions that the guideline is effective as of November 2023 / January 2024, but does not provide information on the review or update process.\n\n**Gaps**:\n- The document could be improved by including information on the change management process, review cadence, and the mechanism for updating the capital adequacy requirements as needed.\n\n**Severity**: Medium\n\n**Recommendations**:\n- Consider adding a section that outlines the change management process, review cadence, and the mechanism for updating the capital adequacy requirements in response to changes in regulations, market conditions, or other factors.\n\n#### 10. Definitions, References, or Supporting Documents\n\n**Coverage**: Complete\n\n**Evidence**:\n- The document provides references to the relevant sections of the Bank Act and Trust and Loan Companies Act that underpin the capital adequacy requirements.\n- It also references the Basel Framework published by the Basel Committee on Banking Supervision, and indicates the relevant paragraph numbers from the Basel Framework that are associated with the text in the document.\n- The document mentions that it should be read in conjunction with the other CAR chapters, which are listed in the table of contents.\n\n**Gaps**: None identified.\n\n**Severity**: N/A\n\n**Recommendations**: None.\n\n### Overall Verdict\n\n**Summary**: The document provides a comprehensive and detailed overview of the capital adequacy requirements for banks, bank holding companies, federally regulated trust companies, and federally regulated loan companies. It covers the key conceptual domains, including the purpose, scope, mandatory requirements, operational expectations, and references to supporting documents.\n\nThe document could be further strengthened by including more information on the roles, responsibilities, and governance aspects, as well as the monitoring, reporting, and escalation processes. Additionally, the change management and review cadence for the capital adequacy requirements could be more explicitly addressed.\n\n**Key Strengths**:\n- Clear and comprehensive coverage of the purpose, scope, and mandatory requirements related to capital adequacy\n- Detailed information on the calculation of risk-weighted assets and the various components (credit risk, market risk, operational risk)\n- Robust references to the relevant regulatory frameworks and supporting guidelines\n\n**Priority Gaps** (ranked):\n1. Roles, responsibilities, and governance aspects related to the capital adequacy requirements\n2. Monitoring, reporting, and evidence requirements for institutions\n3. Exceptions, escalation logic, and the process for addressing non-compliance\n4. Change management and review cadence for the capital adequacy requirements\n\n**Recommended Actions**:\n- Consider adding a section that outlines the key roles, responsibilities, and governance mechanisms related to the capital adequacy requirements, including the responsibilities of OSFI and the institutions.\n- Include more information on the monitoring, reporting, and evidence requirements that institutions must adhere to in order to demonstrate compliance with the capital adequacy requirements.\n- Provide details on the exceptions, escalation process, and the actions that the Superintendent may take in cases where an institution does not meet the capital adequacy requirements.\n- Incorporate a section that addresses the change management process, review cadence, and the mechanism for updating the capital adequacy requirements as needed.",
+      "compliance_governance": "### Compliance Analysis by Area\n\n#### 1. Mandatory Requirements\n\n**Findings**: The document contains clear mandatory requirements using language like \"shall\", \"must\", and \"is required to\". For example, it states that \"banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies are required to maintain adequate capital\" under the Bank Act and Trust and Loan Companies Act.\n\n**Gaps**: No significant gaps identified in the mandatory requirements.\n\n**Severity**: Low\n\n#### 2. Defined Ownership\n\n**Findings**: The document clearly defines the institutions that are subject to the capital adequacy requirements, including banks (including federal credit unions), bank holding companies, federally regulated trust companies, and federally regulated loan companies.\n\n**Gaps**: While the document defines the institutions subject to the requirements, it does not explicitly assign role-level accountability for compliance and governance.\n\n**Severity**: Medium\n\n#### 3. Oversight & Challenge Mechanisms\n\n**Findings**: The document states that the Superintendent may direct an institution to increase its capital if the minimum standards are met, indicating an oversight and challenge mechanism.\n\n**Gaps**: The document does not provide details on the specific oversight and challenge processes, such as reporting requirements, review procedures, or escalation channels.\n\n**Severity**: Medium\n\n#### 4. Escalation Thresholds or Triggers\n\n**Findings**: The document outlines the minimum capital standards that institutions must meet, including the leverage ratio and risk-based capital ratio. It also mentions that the Superintendent may direct an institution to increase its capital if the standards are met.\n\n**Gaps**: The document does not provide specific escalation thresholds or triggers for when the Superintendent may exercise their authority to direct an institution to increase capital.\n\n**Severity**: Medium\n\n#### 5. Internal Control References or Risk Alignment\n\n**Findings**: The document aligns the capital adequacy requirements with the Basel capital framework and references the Leverage Requirements Guideline, indicating a broader risk management framework.\n\n**Gaps**: The document does not provide detailed references to internal control processes or risk management practices that support the capital adequacy requirements.\n\n**Severity**: Medium\n\n#### 6. Approval Authority Clarity\n\n**Findings**: The document states that institutions must obtain approval from OSFI to use internal model-based approaches for credit risk, indicating a clear approval process.\n\n**Gaps**: The document does not provide details on the approval process, such as the specific criteria, documentation requirements, or timelines.\n\n**Severity**: Medium\n\n#### 7. Review Cadence & Assurance Expectations\n\n**Findings**: The document does not explicitly state the review cadence or assurance expectations for the capital adequacy requirements.\n\n**Gaps**: The document lacks information on the frequency of reviews, the parties responsible for assurance, and the processes for monitoring and validating compliance.\n\n**Severity**: High\n\n#### 8. Regulatory or Policy Framework Alignment\n\n**Findings**: The document is aligned with the Bank Act, Trust and Loan Companies Act, and the Basel capital framework, indicating a strong regulatory and policy framework.\n\n**Gaps**: No significant gaps identified in the regulatory and policy alignment.\n\n**Severity**: Low\n\n### Overall Compliance Risk\n\n**Rating**: Medium\n\n**Critical Issues**:\n1. Lack of defined role-level accountability and ownership for compliance and governance.\n2. Insufficient details on the oversight and challenge mechanisms, escalation thresholds, and internal control processes.\n3. Absence of clear review cadence and assurance expectations.\n\n**Recommended Governance Improvements**:\n- Assign clear role-level accountability and ownership for capital adequacy compliance and governance.\n- Enhance the document to provide more details on the oversight and challenge processes, escalation triggers, and alignment with internal control and risk management practices.\n- Incorporate specific review cadence, assurance expectations, and monitoring/validation requirements.\n\n**Audit & Regulatory Exposure**:\n- Potential gaps in role-level accountability and governance could lead to compliance failures and regulatory scrutiny.\n- Lack of detailed oversight and escalation mechanisms may hinder the institution's ability to identify and address capital adequacy issues in a timely manner.\n- Absence of clear review and assurance processes could result in missed opportunities to validate compliance and identify areas for improvement.",
+      "structural_presentation": "### Structural Analysis by Aspect\n\n#### 1. Flow & Organization\n\n**What Works Well**:\n- The document has a clear and comprehensive table of contents that provides a good overview of the chapter and section structure.\n- The headings and subheadings are well-structured and follow a logical hierarchy.\n- The content flows smoothly from one section to the next, providing a coherent overview of the risk-based capital requirements.\n\n**Gaps & Issues**:\nNo major gaps or issues were identified in the structure of the document. The table of contents and headings provide a clear and detailed outline of the content.\n\n#### 2. Section Boundaries\n\n**What Works Well**:\n- The sections are well-defined and ideas are grouped together logically.\n- The transitions between sections are smooth and the content flows naturally.\n\n**Gaps & Issues**:\nNo significant issues were found with the section boundaries or grouping of content.\n\n#### 3. Duplication or Fragmentation\n\n**What Works Well**:\n- The content is not duplicated or fragmented across the document.\n- Each section covers a distinct aspect of the risk-based capital requirements.\n\n**Gaps & Issues**:\nNo duplication or fragmentation of content was observed.\n\n#### 4. Heading Hierarchy\n\n**What Works Well**:\n- The heading hierarchy is consistent and follows a clear H1 -> H2 -> H3 structure.\n- The headings accurately reflect the content of each section.\n\n**Gaps & Issues**:\nThe heading hierarchy is well-structured and consistent throughout the document.\n\n#### 5. Readability of Long Sections\n\n**What Works Well**:\n- The longest section, \"1.3. Total Risk-weighted Assets\", is broken down into clear subsections that make the content easy to navigate.\n- The use of bullet points and numbered lists helps improve the readability of longer sections.\n\n**Gaps & Issues**:\nNo significant issues were found with the readability of the longer sections.\n\n#### 6. Table of Contents\n\n**What Works Well**:\n- The table of contents is comprehensive and provides a clear overview of the chapter and section structure.\n- The TOC is well-formatted and easy to navigate.\n\n**Gaps & Issues**:\nThe table of contents is excellent and provides a clear roadmap for the document.\n\n#### 7. Formatting Issues\n\n**What Works Well**:\n- The formatting is consistent throughout the document, with clear use of headings, lists, and spacing.\n- The document is easy to read and navigate due to the consistent formatting.\n\n**Gaps & Issues**:\nNo significant formatting issues were identified.\n\n#### 8. Ease of Navigation\n\n**What Works Well**:\n- The clear table of contents, well-structured headings, and logical flow of the content make the document easy to navigate.\n- Readers can quickly find the information they need by referring to the TOC or scanning the headings.\n\n**Gaps & Issues**:\nThe document is highly navigable and easy for readers to use.\n\n### Overall Structural Assessment\n\n**Readability Rating**: Excellent\n\n**User Experience Observations**:\n- The clear and comprehensive table of contents provides an excellent overview of the document's structure.\n- The logical flow of content and well-organized headings make the information easy to find and understand.\n- The consistent formatting and use of lists and bullet points enhance the readability of the document.\n\n**Recommended Restructuring**:\nNo major restructuring is recommended. The document is well-organized and structured in a way that supports a positive user experience.\n\n### Formatting & Presentation\n\n**Issues**:\nNo significant formatting or presentation issues were identified.\n\n**Quick Wins**:\n- The document is already well-formatted and presented, so no immediate \"quick wins\" are necessary.",
+      "language_clarity": "### Language Analysis by Dimension\n\n#### 1. Directive vs Advisory Tone\n\n**General Assessment**: The document generally maintains a directive and mandatory tone, using language like \"must\", \"required\", and \"shall\". This is appropriate for a regulatory guideline that sets out binding capital requirements.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| None | N/A | N/A | N/A | N/A |\n\n#### 2. Clarity and Specificity\n\n**General Assessment**: The document is highly specific and clear in its descriptions of the various capital requirements and calculation methodologies. Technical terms are well-defined, and the content is structured in a logical manner.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| None | N/A | N/A | N/A | N/A |\n\n#### 3. Presence of Vague/Ambiguous Phrases\n\n**General Assessment**: The document avoids vague or ambiguous language, and uses precise terminology throughout. The requirements are stated clearly and unambiguously.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| None | N/A | N/A | N/A | N/A |\n\n#### 4. Passive vs Active Voice\n\n**General Assessment**: The document primarily uses active voice, which contributes to the directive and authoritative tone. Passive voice is used sparingly and appropriately.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| None | N/A | N/A | N/A | N/A |\n\n#### 5. Internal Consistency of Terminology\n\n**General Assessment**: The document maintains a high level of internal consistency in its use of terminology. Key terms are defined clearly and used consistently throughout.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| None | N/A | N/A | N/A | N/A |\n\n#### 6. Sentence Structure, Flow, and Repetition\n\n**General Assessment**: The sentences are generally well-structured, with appropriate use of complex sentences to convey technical details. The flow between sections is logical and coherent. There is some repetition of key concepts, which helps reinforce the important requirements.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| None | N/A | N/A | N/A | N/A |\n\n#### 7. Plain-Language Suitability for Non-Experts\n\n**General Assessment**: The document is highly technical in nature and uses specialized terminology that may be challenging for non-experts to fully understand. However, the clear structure, definitions, and explanations make the content as accessible as possible for the target audience of financial institutions.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| Throughout | Technical terminology | May be difficult for non-experts | Provide more plain-language explanations | Medium |\n\n#### 8. Professional and Formal Tone\n\n**General Assessment**: The document maintains a highly professional and formal tone throughout, which is appropriate for a regulatory guideline of this nature. The language is precise, objective, and free of any casual or colloquial elements.\n\n**Issues**:\n\n| Location | Problematic Text | Problem | Improved Text | Severity |\n|----------|------------------|---------|---------------|----------|\n| None | N/A | N/A | N/A | N/A |\n\n### Overall Evaluation\n\n**Strengths**:\n- Clear, directive, and mandatory tone throughout, setting out binding requirements\n- Highly specific and technical content, with well-defined terms and concepts\n- Consistent use of terminology and logical flow between sections\n- Formal and professional language appropriate for a regulatory guideline\n\n**Weaknesses**:\n- The technical nature of the content may be challenging for non-expert readers to fully understand, despite the clear structure and explanations\n\n**Top Improvements** (prioritized):\n\n1. **Priority 1**: Provide more plain-language explanations and examples for key technical concepts and requirements\n   - **Impact**: This would help improve the accessibility of the content for non-expert readers, while still maintaining the necessary level of technical detail.\n   - **Action**: Review the document and identify opportunities to incorporate additional plain-language explanations and examples to clarify the more complex aspects of the capital requirements.\n\n2. **Priority 2**: Consider including a glossary of key terms\n   - **Impact**: A glossary would further enhance the document's accessibility by providing a centralized reference for the specialized terminology used throughout.\n   - **Action**: Evaluate the feasibility of including a glossary at the beginning or end of the document, or providing links to a centralized glossary resource.\n\n3. **Priority 3**: Maintain the overall high-quality of the language and structure\n   - **Impact**: The document's clear, directive, and professional tone is a significant strength that should be preserved.\n   - **Action**: Continue to apply the same level of rigor and attention to detail when updating or revising the document in the future."
     },
     "improved_md_file_id": "CAR_Chapter_1_First_5_Pages_manual_md_aaab59d6",
-    "improved_markdown": "# \n\n\n\n## \n\n### \n\n\n\n\n\n\n\n\n\n\n\n# \n\n\n\n## \n\n## \n\n## \n\n## \n\n## \n\n## \n\n## \n\n## \n\n## \n\n# \n\n## \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## \n\n## \n\n# \n\n\n\n\n\n## \n\n\n\n\n\n\n\n## \n\n\n\n\n\n\n\n###### \n\n### \n\n\n\n\n\n\n\n\n\n\n\n### \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+    "improved_markdown": "# \n\n\n\n\n\n\n\n### \n\n\n\n\n\n\n\n\n\n\n\n# \n\n\n\n## \n\n## \n\n## \n\n## \n\n## \n\n## \n\n## \n\n## \n\n## \n\n# \n\n## \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## \n\n## \n\n# \n\n\n\n\n\n## \n\n\n\n\n\n\n\n## \n\n\n\n\n\n\n\n###### \n\n### \n\n\n\n\n\n\n\n\n\n\n\n### \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
     "improved_md_path": "external/data/doc_review/improved/CAR_Chapter_1_First_5_Pages_manual_md_aaab59d6.md",
     "accepted_suggestions": [],
     "rejected_suggestions": [],
@@ -7095,6 +7400,39 @@
         "start_offset": 142,
         "end_offset": 151,
         "updated_at": "2025-11-20T04:34:50.568410Z"
+      },
+      {
+        "id": "ai12_1763665273354",
+        "block_id": "4",
+        "selection_text": "Capital",
+        "improved_text": "Capital",
+        "status": "accepted",
+        "timestamp": "2025-11-20T14:01:13.354478Z",
+        "start_offset": 9,
+        "end_offset": 16,
+        "updated_at": "2025-11-20T14:01:14.867877Z"
+      },
+      {
+        "id": "ai13_1763665904908",
+        "block_id": "149",
+        "selection_text": "amsjkmklsOverview",
+        "improved_text": "Overview\n\nThis overview provides a high-level summary of the key features and functionality of the product. It outlines the main use cases, target audience, and core capabilities to help users understand the value proposition at a glance.",
+        "status": "accepted",
+        "timestamp": "2025-11-20T14:11:44.908895Z",
+        "start_offset": 0,
+        "end_offset": 17,
+        "updated_at": "2025-11-20T14:11:49.032320Z"
+      },
+      {
+        "id": "ai14_1763666258527",
+        "block_id": "147",
+        "selection_text": "capabilities",
+        "improved_text": "capabilities",
+        "status": "rejected",
+        "timestamp": "2025-11-20T14:17:38.527046Z",
+        "start_offset": 166,
+        "end_offset": 178,
+        "updated_at": "2025-11-20T14:19:21.620427Z"
       }
     ],
     "chat_messages": [
@@ -7121,6 +7459,18 @@
         "role": "assistant",
         "content": "Based on the document, this appears to be the Capital Adequacy Requirements (CAR) Guideline issued by the Office of the Superintendent of Financial Institutions (OSFI) in Canada. The key points about this document are:\n\n# Overview\n- The document outlines the risk-based capital requirements for banks, bank holding companies, federally regulated trust companies, and federally regulated loan companies in Canada.\n- It is based on the Basel capital framework developed by the Basel Committee on Banking Supervision.\n- The capital and leverage requirements are set out across 9 separate chapters of the CAR Guideline.\n\n# Scope\n- The capital adequacy requirements apply on a consolidated basis to the institutions listed above.\n- The consolidated entity includes all subsidiaries except insurance subsidiaries.\n\n# Key Elements\n- The document covers the definition of regulatory capital, the calculation of total risk-weighted assets (including for credit risk, market risk, and operational risk), approval to use internal model-based approaches, capital floors, minimum capital ratios, and various capital buffers.\n- It describes the risk-based capital ratios that institutions must maintain, as well as additional capital requirements for domestic systemically important banks (D-SIBs).\n\nIn summary, this document provides the detailed regulatory framework for capital adequacy that federally regulated financial institutions in Canada must adhere to. It is a comprehensive guide covering the key components of the risk-based capital regime.",
         "timestamp": "2025-11-20T04:03:31.268668Z"
+      },
+      {
+        "id": "msg5_1763665987584",
+        "role": "user",
+        "content": "explain the doc \n",
+        "timestamp": "2025-11-20T14:13:07.584945Z"
+      },
+      {
+        "id": "msg6_1763665994598",
+        "role": "assistant",
+        "content": "Based on the document, this Capital Adequacy Requirements (CAR) Guideline provides an overview of the key elements of the risk-based capital framework for banks, bank holding companies, trust companies, and loan companies in Canada. Here are the main points:\n\n# Overview\n- The CAR Guideline is issued by the Office of the Superintendent of Financial Institutions (OSFI) and is based on the Basel capital framework.\n- It covers the capital adequacy requirements across 9 separate chapters, with this document providing the high-level overview.\n- The requirements apply on a consolidated basis, including all subsidiaries except insurance subsidiaries.\n\n# Key Elements\n1. **Regulatory Capital**: Total capital consists of Common Equity Tier 1, Additional Tier 1, and Tier 2 capital, with specific criteria and limits described in Chapter 2.\n2. **Risk-Weighted Assets (RWA)**: RWA make up the denominator of the risk-based capital ratios and are calculated as the higher of:\n   - The sum of credit risk, market risk, and operational risk RWA\n   - The adjusted RWA determined by the capital floor\n3. **Capital Requirements**:\n   - Minimum risk-based capital ratios for different bank categories (D-SIBs, SMSBs)\n   - Mandated capital buffers (conservation, countercyclical)\n   - D-SIB surcharge and Domestic Stability Buffer\n\nIn summary, this document lays out the overarching framework for the risk-based capital regime that federally regulated financial institutions in Canada must adhere to, with the specific details covered across the 9 chapters of the CAR Guideline.",
+        "timestamp": "2025-11-20T14:13:14.598370Z"
       }
     ]
   }
