@@ -24,6 +24,7 @@ class LLMClient:
         self.model = None
         self.temperature = 0.2
         self.max_tokens = 4096
+        self.demo_mode = os.getenv("DEMO_MODE", "false").lower() == "true"
         
         self._initialize()
     
@@ -44,11 +45,14 @@ class LLMClient:
             except Exception as e:
                 print(f"⚠️  Failed to initialize Anthropic: {e}")
         
-        print("⚠️  No LLM configured. Set ANTHROPIC_API_KEY in .env")
+        if self.demo_mode:
+            print("✓ Demo mode enabled - using mock LLM responses")
+        else:
+            print("⚠️  No LLM configured. Set ANTHROPIC_API_KEY in .env or DEMO_MODE=true for demo")
     
     def is_available(self) -> bool:
-        """Check if LLM is available"""
-        return self.client is not None
+        """Check if LLM is available (or demo mode is enabled)"""
+        return self.client is not None or self.demo_mode
     
     def invoke(
         self,
@@ -73,6 +77,13 @@ class LLMClient:
         """
         if not self.is_available():
             raise RuntimeError("LLM not available")
+        
+        # Check for demo mode mock response
+        if self.demo_mode and messages:
+            user_prompt = messages[-1].get("content", "") if messages else ""
+            mock_response = self._get_demo_mock_response(system or "", user_prompt, response_format)
+            if mock_response:
+                return mock_response
         
         temp = temperature if temperature is not None else self.temperature
         max_tok = max_tokens if max_tokens is not None else self.max_tokens
@@ -101,6 +112,12 @@ class LLMClient:
         Returns:
             LLM response text
         """
+        # Check for demo mode mock response
+        if self.demo_mode:
+            mock_response = self._get_demo_mock_response(system_prompt, user_prompt, response_format)
+            if mock_response:
+                return mock_response
+        
         messages = [{"role": "user", "content": user_prompt}]
         return self.invoke(messages, system=system_prompt, temperature=temperature, response_format=response_format)
     
@@ -129,6 +146,20 @@ class LLMClient:
         """
         if not self.is_available():
             raise RuntimeError("LLM not available")
+        
+        # Check for demo mode mock response
+        if self.demo_mode and messages:
+            user_prompt = messages[-1].get("content", "") if messages else ""
+            mock_response = self._get_demo_mock_response(system or "", user_prompt, response_format)
+            if mock_response:
+                # Simulate streaming by yielding chunks
+                chunk_size = 10
+                for i in range(0, len(mock_response), chunk_size):
+                    chunk = mock_response[i:i + chunk_size]
+                    if callback:
+                        callback(chunk)
+                    yield chunk
+                return
         
         temp = temperature if temperature is not None else self.temperature
         max_tok = max_tokens if max_tokens is not None else self.max_tokens
@@ -160,6 +191,19 @@ class LLMClient:
         Yields:
             Text chunks as they arrive
         """
+        # Check for demo mode mock response
+        if self.demo_mode:
+            mock_response = self._get_demo_mock_response(system_prompt, user_prompt, response_format)
+            if mock_response:
+                # Simulate streaming by yielding chunks
+                chunk_size = 10
+                for i in range(0, len(mock_response), chunk_size):
+                    chunk = mock_response[i:i + chunk_size]
+                    if callback:
+                        callback(chunk)
+                    yield chunk
+                return
+        
         messages = [{"role": "user", "content": user_prompt}]
         for chunk in self.stream(messages, system=system_prompt, temperature=temperature, response_format=response_format, callback=callback):
             yield chunk
@@ -235,6 +279,69 @@ class LLMClient:
         except Exception as e:
             raise RuntimeError(f"Anthropic API streaming error: {e}")
     
+    def _get_demo_mock_response(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        response_format: Optional[str] = None
+    ) -> Optional[str]:
+        """
+        Get mock response for demo mode.
+        Returns mock data for specific queries, especially "Show me limits with high utilization"
+        """
+        # Check if this is the high utilization query
+        user_prompt_lower = user_prompt.lower()
+        if "high utilization" in user_prompt_lower or "utilization" in user_prompt_lower:
+            if response_format == "json":
+                # Mock SQL generation response
+                return json.dumps({
+                    "sql": "SELECT * FROM limits_data WHERE utilization > 0.95 AND date = (SELECT MAX(date) FROM limits_data) ORDER BY utilization DESC LIMIT 20",
+                    "reasoning": "Query requests limits with high utilization. Filtering for utilization > 0.95 (95%) to show limits that are near or at capacity. Using latest date snapshot. Ordering by utilization descending to show highest first.",
+                    "plan_quality": "high",
+                    "confidence": 0.95
+                })
+            else:
+                # Mock final response synthesis - matches 4 rows returned by SQL query
+                return """Based on the query results, I found **4 limits with high utilization** (above 95%). Here are the key insights:
+
+## Summary
+- **Total high-utilization limits**: 4
+- **Highest utilization**: 100% (1 limit at full capacity)
+- **Average utilization**: 98.5%
+- **Most affected regions**: EMEA (2 limits), ASIA (1 limit), CANADA (1 limit)
+
+## Critical Findings
+
+1. **At Full Capacity (100% utilization)**:
+   - European Prime Finance (Limit ID: 300188) - EUR exposure
+
+2. **Near Capacity (96-99% utilization)**:
+   - China Fixed Income Trading (300128) - JPY exposure, 96% utilization
+   - Canadian Options (300121) - CAD exposure, 98% utilization
+   - Oil Products NGL Trading (300145) - USD exposure, 99% utilization
+
+3. **Risk Categories**:
+   - **PV01 Delta limits**: 2 limits at high utilization (Canadian Options, Oil Products NGL Trading)
+   - **CVaR / Limits**: 2 limits at high utilization (European Prime Finance, China Fixed Income Trading)
+
+## Recommendations
+- Review the European Prime Finance limit at 100% utilization immediately for potential breach risk
+- Monitor the Oil Products NGL Trading limit (99% utilization) closely as it may breach with small exposure increases
+- Consider limit increases for frequently utilized limits in active trading desks
+
+The data shows high utilization across different limit types and regions, with concentrations in Energy (Oil Products) and Financials (Prime Finance, Fixed Income) sectors."""
+        
+        # For other queries in demo mode, return a generic response
+        if response_format == "json":
+            return json.dumps({
+                "sql": "SELECT * FROM limits_data LIMIT 10",
+                "reasoning": "Demo mode: Returning sample query",
+                "plan_quality": "medium",
+                "confidence": 0.7
+            })
+        else:
+            return "Demo mode is active. This is a mock response. For full functionality, please configure ANTHROPIC_API_KEY."
+    
     def get_info(self) -> Dict[str, Any]:
         """Get LLM configuration info"""
         return {
@@ -242,7 +349,8 @@ class LLMClient:
             "provider": self.provider,
             "model": self.model,
             "temperature": self.temperature,
-            "max_tokens": self.max_tokens
+            "max_tokens": self.max_tokens,
+            "demo_mode": self.demo_mode
         }
 
 

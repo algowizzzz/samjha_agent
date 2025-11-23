@@ -369,54 +369,70 @@
     <div class="card shadow-sm h-100 d-flex flex-column m-0" style="border-radius: 0; border: none; height: 100%; margin: 0 !important; width: 100%;">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" style="flex-shrink: 0;">
             <h5 class="mb-0"><i class="bi bi-chat-text"></i> MR Limits AI assisted analysis</h5>
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
-                    <label for="dataDictSelect" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Database business instructions:</label>
-                    <select id="dataDictSelect" class="form-select form-select-sm" style="width: auto; min-width: 180px; font-size: 11px;">
-                        <option value="">Loading...</option>
-                    </select>
-                    <label for="dataDictUpload" class="btn btn-sm btn-light mb-0" style="cursor: pointer; padding: 2px 6px; font-size: 11px;" title="Upload data dictionary">
-                        <i class="bi bi-upload"></i>
-                    </label>
-                    <input type="file" id="dataDictUpload" accept=".json" style="display: none;">
-                </div>
-                <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
-                    <label for="agentPromptsSelect" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Agent Prompts:</label>
-                    <select id="agentPromptsSelect" class="form-select form-select-sm" style="width: auto; min-width: 180px; font-size: 11px;">
-                        <option value="">Loading...</option>
-                    </select>
-                    <label for="agentPromptsUpload" class="btn btn-sm btn-light mb-0" style="cursor: pointer; padding: 2px 6px; font-size: 11px;" title="Upload agent prompts">
-                        <i class="bi bi-upload"></i>
-                    </label>
-                    <input type="file" id="agentPromptsUpload" accept=".json" style="display: none;">
-                </div>
-                <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
-                    <label for="welcomeTipsSelect" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Welcome Tips:</label>
-                    <select id="welcomeTipsSelect" class="form-select form-select-sm" style="width: auto; min-width: 180px; font-size: 11px;">
-                        <option value="">Loading...</option>
-                    </select>
-                    <label for="welcomeTipsUpload" class="btn btn-sm btn-light mb-0" style="cursor: pointer; padding: 2px 6px; font-size: 11px;" title="Upload welcome tips">
-                        <i class="bi bi-upload"></i>
-                    </label>
-                    <input type="file" id="welcomeTipsUpload" accept=".json" style="display: none;">
-                </div>
-                <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
-                    <label for="agentDomain" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Domain:</label>
-                    <input type="text" id="agentDomain" class="form-control form-control-sm" style="width: auto; min-width: 120px; font-size: 11px;" placeholder="e.g., Finance">
-                </div>
-                <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
-                    <label for="agentName" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Name:</label>
-                    <input type="text" id="agentName" class="form-control form-control-sm" style="width: auto; min-width: 120px; font-size: 11px;" placeholder="e.g., Risk Analysis">
-                </div>
-                <button id="saveAgentBtn" class="btn btn-sm btn-success" title="Save agent configuration">
-                    <i class="bi bi-save"></i> Save Agent
+            <div class="d-flex align-items-center gap-2">
+                {% if demo_mode %}
+                <span class="badge bg-warning text-dark" style="font-size: 11px; padding: 4px 8px;">
+                    <i class="bi bi-info-circle"></i> Dev Mode
+                </span>
+                {% endif %}
+                <button class="btn btn-sm btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#configBanner" aria-expanded="false" aria-controls="configBanner" title="Toggle configuration panel">
+                    <i class="bi bi-gear"></i> Config
                 </button>
                 <button id="newChatBtn" class="btn btn-sm btn-light" title="Start a new chat session">
                     <i class="bi bi-plus-circle"></i> New Chat
                 </button>
-            <span class="badge bg-light text-dark">DuckDB</span>
+                <span class="badge bg-light text-dark">DuckDB</span>
             </div>
         </div>
+        <!-- Collapsible Configuration Banner -->
+        <div class="collapse" id="configBanner" style="flex-shrink: 0;">
+            <div class="card-header bg-secondary text-white" style="padding: 12px 16px;">
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
+                        <label for="dataDictSelect" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Database business instructions:</label>
+                        <select id="dataDictSelect" class="form-select form-select-sm" style="width: auto; min-width: 180px; font-size: 11px;">
+                            <option value="">Loading...</option>
+                        </select>
+                        <label for="dataDictUpload" class="btn btn-sm btn-light mb-0" style="cursor: pointer; padding: 2px 6px; font-size: 11px;" title="Upload data dictionary">
+                            <i class="bi bi-upload"></i>
+                        </label>
+                        <input type="file" id="dataDictUpload" accept=".json" style="display: none;">
+                    </div>
+                    <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
+                        <label for="agentPromptsSelect" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Agent Prompts:</label>
+                        <select id="agentPromptsSelect" class="form-select form-select-sm" style="width: auto; min-width: 180px; font-size: 11px;">
+                            <option value="">Loading...</option>
+                        </select>
+                        <label for="agentPromptsUpload" class="btn btn-sm btn-light mb-0" style="cursor: pointer; padding: 2px 6px; font-size: 11px;" title="Upload agent prompts">
+                            <i class="bi bi-upload"></i>
+                        </label>
+                        <input type="file" id="agentPromptsUpload" accept=".json" style="display: none;">
+                    </div>
+                    <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
+                        <label for="welcomeTipsSelect" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Welcome Tips:</label>
+                        <select id="welcomeTipsSelect" class="form-select form-select-sm" style="width: auto; min-width: 180px; font-size: 11px;">
+                            <option value="">Loading...</option>
+                        </select>
+                        <label for="welcomeTipsUpload" class="btn btn-sm btn-light mb-0" style="cursor: pointer; padding: 2px 6px; font-size: 11px;" title="Upload welcome tips">
+                            <i class="bi bi-upload"></i>
+                        </label>
+                        <input type="file" id="welcomeTipsUpload" accept=".json" style="display: none;">
+                    </div>
+                    <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
+                        <label for="agentDomain" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Domain:</label>
+                        <input type="text" id="agentDomain" class="form-control form-control-sm" style="width: auto; min-width: 120px; font-size: 11px;" placeholder="e.g., Finance">
+                    </div>
+                    <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
+                        <label for="agentName" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Name:</label>
+                        <input type="text" id="agentName" class="form-control form-control-sm" style="width: auto; min-width: 120px; font-size: 11px;" placeholder="e.g., Risk Analysis">
+                    </div>
+                    <button id="saveAgentBtn" class="btn btn-sm btn-success" title="Save agent configuration">
+                        <i class="bi bi-save"></i> Save Agent
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Demo mode banner hidden per user request -->
         <!-- Existing Agents Section -->
         <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center" style="flex-shrink: 0; padding: 8px 16px;">
             <label for="existingAgentsSelect" class="mb-0 text-white" style="font-size: 12px; white-space: nowrap;">Existing Agents:</label>

@@ -118,8 +118,12 @@ class ToolsRoutes(BaseRoutes):
             except:
                 template_hash = str(cache_bust_value)
             
+            # Check if demo mode is enabled
+            import os
+            demo_mode = os.getenv("DEMO_MODE", "false").lower() == "true"
+            
             # Add version 8 to template
-            response = make_response(render_template('agent_chat.html', user=user_session, token=user_session.get('token') if user_session else None, cache_bust=cache_bust_value, version=8, template_hash=template_hash))
+            response = make_response(render_template('agent_chat.html', user=user_session, token=user_session.get('token') if user_session else None, cache_bust=cache_bust_value, version=8, template_hash=template_hash, demo_mode=demo_mode))
             # Add aggressive cache-busting headers to prevent browser caching
             response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0, private'
             response.headers['Pragma'] = 'no-cache'
