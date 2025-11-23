@@ -55,14 +55,35 @@ The server will start on `http://localhost:8000` by default.
 To run the server in demo mode with mock LLM responses (no API calls needed):
 
 **Option 1: Using the startup script (recommended):**
+
+**On Linux/Mac:**
 ```bash
 chmod +x start_demo.sh
 ./start_demo.sh
 ```
 
+**On Windows:**
+```cmd
+start_demo.bat
+```
+
 **Option 2: Manual setup:**
+
+**On Linux/Mac:**
 ```bash
 export DEMO_MODE=true
+python run_server.py
+```
+
+**On Windows (CMD):**
+```cmd
+set DEMO_MODE=true
+python run_server.py
+```
+
+**On Windows (PowerShell):**
+```powershell
+$env:DEMO_MODE="true"
 python run_server.py
 ```
 
