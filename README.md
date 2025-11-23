@@ -50,6 +50,31 @@ python run_server.py
 
 The server will start on `http://localhost:8000` by default.
 
+## Demo Mode (No LLM API Key Required)
+
+To run the server in demo mode with mock LLM responses (no API calls needed):
+
+**Option 1: Using the startup script (recommended):**
+```bash
+chmod +x start_demo.sh
+./start_demo.sh
+```
+
+**Option 2: Manual setup:**
+```bash
+export DEMO_MODE=true
+python run_server.py
+```
+
+**Demo Mode Features:**
+- ✅ No API key required - works without `ANTHROPIC_API_KEY`
+- ✅ Mock LLM responses for demonstration purposes
+- ✅ Pre-configured mock data for "high utilization" queries
+- ✅ All agent workflow steps visible (SQL generation, execution, synthesis)
+- ✅ "Dev Mode" badge displayed in UI
+
+**Note:** Demo mode uses mock responses and does not make actual LLM API calls. Perfect for demos, testing, and development without API costs.
+
 ## Default Login
 
 - **Username:** admin
