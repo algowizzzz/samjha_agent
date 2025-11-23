@@ -301,37 +301,43 @@ class LLMClient:
                     "confidence": 0.95
                 })
             else:
-                # Mock final response synthesis - matches 4 rows returned by SQL query
-                return """Based on the query results, I found **4 limits with high utilization** (above 95%). Here are the key insights:
+                # Mock final response synthesis - try to extract actual row count from prompt
+                row_count = 4  # Default
+                try:
+                    # Try to extract row_count from the user_prompt (which contains state_summary)
+                    import re
+                    # Look for "row_count": number in the prompt
+                    match = re.search(r'"row_count":\s*(\d+)', user_prompt)
+                    if match:
+                        row_count = int(match.group(1))
+                except:
+                    pass
+                
+                # Generate response that matches actual row count
+                if row_count == 0:
+                    return "No limits found with high utilization (above 95%) in the latest data snapshot."
+                elif row_count == 1:
+                    return f"Based on the query results, I found **1 limit with high utilization** (above 95%).\n\nThis limit is near or at capacity and should be monitored closely for potential breach risk."
+                else:
+                    return f"""Based on the query results, I found **{row_count} limits with high utilization** (above 95%). Here are the key insights:
 
 ## Summary
-- **Total high-utilization limits**: 4
-- **Highest utilization**: 100% (1 limit at full capacity)
-- **Average utilization**: 98.5%
-- **Most affected regions**: EMEA (2 limits), ASIA (1 limit), CANADA (1 limit)
+- **Total high-utilization limits**: {row_count}
+- **Threshold**: Utilization > 95% (near or at capacity)
+- **Data snapshot**: Latest available date
 
-## Critical Findings
-
-1. **At Full Capacity (100% utilization)**:
-   - European Prime Finance (Limit ID: 300188) - EUR exposure
-
-2. **Near Capacity (96-99% utilization)**:
-   - China Fixed Income Trading (300128) - JPY exposure, 96% utilization
-   - Canadian Options (300121) - CAD exposure, 98% utilization
-   - Oil Products NGL Trading (300145) - USD exposure, 99% utilization
-
-3. **Risk Categories**:
-   - **PV01 Delta limits**: 2 limits at high utilization (Canadian Options, Oil Products NGL Trading)
-   - **CVaR / Limits**: 2 limits at high utilization (European Prime Finance, China Fixed Income Trading)
+## Analysis
+These limits are operating near or at capacity and require close monitoring. High utilization indicates that these limits may breach with small exposure increases.
 
 ## Recommendations
-- Review the European Prime Finance limit at 100% utilization immediately for potential breach risk
-- Monitor the Oil Products NGL Trading limit (99% utilization) closely as it may breach with small exposure increases
+- Review limits at or near 100% utilization immediately for potential breach risk
+- Monitor limits above 95% utilization closely
 - Consider limit increases for frequently utilized limits in active trading desks
+- Review exposure trends to identify patterns in high utilization
 
-The data shows high utilization across different limit types and regions, with concentrations in Energy (Oil Products) and Financials (Prime Finance, Fixed Income) sectors."""
+The data shows {row_count} limit(s) requiring attention based on the high utilization threshold."""
         
-        # For other queries in demo mode, return a generic response
+        # For other queries in demo mode, try to extract row count and generate appropriate response
         if response_format == "json":
             return json.dumps({
                 "sql": "SELECT * FROM limits_data LIMIT 10",
@@ -340,7 +346,20 @@ The data shows high utilization across different limit types and regions, with c
                 "confidence": 0.7
             })
         else:
-            return "Demo mode is active. This is a mock response. For full functionality, please configure ANTHROPIC_API_KEY."
+            # Try to extract row count from prompt for generic queries too
+            row_count = 0
+            try:
+                import re
+                match = re.search(r'"row_count":\s*(\d+)', user_prompt)
+                if match:
+                    row_count = int(match.group(1))
+            except:
+                pass
+            
+            if row_count > 0:
+                return f"Demo mode is active. Query executed successfully and returned {row_count} result(s). This is a mock response. For detailed analysis, please configure ANTHROPIC_API_KEY."
+            else:
+                return "Demo mode is active. This is a mock response. For full functionality, please configure ANTHROPIC_API_KEY."
     
     def get_info(self) -> Dict[str, Any]:
         """Get LLM configuration info"""
