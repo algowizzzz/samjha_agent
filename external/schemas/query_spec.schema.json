@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "query_spec.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "business_question",
+    "output_shape",
+    "start_table",
+    "grain",
+    "time",
+    "metrics",
+    "dimensions",
+    "filters",
+    "joins",
+    "aggregation_plan",
+    "validation_checks",
+    "performance_guardrails",
+    "defaults_used",
+    "open_questions"
+  ],
+  "properties": {
+    "business_question": { "type": "string" },
+    "output_shape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "columns"],
+      "properties": {
+        "type": { "type": "string" },
+        "columns": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "start_table": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "path"],
+      "properties": {
+        "name": { "type": "string" },
+        "path": { "type": "string" }
+      }
+    },
+    "grain": { "type": "string" },
+    "time": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["column", "rule"],
+      "properties": {
+        "column": { "type": "string" },
+        "rule": { "type": "string" },
+        "n_days": { "type": ["integer", "null"] },
+        "start": { "type": ["string", "null"] },
+        "end": { "type": ["string", "null"] }
+      }
+    },
+    "metrics": { "type": "array" },
+    "dimensions": { "type": "array" },
+    "filters": { "type": "array" },
+    "joins": { "type": "array" },
+    "aggregation_plan": { "type": "string" },
+    "validation_checks": { "type": "array" },
+    "performance_guardrails": { "type": "array" },
+    "defaults_used": { "type": "array" },
+    "open_questions": { "type": "array" }
+  }
+}

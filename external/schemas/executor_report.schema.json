@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "executor_report.schema.json",
+  "oneOf": [
+    {
+      "title": "SUCCESS",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "final_sql", "result_summary", "evaluation", "finished_output"],
+      "properties": {
+        "status": { "const": "SUCCESS" },
+        "final_sql": { "type": "string" },
+        "result_summary": { "type": "string" },
+        "evaluation": { "type": "object" },
+        "finished_output": { "type": "string" }
+      }
+    },
+    {
+      "title": "ERROR",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "error_type", "failed_checklist_items", "what_changed", "minimal_fix_suggestion", "last_sql", "last_error"],
+      "properties": {
+        "status": { "const": "ERROR" },
+        "error_type": { "enum": ["SCHEMA", "SQL", "EMPTY", "GRAIN", "POLICY", "NO_DATASET", "AMBIGUOUS"] },
+        "failed_checklist_items": { "type": "array", "items": { "type": "string" } },
+        "what_changed": { "type": "string" },
+        "minimal_fix_suggestion": { "type": "string" },
+        "last_sql": { "type": "string" },
+        "last_error": { "type": "string" }
+      }
+    }
+  ]
+}
+

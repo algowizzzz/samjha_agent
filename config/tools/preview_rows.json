@@ -1,0 +1,32 @@
+{
+  "name": "preview_rows",
+  "implementation": "external.tools.parquet_agent.preview_rows.PreviewRowsTool",
+  "description": "Sample rows from a data file",
+  "version": "1.0.0",
+  "enabled": true,
+  "data_directory": "mock_datawarehouse",
+  "inputSchema": {
+    "type": "object",
+    "required": ["path", "limit"],
+    "properties": {
+      "path": {"type": "string"},
+      "limit": {"type": "integer", "minimum": 1, "maximum": 100}
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["rows_preview"],
+    "properties": {
+      "rows_preview": {
+        "type": "array",
+        "items": {"type": "object"}
+      }
+    }
+  },
+  "metadata": {
+    "author": "Parquet Agent Team",
+    "category": "Data Discovery",
+    "tags": ["parquet_agent", "preview", "sample"]
+  }
+}
+

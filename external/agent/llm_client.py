@@ -35,8 +35,8 @@ class LLMClient:
             try:
                 self.client = Anthropic(api_key=api_key)
                 self.provider = "anthropic"
-                # Default to claude-3-opus (most capable, works with all API tiers)
-                self.model = os.getenv("ANTHROPIC_MODEL", "claude-3-opus-20240229")
+                # Default to claude-3-haiku (faster, cost-effective)
+                self.model = os.getenv("ANTHROPIC_MODEL", "claude-3-haiku-20240307")
                 self.temperature = float(os.getenv("ANTHROPIC_TEMPERATURE", "0.2"))
                 self.max_tokens = int(os.getenv("ANTHROPIC_MAX_TOKENS", "4096"))
                 print(f"✓ LLM initialized: Anthropic {self.model}")

@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "decider_output.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "action",
+    "query_type",
+    "query_type_signals",
+    "domain",
+    "intent",
+    "decisions",
+    "query_spec",
+    "query_spec_status",
+    "investigation_plan",
+    "expected_output",
+    "stop_conditions",
+    "ask_user",
+    "block_reason"
+  ],
+  "properties": {
+    "action": { "enum": ["ASK_USER", "EXECUTE", "BLOCK"] },
+    "query_type": { 
+      "enum": ["FOLLOW_UP", "USER_ANSWER", "NEW_QUERY"],
+      "description": "Classification of the user query based on Step 0 analysis"
+    },
+    "query_type_signals": { 
+      "type": "array", 
+      "items": { "type": "string" },
+      "description": "Signals detected in user_query that led to query_type classification"
+    },
+    "domain": { "type": "string" },
+    "intent": { "type": "string" },
+    "decisions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["comprehension", "determinacy", "clarification_need"],
+      "properties": {
+        "comprehension": { "enum": ["INTELLIGIBLE", "UNINTELLIGIBLE"] },
+        "determinacy": { "enum": ["DETERMINED", "UNDERDETERMINED"] },
+        "clarification_need": { "enum": ["ASK_REQUIRED", "DEFAULT_OK"] }
+      }
+    },
+    "query_spec": { "$ref": "query_spec.schema.json" },
+    "query_spec_status": { "$ref": "query_spec_status.schema.json" },
+    "investigation_plan": {
+      "type": "array",
+      "maxItems": 4,
+      "items": { "$ref": "investigation_plan_step.schema.json" }
+    },
+    "expected_output": { "type": "string" },
+    "stop_conditions": { "type": "array", "items": { "type": "string" } },
+    "ask_user": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["question", "why_non_defaultable", "what_answer_unblocks"],
+      "properties": {
+        "question": { "type": "string" },
+        "why_non_defaultable": { "type": "string" },
+        "what_answer_unblocks": { "type": "string" }
+      }
+    },
+    "block_reason": { "type": "string" }
+  }
+}

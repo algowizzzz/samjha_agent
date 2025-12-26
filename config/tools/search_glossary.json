@@ -1,0 +1,40 @@
+{
+  "name": "search_glossary",
+  "implementation": "external.tools.parquet_agent.search_glossary.SearchGlossaryTool",
+  "description": "Search domain glossary for term definitions",
+  "version": "1.0.0",
+  "enabled": true,
+  "domain_directory": "domain_instructions",
+  "inputSchema": {
+    "type": "object",
+    "required": ["term", "domain"],
+    "properties": {
+      "term": {"type": "string"},
+      "domain": {"type": "string"}
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["hits"],
+    "properties": {
+      "hits": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["title", "snippet", "source_ref"],
+          "properties": {
+            "title": {"type": "string"},
+            "snippet": {"type": "string"},
+            "source_ref": {"type": "string"}
+          }
+        }
+      }
+    }
+  },
+  "metadata": {
+    "author": "Parquet Agent Team",
+    "category": "Semantics",
+    "tags": ["parquet_agent", "glossary", "search"]
+  }
+}
+

@@ -1,19 +1,27 @@
 {
   "name": "nl_to_sql_planner",
-  "implementation": "external.tools.nl_to_sql_planner.NLToSQLPlannerTool",
-  "description": "Convert natural language query to SQL with confidence and explanation",
-  "version": "1.0.0",
+  "implementation": "external.tools.parquet_agent.nl_to_sql_planner.NLToSQLPlannerTool",
+  "description": "Convert QuerySpec to SQL",
+  "version": "2.0.0",
   "enabled": true,
   "inputSchema": {
     "type": "object",
+    "required": ["query_spec", "query_spec_status"],
     "properties": {
-      "query": { "type": "string" },
-      "table_schema": { "type": "object" },
-      "docs_meta": { "type": "array" },
-      "previous_clarifications": { "type": "array" }
-    },
-    "required": ["query"]
+      "query_spec": {"type": "object"},
+      "query_spec_status": {"type": "object"}
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["sql"],
+    "properties": {
+      "sql": {"type": "string"}
+    }
+  },
+  "metadata": {
+    "author": "Parquet Agent Team",
+    "category": "SQL Generation",
+    "tags": ["parquet_agent", "sql", "planner"]
   }
 }
-
-

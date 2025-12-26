@@ -22,8 +22,8 @@ def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
         return {}
     
     investigation_plan = state.get("investigation_plan", [])
-    query_spec = state.get("query_spec", {})
-    query_spec_status = state.get("query_spec_status", {})
+    query_spec = state.get("query_spec", {}).copy()  # Make a copy to modify
+    query_spec_status = state.get("query_spec_status", {}).copy()  # Make a copy to modify
     
     logger.info(f"InvestigationNode: Running {len(investigation_plan)} plan steps")
     
@@ -58,25 +58,182 @@ def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
                         if "start_table" not in query_spec:
                             query_spec["start_table"] = {}
                         query_spec["start_table"]["path"] = entry.get("path", "")
+                        # Update query_spec_status to mark path as verified
+                        if "start_table_grain" not in query_spec_status:
+                            query_spec_status["start_table_grain"] = {}
+                        query_spec_status["start_table_grain"]["status"] = "verified"
+                        query_spec_status["start_table_grain"]["source"] = "tool_result"
+                        query_spec_status["start_table_grain"]["blocks_execution"] = False
                         logger.info(f"Updated start_table.path to: {entry.get('path')}")
                         break
             
-            elif tool_name == "inspect_table" and fills_gap in ["start_table_grain", "grain", "dimensions"]:
-                # Update grain or dimensions from schema inspection
+            elif tool_name == "inspect_table":
+                # Update grain, dimensions, filters, or time from schema inspection
+                # Only fix fields explicitly mentioned in fills_gap (Decider controls what to verify)
                 columns = result.get("columns", [])
                 if columns:
-                    # If grain was missing, infer from columns
-                    if not query_spec.get("grain"):
-                        # Simple inference: if we see region, product, etc., infer grain
-                        if "region" in [c.get("name", "").lower() for c in columns]:
-                            query_spec["grain"] = "one row per region"
-                        elif "product" in [c.get("name", "").lower() for c in columns]:
-                            query_spec["grain"] = "one row per product"
-                    # Update dimensions if missing
-                    if not query_spec.get("dimensions"):
-                        dimension_cols = [c.get("name") for c in columns if c.get("name") in ["region", "product", "customer_id"]]
-                        if dimension_cols:
-                            query_spec["dimensions"] = dimension_cols
+                    actual_column_names = [c.get("name", "") for c in columns]
+                    actual_column_names_lower = [name.lower() for name in actual_column_names]
+                    
+                    # Helper function to find matching column name
+                    def find_matching_column(inferred_name: str) -> str:
+                        """Find actual column name that semantically matches inferred name."""
+                        inferred_lower = inferred_name.lower()
+                        # Exact match (case-insensitive)
+                        for col_name in actual_column_names:
+                            if col_name.lower() == inferred_lower:
+                                return col_name
+                        
+                        # Semantic matching: find the column that best represents the inferred concept
+                        # Strategy: check if actual column name appears as a complete word in inferred name
+                        # Prefer longer, more specific matches (e.g., "product_category" → "category" not "product")
+                        best_match = None
+                        best_score = 0
+                        
+                        # Normalize inferred name for word boundary checking
+                        inferred_normalized = f"_{inferred_lower}_"
+                        
+                        for col_name in actual_column_names:
+                            col_lower = col_name.lower()
+                            col_normalized = f"_{col_lower}_"
+                            
+                            # Check if actual column name appears as a complete word in inferred name
+                            # e.g., "product_category" contains "category" as a word (delimited by _ or start/end)
+                            if col_normalized in inferred_normalized:
+                                # Score based on length (prefer longer, more specific matches)
+                                # and how close it is to the end (core concept often at end)
+                                score = len(col_lower)
+                                
+                                # Bonus if it's at the end (core concept)
+                                if inferred_lower.endswith(col_lower):
+                                    # Check word boundary
+                                    if len(inferred_lower) > len(col_lower):
+                                        char_before = inferred_lower[-(len(col_lower) + 1)]
+                                        if char_before == "_":
+                                            score += 10  # Word boundary at end
+                                    else:
+                                        score += 10  # Exact match already handled above
+                                
+                                if score > best_score:
+                                    best_score = score
+                                    best_match = col_name
+                            
+                            # Fallback: substring match (lowest priority)
+                            elif col_lower in inferred_lower:
+                                score = len(col_lower) / 2  # Lower score for substring
+                                if score > best_score:
+                                    best_score = score
+                                    best_match = col_name
+                        
+                        if best_match:
+                            return best_match
+                        
+                        # Return original if no match found (will fail later, but preserve intent)
+                        return inferred_name
+                    
+                    fills_gap_lower = str(fills_gap).lower()
+                    
+                    # Only process fields mentioned in fills_gap (Decider decides what to verify)
+                    
+                    # Handle grain (if fills_gap mentions grain)
+                    if "grain" in fills_gap_lower or fills_gap == "start_table_grain":
+                        if not query_spec.get("grain"):
+                            # Simple inference: if we see region, product, etc., infer grain
+                            if "region" in actual_column_names_lower:
+                                query_spec["grain"] = "one row per region"
+                            elif "product" in actual_column_names_lower:
+                                query_spec["grain"] = "one row per product"
+                    
+                    # Handle dimensions (only if fills_gap mentions dimensions)
+                    if "dimension" in fills_gap_lower:
+                        # Check if fills_gap specifies a particular dimension (e.g., "dimensions.product_category")
+                        if "." in fills_gap:
+                            # Specific dimension mentioned (e.g., "dimensions.product_category")
+                            dim_name = fills_gap.split(".")[-1].strip()
+                            if query_spec.get("dimensions"):
+                                # Find and fix the specific dimension
+                                fixed_dimensions = []
+                                for dim in query_spec["dimensions"]:
+                                    if dim.lower() == dim_name.lower() or dim_name.lower() in dim.lower():
+                                        # This is the dimension to fix
+                                        if dim not in actual_column_names:
+                                            corrected = find_matching_column(dim)
+                                            if corrected != dim:
+                                                logger.info(f"Corrected dimension '{dim}' → '{corrected}' (from fills_gap: {fills_gap})")
+                                            fixed_dimensions.append(corrected)
+                                        else:
+                                            fixed_dimensions.append(dim)
+                                    else:
+                                        fixed_dimensions.append(dim)  # Keep other dimensions unchanged
+                                if fixed_dimensions != query_spec["dimensions"]:
+                                    query_spec["dimensions"] = fixed_dimensions
+                                    # Update status to mark as verified
+                                    query_spec_status["dimensions"] = {
+                                        "status": "verified",
+                                        "source": "tool_result",
+                                        "notes": f"Dimensions verified/corrected by inspect_table (from fills_gap: {fills_gap})",
+                                        "blocks_execution": False
+                                    }
+                        else:
+                            # General dimensions verification (fix all dimensions)
+                            if query_spec.get("dimensions"):
+                                fixed_dimensions = []
+                                for dim in query_spec["dimensions"]:
+                                    if dim in actual_column_names:
+                                        fixed_dimensions.append(dim)  # Keep if correct
+                                    else:
+                                        corrected = find_matching_column(dim)
+                                        if corrected != dim:
+                                            logger.info(f"Corrected dimension '{dim}' → '{corrected}' (from fills_gap: {fills_gap})")
+                                        fixed_dimensions.append(corrected)
+                                if fixed_dimensions != query_spec["dimensions"]:
+                                    query_spec["dimensions"] = fixed_dimensions
+                                    # Update status to mark as verified
+                                    query_spec_status["dimensions"] = {
+                                        "status": "verified",
+                                        "source": "tool_result",
+                                        "notes": f"Dimensions verified/corrected by inspect_table (from fills_gap: {fills_gap})",
+                                        "blocks_execution": False
+                                    }
+                            # Add dimensions if missing
+                            elif not query_spec.get("dimensions"):
+                                dimension_cols = [c.get("name") for c in columns if c.get("name") in ["region", "product", "customer_id", "category"]]
+                                if dimension_cols:
+                                    query_spec["dimensions"] = dimension_cols
+                    
+                    # Handle filters (only if fills_gap mentions filter)
+                    if "filter" in fills_gap_lower:
+                        if query_spec.get("filters"):
+                            # Check if specific filter field mentioned
+                            if "." in fills_gap:
+                                filter_field = fills_gap.split(".")[-1].strip()
+                                for filter_item in query_spec["filters"]:
+                                    if isinstance(filter_item, dict) and "field" in filter_item:
+                                        if filter_item["field"].lower() == filter_field.lower() or filter_field.lower() in filter_item["field"].lower():
+                                            if filter_item["field"] not in actual_column_names:
+                                                corrected = find_matching_column(filter_item["field"])
+                                                if corrected != filter_item["field"]:
+                                                    logger.info(f"Corrected filter field '{filter_item['field']}' → '{corrected}' (from fills_gap: {fills_gap})")
+                                                    filter_item["field"] = corrected
+                            else:
+                                # Fix all filter fields
+                                for filter_item in query_spec["filters"]:
+                                    if isinstance(filter_item, dict) and "field" in filter_item:
+                                        field_name = filter_item["field"]
+                                        if field_name not in actual_column_names:
+                                            corrected = find_matching_column(field_name)
+                                            if corrected != field_name:
+                                                logger.info(f"Corrected filter field '{field_name}' → '{corrected}' (from fills_gap: {fills_gap})")
+                                                filter_item["field"] = corrected
+                    
+                    # Handle time.column (only if fills_gap mentions time)
+                    if "time" in fills_gap_lower and query_spec.get("time") and isinstance(query_spec["time"], dict):
+                        time_col = query_spec["time"].get("column", "")
+                        if time_col and time_col not in actual_column_names:
+                            corrected = find_matching_column(time_col)
+                            if corrected != time_col:
+                                logger.info(f"Corrected time.column '{time_col}' → '{corrected}' (from fills_gap: {fills_gap})")
+                                query_spec["time"]["column"] = corrected
             
             logger.info(f"Step {step_num} completed: {success_condition}")
             
@@ -86,8 +243,8 @@ def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
             if "required" in fills_gap.lower() or "blocks_execution" in success_condition.lower():
                 return {"halt_execution": True}
     
-    # Return updated query_spec
-    return {"query_spec": query_spec}
+    # Return updated query_spec and query_spec_status
+    return {"query_spec": query_spec, "query_spec_status": query_spec_status}
 
 
 def sql_generation_node(state: ExecutorState, tools_registry, domain_md: str) -> Dict[str, Any]:

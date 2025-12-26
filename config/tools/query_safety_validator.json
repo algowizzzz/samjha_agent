@@ -1,18 +1,37 @@
 {
   "name": "query_safety_validator",
-  "implementation": "external.tools.query_safety_validator.QuerySafetyValidatorTool",
-  "description": "Validate SQL queries for safety and enforce limits",
-  "version": "1.0.0",
+  "implementation": "external.tools.parquet_agent.query_safety_validator.QuerySafetyValidatorTool",
+  "description": "Validate SQL queries for safety and performance",
+  "version": "2.0.0",
   "enabled": true,
   "inputSchema": {
     "type": "object",
+    "required": ["sql", "policy_limits"],
     "properties": {
-      "query": { "type": "string" },
-      "enforce_limit": { "type": "boolean", "default": true },
-      "default_limit": { "type": "integer", "default": 100 }
+      "sql": {"type": "string"},
+      "policy_limits": {
+        "type": "object",
+        "required": ["max_attempts", "max_rows", "timeout_seconds", "allow_cross_join"],
+        "properties": {
+          "max_attempts": {"type": "integer", "minimum": 1},
+          "max_rows": {"type": "integer", "minimum": 1},
+          "timeout_seconds": {"type": "integer", "minimum": 1},
+          "allow_cross_join": {"type": "boolean"}
+        }
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["allowed", "flags"],
+    "properties": {
+      "allowed": {"type": "boolean"},
+      "flags": {"type": "array", "items": {"type": "string"}}
+    }
     },
-    "required": ["query"]
+  "metadata": {
+    "author": "Parquet Agent Team",
+    "category": "Validation",
+    "tags": ["parquet_agent", "safety", "validation"]
   }
 }
-
-

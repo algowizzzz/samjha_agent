@@ -1,476 +1,409 @@
-import uuid
-import logging
-from typing import Any, Dict, Optional
-from datetime import datetime
+"""
+Parquet Agent v1.0 - Decider/Executor Architecture
+Controller orchestrates Decider -> Executor -> retry loop
+"""
 
-from external.agent.schemas import AgentState
-from external.agent.config import QueryAgentConfig
-from external.agent.state_manager import AgentStateManager
-from external.agent.graph_nodes import (
-    invoke_node,
-    check_followup_node,
-    check_data_sufficiency_node,
-    check_structure_node,
-    check_ambiguity_node,
-    process_clarification_node,
-    generate_sql_node,
-    clarify_node,
-    execute_sql_node,
-    retry_sql_node,
-    synthesize_response_node,
-    end_node,
-)
+import logging
+from pathlib import Path
+from typing import Dict, Any, Optional
+
+from external.agent.state_types import ControllerState
+from external.agent.decider import run_decider
+from external.agent.executor_graph import run_executor
+from tools.tools_registry import ToolsRegistry
 
 logger = logging.getLogger(__name__)
 
 
+def load_domain_md(user_query: str, conversation_history: list) -> str:
+    """
+    Load domain markdown file based on user query and history.
+    Simple implementation: defaults to ecomm domain.
+    """
+    # Simple domain selection - can be enhanced later
+    domain = "ecomm"  # Default domain
+    
+    # Check if query mentions specific domain keywords
+    query_lower = user_query.lower()
+    if "market risk" in query_lower or "limits" in query_lower or "mr" in query_lower:
+        domain = "mr"
+    
+    domain_file = Path(f"domain_instructions/{domain}_domain.md")
+    if domain_file.exists():
+        return domain_file.read_text()
+    else:
+        logger.warning(f"Domain file not found: {domain_file}, using empty domain")
+        return ""
+
+
+def render_ask_user(decider_output: dict) -> dict:
+    """Return response to UI: question + context fields."""
+    return {
+        "status": "ASK_USER",
+        "question": decider_output.get("ask_user", {}).get("question", ""),
+        "why_non_defaultable": decider_output.get("ask_user", {}).get("why_non_defaultable", ""),
+        "what_answer_unblocks": decider_output.get("ask_user", {}).get("what_answer_unblocks", ""),
+        "query_spec": decider_output.get("query_spec", {}),
+        "query_spec_status": decider_output.get("query_spec_status", {})
+    }
+
+
+def render_block(decider_output: dict) -> dict:
+    """Return blocking response to UI."""
+    return {
+        "status": "BLOCK",
+        "reason": decider_output.get("block_reason", "Blocked."),
+        "query_spec": decider_output.get("query_spec", {}),
+        "query_spec_status": decider_output.get("query_spec_status", {})
+    }
+
+
+def render_success(executor_report: dict, state: Optional[ControllerState] = None) -> dict:
+    """Return final user-facing output."""
+    result = {
+        "status": "SUCCESS",
+        "finished_output": executor_report.get("finished_output", ""),
+        "final_sql": executor_report.get("final_sql", ""),
+        "result_summary": executor_report.get("result_summary", ""),
+        "evaluation": executor_report.get("evaluation", {})
+    }
+    # Include query_spec and query_spec_status for building prior_state in next query
+    if state:
+        result["query_spec"] = state.get("query_spec", {})
+        result["query_spec_status"] = state.get("query_spec_status", {})
+    return result
+
+
+def render_error_max_attempts(last_report: dict, attempt_count: int, max_attempts: int) -> dict:
+    """Return error response when max attempts reached."""
+    return {
+        "status": "ERROR",
+        "reason": "Max attempts reached.",
+        "attempt_count": attempt_count,
+        "max_attempts": max_attempts,
+        "last_executor_report": last_report
+    }
+
+
+def initialize_controller_state(
+    user_query: str,
+    conversation_history: list,
+    prior_state: Optional[ControllerState] = None,
+    policy_limits: Optional[dict] = None
+) -> ControllerState:
+    """
+    Initialize or restore controller state.
+    
+    Limits conversation_history to last 5 turns to prevent prompt bloat.
+    
+    Note on conversation_history vs prior_query_spec:
+    - conversation_history: List of previous query/response pairs (up to 5 turns)
+      Format: [{"query": "...", "sql": "...", "response": "...", "status": "..."}, ...]
+      Used by Decider for context and follow-up detection signals.
+    
+    - prior_query_spec: Single object from the MOST RECENT query only (not a list)
+      Format: {"business_question": "...", "dimensions": [...], "metrics": [...], ...}
+      Used by Decider as baseline for merging in FOLLOW_UP queries.
+    
+    So: conversation_history = multiple turns (history), prior_query_spec = latest one (baseline).
+    """
+    # Limit conversation_history to last 5 turns to prevent prompt bloat
+    MAX_CONVERSATION_HISTORY = 5
+    if isinstance(conversation_history, list) and len(conversation_history) > MAX_CONVERSATION_HISTORY:
+        conversation_history = conversation_history[-MAX_CONVERSATION_HISTORY:]
+        logger.info(f"Limited conversation_history to last {MAX_CONVERSATION_HISTORY} turns")
+    
+    if prior_state:
+        # Restore from prior state but UPDATE user_query to the new query
+        # This is critical for follow-up queries
+        prior_state["user_query"] = user_query
+        prior_state["conversation_history"] = conversation_history
+        # IMPORTANT: attempt_count / last_executor_report are controller-loop fields for a *single* query.
+        # When we start a new user query (even a follow-up), we must reset them; otherwise we can
+        # incorrectly hit max_attempts immediately using the prior query's state.
+        prior_state["attempt_count"] = 0
+        prior_state["last_executor_report"] = None
+        return prior_state
+    
+    # Default policy limits
+    default_policy_limits = {
+        "max_attempts": 3,
+        "max_rows": 5000,
+        "timeout_seconds": 30,
+        "allow_cross_join": False
+    }
+    
+    if policy_limits:
+        default_policy_limits.update(policy_limits)
+    
+    return {
+        "user_query": user_query,
+        "conversation_history": conversation_history,
+        "domain_md": load_domain_md(user_query, conversation_history),
+        "policy_limits": default_policy_limits,
+        "query_spec": {},
+        "query_spec_status": {},
+        "last_executor_report": None,
+        "attempt_count": 0
+    }
+
+
+def handle_query(
+    user_query: str,
+    conversation_history: list,
+    prior_state: Optional[ControllerState] = None,
+    tools_registry: Optional[ToolsRegistry] = None,
+    policy_limits: Optional[dict] = None
+) -> dict:
+    """
+    Controller orchestrates:
+      Decider -> Executor -> (ERROR -> Decider retry) until SUCCESS / ASK_USER / BLOCK / max_attempts.
+    
+    Args:
+        user_query: User's query string
+        conversation_history: List of previous conversation turns
+        prior_state: Optional prior controller state (for resuming)
+        tools_registry: Tools registry instance (creates default if None)
+        policy_limits: Optional policy limits override
+        
+    Returns:
+        Response dictionary with status and results
+    """
+    # Initialize tools registry if not provided
+    if tools_registry is None:
+        tools_registry = ToolsRegistry()
+        # Load parquet agent tools
+        tools_config_dir = Path("config/tools")
+        for tool_config in tools_config_dir.glob("*.json"):
+            if tool_config.stem in [
+                "list_dir", "inspect_table", "preview_rows", "search_glossary",
+                "nl_to_sql_planner", "sql_plan_updater", "query_safety_validator",
+                "execute_sql", "query_result_evaluator"
+            ]:
+                try:
+                    tools_registry.load_tool_from_config(tool_config)
+                except Exception as e:
+                    logger.warning(f"Failed to load tool {tool_config.stem}: {e}")
+    
+    # Initialize controller state
+    state = initialize_controller_state(user_query, conversation_history, prior_state, policy_limits)
+    max_attempts = int(state["policy_limits"]["max_attempts"])
+    domain_md = state["domain_md"]
+    
+    logger.info(f"Starting query handling: query='{user_query[:50]}...', max_attempts={max_attempts}")
+    
+    # Main loop — controller-owned retries only
+    while True:
+        # Enforce max_attempts BEFORE calling executor (attempt_count counts executor runs)
+        if state["attempt_count"] >= max_attempts and state["last_executor_report"] is not None:
+            logger.warning(f"Max attempts ({max_attempts}) reached")
+            return render_error_max_attempts(
+                state["last_executor_report"],
+                state["attempt_count"],
+                max_attempts
+            )
+        
+        # 2A) Call Decider (one prompt call)
+        try:
+            decider_output = run_decider(state)  # schema-valid decider_output
+        except Exception as e:
+            logger.error(f"Decider failed: {e}", exc_info=True)
+            return {
+                "status": "ERROR",
+                "reason": f"Decider failed: {str(e)}",
+                "error_type": "DECIDER_ERROR"
+            }
+        
+        action = decider_output.get("action")
+        query_type = decider_output.get("query_type", "NEW_QUERY")
+        logger.info(f"Decider action: {action}, query_type: {query_type}")
+        
+        # Get new spec from Decider
+        new_query_spec = decider_output.get("query_spec", {})
+        new_query_spec_status = decider_output.get("query_spec_status", {})
+        
+        # For FOLLOW_UP queries, preserve missing fields from prior state
+        if query_type == "FOLLOW_UP" and state.get("query_spec"):
+            prior_spec = state["query_spec"]
+            prior_status = state.get("query_spec_status", {})
+            
+            # Preserve grain if not set
+            if not new_query_spec.get("grain") and prior_spec.get("grain"):
+                new_query_spec["grain"] = prior_spec["grain"]
+                logger.info(f"Preserved grain from prior: {prior_spec['grain']}")
+            
+            # Preserve start_table if not set
+            if not new_query_spec.get("start_table", {}).get("path") and prior_spec.get("start_table", {}).get("path"):
+                new_query_spec["start_table"] = prior_spec["start_table"]
+                logger.info(f"Preserved start_table from prior")
+            
+            # Preserve business_question if empty
+            if not new_query_spec.get("business_question") and prior_spec.get("business_question"):
+                # For follow-ups, combine prior question with new context
+                new_query_spec["business_question"] = f"Follow-up: {state['user_query']} (based on: {prior_spec['business_question']})"
+            
+            # Preserve verified status fields from prior
+            for field in ["business_question", "output_shape", "start_table_grain", "time", "metrics", "dimensions", "filters", "joins", "aggregation_plan"]:
+                prior_field_status = prior_status.get(field, {})
+                new_field_status = new_query_spec_status.get(field, {})
+                # If prior was verified and new is missing/empty, preserve verified status
+                if prior_field_status.get("status") == "verified" and new_field_status.get("status") in ["missing", "", None]:
+                    new_query_spec_status[field] = prior_field_status.copy()
+                    new_query_spec_status[field]["notes"] = "Preserved from prior query"
+        
+        # Keep canonical spec in controller state (single contract)
+        state["query_spec"] = new_query_spec
+        state["query_spec_status"] = new_query_spec_status
+        
+        # 2B) Route actions
+        if action == "ASK_USER":
+            # Controller returns question to UI; loop stops until user replies with more info
+            logger.info("Decider requested ASK_USER")
+            return render_ask_user(decider_output)
+        
+        if action == "BLOCK":
+            logger.info("Decider requested BLOCK")
+            return render_block(decider_output)
+        
+        if action != "EXECUTE":
+            # Defensive: schema should prevent this, but keep safe
+            logger.error(f"Invalid action from Decider: {action}")
+            return {
+                "status": "ERROR",
+                "reason": f"Invalid action from Decider: {action}",
+                "error_type": "INVALID_ACTION"
+            }
+        
+        # 2C) Execute once (increments attempt_count)
+        state["attempt_count"] += 1
+        logger.info(f"Executing attempt {state['attempt_count']}/{max_attempts}")
+        
+        try:
+            executor_report = run_executor(decider_output, state, tools_registry, domain_md)
+            state["last_executor_report"] = executor_report
+        except Exception as e:
+            logger.error(f"Executor failed: {e}", exc_info=True)
+            # Create error report
+            executor_report = {
+                "status": "ERROR",
+                "error_type": "EXECUTOR_ERROR",
+                "failed_checklist_items": ["executor_execution"],
+                "what_changed": "Executor raised exception",
+                "minimal_fix_suggestion": str(e),
+                "last_sql": state.get("query_spec", {}).get("final_sql", ""),
+                "last_error": str(e)
+            }
+            state["last_executor_report"] = executor_report
+        
+        # 2D) Interpret executor outcome
+        if executor_report.get("status") == "SUCCESS":
+            logger.info("Executor returned SUCCESS")
+            return render_success(executor_report, state)
+        
+        # executor_report["status"] == "ERROR" => controller loops back to Decider
+        # Decider will see last_executor_report and produce a minimal revised plan or ASK_USER/BLOCK.
+        logger.info(f"Executor returned ERROR: {executor_report.get('error_type')}, retrying...")
+        continue
+
+
 class ParquetQueryAgent:
     """
-    Orchestrates the agent control loop with DuckDB-backed execution.
+    Parquet Agent v1.0 - Wrapper class for backward compatibility.
     """
-
+    
     def __init__(self, config: Optional[Dict[str, Any]] = None):
-        self.cfg = QueryAgentConfig()
-        self.state_manager = AgentStateManager()
-        self.max_steps = 12
-
-    def _merge(self, base: Dict[str, Any], updates: Dict[str, Any]) -> Dict[str, Any]:
-        base.update(updates)
-        return base
+        self.config = config or {}
+        self.tools_registry = ToolsRegistry()
+        # Load parquet agent tools
+        self._load_tools()
     
-    def _build_conversation_history(self, session_id, user_id, num_turns=3):
-        """
-        Build conversation history from state.
-        Returns list of last N turns with query, SQL, response, and raw_table.
-        """
-        try:
-            state = self.state_manager.load_session_state(session_id, user_id)
-            
-            if not state:
-                return []
-            
-            # Extract conversation history from conversation_history_raw if available
-            conversation_history_raw = state.get("conversation_history_raw", [])
-            if conversation_history_raw and isinstance(conversation_history_raw, list):
-                # Use the stored conversation history (includes raw_table)
-                history = conversation_history_raw[-num_turns:]
-            else:
-                # Fallback: Build from current state
-                history = []
-                if 'user_input' in state and 'final_output' in state:
-                    turn = {
-                        'query': state.get('user_input', ''),
-                        'sql': state.get('plan', {}).get('sql', ''),
-                        'response': state.get('final_output', {}).get('response', ''),
-                        'raw_table': state.get('raw_table') or state.get('final_output', {}).get('raw_table')
-                    }
-                    # Only include if it has meaningful content
-                    if turn['query'] and (turn['sql'] or turn['response']):
-                        history.append(turn)
-            
-            logger.info(f"[ParquetAgent] Built conversation history with {len(history)} turns")
-            return history
-            
-        except Exception as e:
-            logger.error(f"[ParquetAgent] Error building conversation history: {e}")
-            return []
+    def _load_tools(self):
+        """Load parquet agent tools into registry."""
+        tools_config_dir = Path("config/tools")
+        tool_names = [
+            "list_dir", "inspect_table", "preview_rows", "search_glossary",
+            "nl_to_sql_planner", "sql_plan_updater", "query_safety_validator",
+            "execute_sql", "query_result_evaluator"
+        ]
+        
+        for tool_name in tool_names:
+            tool_config = tools_config_dir / f"{tool_name}.json"
+            if tool_config.exists():
+                try:
+                    self.tools_registry.load_tool_from_config(tool_config)
+                except Exception as e:
+                    logger.warning(f"Failed to load tool {tool_name}: {e}")
     
-    def _format_conversation_history(self, history):
+    def run_query(
+        self,
+        query: str,
+        session_id: Optional[str] = None,
+        user_id: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
-        Format conversation history for LLM prompts, including table data.
+        Main entry point for running a query.
+        Maintains backward compatibility with existing API.
         """
-        if not history:
-            return "No previous conversation history."
+        # Build conversation history (simplified for now)
+        conversation_history = []
         
-        formatted = "Previous Conversation:\n"
-        for i, turn in enumerate(history, 1):
-            formatted += f"\nTurn {i}:\n"
-            formatted += f"User Query: {turn.get('query', turn.get('user_query', ''))}\n"
-            
-            sql = turn.get('sql') or turn.get('plan_sql') or turn.get('sql_executed', '')
-            if sql and sql != "-- KNOWLEDGE QUESTION":
-                formatted += f"SQL Executed:\n```sql\n{sql}\n```\n"
-            
-            # Include table data if available
-            raw_table = turn.get('raw_table') or turn.get('execution_result')
-            if raw_table:
-                columns = raw_table.get('columns', [])
-                rows = raw_table.get('rows', [])
-                row_count = raw_table.get('row_count', len(rows))
-                
-                if row_count > 0 and columns:
-                    formatted += f"Result Table ({row_count} row{'s' if row_count != 1 else ''}):\n"
-                    formatted += f"Columns: {', '.join(columns)}\n"
-                    
-                    # Include ALL rows (full table data, no truncation)
-                    if rows:
-                        formatted += "Data:\n"
-                        for j, row in enumerate(rows, 1):
-                            if isinstance(row, dict):
-                                row_str = " | ".join([f"{col}: {row.get(col, 'N/A')}" for col in columns])
-                            else:
-                                row_str = str(row)
-                            formatted += f"  Row {j}: {row_str}\n"
-            
-            response = turn.get('response') or turn.get('response_summary', '')
-            if response:
-                # Include full response (no truncation)
-                formatted += f"Agent Response: {response}\n"
-            
-            # Include prompt monitor (reasoning) if available
-            prompt_monitor = turn.get('prompt_monitor')
-            if prompt_monitor:
-                # Handle both dict and string formats
-                if isinstance(prompt_monitor, dict):
-                    reasoning = prompt_monitor.get('procedural_reasoning', '') or prompt_monitor.get('reasoning', '')
-                    if reasoning:
-                        formatted += f"Prompt Monitor (Reasoning): {reasoning}\n"
-                elif isinstance(prompt_monitor, str) and prompt_monitor.strip():
-                    formatted += f"Prompt Monitor (Reasoning): {prompt_monitor}\n"
+        # Call handle_query
+        result = handle_query(
+            user_query=query,
+            conversation_history=conversation_history,
+            tools_registry=self.tools_registry,
+            policy_limits=self.config.get("policy_limits")
+        )
         
-        return formatted
-    
-    def resume_with_clarification(self, session_id: str, user_clarification: str, user_id: Optional[str] = None) -> Dict[str, Any]:
-        """Resume agent execution after user provides clarification"""
-        logger.info(f"Resuming session {session_id} with user clarification: {user_clarification[:50]}...")
+        # Convert result to old format for backward compatibility
+        status = result.get("status")
         
-        try:
-            # Load existing state
-            state = self.state_manager.load_session_state(session_id, user_id)
-            
-            if not state:
-                logger.error(f"Session {session_id} not found")
-                return {
-                    "error": "Session not found",
-                    "session_id": session_id,
-                    "final_output": {
-                        "response": "❌ Session not found. Please start a new query.",
-                        "prompt_monitor": {"error": "Session not found"}
-                    }
-                }
-            
-            # Build conversation history for resumed session
-            conversation_history = self._build_conversation_history(session_id, user_id, num_turns=3)
-            formatted_history = self._format_conversation_history(conversation_history)
-            logger.info(f"[ParquetAgent Resume] Loaded {len(conversation_history)} conversation turns")
-            
-            # Add user clarification and conversation history to state
-            state["user_clarification"] = user_clarification
-            state["control"] = "process_clarification"  # New workflow uses process_clarification node
-            state["conversation_history"] = formatted_history
-            state["conversation_history_raw"] = conversation_history
-            
-            logs = state.get("logs", [])
-            logs.append({"node": "resume", "timestamp": datetime.utcnow().isoformat() + "Z", 
-                        "msg": f"resuming with clarification: {user_clarification[:50]}..."})
-            state["logs"] = logs
-            
-            # Continue execution with new workflow
-            steps = 0
-            start_all = datetime.now()
-            while steps < self.max_steps:
-                steps += 1
-                control = state.get("control", "end")
-                logger.debug(f"Session {session_id} resume step {steps}: control={control}")
-                
-                node_start = datetime.now()
-                try:
-                    if control == "process_clarification":
-                        state = self._merge(state, process_clarification_node(state, self.cfg))
-                    elif control == "check_ambiguity":
-                        state = self._merge(state, check_ambiguity_node(state, self.cfg))
-                    elif control == "generate_sql":
-                        state = self._merge(state, generate_sql_node(state, self.cfg))
-                    elif control == "execute_sql":
-                        state = self._merge(state, execute_sql_node(state, self.cfg))
-                    elif control == "retry_sql":
-                        state = self._merge(state, retry_sql_node(state, self.cfg))
-                    elif control == "synthesize":
-                        state = self._merge(state, synthesize_response_node(state, self.cfg))
-                    elif control == "clarify":
-                        state = self._merge(state, clarify_node(state, self.cfg))
-                        # Stop again if another clarification is needed
-                        break
-                    elif control == "end":
-                        break
-                    else:
-                        logger.warning(f"Unknown control state: {control}, ending agent")
-                        break
-                except Exception as e:
-                    logger.error(f"Node {control} failed for session {session_id}: {e}", exc_info=True)
-                    state["logs"].append({"node": control, "timestamp": datetime.utcnow().isoformat() + "Z", 
-                                         "msg": f"node failed: {str(e)}", "level": "error"})
-                    state["control"] = "end"
-                    break
-                    
-                # record node timing
-                node_ms = (datetime.now() - node_start).total_seconds() * 1000.0
-                node_name = state.get("last_node") or control
-                metrics = state.get("metrics") or {}
-                timings = metrics.get("node_timings_ms") or {}
-                timings[node_name] = timings.get(node_name, 0.0) + node_ms
-                metrics["node_timings_ms"] = timings
-                state["metrics"] = metrics
-                
-                # persist after each step
-                try:
-                    self.state_manager.save_session_state(session_id, user_id, state)
-                except Exception as e:
-                    logger.error(f"Failed to save state for session {session_id}: {e}")
-
-            # Build clarification dict if waiting for user
-            if state.get("control") == "wait_for_user":
-                clarification_questions = state.get("clarification_questions", [])
-                clarify_reasoning = state.get("clarify_reasoning", [])
-                clarify_prompt = state.get("clarify_prompt", "")
-                
-                state["clarification"] = {
-                    "questions": clarification_questions,
-                    "reasoning": clarify_reasoning,
-                    "prompt": clarify_prompt
-                }
-                try:
-                    self.state_manager.save_session_state(session_id, user_id, state)
-                except Exception as e:
-                    logger.error(f"Failed to save state while waiting for clarification: {e}")
-            elif state.get("control") != "end":
-                # finalize gracefully
-                try:
-                    state = self._merge(state, end_node(state, self.cfg))
-                    self.state_manager.save_session_state(session_id, user_id, state)
-                except Exception as e:
-                    logger.error(f"End node failed for session {session_id}: {e}", exc_info=True)
-
-            # total time
-            metrics = state.get("metrics") or {}
-            metrics["total_ms"] = (datetime.now() - start_all).total_seconds() * 1000.0
-            state["metrics"] = metrics
-            
-            logger.info(f"Agent resumed for session {session_id}: {metrics['total_ms']}ms, {steps} steps")
-            return state
-            
-        except Exception as e:
-            logger.error(f"Fatal error resuming session {session_id}: {e}", exc_info=True)
+        if status == "ASK_USER":
+            return {
+                "session_id": session_id,
+                "user_id": user_id,
+                "control": "wait_for_user",
+                "clarification": {
+                    "questions": [result.get("question", "")],
+                    "reasoning": [result.get("why_non_defaultable", "")],
+                    "prompt": result.get("what_answer_unblocks", "")
+                },
+                "query_spec": result.get("query_spec", {}),
+                "query_spec_status": result.get("query_spec_status", {})
+            }
+        
+        elif status == "SUCCESS":
             return {
                 "session_id": session_id,
                 "user_id": user_id,
                 "control": "end",
                 "final_output": {
-                    "response": f"❌ Error resuming session: {str(e)}",
-                    "prompt_monitor": {
-                        "error": str(e),
-                        "logs": [{"node": "resume", "timestamp": datetime.utcnow().isoformat() + "Z", 
-                                 "msg": f"fatal error: {str(e)}", "level": "error"}]
-                    }
+                    "response": result.get("finished_output", ""),
+                    "sql": result.get("final_sql", ""),
+                    "result_summary": result.get("result_summary", "")
                 },
-                "logs": [{"node": "resume", "timestamp": datetime.utcnow().isoformat() + "Z", 
-                         "msg": f"fatal error: {str(e)}", "level": "error"}]
-            }
-
-    def run_query(self, query: str, session_id: Optional[str] = None, user_id: Optional[str] = None) -> Dict[str, Any]:
-        sid = session_id or str(uuid.uuid4())
-        logger.info(f"Starting agent query for session {sid}, user {user_id}: {query[:100]}")
-        
-        # ALWAYS build conversation history (no keyword detection)
-        conversation_history = self._build_conversation_history(sid, user_id, num_turns=3)
-        formatted_history = self._format_conversation_history(conversation_history)
-        logger.info(f"[ParquetAgent] Loaded {len(conversation_history)} conversation turns")
-        
-        try:
-            state: AgentState = {
-                "user_input": query,
-                "user_id": user_id,
-                "session_id": sid,
-                "timestamp": datetime.utcnow().isoformat() + "Z",
-                "docs_meta": [],
-                "table_schema": {},
-                "logs": [],
-                "control": "invoke",  # New workflow starts with invoke
-                "conversation_history": formatted_history,
-                "conversation_history_raw": conversation_history,
-                "clarification_count": 0,
-                "sql_attempt_count": 0,
-                "metrics": {
-                    "node_timings_ms": {},
-                    "total_ms": 0.0,
-                    "clarify_turns": 0,
-                    "start_time": datetime.utcnow().isoformat() + "Z",
-                },
-            }
-
-            # Initial enrich
-            try:
-                state = self._merge(state, invoke_node(state, self.cfg, self.state_manager))
-                self.state_manager.save_session_state(sid, user_id, state)
-            except Exception as e:
-                logger.error(f"Invoke node failed for session {sid}: {e}", exc_info=True)
-                state["logs"].append({"node": "invoke", "timestamp": datetime.utcnow().isoformat() + "Z", "msg": f"invoke failed: {str(e)}", "level": "error"})
-                state["control"] = "end"
-
-            steps = 0
-            start_all = datetime.now()
-            while steps < self.max_steps:
-                steps += 1
-                control = state.get("control", "end")
-                logger.debug(f"Session {sid} step {steps}: control={control}")
-                
-                node_start = datetime.now()
-                try:
-                    if control == "invoke":
-                        state = self._merge(state, invoke_node(state, self.cfg, self.state_manager))
-                    elif control == "check_followup":
-                        state = self._merge(state, check_followup_node(state, self.cfg))
-                    elif control == "check_data_sufficiency":
-                        state = self._merge(state, check_data_sufficiency_node(state, self.cfg))
-                    elif control == "check_structure":
-                        state = self._merge(state, check_structure_node(state, self.cfg))
-                    elif control == "check_ambiguity":
-                        state = self._merge(state, check_ambiguity_node(state, self.cfg))
-                    elif control == "clarify":
-                        state = self._merge(state, clarify_node(state, self.cfg))
-                        # Update metrics for clarification
-                        metrics = state.get("metrics") or {}
-                        metrics["clarify_turns"] = int(metrics.get("clarify_turns", 0)) + 1
-                        state["metrics"] = metrics
-                        break  # Wait for user
-                    elif control == "process_clarification":
-                        state = self._merge(state, process_clarification_node(state, self.cfg))
-                    elif control == "generate_sql":
-                        state = self._merge(state, generate_sql_node(state, self.cfg))
-                    elif control == "execute_sql":
-                        state = self._merge(state, execute_sql_node(state, self.cfg))
-                    elif control == "retry_sql":
-                        state = self._merge(state, retry_sql_node(state, self.cfg))
-                    elif control == "synthesize":
-                        state = self._merge(state, synthesize_response_node(state, self.cfg))
-                    elif control == "end":
-                        break
-                    else:
-                        logger.warning(f"Unknown control state: {control}, ending agent")
-                        break
-                except Exception as e:
-                    logger.error(f"Node {control} failed for session {sid}: {e}", exc_info=True)
-                    state["logs"].append({"node": control, "timestamp": datetime.utcnow().isoformat() + "Z", "msg": f"node failed: {str(e)}", "level": "error"})
-                    state["control"] = "end"
-                    break
-                    
-                # record node timing
-                node_ms = (datetime.now() - node_start).total_seconds() * 1000.0
-                node_name = state.get("last_node") or control
-                metrics = state.get("metrics") or {}
-                timings = metrics.get("node_timings_ms") or {}
-                timings[node_name] = timings.get(node_name, 0.0) + node_ms
-                metrics["node_timings_ms"] = timings
-                state["metrics"] = metrics
-                
-                # persist after each step
-                try:
-                    self.state_manager.save_session_state(sid, user_id, state)
-                except Exception as e:
-                    logger.error(f"Failed to save state for session {sid}: {e}")
-
-            # Always call end_node unless waiting for user
-            if state.get("control") == "wait_for_user":
-                # Build clarification dict for UI compatibility
-                clarification_questions = state.get("clarification_questions", [])
-                clarify_reasoning = state.get("clarify_reasoning", [])
-                clarify_prompt = state.get("clarify_prompt", "")
-                
-                state["clarification"] = {
-                    "questions": clarification_questions,
-                    "reasoning": clarify_reasoning,
-                    "prompt": clarify_prompt
+                "plan": {
+                    "sql": result.get("final_sql", "")
                 }
-                
-                # Save state when waiting for user clarification
-                try:
-                    self.state_manager.save_session_state(sid, user_id, state)
-                except Exception as e:
-                    logger.error(f"Failed to save state for session {sid}: {e}")
-            else:
-                # Call end_node to finalize output (whether control is "end" or something else)
-                try:
-                    state = self._merge(state, end_node(state, self.cfg))
-                    self.state_manager.save_session_state(sid, user_id, state)
-                except Exception as e:
-                    logger.error(f"End node failed for session {sid}: {e}", exc_info=True)
-
-            # total time
-            metrics = state.get("metrics") or {}
-            metrics["total_ms"] = (datetime.now() - start_all).total_seconds() * 1000.0
-            state["metrics"] = metrics
-            
-            logger.info(f"Agent query completed for session {sid}: {metrics['total_ms']}ms, {steps} steps")
-            return state
-            
-        except Exception as e:
-            logger.error(f"Fatal error in agent for session {sid}: {e}", exc_info=True)
-            # Return error state
+            }
+        
+        elif status == "BLOCK":
             return {
-                "user_input": query,
-                "session_id": sid,
+                "session_id": session_id,
                 "user_id": user_id,
                 "control": "end",
                 "final_output": {
-                    "response": f"❌ Agent error: {str(e)}",
-                    "prompt_monitor": {
-                        "error": str(e),
-                        "logs": [{"node": "agent", "timestamp": datetime.utcnow().isoformat() + "Z", "msg": f"fatal error: {str(e)}", "level": "error"}]
-                    }
-                },
-                "logs": [{"node": "agent", "timestamp": datetime.utcnow().isoformat() + "Z", "msg": f"fatal error: {str(e)}", "level": "error"}]
+                    "response": f"❌ Query blocked: {result.get('reason', 'Unknown reason')}"
+                }
             }
-
-
-
-            metrics["total_ms"] = (datetime.now() - start_all).total_seconds() * 1000.0
-            state["metrics"] = metrics
-            
-            logger.info(f"Agent query completed for session {sid}: {metrics['total_ms']}ms, {steps} steps")
-            return state
-            
-        except Exception as e:
-            logger.error(f"Fatal error in agent for session {sid}: {e}", exc_info=True)
-            # Return error state
+        
+        else:  # ERROR
             return {
-                "user_input": query,
-                "session_id": sid,
+                "session_id": session_id,
                 "user_id": user_id,
                 "control": "end",
                 "final_output": {
-                    "response": f"❌ Agent error: {str(e)}",
-                    "prompt_monitor": {
-                        "error": str(e),
-                        "logs": [{"node": "agent", "timestamp": datetime.utcnow().isoformat() + "Z", "msg": f"fatal error: {str(e)}", "level": "error"}]
-                    }
+                    "response": f"❌ Error: {result.get('reason', 'Unknown error')}"
                 },
-                "logs": [{"node": "agent", "timestamp": datetime.utcnow().isoformat() + "Z", "msg": f"fatal error: {str(e)}", "level": "error"}]
+                "error": result
             }
-
-
-
-            metrics["total_ms"] = (datetime.now() - start_all).total_seconds() * 1000.0
-            state["metrics"] = metrics
-            
-            logger.info(f"Agent query completed for session {sid}: {metrics['total_ms']}ms, {steps} steps")
-            return state
-            
-        except Exception as e:
-            logger.error(f"Fatal error in agent for session {sid}: {e}", exc_info=True)
-            # Return error state
-            return {
-                "user_input": query,
-                "session_id": sid,
-                "user_id": user_id,
-                "control": "end",
-                "final_output": {
-                    "response": f"❌ Agent error: {str(e)}",
-                    "prompt_monitor": {
-                        "error": str(e),
-                        "logs": [{"node": "agent", "timestamp": datetime.utcnow().isoformat() + "Z", "msg": f"fatal error: {str(e)}", "level": "error"}]
-                    }
-                },
-                "logs": [{"node": "agent", "timestamp": datetime.utcnow().isoformat() + "Z", "msg": f"fatal error: {str(e)}", "level": "error"}]
-            }
-
-

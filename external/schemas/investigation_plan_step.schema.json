@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "investigation_plan_step.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["step", "tool", "args", "fills_gap", "success_condition"],
+  "properties": {
+    "step": { "type": "integer", "minimum": 1 },
+    "tool": {
+      "enum": [
+        "list_dir",
+        "inspect_table",
+        "preview_rows",
+        "search_glossary",
+        "nl_to_sql_planner",
+        "sql_plan_updater",
+        "query_safety_validator",
+        "execute_sql",
+        "query_result_evaluator"
+      ]
+    },
+    "args": { "type": "object" },
+    "fills_gap": { "type": "string" },
+    "success_condition": { "type": "string" }
+  }
+}
+

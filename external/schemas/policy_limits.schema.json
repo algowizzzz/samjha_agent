@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "policy_limits.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["max_attempts", "max_rows", "timeout_seconds", "allow_cross_join"],
+  "properties": {
+    "max_attempts": { "type": "integer", "minimum": 1 },
+    "max_rows": { "type": "integer", "minimum": 1 },
+    "timeout_seconds": { "type": "integer", "minimum": 1 },
+    "allow_cross_join": { "type": "boolean" }
+  }
+}
+

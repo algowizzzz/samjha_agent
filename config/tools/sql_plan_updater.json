@@ -1,0 +1,28 @@
+{
+  "name": "sql_plan_updater",
+  "implementation": "external.tools.parquet_agent.sql_plan_updater.SQLPlanUpdaterTool",
+  "description": "Apply minimal patches to SQL",
+  "version": "1.0.0",
+  "enabled": true,
+  "inputSchema": {
+    "type": "object",
+    "required": ["sql", "patch_instructions"],
+    "properties": {
+      "sql": {"type": "string"},
+      "patch_instructions": {"type": "string"}
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["sql"],
+    "properties": {
+      "sql": {"type": "string"}
+    }
+  },
+  "metadata": {
+    "author": "Parquet Agent Team",
+    "category": "SQL Generation",
+    "tags": ["parquet_agent", "sql", "patch"]
+  }
+}
+

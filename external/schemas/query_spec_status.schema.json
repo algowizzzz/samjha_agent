@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "query_spec_status.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "business_question",
+    "output_shape",
+    "start_table_grain",
+    "time",
+    "metrics",
+    "dimensions",
+    "filters",
+    "joins",
+    "aggregation_plan",
+    "validation_checks",
+    "performance_guardrails"
+  ],
+  "$defs": {
+    "status_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "source", "notes", "blocks_execution"],
+      "properties": {
+        "status": { "enum": ["missing", "defaulted", "inferred", "verified", "conflict"] },
+        "source": { "enum": ["domain_md", "tool_result", "user", "rule"] },
+        "notes": { "type": "string" },
+        "blocks_execution": { "type": "boolean" }
+      }
+    }
+  },
+  "properties": {
+    "business_question": { "$ref": "#/$defs/status_item" },
+    "output_shape": { "$ref": "#/$defs/status_item" },
+    "start_table_grain": { "$ref": "#/$defs/status_item" },
+    "time": { "$ref": "#/$defs/status_item" },
+    "metrics": { "$ref": "#/$defs/status_item" },
+    "dimensions": { "$ref": "#/$defs/status_item" },
+    "filters": { "$ref": "#/$defs/status_item" },
+    "joins": { "$ref": "#/$defs/status_item" },
+    "aggregation_plan": { "$ref": "#/$defs/status_item" },
+    "validation_checks": { "$ref": "#/$defs/status_item" },
+    "performance_guardrails": { "$ref": "#/$defs/status_item" }
+  }
+}
+
