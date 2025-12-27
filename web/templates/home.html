@@ -100,17 +100,27 @@
             </div>
         </a>
 
-        <!-- AI Agents at Scale Box -->
-        <div class="home-box coming-soon">
+        <!-- AI Bulk Doc Analysis Box -->
+        <a href="{{ url_for('bulk_doc.bulk_doc_home') }}" class="home-box">
             <div class="home-box-icon">
                 <i class="bi bi-diagram-3"></i>
             </div>
-            <div class="home-box-title">AI Agents at Scale</div>
+            <div class="home-box-title">AI Bulk Doc Analysis</div>
             <div class="home-box-description">
-                Enterprise-grade agent orchestration and management platform.
+                Upload PDFs, run deterministic multi-step prompt chains, and download auditable Markdown outputs.
             </div>
-            <span class="coming-soon-badge">Coming Soon</span>
-        </div>
+        </a>
+
+        <!-- Admin Panel Box -->
+        <a href="{{ url_for('admin_panel') }}" class="home-box">
+            <div class="home-box-icon">
+                <i class="bi bi-gear"></i>
+            </div>
+            <div class="home-box-title">Admin Panel</div>
+            <div class="home-box-description">
+                Configure agent prompts, manage settings, and customize system behavior.
+            </div>
+        </a>
     </div>
 </div>
 {% endblock %}

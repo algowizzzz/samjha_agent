@@ -26,6 +26,15 @@ from routes import (
     SocketIOHandlers
 )
 
+# AI Bulk Doc Analysis (isolated under external/)
+try:
+    from external.ai_bulk_doc_analysis.blueprint import create_bulk_doc_blueprint
+    BULK_DOC_AVAILABLE = True
+except Exception as e:
+    logging.warning(f"Bulk doc analysis feature not available: {e}")
+    create_bulk_doc_blueprint = None
+    BULK_DOC_AVAILABLE = False
+
 # Import external agent routes (optional)
 try:
     from external.routes.agent_routes import AgentRoutes
@@ -100,6 +109,14 @@ def register_all_routes(app, socketio):
             session.pop('token', None)
             return redirect(url_for('login'))
         return render_template('home.html', user=session_data)
+
+    # Register AI Bulk Doc Analysis UI (isolated feature)
+    if BULK_DOC_AVAILABLE and create_bulk_doc_blueprint is not None:
+        try:
+            app.register_blueprint(create_bulk_doc_blueprint(auth_manager))
+            logging.info("Bulk doc analysis blueprint registered successfully")
+        except Exception as e:
+            logging.error(f"Failed to register bulk doc analysis blueprint: {e}")
 
     # Register routes
     auth_routes.register_routes(app)
