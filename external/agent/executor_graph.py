@@ -94,7 +94,9 @@ def run_executor_sequential(decider_output: dict, state: ControllerState, tools_
         "evaluation": None,
         "executor_report": {},
         "policy_limits": state.get("policy_limits", {}),
-        "halt_execution": False
+        "halt_execution": False,
+        "user_query": state.get("user_query"),
+        "conversation_history": state.get("conversation_history", [])
     }
     
     # Run nodes sequentially
@@ -151,7 +153,9 @@ def run_executor(decider_output: dict, state: ControllerState, tools_registry, d
                 "evaluation": None,
                 "executor_report": {},
                 "policy_limits": state.get("policy_limits", {}),
-                "halt_execution": False
+                "halt_execution": False,
+                "user_query": state.get("user_query"),
+                "conversation_history": state.get("conversation_history", [])
             }
             
             # Run graph

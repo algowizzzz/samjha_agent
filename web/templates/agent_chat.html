@@ -349,6 +349,57 @@
         color: #842029;
     }
     
+    /* Thinking panel styling */
+    .thinking-panel {
+        margin-top: 12px;
+        margin-bottom: 8px;
+    }
+    
+    .thinking-panel summary {
+        cursor: pointer;
+        color: #6c757d;
+        font-size: 0.9em;
+        font-weight: 500;
+        padding: 6px 12px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        user-select: none;
+    }
+    
+    .thinking-panel summary:hover {
+        background-color: #e9ecef;
+    }
+    
+    .thinking-panel summary::-webkit-details-marker {
+        display: none;
+    }
+    
+    .thinking-panel summary::before {
+        content: '▶ ';
+        display: inline-block;
+        transition: transform 0.2s;
+        margin-right: 4px;
+    }
+    
+    .thinking-panel[open] summary::before {
+        transform: rotate(90deg);
+    }
+    
+    .thinking-panel pre {
+        margin-top: 8px;
+        padding: 12px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        max-height: 400px;
+        overflow-y: auto;
+        font-size: 0.85em;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    
     /* Mobile responsive status bar */
     @media (max-width: 768px) {
         .status-bar {
@@ -400,20 +451,15 @@
                     </label>
                     <input type="file" id="welcomeTipsUpload" accept=".json" style="display: none;">
                 </div>
-                <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
-                    <label for="agentDomain" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Domain:</label>
-                    <input type="text" id="agentDomain" class="form-control form-control-sm" style="width: auto; min-width: 120px; font-size: 11px;" placeholder="e.g., Finance">
-                </div>
-                <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
-                    <label for="agentName" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Name:</label>
-                    <input type="text" id="agentName" class="form-control form-control-sm" style="width: auto; min-width: 120px; font-size: 11px;" placeholder="e.g., Risk Analysis">
-                </div>
-                <button id="saveAgentBtn" class="btn btn-sm btn-success" title="Save agent configuration">
-                    <i class="bi bi-save"></i> Save Agent
-                </button>
                 <button id="newChatBtn" class="btn btn-sm btn-light" title="Start a new chat session">
                     <i class="bi bi-plus-circle"></i> New Chat
                 </button>
+                <div class="form-check form-check-inline ms-2" style="margin-bottom: 0;">
+                    <input class="form-check-input" type="checkbox" id="showThinkingToggle">
+                    <label class="form-check-label text-white" for="showThinkingToggle" style="font-size: 11px;">
+                        Show thinking
+                    </label>
+                </div>
             <span class="badge bg-light text-dark">DuckDB</span>
             </div>
         </div>
@@ -435,9 +481,6 @@
             </div>
             <div class="input-group" style="flex-shrink: 0;">
                 <input id="chatInput" type="text" class="form-control" placeholder="Ask a question or follow up..." />
-                <button id="killBtn" class="btn btn-danger" style="display: none;">
-                    <i class="bi bi-x-circle"></i> Kill
-                </button>
                 <button id="sendBtn" class="btn btn-primary">
                     <i class="bi bi-send"></i> Send
                 </button>
@@ -554,7 +597,6 @@
     const historyEl = document.getElementById('chatHistory');
     const inputEl = document.getElementById('chatInput');
     const sendBtn = document.getElementById('sendBtn');
-    const killBtn = document.getElementById('killBtn');
     const dataDictSelect = document.getElementById('dataDictSelect');
     const dataDictUpload = document.getElementById('dataDictUpload');
     const agentPromptsSelect = document.getElementById('agentPromptsSelect');
@@ -591,186 +633,12 @@
     let selectedAgentPrompts = storedAgentPrompts || 'queryagent_planner.json';
     let selectedWelcomeTips = storedWelcomeTips || 'agent_welcome_message.json';
 
-    // SocketIO connection for streaming
-    let socket = null;
-    let currentStreamingNode = null;
+    // HTTP-only mode (no WebSocket)
     let currentResponseId = null;
-    let currentPromptMonitorId = null;
     let isUserScrolling = false;
-    let accumulatedText = {
-        planner: '',
-        evaluator: '',
-        end_response: '',
-        end_prompt_monitor: ''
-    };
     
     // ====================================================================================
-    // PHASE 1: Node Progress Status (Bottom Status Bar)
-    // ====================================================================================
-    
-    const completedNodes = new Set();
-    let activeNode = null;
-    const nodeDataStore = {}; // Store data and reasoning for each node
-    
-    function formatNodeName(nodeName) {
-        // Convert node names to user-friendly format
-        const nodeNames = {
-            'invoke': 'Starting',
-            'check_followup': 'Checking context',
-            'check_data_sufficiency': 'Assessing data needs',
-            'check_structure': 'Understanding request',
-            'check_ambiguity': 'Reviewing clarity',
-            'clarify': 'Asking for clarification',
-            'process_clarification': 'Processing response',
-            'generate_sql': 'Building query',
-            'execute_sql': 'Running query',
-            'retry_sql': 'Retrying query',
-            'synthesize': 'Preparing answer',
-            'end': 'Complete'
-        };
-        return nodeNames[nodeName] || nodeName;
-    }
-    
-    function getNodeReasoning(node, nodeData) {
-        // Get reasoning message, replacing "query" with "prompt"
-        if (nodeData && nodeData.node_reasoning) {
-            return nodeData.node_reasoning.replace(/query/gi, 'prompt').replace(/Query/gi, 'Prompt');
-        }
-        
-        // Fallback: generate a simple description based on node data
-        if (!nodeData) return '';
-        
-        const parts = [];
-        if (node === 'invoke') {
-            if (nodeData.has_table_schema) parts.push('Schema loaded');
-            if (nodeData.has_conversation_history) parts.push('History loaded');
-        } else if (node === 'check_followup') {
-            parts.push(nodeData.is_followup ? 'Prompt detected as follow-up prompt' : 'Prompt detected as new prompt');
-        } else if (node === 'check_data_sufficiency') {
-            parts.push(nodeData.more_data_needed ? 'More data needed' : 'Filter only');
-        } else if (node === 'check_structure') {
-            parts.push(nodeData.is_structured ? 'Prompt classified as structured' : 'Prompt classified as knowledge');
-        } else if (node === 'check_ambiguity') {
-            if (nodeData.is_ambiguous) {
-                const qCount = (nodeData.clarification_questions || []).length;
-                parts.push(`Needs clarification (${qCount} questions)`);
-            } else {
-                parts.push('Prompt is clear');
-            }
-        } else if (node === 'generate_sql') {
-            if (nodeData.plan_quality) parts.push(`Quality: ${nodeData.plan_quality}`);
-        } else if (node === 'execute_sql' || node === 'synthesize') {
-            const rowCount = nodeData.raw_table?.row_count || 0;
-            if (rowCount > 0) parts.push(`${rowCount} rows returned`);
-        } else if (node === 'end') {
-            const rowCount = nodeData.raw_table?.row_count || 0;
-            if (rowCount > 0) parts.push(`Completed with ${rowCount} rows`);
-        }
-        
-        return parts.join(', ');
-    }
-    
-    function updateNodeProgressStatus() {
-        // First, remove any progress containers that are NOT inside user message wrappers
-        // This ensures old containers at the bottom are removed
-        const historyEl = document.getElementById('chatHistory');
-        if (historyEl) {
-            const allProgressContainers = historyEl.querySelectorAll('.node-progress-container');
-            allProgressContainers.forEach(container => {
-                const wrapper = container.closest('.mb-3');
-                const userMessage = wrapper?.querySelector('.chat-message.user');
-                if (!userMessage) {
-                    console.log('[updateNodeProgressStatus] Removing orphaned progress container');
-                    container.remove();
-                }
-            });
-        }
-        
-        // Find the last user message to attach the status to
-        if (!historyEl) {
-            console.warn('[updateNodeProgressStatus] chatHistory not found');
-            return;
-        }
-        
-        // Find the last user message wrapper
-        const userMessages = Array.from(historyEl.querySelectorAll('.chat-message.user'));
-        if (userMessages.length === 0) {
-            console.warn('[updateNodeProgressStatus] No user messages found');
-            return;
-        }
-        
-        const lastUserMessage = userMessages[userMessages.length - 1];
-        const wrapper = lastUserMessage.closest('.mb-3');
-        if (!wrapper) {
-            console.warn('[updateNodeProgressStatus] Could not find wrapper for user message');
-            return;
-        }
-        
-        // Find or create the node progress container
-        let progressContainer = wrapper.querySelector('.node-progress-container');
-        if (!progressContainer) {
-            console.log('[updateNodeProgressStatus] Creating new progress container after user message');
-            progressContainer = document.createElement('div');
-            progressContainer.className = 'node-progress-container';
-            wrapper.appendChild(progressContainer);
-        }
-        
-        // Make sure it's visible
-        progressContainer.style.display = 'block';
-        
-        // All possible nodes in order
-        const allNodes = ['invoke', 'check_followup', 'check_data_sufficiency', 'check_structure', 
-                         'check_ambiguity', 'generate_sql', 'execute_sql', 'synthesize', 'end'];
-        
-        // Only show nodes that have been started (completed or active)
-        const visibleNodes = allNodes.filter(node => completedNodes.has(node) || activeNode === node);
-        
-        if (visibleNodes.length === 0 && !activeNode) {
-            progressContainer.innerHTML = '<span class="text-muted">Waiting...</span>';
-            return;
-        }
-        
-        const statusItems = visibleNodes.map(node => {
-            const nodeData = nodeDataStore[node] || {};
-            const nodeName = formatNodeName(node);
-            const reasoning = getNodeReasoning(node, nodeData);
-            let className = 'node-progress-item';
-            let icon = '';
-            
-            if (completedNodes.has(node)) {
-                className += ' completed';
-                icon = '<i class="bi bi-check-circle-fill node-icon" style="color: #198754; font-size: 12px;"></i>';
-            } else if (activeNode === node) {
-                className += ' active';
-                icon = '<i class="bi bi-arrow-repeat spinner-border spinner-border-sm node-icon" style="width: 12px; height: 12px; color: #0d6efd;"></i>';
-            } else {
-                icon = '<i class="bi bi-circle node-icon" style="color: #dee2e6; font-size: 10px;"></i>';
-            }
-            
-            return `
-                <div class="${className}" data-node="${node}">
-                    ${icon}
-                    <div class="node-content">
-                        <div class="node-name">${nodeName}</div>
-                        ${reasoning ? `<div class="node-reasoning">${escapeHtml(reasoning)}</div>` : ''}
-                    </div>
-                </div>
-            `;
-        }).join('');
-        
-        progressContainer.innerHTML = statusItems;
-    }
-    
-    function resetNodeProgressStatus() {
-        completedNodes.clear();
-        activeNode = null;
-        Object.keys(nodeDataStore).forEach(key => delete nodeDataStore[key]);
-        // Remove all node progress containers
-        document.querySelectorAll('.node-progress-container').forEach(el => el.remove());
-    }
-    
-    // ====================================================================================
-    // PHASE 3: Typing Indicator
+    // Typing Indicator
     // ====================================================================================
     
     function showTypingIndicator(containerId) {
@@ -850,218 +718,7 @@
         }, 1000);
     });
 
-    // Initialize SocketIO connection
-    function initSocketIO() {
-        if (typeof io === 'undefined') {
-            console.warn('SocketIO not available, falling back to HTTP');
-            return false;
-        }
-
-        socket = io();
-        
-        socket.on('connect', () => {
-            console.log('Connected to WebSocket');
-            // Authenticate
-            const token = templateToken || sessionStorage.getItem('mcp_token') || '';
-            if (token) {
-                socket.emit('authenticate', { token: token });
-            }
-        });
-
-        socket.on('authenticated', (data) => {
-            if (data.success) {
-                console.log('WebSocket authenticated:', data.user);
-                // Join session room
-                socket.emit('join_session', { session_id: sessionId });
-            } else {
-                console.error('WebSocket authentication failed');
-            }
-        });
-
-        socket.on('session_joined', (data) => {
-            console.log('Joined session room:', data.session_id);
-        });
-
-        socket.on('agent:node_start', (data) => {
-            console.log('Node started:', data.node);
-            currentStreamingNode = data.node;
-            activeNode = data.node;
-            updateNodeProgressStatus();
-            
-        });
-
-        socket.on('agent:llm_chunk', (data) => {
-            const node = data.node;
-            const chunk = data.chunk;
-            
-            // Update accumulated text
-            if (accumulatedText.hasOwnProperty(node)) {
-                accumulatedText[node] = data.accumulated;
-            }
-            
-            // Append chunk to appropriate UI element
-            if (node === 'end_response' && currentResponseId) {
-                appendStreamingChunk(currentResponseId, chunk, 'response');
-            } else if (node === 'end_prompt_monitor' && currentPromptMonitorId) {
-                appendStreamingChunk(currentPromptMonitorId, chunk, 'prompt_monitor');
-            }
-        });
-
-        socket.on('agent:node_complete', (data) => {
-            console.log('Node completed:', data.node);
-            if (data.node === currentStreamingNode) {
-                currentStreamingNode = null;
-            }
-            completedNodes.add(data.node);
-            if (activeNode === data.node) {
-                activeNode = null;
-            }
-            updateNodeProgressStatus();
-        });
-
-        socket.on('agent:node_data', (data) => {
-            console.log('🔍🔍🔍 NEW CODE VERSION - NODE DATA RECEIVED 🔍🔍🔍');
-            console.log('=== NODE DATA RECEIVED ===');
-            console.log('Node:', data.node);
-            console.log('Session ID:', data.session_id);
-            console.log('Data keys:', Object.keys(data.data || {}));
-            console.log('Has node_reasoning:', !!data.data.node_reasoning);
-            if (data.data.node_reasoning) {
-                console.log('✅✅✅ node_reasoning FOUND:', data.data.node_reasoning);
-            } else {
-                console.log('❌❌❌ NO node_reasoning in data');
-            }
-            console.log('Full data object:', JSON.stringify(data.data, null, 2));
-            console.log('==========================');
-            
-            // Store node data for progress status display
-            nodeDataStore[data.node] = data.data;
-            updateNodeProgressStatus();
-            
-            displayNodeData(data.node, data.data);
-        });
-
-        socket.on('agent:complete', (data) => {
-            console.log('=== WEBSOCKET AGENT COMPLETE ===');
-            console.log('Data:', data);
-            console.log('Has result?:', !!data.result);
-            if (data.result && data.result.final_output) {
-                console.log('final_output.response:', data.result.final_output.response);
-            }
-            console.log('===================================');
-            console.log('Agent completed');
-            const result = data.result;
-            
-            // Mark end node as completed
-            completedNodes.add('end');
-            activeNode = null;
-            updateNodeProgressStatus();
-            
-            // Final result received - update UI with complete data
-            if (currentResponseId) {
-                finalizeStreamingMessage(currentResponseId, result);
-            }
-            
-            $('#sendBtn').prop('disabled', false);
-            isQueryRunning = false;
-            killBtn.style.display = 'none';
-        });
-
-        socket.on('agent:waiting_for_clarification', (data) => {
-            console.log('Agent waiting for clarification:', data);
-            
-            // Update node progress status to show waiting
-            updateNodeProgressStatus();
-            
-            // Show clarification prompt to user
-            if (currentResponseId) {
-                const msgEl = document.getElementById(currentResponseId);
-                if (msgEl) {
-                    const markdownBody = msgEl.querySelector('.markdown-body');
-                    if (markdownBody && data.clarify_prompt) {
-                        // Use marked to render the clarification prompt
-                        markdownBody.innerHTML = marked.parse(data.clarify_prompt);
-                    }
-                }
-            } else {
-                // Create new message with clarification
-                appendMessage('agent', data.clarify_prompt || 'I need clarification on your query. Please provide more details.');
-            }
-            
-            // Re-enable send button so user can respond
-            $('#sendBtn').prop('disabled', false);
-            isQueryRunning = false;
-            killBtn.style.display = 'none';
-        });
-
-        socket.on('agent:cancelled', (data) => {
-            console.log('Agent query cancelled:', data.message);
-            
-            // Hide loading states
-            updateNodeProgressStatus();
-            
-            // Show cancellation message
-            if (currentResponseId) {
-                const msgEl = document.getElementById(currentResponseId);
-                if (msgEl) {
-                    const markdownBody = msgEl.querySelector('.markdown-body');
-                    if (markdownBody) {
-                        markdownBody.innerHTML = '<i class="bi bi-x-circle"></i> <em>Query cancelled by user. No entry saved to conversation history.</em>';
-                    }
-                }
-            }
-            
-            $('#sendBtn').prop('disabled', false);
-            isQueryRunning = false;
-            killBtn.style.display = 'none';
-        });
-
-        socket.on('agent:killed', (data) => {
-            console.log('Kill confirmed:', data.message);
-            // The agent:cancelled event will handle the UI update
-        });
-
-        socket.on('agent:kill_error', (data) => {
-            console.error('Kill error:', data.error);
-            alert('Failed to cancel query: ' + data.error);
-        });
-
-        socket.on('agent:error', (data) => {
-            console.error('Agent error:', data.error);
-            
-            // Hide loading states
-            
-            // Show error in node progress status
-            updateNodeProgressStatus();
-            
-            // Show error message
-            if (currentResponseId) {
-                const msgEl = document.getElementById(currentResponseId);
-                if (msgEl) {
-                    msgEl.classList.add('error-message');
-                    const markdownBody = msgEl.querySelector('.markdown-body');
-                    if (markdownBody) {
-                        markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Error: ' + escapeHtml(data.error);
-                    }
-                }
-            } else {
-                appendMessage('agent', 'Error: ' + data.error);
-            }
-            
-            $('#sendBtn').prop('disabled', false);
-            isQueryRunning = false;
-            killBtn.style.display = 'none';
-        });
-
-        socket.on('disconnect', () => {
-            console.log('WebSocket disconnected');
-        });
-
-        return true;
-    }
-
-    // Initialize SocketIO on page load
-    const socketAvailable = initSocketIO();
+    // HTTP-only mode - WebSocket removed
 
     function escapeHtml(str) {
         if (!str) return '';
@@ -1070,112 +727,20 @@
         return text.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     }
 
-    // Track node data displays to avoid duplicates (keyed by responseId + nodeName)
-    const nodeDataDisplays = {};
-
-    function displayNodeData(nodeName, nodeData) {
-        if (!nodeData || Object.keys(nodeData).length === 0) {
+    // Display SQL results table from HTTP response
+    function displaySQLResults(messageEl, results) {
+        if (!results || !results.columns || !results.rows) {
             return;
         }
 
-        console.log(`[NODE_DATA] Displaying data for ${nodeName}:`, nodeData);
-        if (nodeData.raw_table) {
-            console.log(`[NODE_DATA] Raw table: ${nodeData.raw_table.row_count || 0} rows, ${nodeData.raw_table.columns?.length || 0} columns`);
-            if (nodeData.raw_table.query) {
-                console.log(`[NODE_DATA] SQL Query:`, nodeData.raw_table.query);
-            }
-        }
-        if (nodeData.plan) {
-            console.log(`[NODE_DATA] SQL Plan:`, nodeData.plan.sql);
-        }
-
-        // Get or create container for this node's data (reuse if exists for same response)
-        const containerKey = `${currentResponseId || 'default'}_${nodeName}`;
-        let container = nodeDataDisplays[containerKey];
-        
-        // If container doesn't exist, try to create it
-        if (!container) {
-            // Try current response first - attach BEFORE the markdown-body (above response)
-            if (currentResponseId) {
-                const responseEl = document.getElementById(currentResponseId);
-                if (responseEl) {
-                    const wrapper = responseEl.closest('.mb-3');
-                    if (wrapper) {
-                        const messageDiv = wrapper.querySelector('.chat-message.agent');
-                        if (messageDiv) {
-                            // Create container and insert BEFORE the messageDiv (above the response)
-                            container = document.createElement('div');
-                            container.className = 'node-data-container mt-2';
-                            container.setAttribute('data-node', nodeName);
-                            container.setAttribute('data-container-key', containerKey);
-                            wrapper.insertBefore(container, messageDiv);
-                            nodeDataDisplays[containerKey] = container;
-                        }
-                    }
-                }
-            }
-            
-            // If still no container, try to find the last agent message
-            if (!container) {
-                const historyEl = document.getElementById('chatHistory');
-                if (historyEl) {
-                    const agentMessages = Array.from(historyEl.querySelectorAll('.chat-message.agent'));
-                    if (agentMessages.length > 0) {
-                        const lastAgentMessage = agentMessages[agentMessages.length - 1];
-                        const wrapper = lastAgentMessage.closest('.mb-3');
-                        if (wrapper) {
-                            container = document.createElement('div');
-                            container.className = 'node-data-container mt-2';
-                            container.setAttribute('data-node', nodeName);
-                            container.setAttribute('data-container-key', containerKey);
-                            wrapper.insertBefore(container, lastAgentMessage);
-                            nodeDataDisplays[containerKey] = container;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!container) {
-            console.warn(`[NODE_DATA] Could not find container for ${nodeName}, currentResponseId: ${currentResponseId}`);
-            // Still log the data even if we can't display it
-            return;
-        }
-
-            // Display data based on node type
-            if (nodeName === 'execute_sql' && nodeData.raw_table) {
-                displayRawTable(container, nodeData.raw_table, `table_execute_${Date.now()}`);
-            } else if (nodeName === 'generate_sql' && nodeData.plan) {
-                displaySQLPlan(container, nodeData.plan);
-            } else if (nodeName === 'synthesize' && nodeData.raw_table) {
-            // Only show synthesize table if execute_sql didn't already show it (to avoid duplicates)
-            const existingExecuteTable = container.parentElement?.querySelector(`[data-container-key*="_execute_sql"] .node-raw-table`);
-            if (!existingExecuteTable) {
-                displayRawTable(container, nodeData.raw_table, `table_synthesize_${Date.now()}`);
-            }
-        } else if (nodeName === 'end' && nodeData.raw_table) {
-            displayRawTable(container, nodeData.raw_table, `table_end_${Date.now()}`);
-        }
-    }
-
-    function displayRawTable(container, rawTable, tableId) {
-        if (!rawTable || !rawTable.columns || !rawTable.rows) {
-            return;
-        }
-
-        // Remove existing table if present
-        const existingTable = container.querySelector('.node-raw-table');
-        if (existingTable) {
-            existingTable.remove();
-        }
-
+        const tableId = `sql_results_${Date.now()}`;
         const tableWrapper = document.createElement('div');
-        tableWrapper.className = 'node-raw-table mt-2';
+        tableWrapper.className = 'sql-results-container mt-3';
         
         const tableDetails = document.createElement('details');
         tableDetails.className = 'mt-2';
-        tableDetails.open = true; // Open by default for real-time updates
-            tableDetails.innerHTML = `<summary class="small text-info" style="cursor:pointer;"><i class="bi bi-table"></i> SQL Prompt & Results (${rawTable.row_count || 0} rows)</summary>`;
+        tableDetails.open = true;
+        tableDetails.innerHTML = `<summary class="small text-info" style="cursor:pointer;"><i class="bi bi-table"></i> SQL Results (${results.row_count || 0} rows)</summary>`;
         
         const tableContent = document.createElement('div');
         tableContent.className = 'mt-2 p-2 bg-light border rounded';
@@ -1183,7 +748,6 @@
         tableContent.style.overflowY = 'auto';
         
         // Display SQL query if available
-        if (rawTable.query) {
             const sqlDiv = document.createElement('div');
             sqlDiv.className = 'mb-3 p-3 rounded';
             sqlDiv.style.fontFamily = 'monospace';
@@ -1191,52 +755,31 @@
             sqlDiv.style.backgroundColor = '#ffffff';
             sqlDiv.style.color = '#000000';
             sqlDiv.style.border = '1px solid #dee2e6';
-            sqlDiv.innerHTML = '<strong style="color: #0d6efd;">SQL Query:</strong><br><pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word; color: #000000;">' + escapeHtml(rawTable.query) + '</pre>';
+        const sqlText = messageEl.dataset.sql || '';
+        if (sqlText) {
+            sqlDiv.innerHTML = '<strong style="color: #0d6efd;">SQL Query:</strong><br><pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word; color: #000000;">' + escapeHtml(sqlText) + '</pre>';
             tableContent.appendChild(sqlDiv);
         }
         
         // Add table HTML
         const tableDiv = document.createElement('div');
-        tableDiv.innerHTML = formatTable(rawTable, tableId);
+        tableDiv.innerHTML = formatTable(results, tableId);
         tableContent.appendChild(tableDiv);
         
         tableDetails.appendChild(tableContent);
         tableWrapper.appendChild(tableDetails);
-        container.appendChild(tableWrapper);
-    }
-
-    function displaySQLPlan(container, plan) {
-        if (!plan || !plan.sql) {
-            return;
-        }
-
-        // Remove existing plan if present
-        const existingPlan = container.querySelector('.node-sql-plan');
-        if (existingPlan) {
-            existingPlan.remove();
-        }
-
-        const planDiv = document.createElement('div');
-        planDiv.className = 'node-sql-plan mt-2 p-3 rounded';
-        planDiv.style.backgroundColor = '#f8f9fa';
-        planDiv.style.border = '1px solid #dee2e6';
-        planDiv.innerHTML = `
-            <div class="small text-muted mb-2"><i class="bi bi-code-square"></i> Generated SQL Plan - ${new Date().toLocaleTimeString()}</div>
-            <div style="font-family: monospace; font-size: 0.9em; background-color: #ffffff; color: #000000; padding: 10px; border-radius: 4px; border: 1px solid #dee2e6;">
-                <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word; color: #000000;">${escapeHtml(plan.sql)}</pre>
-            </div>
-        `;
-        container.appendChild(planDiv);
+        messageEl.appendChild(tableWrapper);
     }
 
 
-    function formatTable(rawTable, tableId) {
-        if (!rawTable || !rawTable.columns || !rawTable.rows) {
+
+    function formatTable(results, tableId) {
+        if (!results || !results.columns || !results.rows) {
             return 'No table data available';
         }
         
         const maxRows = 1000; // DataTables can handle more rows
-        const displayRows = rawTable.rows.slice(0, maxRows);
+        const displayRows = results.rows.slice(0, maxRows);
         
         let html = '<div class="table-container">';
         html += '<div class="table-search"><input type="text" class="form-control form-control-sm" id="search_' + tableId + '" placeholder="Search table..."></div>';
@@ -1244,7 +787,7 @@
         
         // Header
         html += '<thead><tr>';
-        rawTable.columns.forEach(col => {
+        results.columns.forEach(col => {
             html += '<th>' + escapeHtml(col) + '</th>';
         });
         html += '</tr></thead>';
@@ -1253,7 +796,7 @@
         html += '<tbody>';
         displayRows.forEach(row => {
             html += '<tr>';
-            rawTable.columns.forEach(col => {
+            results.columns.forEach(col => {
                 const value = row[col] !== undefined ? row[col] : '';
                 html += '<td>' + escapeHtml(String(value)) + '</td>';
             });
@@ -1263,10 +806,10 @@
         
         html += '</table></div>';
         
-        if (rawTable.row_count > maxRows) {
-            html += '<div class="small text-muted mt-2">Showing first ' + maxRows + ' of ' + rawTable.row_count + ' rows</div>';
+        if (results.row_count > maxRows) {
+            html += '<div class="small text-muted mt-2">Showing first ' + maxRows + ' of ' + results.row_count + ' rows</div>';
         } else {
-            html += '<div class="small text-muted mt-2">Total: ' + rawTable.row_count + ' rows</div>';
+            html += '<div class="small text-muted mt-2">Total: ' + results.row_count + ' rows</div>';
         }
         
         html += '</div>';
@@ -1334,152 +877,78 @@
         messageDiv.innerHTML = roleBadge + contentHtml;
         wrapper.appendChild(messageDiv);
         
-        // If this is a user message, create the node progress container immediately
-        if (role === 'user') {
-            const progressContainer = document.createElement('div');
-            progressContainer.className = 'node-progress-container';
-            progressContainer.style.display = 'none'; // Hide until first node starts
-            wrapper.appendChild(progressContainer);
-        }
-        
-        // Removed: Raw Table and Prompt Monitor from appendMessage
-        // These are now shown above the response via displayNodeData
-        
         historyEl.appendChild(wrapper);
         historyEl.scrollTop = historyEl.scrollHeight;
     }
 
-    // ====================================================================================
-    // PHASE 4: Smart Markdown Rendering with Buffering
-    // ====================================================================================
+    // HTTP-only mode - no streaming chunks
     
-    let currentTypingId = null;
-    
-    function appendStreamingChunk(messageId, chunk, type) {
+    function finalizeMessage(messageId, result) {
         const messageEl = document.getElementById(messageId);
         if (!messageEl) return;
 
-        let targetEl = null;
-        if (type === 'response') {
-            targetEl = messageEl.querySelector('.markdown-body');
-        } else if (type === 'prompt_monitor') {
-            targetEl = messageEl.querySelector('.prompt-monitor-content');
-        }
-
-        if (targetEl) {
-            // Show typing indicator on first chunk
-            if (!currentTypingId && type === 'response') {
-                currentTypingId = showTypingIndicator(messageId);
-            }
-            
-            // Store accumulated text in a data attribute to avoid reading typing indicator text
-            if (!targetEl.dataset.accumulatedText) {
-                targetEl.dataset.accumulatedText = '';
-            }
-            targetEl.dataset.accumulatedText += chunk;
-            
-            // Re-render markdown (throttle to avoid too frequent updates)
-            if (type === 'response' && typeof marked !== 'undefined') {
-                // Initialize render counter
-                if (!targetEl._renderCount) targetEl._renderCount = 0;
-                targetEl._renderCount++;
-                
-                // Get accumulated text from data attribute (excludes typing indicator)
-                const fullText = targetEl.dataset.accumulatedText || '';
-                
-                // Detect if we're in middle of a table or code block
-                const inCodeBlock = (fullText.split('```').length - 1) % 2 === 1;
-                const inTable = fullText.includes('|') && fullText.lastIndexOf('\n\n') < fullText.lastIndexOf('|');
-                
-                // Re-render every 3 chunks, or if chunk is large, or if NOT in special structure
-                const shouldRender = !inCodeBlock && !inTable && (chunk.length > 100 || targetEl._renderCount % 3 === 0);
-                
-                if (shouldRender) {
-                    requestAnimationFrame(() => {
-                        try {
-                            // Keep typing indicator, only update content after it
-                            const typingIndicator = targetEl.querySelector('.typing-indicator');
-                            const parsedHtml = marked.parse(fullText);
-                            if (typingIndicator) {
-                                targetEl.innerHTML = '';
-                                targetEl.appendChild(typingIndicator);
-                                const contentDiv = document.createElement('div');
-                                contentDiv.innerHTML = parsedHtml;
-                                targetEl.appendChild(contentDiv);
-                            } else {
-                                targetEl.innerHTML = parsedHtml;
-                            }
-                        } catch (e) {
-                            // If markdown parsing fails, keep as text
-                            console.warn('Markdown parse error during streaming:', e);
-                        }
-                    });
-                }
-            } else if (type === 'prompt_monitor' && typeof marked !== 'undefined') {
-                if (!targetEl._renderCount) targetEl._renderCount = 0;
-                targetEl._renderCount++;
-                
-                const fullText = targetEl.dataset.accumulatedText || '';
-                
-                if (chunk.length > 100 || targetEl._renderCount % 3 === 0) {
-                    requestAnimationFrame(() => {
-                        try {
-                            targetEl.innerHTML = marked.parse(fullText);
-                        } catch (e) {
-                            targetEl.innerHTML = '<pre class="small text-muted">' + escapeHtml(fullText) + '</pre>';
-                        }
-                    });
-                }
-            }
-            
-            // Smart auto-scroll
-            smoothScrollToBottom();
-        }
-    }
-
-    function finalizeStreamingMessage(messageId, result) {
-        const messageEl = document.getElementById(messageId);
-        if (!messageEl) return;
-        
-        // Hide typing indicator
-        if (currentTypingId) {
-            hideTypingIndicator(currentTypingId);
-            currentTypingId = null;
-        }
-
-        // Final markdown render - always render at the end to ensure proper formatting
+        // Render markdown response
         const responseEl = messageEl.querySelector('.markdown-body');
-        if (responseEl && typeof marked !== 'undefined') {
+        const finalOut = (result && result.final_output) ? result.final_output : {};
+        const answer = finalOut.response || '';
+        
+        if (responseEl && typeof marked !== 'undefined' && answer) {
             try {
-                // Get the accumulated text from data attribute (excludes typing indicator text)
-                let fullText = responseEl.dataset.accumulatedText || '';
-                
-                // FALLBACK: For knowledge questions or non-streamed responses, use final_output.response
-                if (!fullText && result && result.final_output && result.final_output.response) {
-                    fullText = result.final_output.response;
-                    console.log('[finalizeStreamingMessage] No accumulated text, using final_output.response:', fullText.substring(0, 100));
-                }
-                
-                // Parse and render markdown (final pass ensures everything is correct)
-                requestAnimationFrame(() => {
-                    try {
-                        responseEl.innerHTML = marked.parse(fullText);
-                    } catch (e) {
-                        console.error('Final markdown render error:', e);
-                        responseEl.innerHTML = '<pre>' + escapeHtml(fullText) + '</pre>';
-                    }
-                    // Clear the data attribute after final render
-                    delete responseEl.dataset.accumulatedText;
-                });
-            } catch (e) {
-                console.error('Final markdown render error:', e);
-                // Fallback to escaped text if parsing fails
-                responseEl.innerHTML = '<pre>' + escapeHtml(responseEl.textContent) + '</pre>';
+                responseEl.innerHTML = marked.parse(answer);
+                        } catch (e) {
+                console.error('Markdown render error:', e);
+                responseEl.innerHTML = '<pre>' + escapeHtml(answer) + '</pre>';
             }
         }
+        
+        // Store SQL for table display
+        if (finalOut.sql) {
+            messageEl.dataset.sql = finalOut.sql;
+        }
+        
+        // Display SQL results table if available
+        if (finalOut.results) {
+            displaySQLResults(messageEl, finalOut.results);
+        }
 
-        // Removed: Raw Table and Prompt Monitor from finalizeStreamingMessage
-        // These are now shown above the response via displayNodeData
+        // Optional: show Decider thinking trace if present in final_output.thinking
+        try {
+            const thinking = result && result.final_output ? (result.final_output.thinking || '') : '';
+            console.log('[DEBUG] finalizeStreamingMessage - thinking check:', {
+                hasResult: !!result,
+                hasFinalOutput: !!(result && result.final_output),
+                thinkingLength: thinking ? thinking.length : 0,
+                thinkingTrimmed: thinking ? thinking.trim().length : 0
+            });
+            if (thinking && thinking.trim()) {
+                console.log('[DEBUG] Rendering thinking panel, length:', thinking.length);
+                const existing = messageEl.querySelector('.thinking-panel');
+                if (existing) {
+                    console.log('[DEBUG] Removing existing thinking panel');
+                    existing.remove();
+                }
+
+                const panel = document.createElement('details');
+                panel.className = 'thinking-panel';
+                panel.open = false;
+
+                const summary = document.createElement('summary');
+                summary.textContent = '🧠 Thinking (Decider)';
+                panel.appendChild(summary);
+
+                const pre = document.createElement('pre');
+                pre.textContent = thinking;
+                panel.appendChild(pre);
+
+                messageEl.appendChild(panel);
+                console.log('[DEBUG] Thinking panel appended to messageEl');
+            } else {
+                console.log('[DEBUG] No thinking to display (empty or missing)');
+            }
+                    } catch (e) {
+            console.error('[DEBUG] Failed to render thinking panel:', e);
+        }
+
     }
 
     let awaitingClarification = false;
@@ -1517,23 +986,11 @@
         // Clear welcome message flag so it shows again
         sessionStorage.removeItem('welcome_message_shown');
         
-        // Reset streaming state
-        accumulatedText = {
-            planner: '',
-            evaluator: '',
-            end_response: '',
-            end_prompt_monitor: ''
-        };
+        // Reset state
         currentResponseId = null;
         currentPromptMonitorId = null;
         resetNodeProgressStatus();
         awaitingClarification = false;
-        
-        // Rejoin socket session if connected
-        if (socket && socket.connected) {
-            socket.emit('join_session', { session_id: newSessionId });
-            console.log('Started new chat session:', newSessionId);
-        }
         
         // Reload config files to refresh dropdowns from actual file system
         loadConfigFiles();
@@ -1564,26 +1021,18 @@
     function sendQuery() {
         const q = inputEl.value.trim();
         if (!q) return;
+        const showThinking = !!document.getElementById('showThinkingToggle')?.checked;
+        console.log('[DEBUG] sendQuery called:', { query: q, showThinking: showThinking });
         appendMessage('user', q);
         inputEl.value = '';
         $('#sendBtn').prop('disabled', true);
         isQueryRunning = true;
-        killBtn.style.display = 'inline-block';
 
-        // Reset streaming state
-        accumulatedText = {
-            planner: '',
-            evaluator: '',
-            end_response: '',
-            end_prompt_monitor: ''
-        };
-        currentStreamingNode = null;
-        currentTypingId = null;
+        // Reset state
 
         // Create placeholder for agent response
         messageCounter++;
         currentResponseId = 'msg-' + messageCounter;
-        currentPromptMonitorId = 'prompt-' + messageCounter;
         
         const wrapper = document.createElement('div');
         wrapper.className = 'mb-3 message-fade-in';
@@ -1594,42 +1043,17 @@
         wrapper.appendChild(messageDiv);
         historyEl.appendChild(wrapper);
         
-        // Clear previous node data displays for this response
-        // (We'll track by responseId, so old displays won't interfere)
-        // nodeDataDisplays will be keyed by responseId_nodeName, so they're naturally scoped
-        
-        // Reset and initialize node progress status
-        resetNodeProgressStatus();
-        
         // Smooth scroll to new message
         smoothScrollToBottom();
 
-        // Use WebSocket if available, otherwise fall back to HTTP
-        if (socketAvailable && socket && socket.connected) {
-            // Use WebSocket streaming
-            const requestData = {
-                query: q,
-                session_id: currentSessionId,
-                token: templateToken || sessionStorage.getItem('mcp_token') || '',
-                data_dict_file: selectedDataDict || null,
-                agent_prompts_file: selectedAgentPrompts || null
-            };
-
-            if (awaitingClarification) {
-                requestData.user_clarification = q;
-                awaitingClarification = false;
-                inputEl.placeholder = 'Ask a question or provide a follow-up...';
-            }
-
-            socket.emit('agent:query', requestData);
-        } else {
-            // Fall back to HTTP POST
+        // v1: HTTP-only (ignore websocket path)
             const requestArgs = {
                 query: q,
                 session_id: currentSessionId,
                 user_id: '{{ user.user_id | default("anonymous") }}',
                 data_dict_file: selectedDataDict || null,
-                agent_prompts_file: selectedAgentPrompts || null
+            agent_prompts_file: selectedAgentPrompts || null,
+            show_thinking: showThinking
             };
 
             if (awaitingClarification) {
@@ -1638,13 +1062,19 @@
                 inputEl.placeholder = 'Ask a question or provide a follow-up...';
             }
 
+        console.log('[DEBUG] Sending API request:', { url: '/api/tools/execute', requestArgs: requestArgs });
             API.post('/api/tools/execute', {
                 tool: 'parquet_agent',
                 arguments: requestArgs
             }).done(function(resp) {
-            console.log('API Response:', resp);
+            console.log('[DEBUG] API Response received:', resp);
             const result = (resp && resp.result) ? resp.result : resp;
-            console.log('Result:', result);
+            console.log('[DEBUG] Result extracted:', result);
+            console.log('[DEBUG] final_output:', result.final_output);
+            console.log('[DEBUG] thinking present:', !!(result.final_output && result.final_output.thinking));
+            if (result.final_output && result.final_output.thinking) {
+                console.log('[DEBUG] thinking length:', result.final_output.thinking.length);
+            }
             
             // Update session ID if provided
             if (result.session_id) {
@@ -1653,29 +1083,35 @@
             }
             
             // Check if agent needs clarification
-            if (result.control === 'wait_for_user' && result.clarify_prompt) {
-                // Agent is asking for clarification
-                console.log('Clarification needed:', result.clarify_prompt);
-                appendMessage('agent', result.clarify_prompt);
+            if (result.control === 'wait_for_user') {
+                const clarification = result.clarification || {};
+                const clarifyPrompt = clarification.prompt || clarification.questions?.[0] || 'I need clarification on your query. Please provide more details.';
+                console.log('[DEBUG] Clarification needed:', clarifyPrompt);
+                if (currentResponseId) {
+                    const msgEl = document.getElementById(currentResponseId);
+                    if (msgEl) {
+                        const markdownBody = msgEl.querySelector('.markdown-body');
+                        if (markdownBody && typeof marked !== 'undefined') {
+                            markdownBody.innerHTML = marked.parse(clarifyPrompt);
+                        } else if (markdownBody) {
+                            markdownBody.innerHTML = '<div>' + escapeHtml(clarifyPrompt) + '</div>';
+                        }
+                    }
+                } else {
+                    appendMessage('agent', clarifyPrompt);
+                }
                 awaitingClarification = true;
                 inputEl.placeholder = 'Provide clarification...';
             } else {
                 // Normal response
                 const finalOut = (result && result.final_output) ? result.final_output : {};
-                const answer = finalOut.response || JSON.stringify(result).slice(0, 1000);
-                console.log('=== AGENT COMPLETE DEBUG ===');
-                console.log('Full Result:', result);
-                console.log('Final Output:', finalOut);
-                console.log('Answer extracted:', answer);
-                console.log('Answer length:', answer ? answer.length : 0);
-                console.log('===========================');
+                const answer = finalOut.response || '';
+                console.log('[DEBUG] Normal response:', { answer: answer.substring(0, 100), hasResults: !!finalOut.results });
                 
                 // Update the placeholder message with final result
                 if (currentResponseId) {
-                    // If we have a streaming placeholder, finalize it
-                    finalizeStreamingMessage(currentResponseId, result);
+                    finalizeMessage(currentResponseId, result);
                 } else {
-                    // Otherwise use regular appendMessage (which handles markdown)
                     appendMessage('agent', answer, result);
                 }
                 awaitingClarification = false;
@@ -1706,14 +1142,11 @@
             inputEl.placeholder = 'Ask a question or provide a follow-up...';
         }).always(function() {
             $('#sendBtn').prop('disabled', false);
+            isQueryRunning = false;
             
             // Clean up state variables
             currentResponseId = null;
-            currentPromptMonitorId = null;
-            resetNodeProgressStatus();
-            currentTypingId = null;
         });
-        }
     }
 
     // Initialize node progress status on page load
@@ -2292,21 +1725,6 @@
     initWelcomeMessage();
     
     // Event listeners
-    // Kill button handler
-    function killQuery() {
-        if (!isQueryRunning) return;
-        
-        if (socketAvailable && socket && socket.connected) {
-            socket.emit('agent:kill', {
-                session_id: currentSessionId,
-                token: templateToken || sessionStorage.getItem('mcp_token') || ''
-            });
-        } else {
-            alert('Cannot cancel query: WebSocket not connected');
-        }
-    }
-    
-    killBtn.addEventListener('click', killQuery);
     sendBtn.addEventListener('click', sendQuery);
     inputEl.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') sendQuery();

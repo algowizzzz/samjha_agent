@@ -65,12 +65,16 @@ def render_success(executor_report: dict, state: Optional[ControllerState] = Non
         "finished_output": executor_report.get("finished_output", ""),
         "final_sql": executor_report.get("final_sql", ""),
         "result_summary": executor_report.get("result_summary", ""),
-        "evaluation": executor_report.get("evaluation", {})
+        "evaluation": executor_report.get("evaluation", {}),
+        "results": executor_report.get("results")  # Include results for UI table display
     }
     # Include query_spec and query_spec_status for building prior_state in next query
     if state:
         result["query_spec"] = state.get("query_spec", {})
         result["query_spec_status"] = state.get("query_spec_status", {})
+        # Optional UI trace: decider thinking (only when requested)
+        if state.get("show_thinking") and state.get("thinking_trace"):
+            result["thinking_trace"] = state.get("thinking_trace", "")
     return result
 
 
@@ -89,7 +93,8 @@ def initialize_controller_state(
     user_query: str,
     conversation_history: list,
     prior_state: Optional[ControllerState] = None,
-    policy_limits: Optional[dict] = None
+    policy_limits: Optional[dict] = None,
+    show_thinking: bool = False
 ) -> ControllerState:
     """
     Initialize or restore controller state.
@@ -118,6 +123,8 @@ def initialize_controller_state(
         # This is critical for follow-up queries
         prior_state["user_query"] = user_query
         prior_state["conversation_history"] = conversation_history
+        prior_state["show_thinking"] = bool(show_thinking)
+        prior_state["thinking_trace"] = None
         # IMPORTANT: attempt_count / last_executor_report are controller-loop fields for a *single* query.
         # When we start a new user query (even a follow-up), we must reset them; otherwise we can
         # incorrectly hit max_attempts immediately using the prior query's state.
@@ -143,6 +150,8 @@ def initialize_controller_state(
         "policy_limits": default_policy_limits,
         "query_spec": {},
         "query_spec_status": {},
+        "show_thinking": bool(show_thinking),
+        "thinking_trace": None,
         "last_executor_report": None,
         "attempt_count": 0
     }
@@ -153,7 +162,8 @@ def handle_query(
     conversation_history: list,
     prior_state: Optional[ControllerState] = None,
     tools_registry: Optional[ToolsRegistry] = None,
-    policy_limits: Optional[dict] = None
+    policy_limits: Optional[dict] = None,
+    show_thinking: bool = False
 ) -> dict:
     """
     Controller orchestrates:
@@ -186,7 +196,7 @@ def handle_query(
                     logger.warning(f"Failed to load tool {tool_config.stem}: {e}")
     
     # Initialize controller state
-    state = initialize_controller_state(user_query, conversation_history, prior_state, policy_limits)
+    state = initialize_controller_state(user_query, conversation_history, prior_state, policy_limits, show_thinking=show_thinking)
     max_attempts = int(state["policy_limits"]["max_attempts"])
     domain_md = state["domain_md"]
     
@@ -298,7 +308,13 @@ def handle_query(
         # 2D) Interpret executor outcome
         if executor_report.get("status") == "SUCCESS":
             logger.info("Executor returned SUCCESS")
-            return render_success(executor_report, state)
+            logger.debug(f"Executor report has results: {bool(executor_report.get('results'))}")
+            if executor_report.get("results"):
+                logger.debug(f"Results keys: {list(executor_report.get('results', {}).keys())}")
+            success_result = render_success(executor_report, state)
+            logger.debug(f"render_success returned keys: {list(success_result.keys())}")
+            logger.debug(f"render_success has results: {bool(success_result.get('results'))}")
+            return success_result
         
         # executor_report["status"] == "ERROR" => controller loops back to Decider
         # Decider will see last_executor_report and produce a minimal revised plan or ASK_USER/BLOCK.
@@ -338,7 +354,7 @@ class ParquetQueryAgent:
         self,
         query: str,
         session_id: Optional[str] = None,
-        user_id: Optional[str] = None
+        user_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Main entry point for running a query.
@@ -355,11 +371,16 @@ class ParquetQueryAgent:
             policy_limits=self.config.get("policy_limits")
         )
         
+        logger.info(f"LangGraphAgentTool: handle_query returned keys: {list(result.keys())}")
+        logger.info(f"LangGraphAgentTool: handle_query has results: {bool(result.get('results'))}")
+        if result.get('results'):
+            logger.info(f"LangGraphAgentTool: results type: {type(result.get('results'))}, keys: {list(result.get('results', {}).keys())}")
+        
         # Convert result to old format for backward compatibility
         status = result.get("status")
         
         if status == "ASK_USER":
-            return {
+            out = {
                 "session_id": session_id,
                 "user_id": user_id,
                 "control": "wait_for_user",
@@ -371,24 +392,45 @@ class ParquetQueryAgent:
                 "query_spec": result.get("query_spec", {}),
                 "query_spec_status": result.get("query_spec_status", {})
             }
+            return out
         
         elif status == "SUCCESS":
-            return {
+            final_output = {
+                "response": result.get("finished_output", ""),
+                "sql": result.get("final_sql", ""),
+                "result_summary": result.get("result_summary", "")
+            }
+            # Include thinking trace if present
+            if result.get("thinking_trace"):
+                final_output["thinking"] = result.get("thinking_trace", "")
+            
+            # Include results for UI table display
+            results = result.get("results")
+            logger.info(f"LangGraphAgentTool: result.get('results'): {bool(results)}, type: {type(results)}")
+            if results:
+                logger.info(f"LangGraphAgentTool: results keys: {list(results.keys())}")
+                final_output["results"] = {
+                    "row_count": results.get("row_count", 0),
+                    "columns": results.get("columns", []),
+                    "rows": results.get("rows_preview", [])
+                }
+                logger.info(f"LangGraphAgentTool: Added results to final_output. Row count: {results.get('row_count', 0)}")
+            else:
+                logger.warning(f"LangGraphAgentTool: No results found in result. Result keys: {list(result.keys())}")
+            
+            out = {
                 "session_id": session_id,
                 "user_id": user_id,
                 "control": "end",
-                "final_output": {
-                    "response": result.get("finished_output", ""),
-                    "sql": result.get("final_sql", ""),
-                    "result_summary": result.get("result_summary", "")
-                },
+                "final_output": final_output,
                 "plan": {
                     "sql": result.get("final_sql", "")
                 }
             }
+            return out
         
         elif status == "BLOCK":
-            return {
+            out = {
                 "session_id": session_id,
                 "user_id": user_id,
                 "control": "end",
@@ -396,6 +438,7 @@ class ParquetQueryAgent:
                     "response": f"❌ Query blocked: {result.get('reason', 'Unknown reason')}"
                 }
             }
+            return out
         
         else:  # ERROR
             return {

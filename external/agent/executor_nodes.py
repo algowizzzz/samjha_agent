@@ -3,12 +3,118 @@ Executor Nodes - 6 nodes for linear Executor graph.
 """
 
 import logging
-from typing import Dict, Any
+import json
+from typing import Dict, Any, Optional
 from external.agent.state_types import ExecutorState
 from external.agent.sql_gate import spec_ready_for_sql
 from external.agent.schema_validators import validate_executor_report
 
 logger = logging.getLogger(__name__)
+
+# Lazy import LLM client
+_llm_client = None
+
+def get_llm_client():
+    """Get or create LLM client instance."""
+    global _llm_client
+    if _llm_client is None:
+        try:
+            from external.platform.llm import get_llm_client as _get_llm_client
+            _llm_client = _get_llm_client()
+        except Exception as e:
+            logger.warning(f"Failed to initialize LLM client: {e}")
+            _llm_client = None
+    return _llm_client
+
+
+def generate_response_commentary(
+    user_query: str,
+    business_question: str,
+    sql: str,
+    results_summary: Dict[str, Any],
+    conversation_history: Optional[list] = None,
+    evaluation_notes: Optional[str] = None
+) -> str:
+    """
+    Generate natural language response commentary using LLM.
+    
+    Args:
+        user_query: Original user query
+        business_question: Business question from query_spec
+        sql: SQL query that was executed
+        results_summary: Dict with row_count, columns, sample_rows
+        conversation_history: Previous conversation turns
+        evaluation_notes: Notes from result evaluator
+        
+    Returns:
+        Natural language response string
+    """
+    llm_client = get_llm_client()
+    if not llm_client or not llm_client.is_available():
+        # Fallback to template
+        row_count = results_summary.get("row_count", 0)
+        col_count = len(results_summary.get("columns", []))
+        return f"Query executed successfully. Returned {row_count} rows with {col_count} columns."
+    
+    # Build context for LLM
+    conv_history_text = ""
+    if conversation_history:
+        recent_turns = conversation_history[-3:]  # Last 3 turns for context
+        conv_history_text = "\n".join([
+            f"- {turn.get('query', '')}: {turn.get('response', '')[:100]}"
+            for turn in recent_turns
+        ])
+    
+    sample_rows_text = ""
+    sample_rows = results_summary.get("sample_rows", [])[:5]  # First 5 rows
+    if sample_rows:
+        sample_rows_text = "\n".join([
+            f"  {json.dumps(row, default=str)}"
+            for row in sample_rows
+        ])
+    
+    prompt = f"""You are a helpful data analyst assistant. Write a natural, conversational response to the user's query based on the SQL results.
+
+User Query: {user_query}
+Business Question: {business_question}
+
+SQL Query Executed:
+{sql}
+
+Results Summary:
+- Row Count: {results_summary.get('row_count', 0)}
+- Columns: {', '.join(results_summary.get('columns', []))}
+- Sample Rows:
+{sample_rows_text if sample_rows_text else '  (No rows returned)'}
+
+{f'Recent Conversation History:\n{conv_history_text}' if conv_history_text else ''}
+
+{f'Evaluation Notes: {evaluation_notes}' if evaluation_notes else ''}
+
+Write a concise, helpful response (2-4 sentences) that:
+1. Directly answers the user's question
+2. Highlights key findings from the results
+3. Uses natural language (avoid technical jargon like "row_count" or "columns")
+4. If conversation history exists, acknowledge context appropriately
+5. Be conversational and friendly
+
+Response:"""
+    
+    try:
+        # Use invoke_with_prompt - takes system_prompt and user_prompt separately
+        response = llm_client.invoke_with_prompt(
+            system_prompt="You are a helpful data analyst assistant. Write clear, concise responses.",
+            user_prompt=prompt,
+            temperature=0.7,
+            max_tokens=500
+        )
+        return response.strip()
+    except Exception as e:
+        logger.warning(f"LLM commentary generation failed: {e}, using fallback")
+        # Fallback to template
+        row_count = results_summary.get("row_count", 0)
+        col_count = len(results_summary.get("columns", []))
+        return f"Query executed successfully. Returned {row_count} rows with {col_count} columns."
 
 
 def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
@@ -31,7 +137,7 @@ def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
     for step in investigation_plan:
         step_num = step.get("step", 0)
         tool_name = step.get("tool")
-        args = step.get("args", {})
+        args = step.get("args", {}).copy()
         fills_gap = step.get("fills_gap", "")
         success_condition = step.get("success_condition", "")
         
@@ -45,6 +151,41 @@ def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
                 return {"halt_execution": True}
             
             # Execute tool
+            # Normalize dataset paths to match tool base directory (mock_datawarehouse)
+            # This prevents failures like "ecomm/sample_sales_data.csv" when the actual directory is "ECommerce/...".
+            def normalize_data_path(p: str) -> str:
+                """
+                Normalize tool paths to match our on-disk mock datawarehouse layout.
+
+                Canonical root: mock_datawarehouse/ECommerce/...
+                We accept common decider variants like:
+                - "ecomm" or "ecommerce" (folder)
+                - "ecomm/<file>" or "ecommerce/<file>"
+                """
+                if not isinstance(p, str):
+                    return p
+                p2 = p.strip().lstrip("/")
+                lower = p2.lower()
+                if lower in ("ecomm", "ecommerce"):
+                    return "ECommerce"
+                if lower.startswith("ecomm/") or lower.startswith("ecommerce/"):
+                    return "ECommerce/" + p2.split("/", 1)[1]
+                return p2
+
+            if tool_name == "list_dir" and isinstance(args.get("path"), str):
+                args["path"] = normalize_data_path(args["path"])
+
+            if tool_name in ("inspect_table", "preview_rows", "execute_sql") and isinstance(args.get("path"), str):
+                args["path"] = normalize_data_path(args["path"])
+
+            # If Decider is inspecting start table grain/schema, prefer the canonical start_table.path found/known in query_spec.
+            if tool_name == "inspect_table":
+                start_table_path = (query_spec.get("start_table") or {}).get("path", "")
+                if isinstance(start_table_path, str) and start_table_path.strip():
+                    # Only override when we're clearly trying to validate the start table
+                    if fills_gap == "start_table_grain" or "start_table" in str(fills_gap):
+                        args["path"] = normalize_data_path(start_table_path)
+
             result = tool.execute(args)
             
             # Patch query_spec and query_spec_status based on result
@@ -143,6 +284,14 @@ def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
                                 query_spec["grain"] = "one row per region"
                             elif "product" in actual_column_names_lower:
                                 query_spec["grain"] = "one row per product"
+                        # If we are explicitly validating start_table_grain, mark it verified for SQL gate.
+                        if fills_gap == "start_table_grain":
+                            query_spec_status["start_table_grain"] = {
+                                "status": "verified",
+                                "source": "tool_result",
+                                "notes": "Verified by inspect_table",
+                                "blocks_execution": False
+                            }
                     
                     # Handle dimensions (only if fills_gap mentions dimensions)
                     if "dimension" in fills_gap_lower:
@@ -261,8 +410,17 @@ def sql_generation_node(state: ExecutorState, tools_registry, domain_md: str) ->
     
     # SQL Generation Gate
     if not spec_ready_for_sql(query_spec, query_spec_status, domain_md):
-        logger.error("QuerySpec not ready for SQL generation")
-        return {"halt_execution": True}
+        # Provide actionable diagnostics so controller retries can actually fix the right gap.
+        missing = []
+        for k in ("business_question", "start_table_grain", "time", "metrics"):
+            st = (query_spec_status.get(k) or {}).get("status")
+            if st in ("missing", "conflict", "", None):
+                missing.append(k)
+        logger.error(f"QuerySpec not ready for SQL generation; missing/conflict: {missing}")
+        return {
+            "halt_execution": True,
+            "last_error": f"SQL gate blocked: missing/conflict {missing}"
+        }
     
     logger.info("SQLGenerationNode: Generating SQL from QuerySpec")
     
@@ -473,14 +631,32 @@ def outcome_node(state: ExecutorState) -> Dict[str, Any]:
     else:
         # Build SUCCESS report
         result_summary = f"Returned {results.get('row_count', 0)} rows with {len(results.get('columns', []))} columns"
-        finished_output = f"Query executed successfully. {result_summary}."
+        
+        # Generate LLM-based commentary
+        query_spec = state.get("query_spec", {})
+        user_query = state.get("user_query", "")
+        conversation_history = state.get("conversation_history", [])
+        
+        finished_output = generate_response_commentary(
+            user_query=user_query,
+            business_question=query_spec.get("business_question", user_query),
+            sql=final_sql,
+            results_summary={
+                "row_count": results.get("row_count", 0),
+                "columns": results.get("columns", []),
+                "sample_rows": results.get("rows_preview", [])
+            },
+            conversation_history=conversation_history,
+            evaluation_notes=evaluation.get("notes", "")
+        )
         
         executor_report = {
             "status": "SUCCESS",
             "final_sql": final_sql,
             "result_summary": result_summary,
             "evaluation": evaluation,
-            "finished_output": finished_output
+            "finished_output": finished_output,
+            "results": results  # Include full results for UI table display
         }
     
     # Validate report

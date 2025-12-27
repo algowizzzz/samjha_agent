@@ -12,7 +12,15 @@
         "final_sql": { "type": "string" },
         "result_summary": { "type": "string" },
         "evaluation": { "type": "object" },
-        "finished_output": { "type": "string" }
+        "finished_output": { "type": "string" },
+        "results": {
+          "type": "object",
+          "properties": {
+            "row_count": { "type": "integer" },
+            "columns": { "type": "array", "items": { "type": "string" } },
+            "rows_preview": { "type": "array", "items": { "type": "object" } }
+          }
+        }
       }
     },
     {
