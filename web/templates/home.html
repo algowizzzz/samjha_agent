@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Home - SAJHA MCP Server{% endblock %}
+
+{% block extra_css %}
+<style>
+    .home-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+    .home-boxes {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        max-width: 1200px;
+        width: 100%;
+    }
+    .home-box {
+        background: white;
+        border-radius: 12px;
+        padding: 40px 30px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 2px solid #e9ecef;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    .home-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        text-decoration: none;
+        color: inherit;
+    }
+    .home-box.coming-soon {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    .home-box.coming-soon:hover {
+        transform: none;
+    }
+    .home-box-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        color: #0d6efd;
+    }
+    .home-box.coming-soon .home-box-icon {
+        color: #6c757d;
+    }
+    .home-box-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #212529;
+    }
+    .home-box-description {
+        font-size: 16px;
+        color: #6c757d;
+        line-height: 1.6;
+    }
+    .coming-soon-badge {
+        display: inline-block;
+        background: #ffc107;
+        color: #000;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="home-container">
+    <div class="home-boxes">
+        <!-- MCP Dashboard Box -->
+        <a href="{{ url_for('dashboard') }}" class="home-box">
+            <div class="home-box-icon">
+                <i class="bi bi-speedometer2"></i>
+            </div>
+            <div class="home-box-title">MCP Dashboard</div>
+            <div class="home-box-description">
+                Manage and monitor MCP tools, view metrics, and access tool configurations.
+            </div>
+        </a>
+
+        <!-- Chat Agents Box -->
+        <a href="{{ url_for('agent_chat') }}" class="home-box">
+            <div class="home-box-icon">
+                <i class="bi bi-chat-dots"></i>
+            </div>
+            <div class="home-box-title">Chat Agents</div>
+            <div class="home-box-description">
+                Interact with AI agents for data queries, analysis, and natural language interactions.
+            </div>
+        </a>
+
+        <!-- AI Agents at Scale Box -->
+        <div class="home-box coming-soon">
+            <div class="home-box-icon">
+                <i class="bi bi-diagram-3"></i>
+            </div>
+            <div class="home-box-title">AI Agents at Scale</div>
+            <div class="home-box-description">
+                Enterprise-grade agent orchestration and management platform.
+            </div>
+            <span class="coming-soon-badge">Coming Soon</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

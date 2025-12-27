@@ -9,6 +9,8 @@
 <meta name="version" content="9">
 <!-- Markdown CSS for better formatting -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.2.0/github-markdown.min.css">
+<!-- Markdown parser for thinking steps -->
+<script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
 <style>
     /* Full screen layout - override all Bootstrap defaults */
     html {
@@ -240,59 +242,6 @@
         animation-delay: 0.4s;
     }
     
-    /* Node Progress Status */
-    .node-progress-container {
-        font-size: 12px;
-        color: #6c757d;
-        padding: 8px 12px;
-        margin-top: 8px;
-        margin-bottom: 8px;
-        background-color: #f8f9fa;
-        border-left: 3px solid #0d6efd;
-        border-radius: 4px;
-    }
-    
-    .node-progress-item {
-        display: flex;
-        align-items: flex-start;
-        padding: 4px 0;
-        margin: 2px 0;
-    }
-    
-    .node-progress-item .node-icon {
-        margin-right: 8px;
-        margin-top: 2px;
-        flex-shrink: 0;
-    }
-    
-    .node-progress-item .node-content {
-        flex: 1;
-    }
-    
-    .node-progress-item .node-name {
-        font-weight: 500;
-        color: #495057;
-        margin-bottom: 2px;
-    }
-    
-    .node-progress-item .node-reasoning {
-        font-size: 11px;
-        color: #6c757d;
-        font-style: italic;
-    }
-    
-    .node-progress-item.active .node-name {
-        color: #0d6efd;
-    }
-    
-    .node-progress-item.completed .node-name {
-        color: #198754;
-    }
-    
-    .node-progress-item.error .node-name {
-        color: #dc3545;
-    }
-    
     /* Animations */
     @keyframes fadeIn {
         from {
@@ -386,6 +335,65 @@
         transform: rotate(90deg);
     }
     
+    .thinking-panel .thinking-content {
+        margin-top: 8px;
+        padding: 12px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        max-height: 600px;
+        overflow-y: auto;
+        font-size: 0.9em;
+        line-height: 1.6;
+    }
+    
+    .thinking-panel .thinking-content h1,
+    .thinking-panel .thinking-content h2,
+    .thinking-panel .thinking-content h3 {
+        margin-top: 16px;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+    
+    .thinking-panel .thinking-content h1 {
+        font-size: 1.5em;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 4px;
+    }
+    
+    .thinking-panel .thinking-content h2 {
+        font-size: 1.3em;
+    }
+    
+    .thinking-panel .thinking-content h3 {
+        font-size: 1.1em;
+    }
+    
+    .thinking-panel .thinking-content code {
+        background-color: #f1f3f5;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9em;
+    }
+    
+    .thinking-panel .thinking-content pre {
+        background-color: #f1f3f5;
+        padding: 12px;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin: 8px 0;
+    }
+    
+    .thinking-panel .thinking-content pre code {
+        background-color: transparent;
+        padding: 0;
+    }
+    
+    .thinking-panel .thinking-content strong {
+        font-weight: 600;
+    }
+    
     .thinking-panel pre {
         margin-top: 8px;
         padding: 12px;
@@ -421,36 +429,6 @@
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" style="flex-shrink: 0;">
             <h5 class="mb-0"><i class="bi bi-chat-text"></i> MR Limits AI assisted analysis</h5>
             <div class="d-flex align-items-center gap-2 flex-wrap">
-                <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
-                    <label for="dataDictSelect" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Database business instructions:</label>
-                    <select id="dataDictSelect" class="form-select form-select-sm" style="width: auto; min-width: 180px; font-size: 11px;">
-                        <option value="">Loading...</option>
-                    </select>
-                    <label for="dataDictUpload" class="btn btn-sm btn-light mb-0" style="cursor: pointer; padding: 2px 6px; font-size: 11px;" title="Upload data dictionary">
-                        <i class="bi bi-upload"></i>
-                    </label>
-                    <input type="file" id="dataDictUpload" accept=".json" style="display: none;">
-                </div>
-                <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
-                    <label for="agentPromptsSelect" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Agent Prompts:</label>
-                    <select id="agentPromptsSelect" class="form-select form-select-sm" style="width: auto; min-width: 180px; font-size: 11px;">
-                        <option value="">Loading...</option>
-                    </select>
-                    <label for="agentPromptsUpload" class="btn btn-sm btn-light mb-0" style="cursor: pointer; padding: 2px 6px; font-size: 11px;" title="Upload agent prompts">
-                        <i class="bi bi-upload"></i>
-                    </label>
-                    <input type="file" id="agentPromptsUpload" accept=".json" style="display: none;">
-                </div>
-                <div class="d-flex align-items-center gap-2" style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px;">
-                    <label for="welcomeTipsSelect" class="mb-0 text-white" style="font-size: 11px; white-space: nowrap;">Welcome Tips:</label>
-                    <select id="welcomeTipsSelect" class="form-select form-select-sm" style="width: auto; min-width: 180px; font-size: 11px;">
-                        <option value="">Loading...</option>
-                    </select>
-                    <label for="welcomeTipsUpload" class="btn btn-sm btn-light mb-0" style="cursor: pointer; padding: 2px 6px; font-size: 11px;" title="Upload welcome tips">
-                        <i class="bi bi-upload"></i>
-                    </label>
-                    <input type="file" id="welcomeTipsUpload" accept=".json" style="display: none;">
-                </div>
                 <button id="newChatBtn" class="btn btn-sm btn-light" title="Start a new chat session">
                     <i class="bi bi-plus-circle"></i> New Chat
                 </button>
@@ -461,18 +439,6 @@
                     </label>
                 </div>
             <span class="badge bg-light text-dark">DuckDB</span>
-            </div>
-        </div>
-        <!-- Existing Agents Section -->
-        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center" style="flex-shrink: 0; padding: 8px 16px;">
-            <label for="existingAgentsSelect" class="mb-0 text-white" style="font-size: 12px; white-space: nowrap;">Existing Agents:</label>
-            <div class="d-flex align-items-center gap-2">
-                <select id="existingAgentsSelect" class="form-select form-select-sm" style="width: auto; min-width: 250px; font-size: 11px;">
-                    <option value="">Loading agents...</option>
-                </select>
-                <button id="activateAgentBtn" class="btn btn-sm btn-warning" title="Activate selected agent configuration" disabled>
-                    <i class="bi bi-play-circle"></i> Activate
-                </button>
             </div>
         </div>
         <div class="card-body d-flex flex-column p-3" style="flex: 1; overflow: hidden; min-height: 0;">
@@ -597,42 +563,8 @@
     const historyEl = document.getElementById('chatHistory');
     const inputEl = document.getElementById('chatInput');
     const sendBtn = document.getElementById('sendBtn');
-    const dataDictSelect = document.getElementById('dataDictSelect');
-    const dataDictUpload = document.getElementById('dataDictUpload');
-    const agentPromptsSelect = document.getElementById('agentPromptsSelect');
-    const agentPromptsUpload = document.getElementById('agentPromptsUpload');
-    const welcomeTipsSelect = document.getElementById('welcomeTipsSelect');
-    const welcomeTipsUpload = document.getElementById('welcomeTipsUpload');
-    const agentDomain = document.getElementById('agentDomain');
-    const agentName = document.getElementById('agentName');
-    const saveAgentBtn = document.getElementById('saveAgentBtn');
-    const existingAgentsSelect = document.getElementById('existingAgentsSelect');
-    const activateAgentBtn = document.getElementById('activateAgentBtn');
     let isQueryRunning = false;
     
-    // Default config files - clear localStorage if wrong values detected
-    let storedDataDict = localStorage.getItem('selected_data_dict');
-    let storedAgentPrompts = localStorage.getItem('selected_agent_prompts');
-    let storedWelcomeTips = localStorage.getItem('selected_welcome_tips');
-    
-    // Reset if wrong file is stored (e.g., queryagent_planner.json in wrong dropdown)
-    if (storedDataDict === 'queryagent_planner.json') {
-        localStorage.removeItem('selected_data_dict');
-        storedDataDict = null;
-    }
-    if (storedAgentPrompts === 'data_dictionary_risk.json' || storedAgentPrompts === 'agent_welcome_message.json') {
-        localStorage.removeItem('selected_agent_prompts');
-        storedAgentPrompts = null;
-    }
-    if (storedWelcomeTips === 'queryagent_planner.json' || storedWelcomeTips === 'data_dictionary_risk.json') {
-        localStorage.removeItem('selected_welcome_tips');
-        storedWelcomeTips = null;
-    }
-    
-    let selectedDataDict = storedDataDict || 'data_dictionary_risk.json';
-    let selectedAgentPrompts = storedAgentPrompts || 'queryagent_planner.json';
-    let selectedWelcomeTips = storedWelcomeTips || 'agent_welcome_message.json';
-
     // HTTP-only mode (no WebSocket)
     let currentResponseId = null;
     let isUserScrolling = false;
@@ -936,9 +868,35 @@
                 summary.textContent = '🧠 Thinking (Decider)';
                 panel.appendChild(summary);
 
-                const pre = document.createElement('pre');
-                pre.textContent = thinking;
-                panel.appendChild(pre);
+                // Render markdown instead of raw text
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'thinking-content markdown-body';
+                
+                // Parse markdown to HTML
+                if (typeof marked !== 'undefined') {
+                    // Use marked.js if available
+                    contentDiv.innerHTML = marked.parse(thinking);
+                } else {
+                    // Fallback: simple markdown rendering for basic formatting
+                    let html = thinking
+                        // Headers
+                        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                        // Bold
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        // Italic
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                        // Code blocks
+                        .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+                        // Inline code
+                        .replace(/`([^`]+)`/g, '<code>$1</code>')
+                        // Line breaks
+                        .replace(/\n/g, '<br>');
+                    contentDiv.innerHTML = html;
+                }
+                
+                panel.appendChild(contentDiv);
 
                 messageEl.appendChild(panel);
                 console.log('[DEBUG] Thinking panel appended to messageEl');
@@ -963,22 +921,12 @@
         localStorage.removeItem('agent_session_id');
         localStorage.removeItem('agentSessionId');
         
-        // Clear dropdown selections from localStorage to refresh from file system
-        localStorage.removeItem('selected_data_dict');
-        localStorage.removeItem('selected_agent_prompts');
-        localStorage.removeItem('selected_welcome_tips');
-        
         // Store new session ID
         localStorage.setItem('agent_session_id', newSessionId);
         
         // Update session variables
         sessionId = newSessionId;
         currentSessionId = newSessionId;
-        
-        // Reset dropdown selections to null so they'll use defaults from file system
-        selectedDataDict = null;
-        selectedAgentPrompts = null;
-        selectedWelcomeTips = null;
         
         // Clear chat history
         historyEl.innerHTML = '';
@@ -989,14 +937,7 @@
         // Reset state
         currentResponseId = null;
         currentPromptMonitorId = null;
-        resetNodeProgressStatus();
         awaitingClarification = false;
-        
-        // Reload config files to refresh dropdowns from actual file system
-        loadConfigFiles();
-        
-        // Optionally delete old session file on server (optional cleanup)
-        // This is handled automatically when a new session ID is used
         
         // Show confirmation
         const welcomeMsg = document.createElement('div');
@@ -1012,10 +953,7 @@
             }
         }, 3000);
         
-        // Load welcome message for new chat (after dropdowns are refreshed)
-        setTimeout(() => {
-            loadWelcomeMessage();
-        }, 500);
+        // v1: keep chat UI minimal; no external welcome/config endpoints.
     }
 
     function sendQuery() {
@@ -1051,8 +989,6 @@
                 query: q,
                 session_id: currentSessionId,
                 user_id: '{{ user.user_id | default("anonymous") }}',
-                data_dict_file: selectedDataDict || null,
-            agent_prompts_file: selectedAgentPrompts || null,
             show_thinking: showThinking
             };
 
@@ -1122,9 +1058,6 @@
             
             // Hide loading states
             
-            // Show error in node progress status
-            updateNodeProgressStatus();
-            
             // Show error message
             if (currentResponseId) {
                 const msgEl = document.getElementById(currentResponseId);
@@ -1148,581 +1081,16 @@
             currentResponseId = null;
         });
     }
-
-    // Initialize node progress status on page load
-    resetNodeProgressStatus();
     
     // ====================================================================================
     // PHASE: Welcome Message on Page Load
     // ====================================================================================
     
     function loadWelcomeMessage() {
-        // Check if chat history is empty - if so, always show welcome message
-        const hasMessages = historyEl && historyEl.children.length > 0;
-        
-        // If there are messages, check if welcome was already shown
-        if (hasMessages) {
-            const welcomeShown = sessionStorage.getItem('welcome_message_shown');
-            if (welcomeShown === 'true') {
-                console.log('[Welcome] Chat has messages and welcome already shown, skipping');
+        // v1: minimal agent chat UI. No welcome/config endpoints.
                 return;
             }
-        } else {
-            // Chat is empty - clear the flag to ensure welcome shows
-            sessionStorage.removeItem('welcome_message_shown');
-            console.log('[Welcome] Chat is empty, will show welcome message');
-        }
-        
-        console.log('[Welcome] Loading welcome message...');
-        
-        // Load welcome message from API with selected config file
-        const fileParam = selectedWelcomeTips ? `?file=${encodeURIComponent(selectedWelcomeTips)}` : '';
-        $.ajax({
-            url: '/api/agent/welcome-message' + fileParam,
-            method: 'GET',
-            success: function(data) {
-                console.log('[Welcome] Message loaded successfully:', data);
-                if (data && data.sections && data.sections.length > 0) {
-                    displayWelcomeMessage(data);
-                    sessionStorage.setItem('welcome_message_shown', 'true');
-                } else {
-                    console.warn('[Welcome] Message data is empty or invalid');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('[Welcome] Failed to load welcome message:', error, xhr);
-                // Continue without welcome message
-            }
-        });
-    }
-    
-    // Load config files list for each dropdown based on type
-    function loadConfigFiles() {
-        // Load data dictionary files (from config/ root)
-        $.ajax({
-            url: '/api/agent/config-files?type=data_dict',
-            method: 'GET',
-            success: function(data) {
-                if (data && data.files) {
-                    populateDropdown(dataDictSelect, data.files, selectedDataDict);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('[Config] Failed to load data dictionary files:', error);
-                dataDictSelect.innerHTML = '<option value="">Error loading files</option>';
-            }
-        });
-        
-        // Load agent prompts files (from config/agent/)
-        $.ajax({
-            url: '/api/agent/config-files?type=agent_prompts',
-            method: 'GET',
-            success: function(data) {
-                if (data && data.files) {
-                    populateDropdown(agentPromptsSelect, data.files, selectedAgentPrompts);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('[Config] Failed to load agent prompts files:', error);
-                agentPromptsSelect.innerHTML = '<option value="">Error loading files</option>';
-            }
-        });
-        
-        // Load welcome tips files (from config/ root)
-        $.ajax({
-            url: '/api/agent/config-files?type=welcome',
-            method: 'GET',
-            success: function(data) {
-                if (data && data.files) {
-                    populateDropdown(welcomeTipsSelect, data.files, selectedWelcomeTips);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('[Config] Failed to load welcome tips files:', error);
-                welcomeTipsSelect.innerHTML = '<option value="">Error loading files</option>';
-            }
-        });
-    }
-    
-    function populateDropdown(selectEl, files, selectedValue) {
-        selectEl.innerHTML = '';
-        if (files.length === 0) {
-            selectEl.innerHTML = '<option value="">No files found</option>';
-        } else {
-            let foundSelected = false;
-            files.forEach(function(file) {
-                const option = document.createElement('option');
-                option.value = file.name;
-                option.textContent = file.name;
-                if (file.name === selectedValue) {
-                    option.selected = true;
-                    foundSelected = true;
-                }
-                selectEl.appendChild(option);
-            });
-            // If selectedValue doesn't match any file, select the first one
-            if (!foundSelected && files.length > 0) {
-                selectEl.selectedIndex = 0;
-                // Update the corresponding variable based on which dropdown this is
-                if (selectEl === dataDictSelect) {
-                    selectedDataDict = files[0].name;
-                    localStorage.setItem('selected_data_dict', selectedDataDict);
-                } else if (selectEl === agentPromptsSelect) {
-                    selectedAgentPrompts = files[0].name;
-                    localStorage.setItem('selected_agent_prompts', selectedAgentPrompts);
-                } else if (selectEl === welcomeTipsSelect) {
-                    selectedWelcomeTips = files[0].name;
-                    localStorage.setItem('selected_welcome_tips', selectedWelcomeTips);
-                }
-            }
-        }
-    }
-    
-    // Handle data dictionary selection
-    dataDictSelect.addEventListener('change', function() {
-        selectedDataDict = this.value;
-        if (selectedDataDict) {
-            localStorage.setItem('selected_data_dict', selectedDataDict);
-            console.log('[Config] Data dictionary changed to:', selectedDataDict);
-            // TODO: Pass to agent on next query
-        }
-    });
-    
-    // Handle agent prompts selection
-    agentPromptsSelect.addEventListener('change', function() {
-        selectedAgentPrompts = this.value;
-        if (selectedAgentPrompts) {
-            localStorage.setItem('selected_agent_prompts', selectedAgentPrompts);
-            console.log('[Config] Agent prompts changed to:', selectedAgentPrompts);
-            // TODO: Pass to agent on next query
-        }
-    });
-    
-    // Handle welcome tips selection
-    welcomeTipsSelect.addEventListener('change', function() {
-        selectedWelcomeTips = this.value;
-        if (selectedWelcomeTips) {
-            localStorage.setItem('selected_welcome_tips', selectedWelcomeTips);
-            // Reload welcome message with new file
-            sessionStorage.removeItem('welcome_message_shown');
-            loadWelcomeMessage();
-        }
-    });
-    
-    // Handle data dictionary upload
-    dataDictUpload.addEventListener('change', function(e) {
-        handleFileUpload(e, 'data_dict', function(filename) {
-            selectedDataDict = filename;
-            localStorage.setItem('selected_data_dict', selectedDataDict);
-            dataDictSelect.value = selectedDataDict;
-            console.log('[Config] Data dictionary uploaded:', filename);
-        });
-    });
-    
-    // Handle agent prompts upload
-    agentPromptsUpload.addEventListener('change', function(e) {
-        handleFileUpload(e, 'agent_prompts', function(filename) {
-            selectedAgentPrompts = filename;
-            localStorage.setItem('selected_agent_prompts', selectedAgentPrompts);
-            agentPromptsSelect.value = selectedAgentPrompts;
-            console.log('[Config] Agent prompts uploaded:', filename);
-        });
-    });
-    
-    // Handle welcome tips upload
-    welcomeTipsUpload.addEventListener('change', function(e) {
-        handleFileUpload(e, 'welcome', function(filename) {
-            selectedWelcomeTips = filename;
-            localStorage.setItem('selected_welcome_tips', selectedWelcomeTips);
-            welcomeTipsSelect.value = selectedWelcomeTips;
-            // Reload welcome message
-            sessionStorage.removeItem('welcome_message_shown');
-            loadWelcomeMessage();
-        });
-    });
-    
-    // Generic file upload handler
-    function handleFileUpload(e, configType, onSuccess) {
-        const file = e.target.files[0];
-        if (!file) return;
-        
-        if (!file.name.endsWith('.json')) {
-            alert('Only JSON files are allowed');
-            return;
-        }
-        
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('config_type', configType);
-        
-        $.ajax({
-            url: '/api/agent/config-upload',
-            method: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(data) {
-                if (data.success) {
-                    alert('File uploaded successfully: ' + data.filename);
-                    // Reload config files list
-                    loadConfigFiles();
-                    // Call success callback
-                    if (onSuccess) onSuccess(data.filename);
-                } else {
-                    alert('Upload failed: ' + (data.error || 'Unknown error'));
-                }
-            },
-            error: function(xhr, status, error) {
-                const errorMsg = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : error;
-                alert('Upload failed: ' + errorMsg);
-            }
-        });
-        
-        // Reset file input
-        e.target.value = '';
-    }
-    
-    function displayWelcomeMessage(welcomeData) {
-        if (!welcomeData || !welcomeData.sections || welcomeData.sections.length === 0) {
-            return;
-        }
-        
-        // Build markdown content from JSON structure
-        let markdownContent = '';
-        
-        // Title
-        if (welcomeData.title) {
-            markdownContent += `# ${welcomeData.title}\n\n`;
-        }
-        
-        // Subtitle
-        if (welcomeData.subtitle) {
-            markdownContent += `*${welcomeData.subtitle}*\n\n`;
-        }
-        
-        // Process sections
-        welcomeData.sections.forEach(section => {
-            // Section heading
-            const headingLevel = section.level || 'h2';
-            const headingTag = headingLevel === 'h2' ? '##' : headingLevel === 'h3' ? '###' : '#';
-            markdownContent += `${headingTag} ${section.heading}\n\n`;
-            
-            // Section content
-            if (section.content) {
-                markdownContent += `${section.content}\n\n`;
-            }
-            
-            // Subsections
-            if (section.subsections) {
-                section.subsections.forEach(subsection => {
-                    const subHeadingTag = subsection.level === 'h3' ? '###' : subsection.level === 'h2' ? '##' : '####';
-                    markdownContent += `${subHeadingTag} ${subsection.heading}\n\n`;
-                    
-                    if (subsection.content) {
-                        markdownContent += `${subsection.content}\n`;
-                    }
-                    
-                    if (subsection.items) {
-                        subsection.items.forEach(item => {
-                            markdownContent += `- ${item}\n`;
-                        });
-                    }
-                    
-                    if (subsection.note) {
-                        markdownContent += `\n> ${subsection.note}\n`;
-                    }
-                    
-                    if (subsection.tip) {
-                        markdownContent += `\n💡 **Tip**: ${subsection.tip}\n`;
-                    }
-                    
-                    markdownContent += '\n';
-                });
-            }
-            
-            // Section items
-            if (section.items) {
-                section.items.forEach(item => {
-                    markdownContent += `- ${item}\n`;
-                });
-            }
-            
-            // Section note
-            if (section.note) {
-                markdownContent += `\n> ${section.note}\n`;
-            }
-            
-            // Section tip
-            if (section.tip) {
-                markdownContent += `\n💡 **Tip**: ${section.tip}\n`;
-            }
-            
-            markdownContent += '\n';
-        });
-        
-        // Display as agent message
-        if (typeof marked !== 'undefined' && historyEl) {
-            try {
-                const htmlContent = marked.parse(markdownContent);
-                const wrapper = document.createElement('div');
-                wrapper.className = 'mb-3 message-fade-in';
-                
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'chat-message agent';
-                messageDiv.innerHTML = '<span class="badge bg-info me-2">Welcome</span><div class="markdown-body">' + htmlContent + '</div>';
-                
-                wrapper.appendChild(messageDiv);
-                historyEl.insertBefore(wrapper, historyEl.firstChild);
-                
-                console.log('[Welcome] Message displayed successfully');
-                
-                // Smooth scroll to top to show welcome message
-                setTimeout(() => {
-                    if (historyEl) {
-                        historyEl.scrollTop = 0;
-                    }
-                }, 100);
-            } catch (e) {
-                console.error('[Welcome] Error displaying message:', e);
-            }
-        } else {
-            console.warn('[Welcome] marked.js not available or historyEl not found');
-        }
-    }
-    
-    // Load welcome message on page load - ensure jQuery and DOM are ready
-    // Since this code runs in an IIFE, we need to wait for jQuery
-    function initWelcomeMessage() {
-        if (typeof $ !== 'undefined' && typeof historyEl !== 'undefined' && historyEl) {
-            // Wait a bit more to ensure DOM is fully rendered
-            setTimeout(function() {
-                loadWelcomeMessage();
-            }, 200);
-        } else {
-            // Retry after a short delay if jQuery or historyEl not ready
-            setTimeout(initWelcomeMessage, 100);
-        }
-    }
-    
-    // Load existing agents
-    function loadExistingAgents() {
-        $.ajax({
-            url: '/api/agent/data-analysis-agents',
-            method: 'GET',
-            success: function(data) {
-                if (data && data.agents) {
-                    existingAgentsSelect.innerHTML = '';
-                    if (data.agents.length === 0) {
-                        existingAgentsSelect.innerHTML = '<option value="">No agents saved yet</option>';
-                        activateAgentBtn.disabled = true;
-                    } else {
-                        existingAgentsSelect.innerHTML = '<option value="">Select an agent...</option>';
-                        let defaultAgentId = null;
-                        data.agents.forEach(function(agent) {
-                            const option = document.createElement('option');
-                            option.value = agent.id;
-                            option.textContent = `${agent.domain} - ${agent.name}`;
-                            existingAgentsSelect.appendChild(option);
-                            
-                            // Check if this is the default MR agent
-                            if (agent.id === 'mr_limits_analysis' || 
-                                (agent.domain === 'Market Risk' && agent.name === 'Limits Analysis')) {
-                                defaultAgentId = agent.id;
-                            }
-                        });
-                        activateAgentBtn.disabled = false;
-                        
-                        // Check if there's an active agent in localStorage
-                        const activeAgentId = localStorage.getItem('active_agent_id');
-                        if (activeAgentId) {
-                            // Check if this agent still exists
-                            const agentExists = data.agents.some(a => a.id === activeAgentId);
-                            if (agentExists) {
-                                existingAgentsSelect.value = activeAgentId;
-                                activateAgentBtn.disabled = false;
-                                // Restore the agent configuration silently
-                                activateAgentSilently(activeAgentId);
-                            } else {
-                                // Agent no longer exists, clear it
-                                localStorage.removeItem('active_agent_id');
-                                // Auto-activate default MR agent
-                                if (defaultAgentId) {
-                                    existingAgentsSelect.value = defaultAgentId;
-                                    activateAgentSilently(defaultAgentId);
-                                }
-                            }
-                        } else if (defaultAgentId) {
-                            // No active agent, auto-activate default MR agent
-                            existingAgentsSelect.value = defaultAgentId;
-                            activateAgentBtn.disabled = false;
-                            activateAgentSilently(defaultAgentId);
-                        }
-                    }
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('[Agents] Failed to load existing agents:', error);
-                existingAgentsSelect.innerHTML = '<option value="">Error loading agents</option>';
-            }
-        });
-    }
-    
-    // Activate agent silently (without alert) - used for default agent
-    function activateAgentSilently(agentId) {
-        $.ajax({
-            url: '/api/agent/data-analysis-agents/' + encodeURIComponent(agentId),
-            method: 'GET',
-            success: function(data) {
-                if (data && data.agent) {
-                    const agent = data.agent;
-                    
-                    // Set the three dropdowns
-                    if (agent.data_dict_file) {
-                        selectedDataDict = agent.data_dict_file;
-                        dataDictSelect.value = selectedDataDict;
-                        localStorage.setItem('selected_data_dict', selectedDataDict);
-                    }
-                    
-                    if (agent.agent_prompts_file) {
-                        selectedAgentPrompts = agent.agent_prompts_file;
-                        agentPromptsSelect.value = selectedAgentPrompts;
-                        localStorage.setItem('selected_agent_prompts', selectedAgentPrompts);
-                    }
-                    
-                    if (agent.welcome_tips_file) {
-                        selectedWelcomeTips = agent.welcome_tips_file;
-                        welcomeTipsSelect.value = selectedWelcomeTips;
-                        localStorage.setItem('selected_welcome_tips', selectedWelcomeTips);
-                        // Reload welcome message
-                        sessionStorage.removeItem('welcome_message_shown');
-                        loadWelcomeMessage();
-                    }
-                    
-                    // Set domain and name fields
-                    agentDomain.value = agent.domain || '';
-                    agentName.value = agent.name || '';
-                    
-                    // Mark as active
-                    localStorage.setItem('active_agent_id', agentId);
-                    
-                    console.log(`[Agents] Default agent "${agent.domain} - ${agent.name}" activated automatically`);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('[Agents] Failed to activate default agent:', error);
-            }
-        });
-    }
-    
-    // Save agent configuration
-    function saveAgentConfig() {
-        const domain = agentDomain.value.trim();
-        const name = agentName.value.trim();
-        const dataDict = selectedDataDict;
-        const agentPrompts = selectedAgentPrompts;
-        const welcomeTips = selectedWelcomeTips;
-        
-        if (!domain || !name) {
-            alert('Please provide both Domain and Name');
-            return;
-        }
-        
-        if (!dataDict || !agentPrompts || !welcomeTips) {
-            alert('Please select all three configuration files (Database business instructions, Agent Prompts, Welcome Tips)');
-            return;
-        }
-        
-        const agentConfig = {
-            domain: domain,
-            name: name,
-            data_dict_file: dataDict,
-            agent_prompts_file: agentPrompts,
-            welcome_tips_file: welcomeTips,
-            created_at: new Date().toISOString()
-        };
-        
-        $.ajax({
-            url: '/api/agent/data-analysis-agents',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(agentConfig),
-            success: function(data) {
-                if (data.success) {
-                    alert('Agent configuration saved successfully!');
-                    agentDomain.value = '';
-                    agentName.value = '';
-                    loadExistingAgents(); // Reload the list
-                } else {
-                    alert('Failed to save agent: ' + (data.error || 'Unknown error'));
-                }
-            },
-            error: function(xhr, status, error) {
-                const errorMsg = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : error;
-                alert('Failed to save agent: ' + errorMsg);
-            }
-        });
-    }
-    
-    // Activate agent configuration
-    function activateAgent() {
-        const agentId = existingAgentsSelect.value;
-        if (!agentId) {
-            alert('Please select an agent to activate');
-            return;
-        }
-        
-        $.ajax({
-            url: '/api/agent/data-analysis-agents/' + encodeURIComponent(agentId),
-            method: 'GET',
-            success: function(data) {
-                if (data && data.agent) {
-                    const agent = data.agent;
-                    
-                    // Set the three dropdowns
-                    if (agent.data_dict_file) {
-                        selectedDataDict = agent.data_dict_file;
-                        dataDictSelect.value = selectedDataDict;
-                        localStorage.setItem('selected_data_dict', selectedDataDict);
-                    }
-                    
-                    if (agent.agent_prompts_file) {
-                        selectedAgentPrompts = agent.agent_prompts_file;
-                        agentPromptsSelect.value = selectedAgentPrompts;
-                        localStorage.setItem('selected_agent_prompts', selectedAgentPrompts);
-                    }
-                    
-                    if (agent.welcome_tips_file) {
-                        selectedWelcomeTips = agent.welcome_tips_file;
-                        welcomeTipsSelect.value = selectedWelcomeTips;
-                        localStorage.setItem('selected_welcome_tips', selectedWelcomeTips);
-                        // Reload welcome message
-                        sessionStorage.removeItem('welcome_message_shown');
-                        loadWelcomeMessage();
-                    }
-                    
-                    // Set domain and name fields
-                    agentDomain.value = agent.domain || '';
-                    agentName.value = agent.name || '';
-                    
-                    // Mark as active
-                    localStorage.setItem('active_agent_id', existingAgentsSelect.value);
-                    
-                    alert(`Agent "${agent.domain} - ${agent.name}" activated successfully!`);
-                } else {
-                    alert('Failed to load agent configuration');
-                }
-            },
-            error: function(xhr, status, error) {
-                const errorMsg = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : error;
-                alert('Failed to activate agent: ' + errorMsg);
-            }
-        });
-    }
-    
-    // Start initialization
-    loadConfigFiles(); // Load config files list first
-    loadExistingAgents(); // Load existing agents
-    initWelcomeMessage();
+    // No welcome/config/agent-management initialization in v1 minimal UI.
     
     // Event listeners
     sendBtn.addEventListener('click', sendQuery);
@@ -1740,22 +1108,7 @@
         });
     }
     
-    // Save Agent button
-    if (saveAgentBtn) {
-        saveAgentBtn.addEventListener('click', saveAgentConfig);
-    }
-    
-    // Activate Agent button
-    if (activateAgentBtn) {
-        activateAgentBtn.addEventListener('click', activateAgent);
-    }
-    
-    // Enable/disable activate button based on selection
-    if (existingAgentsSelect) {
-        existingAgentsSelect.addEventListener('change', function() {
-            activateAgentBtn.disabled = !this.value;
-        });
-    }
+    // v1: no agent-management controls.
 })();
 </script>
 {% endblock %}

@@ -1,9 +1,0 @@
-{
-  "name": "create_column_embeddings",
-  "implementation": "tools.impl.create_column_embeddings_tool.CreateColumnEmbeddingsTool",
-  "description": "Generate embeddings for discovered columns (placeholder)",
-  "version": "0.0.1",
-  "enabled": false,
-  "inputSchema": {},
-  "outputSchema": {}
-}

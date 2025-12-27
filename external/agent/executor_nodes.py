@@ -151,13 +151,13 @@ def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
                 return {"halt_execution": True}
             
             # Execute tool
-            # Normalize dataset paths to match tool base directory (mock_datawarehouse)
+            # Normalize dataset paths to match tool base directory (external/datawarehouse)
             # This prevents failures like "ecomm/sample_sales_data.csv" when the actual directory is "ECommerce/...".
             def normalize_data_path(p: str) -> str:
                 """
-                Normalize tool paths to match our on-disk mock datawarehouse layout.
+                Normalize tool paths to match our on-disk datawarehouse layout.
 
-                Canonical root: mock_datawarehouse/ECommerce/...
+                Canonical root: external/datawarehouse/ECommerce/...
                 We accept common decider variants like:
                 - "ecomm" or "ecommerce" (folder)
                 - "ecomm/<file>" or "ecommerce/<file>"
@@ -211,6 +211,13 @@ def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
             elif tool_name == "inspect_table":
                 # Update grain, dimensions, filters, or time from schema inspection
                 # Only fix fields explicitly mentioned in fills_gap (Decider controls what to verify)
+                fills_gap = step.get("fills_gap", "")
+                fills_gap_lower = str(fills_gap).lower()
+                
+                # LOG FOR COMPARISON: thinking=true vs thinking=false
+                logger.info(f"[INVESTIGATION_COMPARISON] inspect_table fills_gap='{fills_gap}', fills_gap_lower='{fills_gap_lower}'")
+                logger.info(f"[INVESTIGATION_COMPARISON] Before update - start_table_grain.status={query_spec_status.get('start_table_grain', {}).get('status', 'MISSING')}")
+                
                 columns = result.get("columns", [])
                 if columns:
                     actual_column_names = [c.get("name", "") for c in columns]
@@ -286,12 +293,15 @@ def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
                                 query_spec["grain"] = "one row per product"
                         # If we are explicitly validating start_table_grain, mark it verified for SQL gate.
                         if fills_gap == "start_table_grain":
+                            logger.info(f"[INVESTIGATION_COMPARISON] ✅ EXACT MATCH: fills_gap=='start_table_grain', updating status to 'verified'")
                             query_spec_status["start_table_grain"] = {
                                 "status": "verified",
                                 "source": "tool_result",
                                 "notes": "Verified by inspect_table",
                                 "blocks_execution": False
                             }
+                        else:
+                            logger.info(f"[INVESTIGATION_COMPARISON] ❌ NO EXACT MATCH: fills_gap='{fills_gap}' != 'start_table_grain'")
                     
                     # Handle dimensions (only if fills_gap mentions dimensions)
                     if "dimension" in fills_gap_lower:
@@ -391,6 +401,10 @@ def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
             # If required gap can't be closed, halt
             if "required" in fills_gap.lower() or "blocks_execution" in success_condition.lower():
                 return {"halt_execution": True}
+    
+    # LOG FINAL STATE FOR COMPARISON
+    final_start_table_grain = query_spec_status.get("start_table_grain", {})
+    logger.info(f"[INVESTIGATION_COMPARISON] FINAL - start_table_grain.status={final_start_table_grain.get('status', 'MISSING')}, blocks_execution={final_start_table_grain.get('blocks_execution', 'MISSING')}")
     
     # Return updated query_spec and query_spec_status
     return {"query_spec": query_spec, "query_spec_status": query_spec_status}

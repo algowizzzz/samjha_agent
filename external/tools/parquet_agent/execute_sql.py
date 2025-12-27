@@ -18,7 +18,7 @@ class ExecuteSQLTool(BaseMCPTool):
         if config:
             default_config.update(config)
         super().__init__(default_config)
-        self.base_path = Path(self.config.get("data_directory", "mock_datawarehouse"))
+        self.base_path = Path(self.config.get("data_directory", "external/datawarehouse"))
 
     def get_input_schema(self):
         return {

@@ -16,7 +16,7 @@ class TestParquetAgentIntegration(unittest.TestCase):
         cls.registry = ToolsRegistry()
         # Load tools
         from pathlib import Path
-        tools_config_dir = Path("config/tools")
+        tools_config_dir = Path("external/config/tools")
         tool_names = [
             "list_dir", "inspect_table", "preview_rows", "search_glossary",
             "nl_to_sql_planner", "sql_plan_updater", "query_safety_validator",

@@ -1,0 +1,92 @@
+Frontend UI / UX Specification
+Audience: Frontend Engineers & UI/UX Designers
+Goal: Design a professional, simple, intuitive UI that integrates all approved features across Panels 1–3, with minimal cognitive load and clear system feedback.
+1. Design Principles (Non‐Negotiable)
+1. Clarity over power – users should never guess what to do next. 2. Progress visibility – async AI systems must always show status. 3. One primary action per panel – secondary actions stay subtle. 4. Deterministic feel – system should feel predictable, not "chatty". 5. Fail visibly, recover cleanly – errors should be actionable.
+2. Global Layout Overall Structure
+• Three‐panel layout (left → right) • Panel 1: Documents
+• Panel 2: Prompt Chain
+• Panel 3: Run & Output
+Global UI Elements
+• Top bar:
+• App name
+• Session name / ID (read‐only) • Lightweight user/profile menu • Toast system:
+• Success (green)
+• In‐progress (neutral)
+• Error (red, dismissible)
+3. Panel 1 — Documents (Ingestion & Conversion) Primary User Goal
+Upload documents and ensure they are successfully converted.
+UI Components
+• Input Type Selector
+• Visible but disabled options ("Coming Soon"):
+◦ DOCX, TXT, MD, PNG
+   1
+
+• Enabled: PDF only
+• Upload Button (Primary CTA) • Shows file count once selected • Document List
+• Columns:
+◦ Filename
+◦ Status badge (Queued / Processing / Converted / Error)
+◦ Action icon (delete if errored)
+• Row is clickable → document detail drawer
+UX Notes
+• Conversion should auto‐start after upload
+• Error rows must show short error reason
+• Deleting errored docs should feel safe and reversible (confirm modal)
+4. Panel 2 — Prompt Chain (Configuration) Primary User Goal
+Select or configure what logic will run on documents. UI Components
+• Saved Chain Selector • Each chain card shows:
+◦ Chain name
+◦ Short description ◦ Step count
+• Chain Detail View
+• Read‐only by default • Shows:
+◦ Ordered steps (R1...Rn) ◦ Step descriptions
+UX Notes
+• No prompt editing inline (keeps UI clean)
+• Invalid or incomplete chains must be clearly labeled
+• Selecting a chain should feel lightweight (no modal overload)
+  2
+
+5. Panel 3 — Run & Output (Execution) Primary User Goal
+Run the chain and retrieve outputs confidently.
+UI Components
+• Run Button (Primary CTA)
+• Disabled until:
+◦ All docs converted
+◦ Valid chain selected • Run Progress Table
+• Rows per document • Columns:
+◦ Filename
+◦ Current step (R0...Rn) ◦ Status
+◦ Token usage (in / out)
+• Completion Summary • Total docs processed
+• Success vs failed count • Download Actions
+• Download per document • Download all outputs
+UX Notes
+• Progress must update live (polling acceptable)
+• Token visibility builds trust and cost awareness
+• Failed documents should not block successful ones
+6. States & Feedback Loading States
+• Skeleton loaders preferred over spinners
+ 3
+
+Empty States
+• Panel 1: "Upload documents to begin" • Panel 2: "Select a saved chain"
+• Panel 3: "Ready to run"
+Error States
+• Inline errors for doc‐level issues • Toast for system‐level issues
+7. Accessibility & Polish
+• Keyboard navigable
+• Clear focus states
+• No dense text blocks
+• Consistent spacing & typography
+8. What NOT to Build (Important)
+• No chat‐style UI
+• No inline prompt editors • No hidden auto‐runs
+• No multi‐step wizards
+9. Frontend‐Backend Contract Assumptions
+• Frontend treats backend as source of truth • All async work is status‐driven
+• Frontend never infers state
+10. Success Criteria
+A first‐time user should: 1. Upload PDFs without guidance 2. Understand conversion progress 3. Select a chain confidently 4. Run and download outputs without confusion
+If any of these fail → UI is too complex.
+    4

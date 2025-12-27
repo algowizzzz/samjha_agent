@@ -66,7 +66,7 @@ class TestDomainConfig(unittest.TestCase):
     
     def test_search_glossary(self):
         """Test search_glossary tool parses domain.md."""
-        tool = SearchGlossaryTool({"domain_directory": "domain_instructions"})
+        tool = SearchGlossaryTool({"domain_directory": "external/config/domains"})
         result = tool.execute({"term": "revenue", "domain": "ecomm"})
         self.assertIn("hits", result)
         self.assertIsInstance(result["hits"], list)

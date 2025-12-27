@@ -1,9 +1,0 @@
-{
-  "name": "llm_map_entity_column",
-  "implementation": "tools.impl.llm_map_tool.LLMMapEntityColumnTool",
-  "description": "LLM-assisted entity to column mapping (placeholder)",
-  "version": "0.0.1",
-  "enabled": false,
-  "inputSchema": {},
-  "outputSchema": {}
-}

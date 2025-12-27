@@ -35,8 +35,8 @@ class LLMClient:
             try:
                 self.client = Anthropic(api_key=api_key)
                 self.provider = "anthropic"
-                # Default to claude-3-opus (most capable, works with all API tiers)
-                self.model = os.getenv("ANTHROPIC_MODEL", "claude-3-opus-20240229")
+                # Default to claude-3-haiku (faster, cost-effective)
+                self.model = os.getenv("ANTHROPIC_MODEL", "claude-3-haiku-20240307")
                 self.temperature = float(os.getenv("ANTHROPIC_TEMPERATURE", "0.2"))
                 self.max_tokens = int(os.getenv("ANTHROPIC_MAX_TOKENS", "4096"))
                 print(f"✓ LLM initialized: Anthropic {self.model}")
@@ -56,7 +56,8 @@ class LLMClient:
         system: Optional[str] = None,
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
-        response_format: Optional[str] = None
+        response_format: Optional[str] = None,
+        thinking: Optional[Dict[str, Any]] = None
     ) -> str:
         """
         Invoke LLM with messages.
@@ -78,7 +79,7 @@ class LLMClient:
         max_tok = max_tokens if max_tokens is not None else self.max_tokens
         
         if self.provider == "anthropic":
-            return self._invoke_anthropic(messages, system, temp, max_tok, response_format)
+            return self._invoke_anthropic(messages, system, temp, max_tok, response_format, thinking)
         
         raise RuntimeError(f"Unknown provider: {self.provider}")
     
@@ -87,7 +88,9 @@ class LLMClient:
         system_prompt: str,
         user_prompt: str,
         temperature: Optional[float] = None,
-        response_format: Optional[str] = None
+        max_tokens: Optional[int] = None,
+        response_format: Optional[str] = None,
+        thinking: Optional[Dict[str, Any]] = None
     ) -> str:
         """
         Simplified invoke with system and user prompts.
@@ -102,7 +105,48 @@ class LLMClient:
             LLM response text
         """
         messages = [{"role": "user", "content": user_prompt}]
-        return self.invoke(messages, system=system_prompt, temperature=temperature, response_format=response_format)
+        return self.invoke(
+            messages,
+            system=system_prompt,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            response_format=response_format,
+            thinking=thinking
+        )
+
+    def invoke_with_prompt_detailed(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+        response_format: Optional[str] = None,
+        thinking: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, str]:
+        """
+        Invoke LLM and return both user-visible text and (if present) extended thinking text.
+
+        Returns:
+            {"text": "<final text blocks>", "thinking": "<thinking blocks (may be empty)>"}.
+        """
+        if not self.is_available():
+            raise RuntimeError("LLM not available")
+
+        temp = temperature if temperature is not None else self.temperature
+        max_tok = max_tokens if max_tokens is not None else self.max_tokens
+
+        if self.provider == "anthropic":
+            return self._invoke_anthropic_detailed(
+                messages=[{"role": "user", "content": user_prompt}],
+                system=system_prompt,
+                temperature=temp,
+                max_tokens=max_tok,
+                response_format=response_format,
+                thinking=thinking
+            )
+
+        raise RuntimeError(f"Unknown provider: {self.provider}")
+
     
     def stream(
         self,
@@ -111,7 +155,8 @@ class LLMClient:
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         response_format: Optional[str] = None,
-        callback: Optional[Callable[[str], None]] = None
+        callback: Optional[Callable[[str], None]] = None,
+        thinking: Optional[Dict[str, Any]] = None
     ) -> Generator[str, None, None]:
         """
         Stream LLM response token by token.
@@ -134,7 +179,7 @@ class LLMClient:
         max_tok = max_tokens if max_tokens is not None else self.max_tokens
         
         if self.provider == "anthropic":
-            for chunk in self._stream_anthropic(messages, system, temp, max_tok, response_format, callback):
+            for chunk in self._stream_anthropic(messages, system, temp, max_tok, response_format, callback, thinking):
                 yield chunk
         else:
             raise RuntimeError(f"Unknown provider: {self.provider}")
@@ -145,7 +190,8 @@ class LLMClient:
         user_prompt: str,
         temperature: Optional[float] = None,
         response_format: Optional[str] = None,
-        callback: Optional[Callable[[str], None]] = None
+        callback: Optional[Callable[[str], None]] = None,
+        thinking: Optional[Dict[str, Any]] = None
     ) -> Generator[str, None, None]:
         """
         Simplified stream with system and user prompts.
@@ -161,7 +207,14 @@ class LLMClient:
             Text chunks as they arrive
         """
         messages = [{"role": "user", "content": user_prompt}]
-        for chunk in self.stream(messages, system=system_prompt, temperature=temperature, response_format=response_format, callback=callback):
+        for chunk in self.stream(
+            messages,
+            system=system_prompt,
+            temperature=temperature,
+            response_format=response_format,
+            callback=callback,
+            thinking=thinking
+        ):
             yield chunk
     
     def _invoke_anthropic(
@@ -170,7 +223,8 @@ class LLMClient:
         system: Optional[str],
         temperature: float,
         max_tokens: int,
-        response_format: Optional[str]
+        response_format: Optional[str],
+        thinking: Optional[Dict[str, Any]]
     ) -> str:
         """Invoke Anthropic Claude API"""
         kwargs = {
@@ -191,11 +245,79 @@ class LLMClient:
             else:
                 kwargs["system"] = json_instruction
         
+        # Optional: enable Anthropic "thinking"/reasoning for supported models
+        if thinking is not None:
+            kwargs["thinking"] = thinking
+        
         try:
             response = self.client.messages.create(**kwargs)
+            # When "thinking" is enabled, Anthropic returns multiple content blocks
+            # (e.g., type="thinking" followed by type="text"). We only want the user-visible
+            # text blocks (and for JSON mode, the JSON must be in text blocks).
+            chunks: List[str] = []
+            for block in getattr(response, "content", []) or []:
+                block_type = getattr(block, "type", None)
+                block_text = getattr(block, "text", None)
+                if block_type == "text" and isinstance(block_text, str):
+                    chunks.append(block_text)
+            if chunks:
+                return "".join(chunks)
+            # Fallback to previous behavior
             return response.content[0].text
         except Exception as e:
             raise RuntimeError(f"Anthropic API error: {e}")
+
+    def _invoke_anthropic_detailed(
+        self,
+        messages: List[Dict[str, str]],
+        system: Optional[str],
+        temperature: float,
+        max_tokens: int,
+        response_format: Optional[str],
+        thinking: Optional[Dict[str, Any]]
+    ) -> Dict[str, str]:
+        """Invoke Anthropic Claude API and return both thinking and text blocks."""
+        kwargs = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens
+        }
+
+        if system:
+            kwargs["system"] = system
+
+        if response_format == "json":
+            json_instruction = "\n\nIMPORTANT: Respond with valid JSON only, no markdown formatting or code blocks."
+            if system:
+                kwargs["system"] = system + json_instruction
+            else:
+                kwargs["system"] = json_instruction
+
+        if thinking is not None:
+            kwargs["thinking"] = thinking
+
+        try:
+            response = self.client.messages.create(**kwargs)
+            thinking_chunks: List[str] = []
+            text_chunks: List[str] = []
+
+            for block in getattr(response, "content", []) or []:
+                block_type = getattr(block, "type", None)
+                if block_type == "thinking":
+                    # Thinking blocks have a .thinking attribute, not .text
+                    thinking_text = getattr(block, "thinking", None)
+                    if isinstance(thinking_text, str):
+                        thinking_chunks.append(thinking_text)
+                elif block_type == "text":
+                    block_text = getattr(block, "text", None)
+                    if isinstance(block_text, str):
+                        text_chunks.append(block_text)
+
+            return {"text": "".join(text_chunks), "thinking": "".join(thinking_chunks)}
+        except Exception as e:
+            raise RuntimeError(f"Anthropic API error: {e}")
+
     
     def _stream_anthropic(
         self,
@@ -204,7 +326,8 @@ class LLMClient:
         temperature: float,
         max_tokens: int,
         response_format: Optional[str],
-        callback: Optional[Callable[[str], None]]
+        callback: Optional[Callable[[str], None]],
+        thinking: Optional[Dict[str, Any]]
     ) -> Generator[str, None, None]:
         """Stream Anthropic Claude API response"""
         kwargs = {
@@ -224,6 +347,10 @@ class LLMClient:
                 kwargs["system"] = system + json_instruction
             else:
                 kwargs["system"] = json_instruction
+        
+        # Optional: enable Anthropic "thinking"/reasoning for supported models
+        if thinking is not None:
+            kwargs["thinking"] = thinking
         
         try:
             with self.client.messages.stream(**kwargs) as stream:

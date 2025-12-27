@@ -28,7 +28,7 @@ def load_domain_md(user_query: str, conversation_history: list) -> str:
     if "market risk" in query_lower or "limits" in query_lower or "mr" in query_lower:
         domain = "mr"
     
-    domain_file = Path(f"domain_instructions/{domain}_domain.md")
+    domain_file = Path(f"external/config/domains/{domain}_domain.md")
     if domain_file.exists():
         return domain_file.read_text()
     else:
@@ -183,7 +183,7 @@ def handle_query(
     if tools_registry is None:
         tools_registry = ToolsRegistry()
         # Load parquet agent tools
-        tools_config_dir = Path("config/tools")
+        tools_config_dir = Path("external/config/tools")
         for tool_config in tools_config_dir.glob("*.json"):
             if tool_config.stem in [
                 "list_dir", "inspect_table", "preview_rows", "search_glossary",
@@ -335,7 +335,7 @@ class ParquetQueryAgent:
     
     def _load_tools(self):
         """Load parquet agent tools into registry."""
-        tools_config_dir = Path("config/tools")
+        tools_config_dir = Path("external/config/tools")
         tool_names = [
             "list_dir", "inspect_table", "preview_rows", "search_glossary",
             "nl_to_sql_planner", "sql_plan_updater", "query_safety_validator",

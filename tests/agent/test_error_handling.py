@@ -51,7 +51,7 @@ class TestErrorHandling(unittest.TestCase):
     
     def test_list_dir_nonexistent_path(self):
         """Test list_dir with nonexistent path."""
-        tool = ListDirTool({"data_directory": "mock_datawarehouse"})
+        tool = ListDirTool({"data_directory": "external/datawarehouse"})
         result = tool.execute({"path": "NonexistentDomain"})
         # Should return empty entries, not crash
         self.assertIn("entries", result)

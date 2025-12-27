@@ -28,7 +28,7 @@ class ToolsRegistry:
                     cls._instance = super().__new__(cls)
         return cls._instance
     
-    def __init__(self, tools_config_dir: str = 'config/tools'):
+    def __init__(self, tools_config_dir: str = 'external/config/tools'):
         """
         Initialize the tools registry
         
@@ -75,7 +75,7 @@ class ToolsRegistry:
         # Create directory if it doesn't exist
         os.makedirs(self.tools_config_dir, exist_ok=True)
         
-        # Scan for JSON configuration files in main config directory
+        # Scan for JSON configuration files in config directory
         config_path = Path(self.tools_config_dir)
         for config_file in config_path.glob('*.json'):
             try:
@@ -83,17 +83,6 @@ class ToolsRegistry:
             except Exception as e:
                 self.logger.error(f"Error loading tool from {config_file}: {e}")
                 self.tool_errors[config_file.stem] = str(e)
-        
-        # Also scan external/config/tools/ for agent-specific tools
-        external_tools_dir = Path('external') / 'config' / 'tools'
-        if external_tools_dir.exists():
-            self.logger.info(f"Loading agent tools from {external_tools_dir}")
-            for config_file in external_tools_dir.glob('*.json'):
-                try:
-                    self.load_tool_from_config(config_file)
-                except Exception as e:
-                    self.logger.error(f"Error loading agent tool from {config_file}: {e}")
-                    self.tool_errors[config_file.stem] = str(e)
     
     def load_tool_from_config(self, config_file: Path):
         """
@@ -318,14 +307,9 @@ class ToolsRegistry:
         """Monitor configuration files for changes"""
         while not self._stop_monitor.wait(5):  # Check every 5 seconds
             try:
-                # Monitor main config directory
+                # Monitor config directory
                 config_path = Path(self.tools_config_dir)
                 self._monitor_directory(config_path)
-                
-                # Also monitor external/config/tools/ for agent-specific tools
-                external_tools_dir = Path('external') / 'config' / 'tools'
-                if external_tools_dir.exists():
-                    self._monitor_directory(external_tools_dir)
                     
             except Exception as e:
                 self.logger.error(f"Error in file monitoring: {e}")

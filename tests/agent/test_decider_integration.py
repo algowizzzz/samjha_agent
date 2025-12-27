@@ -39,7 +39,7 @@ class TestDeciderIntegration(unittest.TestCase):
         """Test Decider produces EXECUTE action."""
         mock_client = Mock()
         mock_client.is_available.return_value = True
-        mock_client.complete.return_value = """{
+        mock_client.invoke_with_prompt.return_value = """{
   "action": "EXECUTE",
   "domain": "ecomm",
   "intent": "NEW_QUERY",
@@ -95,7 +95,7 @@ class TestDeciderIntegration(unittest.TestCase):
         """Test Decider produces ASK_USER action."""
         mock_client = Mock()
         mock_client.is_available.return_value = True
-        mock_client.complete.return_value = """{
+        mock_client.invoke_with_prompt.return_value = """{
   "action": "ASK_USER",
   "domain": "ecomm",
   "intent": "NEW_QUERY",

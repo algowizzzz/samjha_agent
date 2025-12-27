@@ -18,6 +18,8 @@ class TestSchemaValidators(unittest.TestCase):
         """Test valid decider_output."""
         valid_output = {
             "action": "EXECUTE",
+            "query_type": "NEW_QUERY",
+            "query_type_signals": ["self-contained query"],
             "domain": "ecomm",
             "intent": "NEW_QUERY",
             "decisions": {

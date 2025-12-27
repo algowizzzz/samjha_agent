@@ -21,7 +21,7 @@ Copyright All rights Reserved 2025-2030, Ashutosh Sinha, Email: ajsinha@gmail.co
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+            <a class="navbar-brand" href="{% if session.token %}{{ url_for('index') }}{% else %}{{ url_for('login') }}{% endif %}">
                 <i class="bi bi-server"></i> SAJHA MCP Server
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -31,8 +31,18 @@ Copyright All rights Reserved 2025-2030, Ashutosh Sinha, Email: ajsinha@gmail.co
                 <ul class="navbar-nav me-auto">
                     {% if session.token %}
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="bi bi-house"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('dashboard') }}">
-                            <i class="bi bi-speedometer2"></i> Dashboard
+                            <i class="bi bi-speedometer2"></i> MCP Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('agent_chat') }}">
+                            <i class="bi bi-chat-dots"></i> Chat Agents
                         </a>
                     </li>
                     <li class="nav-item">
@@ -40,33 +50,6 @@ Copyright All rights Reserved 2025-2030, Ashutosh Sinha, Email: ajsinha@gmail.co
                             <i class="bi bi-tools"></i> Tools
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('doc_review_dashboard') }}">
-                            <i class="bi bi-diagram-3"></i> Doc Review
-                        </a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="monitoringDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-graph-up"></i> Monitoring
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url_for('monitoring_tools') }}">Tools Metrics</a></li>
-                            {% if user and user.roles and 'admin' in user.roles %}
-                            <li><a class="dropdown-item" href="{{ url_for('monitoring_users') }}">User Activity</a></li>
-                            {% endif %}
-                        </ul>
-                    </li>
-                    {% if user and user.roles and 'admin' in user.roles %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-gear-fill"></i> Admin
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url_for('admin_tools') }}">Manage Tools</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('admin_users') }}">Manage Users</a></li>
-                        </ul>
-                    </li>
-                    {% endif %}
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav">

@@ -6,6 +6,7 @@ Produces QuerySpec + InvestigationPlan, decides ASK_USER/EXECUTE/BLOCK.
 import json
 import logging
 from pathlib import Path
+import os
 from typing import Dict, Any, Optional
 from external.agent.schema_validators import validate_decider_output
 from external.agent.state_types import ControllerState
@@ -17,6 +18,14 @@ try:
     LLM_AVAILABLE = True
 except ImportError:
     LLM_AVAILABLE = False
+
+# Decider-only Anthropic thinking/reasoning.
+# Keep scoped to Decider to avoid breaking strict JSON parsing elsewhere.
+DECIDER_THINKING_ENABLED: bool = os.getenv("DECIDER_THINKING_ENABLED", "0") == "1"
+DECIDER_THINKING_BUDGET_TOKENS: int = int(os.getenv("DECIDER_THINKING_BUDGET_TOKENS", "2000"))
+# Anthropic requirement: max_tokens must be > thinking.budget_tokens when thinking is enabled.
+DECIDER_MAX_TOKENS: int = int(os.getenv("DECIDER_MAX_TOKENS", "16000"))
+THINKING_TRACE_MAX_CHARS: int = int(os.getenv("THINKING_TRACE_MAX_CHARS", "20000"))
 
 
 def load_decider_prompt() -> str:
@@ -125,12 +134,52 @@ Output your decision as JSON only (no markdown, no prose):
     for attempt in range(3):
         try:
             # Use invoke_with_prompt with JSON response format
-            response = llm_client.invoke_with_prompt(
-                system_prompt="",
-                user_prompt=prompt,
-                response_format="json"
-            )
-            output = parse_json_response(response)
+            # Per-request enablement: user/UI toggle OR env default.
+            want_thinking = bool(state.get("show_thinking", False)) or DECIDER_THINKING_ENABLED
+
+            thinking = None
+            temperature = 0.0
+            max_tokens = DECIDER_MAX_TOKENS
+            if want_thinking and DECIDER_THINKING_BUDGET_TOKENS > 0:
+                thinking = {"type": "enabled", "budget_tokens": DECIDER_THINKING_BUDGET_TOKENS}
+                # Anthropic extended thinking requires temperature=1 and max_tokens > budget_tokens
+                temperature = 1.0
+                max_tokens = max(max_tokens, int(thinking.get("budget_tokens", 0)) + 1)
+
+                detailed = llm_client.invoke_with_prompt_detailed(
+                    system_prompt="",
+                    user_prompt=prompt,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    response_format="json",
+                    thinking=thinking
+                )
+                thinking_text = detailed.get("thinking") or ""
+                if THINKING_TRACE_MAX_CHARS > 0 and len(thinking_text) > THINKING_TRACE_MAX_CHARS:
+                    thinking_text = thinking_text[:THINKING_TRACE_MAX_CHARS] + "\n... (truncated)"
+                state["thinking_trace"] = thinking_text
+                response_text = detailed.get("text") or ""
+            else:
+                state["thinking_trace"] = None
+                response_text = llm_client.invoke_with_prompt(
+                    system_prompt="",
+                    user_prompt=prompt,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    response_format="json",
+                    thinking=None
+                )
+
+            output = parse_json_response(response_text)
+            
+            # LOG FOR COMPARISON: thinking=true vs thinking=false
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.info(f"[DECIDER_COMPARISON] thinking={want_thinking}, response_text_length={len(response_text)}")
+            logger.info(f"[DECIDER_COMPARISON] response_text_snippet: {response_text[:800]}")
+            grain_value = output.get('query_spec', {}).get('grain', 'MISSING')
+            start_table_grain_status = output.get('query_spec_status', {}).get('start_table_grain', {})
+            logger.info(f"[DECIDER_COMPARISON] grain={grain_value}, start_table_grain.status={start_table_grain_status.get('status', 'MISSING')}, blocks_execution={start_table_grain_status.get('blocks_execution', 'MISSING')}")
             
             # Post-process: Ensure ask_user is always present (required by schema)
             if "ask_user" not in output or output.get("ask_user") is None:
@@ -197,6 +246,19 @@ Output your decision as JSON only (no markdown, no prose):
                         "notes": "Not provided by decider",
                         "blocks_execution": False
                     }
+                else:
+                    # Ensure blocks_execution is coherent: only "missing/conflict" should block.
+                    st = (output["query_spec_status"].get(field) or {}).get("status")
+                    if st in ["verified", "inferred", "defaulted"]:
+                        output["query_spec_status"][field]["blocks_execution"] = False
+
+            # Coherence: if time.rule is no_time, time must not block execution.
+            try:
+                if (output.get("query_spec", {}).get("time", {}) or {}).get("rule") == "no_time":
+                    if "time" in output.get("query_spec_status", {}):
+                        output["query_spec_status"]["time"]["blocks_execution"] = False
+            except Exception:
+                pass
             
             # Also ensure domain, intent, and decisions are present
             if "domain" not in output:

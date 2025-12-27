@@ -18,7 +18,7 @@ class SearchGlossaryTool(BaseMCPTool):
         if config:
             default_config.update(config)
         super().__init__(default_config)
-        self.domain_dir = Path(self.config.get("domain_directory", "domain_instructions"))
+        self.domain_dir = Path(self.config.get("domain_directory", "external/config/domains"))
 
     def get_input_schema(self):
         return {

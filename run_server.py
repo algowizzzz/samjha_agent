@@ -34,7 +34,7 @@ def setup_logging():
 
 def create_directories():
     """Create necessary directories"""
-    dirs = ['logs', 'config', 'config/tools', 'data', 'temp']
+    dirs = ['logs', 'config', 'data', 'temp']
     for dir_name in dirs:
         os.makedirs(dir_name, exist_ok=True)
 

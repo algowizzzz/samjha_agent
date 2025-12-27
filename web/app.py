@@ -4,7 +4,8 @@ Flask application for SAJHA MCP Server - Refactored with modular routes
 """
 
 import logging
-from flask import Flask, render_template, jsonify
+import os
+from flask import Flask, render_template, jsonify, redirect, url_for, session
 from flask_socketio import SocketIO
 from flask_cors import CORS
 from datetime import timedelta, datetime
@@ -28,40 +29,11 @@ from routes import (
 # Import external agent routes (optional)
 try:
     from external.routes.agent_routes import AgentRoutes
-    from external.routes.agent_socketio_handlers import AgentSocketIOHandlers
     AGENT_AVAILABLE = True
 except ImportError as e:
     logging.warning(f"Agent routes not available: {e}. Server will run without agent features.")
     AgentRoutes = None
-    AgentSocketIOHandlers = None
     AGENT_AVAILABLE = False
-
-# Import document review routes (optional)
-try:
-    from external.routes.doc_review_routes import DocReviewRoutes
-    DOC_REVIEW_AVAILABLE = True
-except ImportError as e:
-    logging.warning(f"Doc review routes not available: {e}.")
-    DocReviewRoutes = None
-    DOC_REVIEW_AVAILABLE = False
-
-# Import model documentation routes (optional)
-try:
-    from external.routes.model_doc_routes import ModelDocRoutes
-    MODEL_DOC_AVAILABLE = True
-except ImportError as e:
-    logging.warning(f"Model doc routes not available: {e}.")
-    ModelDocRoutes = None
-    MODEL_DOC_AVAILABLE = False
-
-# Import text improvement routes (optional)
-try:
-    from external.routes.text_improvement_routes import text_improvement_bp
-    TEXT_IMPROVEMENT_AVAILABLE = True
-except ImportError as e:
-    logging.warning(f"Text improvement routes not available: {e}.")
-    text_improvement_bp = None
-    TEXT_IMPROVEMENT_AVAILABLE = False
 
 # Global instances
 app = None
@@ -112,71 +84,50 @@ def create_app():
 
 def register_all_routes(app, socketio):
     """Register all route modules"""
-    
-    # Initialize route classes
+
+    # Always register auth + api (needed for /api/tools/execute and session login)
     auth_routes = AuthRoutes(auth_manager)
+    api_routes = ApiRoutes(auth_manager, tools_registry, mcp_handler)
+    
+    # Home page with 3 boxes
+    @app.route("/")
+    def index():
+        # Check if user is logged in
+        if 'token' not in session:
+            return redirect(url_for('login'))
+        session_data = auth_manager.validate_session(session.get('token'))
+        if not session_data:
+            session.pop('token', None)
+            return redirect(url_for('login'))
+        return render_template('home.html', user=session_data)
+
+    # Register routes
+    auth_routes.register_routes(app)
+    api_routes.register_routes(app)
+
+    # Register MCP dashboard and management routes
     dashboard_routes = DashboardRoutes(auth_manager, tools_registry)
     tools_routes = ToolsRoutes(auth_manager, tools_registry)
     admin_routes = AdminRoutes(auth_manager, tools_registry)
     monitoring_routes = MonitoringRoutes(auth_manager, tools_registry)
-    api_routes = ApiRoutes(auth_manager, tools_registry, mcp_handler)
     socketio_handlers = SocketIOHandlers(socketio, auth_manager, tools_registry, mcp_handler)
-    
-    # Register blueprints
-    auth_routes.register_routes(app)
+
     dashboard_routes.register_routes(app)
     tools_routes.register_routes(app)
     admin_routes.register_routes(app)
     monitoring_routes.register_routes(app)
-    api_routes.register_routes(app)
-    
-    # Register SocketIO handlers
     socketio_handlers.register_handlers()
     
-    # Initialize and register external agent routes (if available)
-    if AGENT_AVAILABLE and AgentRoutes is not None and AgentSocketIOHandlers is not None:
+    # Register external agent routes
+    if AGENT_AVAILABLE and AgentRoutes is not None:
         try:
             agent_routes = AgentRoutes(auth_manager, tools_registry)
-            agent_socketio_handlers = AgentSocketIOHandlers(socketio, auth_manager, tools_registry)
             agent_routes.register_routes(app)
-            agent_socketio_handlers.register_handlers()
             logging.info("Agent routes registered successfully")
         except Exception as e:
             logging.error(f"Failed to register agent routes: {e}")
     else:
         logging.info("Agent features not available - server running in base mode")
-
-    # Register document review routes if available
-    if DOC_REVIEW_AVAILABLE and DocReviewRoutes is not None:
-        try:
-            doc_review_routes = DocReviewRoutes(auth_manager, tools_registry, mcp_handler, socketio)
-            doc_review_routes.register_routes(app)
-            logging.info("Document review routes registered successfully")
-        except Exception as e:  # pylint: disable=broad-except
-            logging.exception(f"Failed to register doc review routes: {e}")
-    else:
-        logging.info("Document review features not available")
-
-    # Register model documentation routes if available
-    if MODEL_DOC_AVAILABLE and ModelDocRoutes is not None:
-        try:
-            model_doc_routes = ModelDocRoutes(auth_manager, tools_registry, mcp_handler, socketio)
-            model_doc_routes.register_routes(app)
-            logging.info("Model documentation routes registered successfully")
-        except Exception as e:  # pylint: disable=broad-except
-            logging.error(f"Failed to register model doc routes: {e}")
-    else:
-        logging.info("Model documentation features not available")
-
-    # Register text improvement routes if available
-    if TEXT_IMPROVEMENT_AVAILABLE and text_improvement_bp is not None:
-        try:
-            app.register_blueprint(text_improvement_bp)
-            logging.info("Text improvement routes registered successfully")
-        except Exception as e:  # pylint: disable=broad-except
-            logging.error(f"Failed to register text improvement routes: {e}")
-    else:
-        logging.info("Text improvement features not available")
 
     logging.info("All routes registered successfully")
 

@@ -25,7 +25,7 @@ class TestControllerLoop(unittest.TestCase):
         self.assertIsNone(state["last_executor_report"])
     
     def test_state_persistence(self):
-        """Test state persists across retries."""
+        """Test controller resets per-query loop fields when prior_state is reused."""
         prior_state: ControllerState = {
             "user_query": "Test query",
             "conversation_history": [],
@@ -38,8 +38,9 @@ class TestControllerLoop(unittest.TestCase):
         }
         
         restored = initialize_controller_state("Test query", [], prior_state)
-        self.assertEqual(restored["attempt_count"], 1)
-        self.assertIsNotNone(restored["last_executor_report"])
+        # attempt_count / last_executor_report are per-query controller loop fields, so they reset
+        self.assertEqual(restored["attempt_count"], 0)
+        self.assertIsNone(restored["last_executor_report"])
         self.assertEqual(restored["query_spec"]["business_question"], "Test")
     
     def test_max_attempts_enforcement(self):

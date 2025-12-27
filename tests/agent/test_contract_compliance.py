@@ -20,6 +20,8 @@ class TestContractCompliance(unittest.TestCase):
         """Test Decider output matches schema."""
         valid_output = {
             "action": "EXECUTE",
+            "query_type": "NEW_QUERY",
+            "query_type_signals": ["self-contained query"],
             "domain": "ecomm",
             "intent": "NEW_QUERY",
             "decisions": {

@@ -17,11 +17,6 @@ class DashboardRoutes(BaseRoutes):
     def register_routes(self, app):
         """Register dashboard routes"""
 
-        @app.route('/')
-        def index():
-            """Home page - redirect to dashboard"""
-            return redirect(url_for('dashboard'))
-
         @app.route('/dashboard')
         @self.login_required
         def dashboard():

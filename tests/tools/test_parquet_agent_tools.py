@@ -14,7 +14,7 @@ class TestParquetAgentTools(unittest.TestCase):
     def setUpClass(cls):
         """Set up tools registry and load tools."""
         cls.registry = ToolsRegistry()
-        tools_config_dir = Path("config/tools")
+        tools_config_dir = Path("external/config/tools")
         
         tool_names = [
             "list_dir", "inspect_table", "preview_rows", "search_glossary",
