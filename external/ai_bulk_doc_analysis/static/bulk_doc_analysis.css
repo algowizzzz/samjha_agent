@@ -78,6 +78,9 @@
   padding: 12px 12px 8px 12px;
   border-bottom: 1px solid var(--bda-border);
   flex: 0 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .bulk-doc-panel__title {
@@ -212,12 +215,6 @@
   justify-content: flex-end;
 }
 
-/* Panel header with action button */
-.bulk-doc-panel__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
 
 /* Chain card with edit button */
 .bulk-doc-chain-card {

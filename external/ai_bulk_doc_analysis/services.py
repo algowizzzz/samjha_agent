@@ -13,10 +13,25 @@ All data is stored in-memory for now (can be replaced with DB later).
 import logging
 import os
 import uuid
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 from dataclasses import dataclass, asdict
+
+try:
+    import pdfplumber
+    PDFPLUMBER_AVAILABLE = True
+except ImportError:
+    PDFPLUMBER_AVAILABLE = False
+    logging.warning("pdfplumber not available. PDF conversion will fail.")
+
+try:
+    from external.platform.llm.client import get_llm_client
+    LLM_AVAILABLE = True
+except ImportError:
+    LLM_AVAILABLE = False
+    logging.warning("LLM client not available. Step execution will fail.")
 
 logger = logging.getLogger(__name__)
 
@@ -140,7 +155,51 @@ class BulkDocService:
         self.chains[chain2.chain_version_id] = chain2
 
     # -------- Session Management --------
-    def ensure_session(self, user_id: str) -> str:
+    def ensure_session(self, user_id: str, session_id: Optional[str] = None) -> str:
+        """
+        Get or create a session for the user.
+        If session_id provided, returns that session (if exists).
+        Otherwise creates a new session.
+        """
+        if session_id:
+            # Return existing session if provided
+            if session_id in self.sessions:
+                return session_id
+            raise ValueError(f"Session {session_id} not found or access denied")
+        
+        # Create new session (for in-memory, just use user_id as session_id for backward compatibility)
+        session_id = f"session_{user_id}"
+        if session_id not in self.sessions:
+            self.sessions[session_id] = []
+        return session_id
+    
+    def create_session(self, user_id: str, name: Optional[str] = None) -> str:
+        """Create a new session for the user."""
+        import uuid
+        session_id = f"session_{user_id}_{uuid.uuid4().hex[:12]}"
+        self.sessions[session_id] = []
+        return session_id
+    
+    def list_sessions(self, user_id: str) -> List[Dict]:
+        """List all sessions for a user, sorted by newest first."""
+        import uuid
+        from datetime import datetime
+        sessions = []
+        for session_id, doc_ids in self.sessions.items():
+            if session_id.startswith(f"session_{user_id}"):
+                sessions.append({
+                    "session_id": session_id,
+                    "user_id": user_id,
+                    "created_at": datetime.utcnow().isoformat() + "Z",
+                    "updated_at": datetime.utcnow().isoformat() + "Z",
+                    "document_count": len([d for d in doc_ids if d in self.documents]),
+                    "name": None,
+                })
+        # Sort by session_id (newest last for UUID-based ones)
+        sessions.sort(key=lambda x: x["session_id"], reverse=True)
+        return sessions
+    
+    def ensure_session_old(self, user_id: str) -> str:
         """Get or create a session for the user."""
         session_id = f"session_{user_id}"
         if session_id not in self.sessions:
@@ -192,35 +251,82 @@ class BulkDocService:
         return docs
 
     def _trigger_conversion(self, doc_id: str, file_path: Path):
-        """Trigger PDF → Markdown conversion (placeholder; real conversion will be async worker)."""
+        """Trigger PDF → Markdown conversion using pdfplumber."""
         doc = self.documents.get(doc_id)
         if not doc:
             return
 
-        # For now: mark as PROCESSING, then simulate CONVERTED after delay
-        # Real implementation will:
-        # 1. Enqueue a conversion job
-        # 2. Worker processes PDF → MD
-        # 3. Store artifact in object storage
-        # 4. Update status via polling/events
         doc.status = "PROCESSING"
         doc.updated_at = datetime.utcnow().isoformat() + "Z"
 
-        # Simulate conversion success (replace with real conversion later)
         try:
-            # Placeholder: just mark as converted (real conversion would use PyPDF2/pdfplumber/etc)
+            if not PDFPLUMBER_AVAILABLE:
+                raise ImportError("pdfplumber is not installed. Install with: pip install pdfplumber")
+
+            # Real PDF → Markdown conversion
+            md_content = self._convert_pdf_to_markdown(file_path)
+            
+            # Store converted markdown
             md_path = file_path.with_suffix(".md")
-            md_path.write_text(f"# Converted from {doc.original_filename}\n\n(Conversion placeholder)\n")
+            md_path.write_text(md_content, encoding='utf-8')
+            
             doc.converted_md_path = str(md_path)
             doc.status = "CONVERTED"
             doc.updated_at = datetime.utcnow().isoformat() + "Z"
-            logger.info(f"Document {doc_id} marked as CONVERTED (placeholder)")
+            logger.info(f"Document {doc_id} converted successfully")
         except Exception as e:
             doc.status = "ERROR"
             doc.error_code = "CONVERSION_FAILED"
             doc.error_message = str(e)
             doc.updated_at = datetime.utcnow().isoformat() + "Z"
-            logger.error(f"Conversion failed for {doc_id}: {e}")
+            logger.error(f"Conversion failed for {doc_id}: {e}", exc_info=True)
+
+    def _convert_pdf_to_markdown(self, pdf_path: Path) -> str:
+        """Convert PDF file to Markdown using pdfplumber."""
+        markdown_parts = []
+        markdown_parts.append(f"# Document: {pdf_path.name}\n\n")
+        
+        try:
+            with pdfplumber.open(pdf_path) as pdf:
+                for page_num, page in enumerate(pdf.pages, start=1):
+                    markdown_parts.append(f"## Page {page_num}\n\n")
+                    
+                    # Extract text
+                    text = page.extract_text()
+                    if text:
+                        # Clean up text and preserve formatting
+                        text = text.strip()
+                        # Convert to markdown-friendly format (double newlines for paragraphs)
+                        paragraphs = [p.strip() for p in text.split('\n\n') if p.strip()]
+                        markdown_parts.append('\n\n'.join(paragraphs))
+                        markdown_parts.append('\n\n')
+                    
+                    # Extract tables if any
+                    tables = page.extract_tables()
+                    if tables:
+                        for table_num, table in enumerate(tables, start=1):
+                            markdown_parts.append(f"### Table {table_num} (Page {page_num})\n\n")
+                            if table and len(table) > 0:
+                                # Convert table to markdown
+                                # Header row
+                                if table[0]:
+                                    header = "| " + " | ".join(str(cell or "") for cell in table[0]) + " |"
+                                    separator = "| " + " | ".join("---" for _ in table[0]) + " |"
+                                    markdown_parts.append(header)
+                                    markdown_parts.append(separator)
+                                
+                                # Data rows
+                                for row in table[1:]:
+                                    if row:
+                                        row_md = "| " + " | ".join(str(cell or "") for cell in row) + " |"
+                                        markdown_parts.append(row_md)
+                                markdown_parts.append('\n\n')
+        
+        except Exception as e:
+            logger.error(f"Error converting PDF {pdf_path}: {e}", exc_info=True)
+            raise RuntimeError(f"PDF conversion error: {str(e)}")
+        
+        return ''.join(markdown_parts)
 
     def list_documents(self, session_id: str) -> List[Document]:
         """List all documents in a session."""
@@ -232,12 +338,14 @@ class BulkDocService:
         return self.documents.get(doc_id)
 
     def delete_document(self, doc_id: str) -> bool:
-        """Delete an errored document (only allowed for ERROR status)."""
+        """Delete a document (allowed for ERROR, QUEUED, or CONVERTED status)."""
         doc = self.documents.get(doc_id)
         if not doc:
             return False
-        if doc.status != "ERROR":
-            raise ValueError("Can only delete documents with ERROR status")
+        # Allow deletion of ERROR, QUEUED, or CONVERTED documents
+        allowed_statuses = ["ERROR", "QUEUED", "CONVERTED"]
+        if doc.status not in allowed_statuses:
+            raise ValueError(f"Can only delete documents with status: {', '.join(allowed_statuses)}")
         # Remove from session
         if doc.session_id in self.sessions:
             self.sessions[doc.session_id] = [d for d in self.sessions[doc.session_id] if d != doc_id]
@@ -267,6 +375,15 @@ class BulkDocService:
         is_valid, error_msg = self._validate_chain_structure(steps)
         if not is_valid:
             raise ValueError(f"Invalid chain structure: {error_msg}")
+
+        # Ensure each step has model_config with defaults
+        for step in steps:
+            if "model_config" not in step:
+                step["model_config"] = {
+                    "model": "claude-3-haiku-20240307",
+                    "max_tokens": 4096,
+                    "temperature": 0.2
+                }
 
         chain_id = f"chain_{uuid.uuid4().hex[:12]}"
         chain_version_id = self._generate_chain_version_id(chain_id)
@@ -298,6 +415,15 @@ class BulkDocService:
         is_valid, error_msg = self._validate_chain_structure(steps)
         if not is_valid:
             raise ValueError(f"Invalid chain structure: {error_msg}")
+
+        # Ensure each step has model_config with defaults
+        for step in steps:
+            if "model_config" not in step:
+                step["model_config"] = {
+                    "model": "claude-3-haiku-20240307",
+                    "max_tokens": 4096,
+                    "temperature": 0.2
+                }
 
         # Update chain metadata and steps
         chain.name = name
@@ -395,7 +521,7 @@ class BulkDocService:
         return run
 
     def _trigger_run_execution(self, run_id: str):
-        """Trigger run execution (placeholder; real execution will be async worker)."""
+        """Trigger run execution with real Claude API calls."""
         run = self.runs.get(run_id)
         if not run:
             return
@@ -403,36 +529,186 @@ class BulkDocService:
         run.status = "RUNNING"
         chain = self.chains.get(run.chain_version_id)
         if not chain:
+            run.status = "ERROR"
             return
 
-        # For each document, create step results (placeholder; real execution calls Claude)
-        for doc_id in run.document_ids:
-            for step_idx in range(1, chain.step_count + 1):
-                step_key = f"{run_id}:{doc_id}:{step_idx}"
-                step_result = StepResult(
-                    id=str(uuid.uuid4()),
-                    run_id=run_id,
-                    doc_id=doc_id,
-                    step_index=step_idx,
-                    status="QUEUED",
-                )
-                self.step_results[step_key] = step_result
+        if not LLM_AVAILABLE:
+            logger.error("LLM client not available. Cannot execute steps.")
+            run.status = "ERROR"
+            return
 
-        # Simulate execution (replace with real Claude calls later)
-        # For now, mark all as SUCCESS with mock tokens
+        try:
+            llm_client = get_llm_client()
+            if not llm_client.is_available():
+                raise RuntimeError("LLM client not initialized. Check ANTHROPIC_API_KEY.")
+
+            # For each document, execute all steps sequentially
+            for doc_id in run.document_ids:
+                doc = self.documents.get(doc_id)
+                if not doc or doc.status != "CONVERTED":
+                    continue
+
+                # Load R0 (converted document)
+                if not doc.converted_md_path:
+                    logger.warning(f"Document {doc_id} has no converted markdown")
+                    continue
+
+                r0_path = Path(doc.converted_md_path)
+                if not r0_path.exists():
+                    logger.warning(f"R0 file not found: {r0_path}")
+                    continue
+
+                r_outputs = {"R0": r0_path.read_text(encoding='utf-8')}
+
+                # Execute each step in sequence
+                for step_idx in range(1, chain.step_count + 1):
+                    step_key = f"{run_id}:{doc_id}:{step_idx}"
+                    
+                    # Find step definition
+                    step_def = next((s for s in chain.steps if s.get("index") == step_idx), None)
+                    if not step_def:
+                        continue
+
+                    step_result = StepResult(
+                        id=str(uuid.uuid4()),
+                        run_id=run_id,
+                        doc_id=doc_id,
+                        step_index=step_idx,
+                        status="RUNNING",
+                    )
+                    self.step_results[step_key] = step_result
+
+                    try:
+                        # Execute step with Claude API
+                        output, tokens = self._execute_step(
+                            llm_client=llm_client,
+                            step_def=step_def,
+                            r_outputs=r_outputs,
+                            doc_id=doc_id,
+                        )
+
+                        # Store R(n) output
+                        r_key = f"R{step_idx}"
+                        r_outputs[r_key] = output
+
+                        # Save R(n) artifact
+                        run_dir = self.storage_base / "runs" / run_id / "docs" / doc_id
+                        run_dir.mkdir(parents=True, exist_ok=True)
+                        r_path = run_dir / f"{r_key}.md"
+                        r_path.write_text(output, encoding='utf-8')
+
+                        step_result.output_object_key = str(r_path)
+                        step_result.status = "SUCCESS"
+                        step_result.input_tokens = tokens.get("input_tokens", 0)
+                        step_result.output_tokens = tokens.get("output_tokens", 0)
+                        step_result.model = tokens.get("model", "claude-3-haiku-20240307")
+                        
+                        run.total_input_tokens += step_result.input_tokens
+                        run.total_output_tokens += step_result.output_tokens
+
+                    except Exception as e:
+                        logger.error(f"Step {step_idx} execution failed for doc {doc_id}: {e}", exc_info=True)
+                        step_result.status = "ERROR"
+                        step_result.error_code = "EXECUTION_FAILED"
+                        step_result.error_message = str(e)
+
+        except Exception as e:
+            logger.error(f"Run execution failed: {e}", exc_info=True)
+            run.status = "ERROR"
+            return
+
+        # Check if all steps completed successfully
+        all_complete = True
         for doc_id in run.document_ids:
             for step_idx in range(1, chain.step_count + 1):
                 step_key = f"{run_id}:{doc_id}:{step_idx}"
                 step_result = self.step_results.get(step_key)
-                if step_result:
-                    step_result.status = "SUCCESS"
-                    step_result.input_tokens = 1200 + step_idx * 100
-                    step_result.output_tokens = 900 + step_idx * 80
-                    step_result.model = "claude-3-5-sonnet"
-                    run.total_input_tokens += step_result.input_tokens
-                    run.total_output_tokens += step_result.output_tokens
+                if step_result and step_result.status not in ("SUCCESS", "ERROR"):
+                    all_complete = False
+                    break
+            if not all_complete:
+                break
 
-        run.status = "COMPLETE"
+        run.status = "COMPLETE" if all_complete else "ERROR"
+
+    def _execute_step(
+        self,
+        llm_client,
+        step_def: Dict,
+        r_outputs: Dict[str, str],
+        doc_id: str,
+    ) -> tuple[str, Dict]:
+        """
+        Execute a single step using Claude API.
+        
+        Returns:
+            tuple: (output_text, tokens_dict)
+        """
+        step_prompt = step_def.get("prompt", "")
+        required_inputs = step_def.get("required_inputs", [])
+        
+        # Build user message with labeled inputs
+        user_message_parts = []
+        user_message_parts.append(step_prompt)
+        user_message_parts.append("\n\n---\n\n")
+        user_message_parts.append("Available inputs:\n\n")
+        
+        for r_key in required_inputs:
+            if r_key in r_outputs:
+                user_message_parts.append(f"### {r_key}\n\n")
+                user_message_parts.append(r_outputs[r_key])
+                user_message_parts.append("\n\n---\n\n")
+            else:
+                raise ValueError(f"Required input {r_key} not found in available outputs")
+
+        user_message = "".join(user_message_parts)
+
+        # System prompt for step execution
+        system_prompt = """You are executing a step in a multi-step document analysis chain.
+Follow the step instructions precisely and produce the requested output.
+The output should be well-formatted and ready for use in subsequent steps."""
+
+        # Call Claude API with detailed response to get token usage
+        start_time = time.time()
+        
+        # Use Anthropic API directly to get full response with usage info
+        messages = [{"role": "user", "content": user_message}]
+        response = llm_client.client.messages.create(
+            model=llm_client.model,
+            messages=messages,
+            system=system_prompt,
+            temperature=0.2,
+            max_tokens=4096,
+        )
+        
+        latency_ms = int((time.time() - start_time) * 1000)
+
+        # Extract text from response
+        response_text = ""
+        for block in getattr(response, "content", []) or []:
+            block_type = getattr(block, "type", None)
+            if block_type == "text":
+                block_text = getattr(block, "text", None)
+                if isinstance(block_text, str):
+                    response_text += block_text
+
+        # Get token usage from response (Anthropic API includes this in response.usage)
+        usage = getattr(response, "usage", None)
+        input_tokens = 0
+        output_tokens = 0
+        
+        if usage:
+            input_tokens = getattr(usage, "input_tokens", 0) or 0
+            output_tokens = getattr(usage, "output_tokens", 0) or 0
+
+        tokens = {
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "model": llm_client.model or "claude-3-haiku-20240307",
+            "latency_ms": latency_ms,
+        }
+
+        return response_text, tokens
 
     def get_run_progress(self, run_id: str) -> Dict:
         """Get run progress with per-document, per-step status."""
@@ -503,7 +779,19 @@ class BulkDocService:
         }
 
     def get_download_url(self, run_id: str, doc_id: str) -> Optional[str]:
-        """Get download URL for a document's final output (placeholder)."""
-        # Real implementation will generate signed URLs from object storage
+        """Get download URL for a document's final output."""
         return f"/api/bulk-doc-analysis/runs/{run_id}/download/{doc_id}"
+
+    def get_final_output_path(self, run_id: str, doc_id: str, chain: Chain) -> Optional[Path]:
+        """Get the path to the final step output (R(N)) for a document."""
+        if chain.step_count == 0:
+            return None
+        
+        final_r_key = f"R{chain.step_count}"
+        run_dir = self.storage_base / "runs" / run_id / "docs" / doc_id
+        r_path = run_dir / f"{final_r_key}.md"
+        
+        if r_path.exists():
+            return r_path
+        return None
 

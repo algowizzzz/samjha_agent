@@ -38,6 +38,8 @@
 
   const state = {
     sessionId: appEl.dataset.sessionId || null,
+    sessions: /** @type {Array<{session_id:string, name?:string, created_at:string, document_count:number}>} */ ([]),
+    currentSessionId: appEl.dataset.sessionId || null,
     docs: /** @type {Array<{localId:string, filename:string, status:string, errorMessage?:string}>} */ ([]),
     chains: /** @type {Array<{chain_version_id:string, name:string, description?:string, step_count:number, valid:boolean, steps?:Array<any>}>} */ ([]),
     selectedChainVersionId: null,
@@ -65,6 +67,9 @@
 
   // -------- DOM refs --------
   const refs = {
+    sessionSelect: document.getElementById('bulkDocSessionSelect'),
+    newSessionBtn: document.getElementById('bulkDocNewSessionBtn'),
+    currentSessionName: document.getElementById('bulkDocCurrentSessionName'),
     uploadBtnLabel: document.getElementById('bulkDocUploadBtnLabel'),
     uploadInput: document.getElementById('bulkDocUploadInput'),
     docsEmpty: document.getElementById('bulkDocDocsEmpty'),
@@ -163,16 +168,42 @@
     }
 
     refs.docsTbody.innerHTML = state.docs.map((d) => {
-      const canDelete = d.status === Status.ERROR;
+      // Allow deletion for ERROR, QUEUED, or CONVERTED documents
+      const canDelete = d.status === Status.ERROR || d.status === Status.QUEUED || d.status === Status.CONVERTED;
       const deleteBtn = canDelete
-        ? `<button class="btn btn-sm btn-outline-danger" data-action="delete" data-id="${d.localId}" title="Delete errored document"><i class="bi bi-trash"></i></button>`
+        ? `<button class="btn btn-sm btn-outline-danger" data-action="delete" data-id="${d.localId}" title="Delete document"><i class="bi bi-trash"></i></button>`
         : '';
       const statusDetail = (d.status === Status.ERROR && d.errorMessage)
         ? `<div class="bulk-doc-hint text-danger text-truncate" style="max-width: 220px;">${escapeHtml(d.errorMessage)}</div>`
         : '';
+      // Format timestamp if available
+      let timeInfo = '';
+      if (d.created_at) {
+        try {
+          const date = new Date(d.created_at);
+          const now = new Date();
+          const diffMs = now - date;
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMs / 3600000);
+          const diffDays = Math.floor(diffMs / 86400000);
+          
+          if (diffMins < 1) timeInfo = 'just now';
+          else if (diffMins < 60) timeInfo = `${diffMins}m ago`;
+          else if (diffHours < 24) timeInfo = `${diffHours}h ago`;
+          else if (diffDays < 7) timeInfo = `${diffDays}d ago`;
+          else timeInfo = date.toLocaleDateString();
+        } catch (e) {
+          // Ignore date parsing errors
+        }
+      }
+      const timeLabel = timeInfo ? `<div class="bulk-doc-hint" style="font-size: 11px; margin-top: 2px;">${escapeHtml(timeInfo)}</div>` : '';
+      
       return `
         <tr role="button" tabindex="0" data-action="open" data-id="${d.localId}">
-          <td class="text-truncate" style="max-width: 260px;">${escapeHtml(d.filename)}</td>
+          <td class="text-truncate" style="max-width: 260px;">
+            ${escapeHtml(d.filename)}
+            ${timeLabel}
+          </td>
           <td>${statusBadge(d.status)}${statusDetail}</td>
           <td class="text-end">${deleteBtn}</td>
         </tr>
@@ -343,6 +374,29 @@
       if (!res.ok) throw new Error(`docs failed: ${res.status}`);
       return await res.json();
     },
+    async listSessions() {
+      const res = await fetch('/api/bulk-doc-analysis/sessions', { credentials: 'same-origin' });
+      if (!res.ok) throw new Error(`sessions failed: ${res.status}`);
+      return await res.json();
+    },
+    async createSession(name) {
+      const res = await fetch('/api/bulk-doc-analysis/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+        credentials: 'same-origin',
+      });
+      if (!res.ok) throw new Error(`create session failed: ${res.status}`);
+      return await res.json();
+    },
+    async selectSession(sessionId) {
+      const res = await fetch(`/api/bulk-doc-analysis/sessions/${encodeURIComponent(sessionId)}/select`, {
+        method: 'POST',
+        credentials: 'same-origin',
+      });
+      if (!res.ok) throw new Error(`select session failed: ${res.status}`);
+      return await res.json();
+    },
     async deleteDoc(docId) {
       const res = await fetch(`/api/bulk-doc-analysis/documents/${encodeURIComponent(docId)}`, { method: 'DELETE', credentials: 'same-origin' });
       if (!res.ok) throw new Error(`delete failed: ${res.status}`);
@@ -366,6 +420,11 @@
     async downloadDocOutput(runId, docId) {
       const res = await fetch(`/api/bulk-doc-analysis/runs/${encodeURIComponent(runId)}/download/${encodeURIComponent(docId)}`, { credentials: 'same-origin' });
       if (!res.ok) throw new Error(`download failed: ${res.status}`);
+      return res.blob();
+    },
+    async downloadAllOutputs(runId) {
+      const res = await fetch(`/api/bulk-doc-analysis/runs/${encodeURIComponent(runId)}/download-all`, { credentials: 'same-origin' });
+      if (!res.ok) throw new Error(`bulk download failed: ${res.status}`);
       return res.blob();
     },
     async createChain(name, description, steps) {
@@ -415,6 +474,11 @@
           required_inputs: Array.isArray(s.required_inputs) ? [...s.required_inputs] : [],
           prompt: s.prompt || '',
           description: s.description || '',
+          model_config: s.model_config || {
+            model: 'claude-3-haiku-20240307',
+            max_tokens: 4096,
+            temperature: 0.2
+          }
         }));
       } else {
         toast('error', 'Chain not found', 'Could not find chain to edit.');
@@ -453,6 +517,11 @@
       required_inputs: ['R0'], // Default to R0
       prompt: '',
       description: '',
+      model_config: {
+        model: 'claude-3-haiku-20240307',
+        max_tokens: 4096,
+        temperature: 0.2
+      }
     });
     renderChainEditor();
   }
@@ -479,6 +548,16 @@
     if (step) {
       step.required_inputs = Array.isArray(inputs) ? inputs : [];
       renderChainEditor();
+    }
+  }
+
+  function updateStepModelConfig(stepIndex, field, value) {
+    const step = state.chainEditor.steps.find((s) => s.index === stepIndex);
+    if (step) {
+      if (!step.model_config) {
+        step.model_config = { model: 'claude-3-haiku-20240307', max_tokens: 4096, temperature: 0.2 };
+      }
+      step.model_config[field] = value;
     }
   }
 
@@ -519,19 +598,29 @@
         const stepEl = refs.chainEditorStepsContainer.querySelector(`[data-step-index="${step.index}"]`);
         if (!stepEl) return;
 
-        // Prompt textarea
+        // Prompt textarea - update state directly to avoid re-render (prevents cursor loss)
         const promptTextarea = stepEl.querySelector(`[data-field="prompt"]`);
         if (promptTextarea) {
+          const stepIndex = step.index; // Capture for closure
           promptTextarea.addEventListener('input', (e) => {
-            updateStep(step.index, 'prompt', e.target.value);
+            // Update state directly without re-rendering (this prevents cursor loss)
+            const stepObj = state.chainEditor.steps.find(s => s.index === stepIndex);
+            if (stepObj) {
+              stepObj.prompt = e.target.value;
+            }
           });
         }
 
-        // Description input
+        // Description input - update state directly to avoid re-render
         const descInput = stepEl.querySelector(`[data-field="description"]`);
         if (descInput) {
+          const stepIndex = step.index; // Capture for closure
           descInput.addEventListener('input', (e) => {
-            updateStep(step.index, 'description', e.target.value);
+            // Update state directly without re-rendering
+            const stepObj = state.chainEditor.steps.find(s => s.index === stepIndex);
+            if (stepObj) {
+              stepObj.description = e.target.value;
+            }
           });
         }
 
@@ -549,6 +638,32 @@
         if (removeBtn) {
           removeBtn.addEventListener('click', () => {
             removeStep(step.index);
+          });
+        }
+
+        // Model config fields
+        const modelSelect = stepEl.querySelector(`[data-field="model"]`);
+        if (modelSelect) {
+          modelSelect.addEventListener('change', (e) => {
+            updateStepModelConfig(step.index, 'model', e.target.value);
+          });
+        }
+
+        const maxTokensInput = stepEl.querySelector(`[data-field="max_tokens"]`);
+        if (maxTokensInput) {
+          maxTokensInput.addEventListener('input', (e) => {
+            updateStepModelConfig(step.index, 'max_tokens', parseInt(e.target.value) || 4096);
+          });
+        }
+
+        const temperatureSlider = stepEl.querySelector(`[data-field="temperature"]`);
+        if (temperatureSlider) {
+          temperatureSlider.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            updateStepModelConfig(step.index, 'temperature', value);
+            // Update display
+            const displayEl = document.getElementById(`temp_${step.index}_value`);
+            if (displayEl) displayEl.textContent = value.toFixed(1);
           });
         }
       });
@@ -571,6 +686,16 @@
       `;
     }).join('');
 
+    const modelConfig = step.model_config || { model: 'claude-3-haiku-20240307', max_tokens: 4096, temperature: 0.2 };
+    const models = [
+      { value: 'claude-3-haiku-20240307', label: 'Haiku' },
+      { value: 'claude-3-5-sonnet-20241022', label: 'Sonnet' },
+      { value: 'claude-3-opus-20240229', label: 'Opus' }
+    ];
+    const modelSelectHtml = models.map(m => 
+      `<option value="${m.value}" ${modelConfig.model === m.value ? 'selected' : ''}>${m.label}</option>`
+    ).join('');
+
     return `
       <div class="bulk-doc-chain-step-card" data-step-index="${step.index}">
         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -583,6 +708,28 @@
           <label class="form-label bulk-doc-hint" style="font-size: 12px;">Required Inputs</label>
           <div class="d-flex flex-wrap gap-2">
             ${inputsHtml}
+          </div>
+        </div>
+        <div class="row g-2 mb-2">
+          <div class="col-md-4">
+            <label class="form-label bulk-doc-hint" style="font-size: 12px;">Model</label>
+            <select class="form-select form-select-sm" data-field="model" data-subfield="model">
+              ${modelSelectHtml}
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label bulk-doc-hint" style="font-size: 12px;">Max Tokens</label>
+            <input type="number" class="form-control form-control-sm" 
+                   data-field="max_tokens" data-subfield="max_tokens"
+                   value="${modelConfig.max_tokens || 4096}" min="1" max="8192" step="1">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label bulk-doc-hint" style="font-size: 12px;">
+              Temperature: <span id="temp_${step.index}_value">${(modelConfig.temperature || 0.2).toFixed(1)}</span>
+            </label>
+            <input type="range" class="form-range" 
+                   data-field="temperature" data-subfield="temperature"
+                   value="${modelConfig.temperature || 0.2}" min="0" max="1" step="0.1">
           </div>
         </div>
         <div class="mb-2">
@@ -668,6 +815,11 @@
         required_inputs: step.required_inputs,
         prompt: step.prompt.trim(),
         description: step.description ? step.description.trim() : '',
+        model_config: step.model_config || {
+          model: 'claude-3-haiku-20240307',
+          max_tokens: 4096,
+          temperature: 0.2
+        }
       }));
 
       let result;
@@ -751,6 +903,51 @@
     });
   }
 
+  // -------- session management event handlers --------
+  if (refs.sessionSelect) {
+    refs.sessionSelect.addEventListener('change', async (e) => {
+      const sessionId = e.target.value;
+      if (!sessionId || sessionId === state.currentSessionId) return;
+
+      try {
+        await api.selectSession(sessionId);
+        state.currentSessionId = sessionId;
+        updateCurrentSessionDisplay();
+        // Refresh documents for new session
+        await refreshDocs();
+        toast('success', 'Session switched', 'Switched to selected session.');
+      } catch (err) {
+        console.error('Switch session error:', err);
+        toast('error', 'Switch failed', err.message || 'Failed to switch session.');
+        // Reset selector
+        renderSessionSelector();
+      }
+    });
+  }
+
+  if (refs.newSessionBtn) {
+    refs.newSessionBtn.addEventListener('click', async () => {
+      const name = prompt('Enter a name for the new session (optional):');
+      if (name === null) return; // User cancelled
+
+      try {
+        const result = await api.createSession(name || null);
+        if (result && result.session_id) {
+          state.currentSessionId = result.session_id;
+          // Refresh sessions list and update UI
+          await refreshSessions();
+          // Clear current documents (new session has none)
+          state.docs = [];
+          renderDocs();
+          toast('success', 'Session created', 'New session created and selected.');
+        }
+      } catch (err) {
+        console.error('Create session error:', err);
+        toast('error', 'Create failed', err.message || 'Failed to create new session.');
+      }
+    });
+  }
+
   // -------- events --------
   if (refs.uploadInput) {
     refs.uploadInput.addEventListener('change', async (e) => {
@@ -777,7 +974,17 @@
       renderDocs();
 
       try {
-        await api.uploadPdfs(files);
+        const result = await api.uploadPdfs(files);
+        // Update local doc entries with backend doc_ids from response
+        if (result && result.documents) {
+          const filenameToDoc = new Map(state.docs.map(d => [d.filename, d]));
+          result.documents.forEach(backendDoc => {
+            const localDoc = filenameToDoc.get(backendDoc.original_filename);
+            if (localDoc) {
+              localDoc.doc_id = backendDoc.doc_id;
+            }
+          });
+        }
         toast('info', 'Upload started', `${files.length} file(s) uploaded. Conversion in progress.`);
         startPolling();
       } catch (err) {
@@ -854,21 +1061,44 @@
       const doc = state.docs.find((d) => d.localId === id);
       if (!doc) return;
 
-      // UI-only deletion (backend delete will come later); keep safe confirm UX
-      try {
-        await api.deleteDoc(id);
-      } catch (err) {
-        // If backend not present, still allow removal of errored docs from UI per acceptance
-        console.warn(err);
+      // Use doc_id from backend if available, fallback to localId
+      const docIdToDelete = doc.doc_id || doc.docId || id;
+
+      // Temporarily stop polling to prevent refresh during delete
+      const wasPolling = !!state.polling.intervalId;
+      if (wasPolling) {
+        stopPolling();
       }
 
-      state.docs = state.docs.filter((d) => d.localId !== id);
-      renderDocs();
+      try {
+        await api.deleteDoc(docIdToDelete);
+        // Remove from UI state after successful deletion
+        state.docs = state.docs.filter((d) => d.localId !== id);
+        renderDocs();
+        toast('success', 'Deleted', 'Document removed successfully.');
+        
+        // Restart polling after a brief delay to allow backend to update
+        if (wasPolling) {
+          window.setTimeout(() => {
+            startPolling();
+          }, 1000);
+        }
+      } catch (err) {
+        // If backend deletion fails, show error and restart polling
+        console.error('Delete failed:', err);
+        toast('error', 'Delete failed', err.message || 'Failed to delete document. It may already be in use.');
+        
+        // Restart polling
+        if (wasPolling) {
+          window.setTimeout(() => {
+            startPolling();
+          }, 1000);
+        }
+      }
 
       if (typeof bootstrap !== 'undefined' && refs.deleteModalEl) {
         bootstrap.Modal.getOrCreateInstance(refs.deleteModalEl).hide();
       }
-      toast('success', 'Deleted', 'Errored document removed.');
     });
   }
 
@@ -948,21 +1178,21 @@
         return;
       }
 
-      toast('info', 'Downloading', `Downloading ${successRows.length} file(s)...`);
-      for (const row of successRows) {
-        try {
-          const blob = await api.downloadDocOutput(state.run.runId, row.docId || row.localId);
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `${row.filename}.md`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(url);
-        } catch (err) {
-          console.error(`Download failed for ${row.filename}:`, err);
-        }
+      try {
+        toast('info', 'Preparing download', 'Creating ZIP archive...');
+        const blob = await api.downloadAllOutputs(state.run.runId);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `run_${state.run.runId}_outputs.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        toast('success', 'Download started', 'ZIP archive download initiated.');
+      } catch (err) {
+        console.error(err);
+        toast('error', 'Download failed', err.message || 'Failed to download outputs.');
       }
       toast('success', 'Download complete', `${successRows.length} file(s) downloaded.`);
     });
@@ -1061,14 +1291,26 @@
     try {
       const data = await api.listDocs();
       if (data && Array.isArray(data.documents)) {
-        // Map backend docs to UI state (preserve localId if exists, else create new mapping)
-        const existingMap = new Map(state.docs.map((d) => [d.filename, d.localId]));
-        state.docs = data.documents.map((d) => ({
-          localId: existingMap.get(d.original_filename) || makeLocalId('doc'),
-          filename: d.original_filename,
-          status: d.status,
-          errorMessage: d.error_message || null,
+        // Use doc_id for matching to avoid duplicates when same filename exists
+        const existingMap = new Map(state.docs.map((d) => {
+          if (d.doc_id) return [d.doc_id, d];
+          // Fallback to filename for old entries without doc_id
+          return [d.filename, d];
         }));
+        
+        // Merge backend docs with existing state, preserving localId
+        // Backend already returns sorted by newest first, so we preserve that order
+        state.docs = data.documents.map((d) => {
+          const existing = existingMap.get(d.doc_id) || existingMap.get(d.original_filename);
+          return {
+            localId: existing ? existing.localId : makeLocalId('doc'),
+            doc_id: d.doc_id, // Store backend doc_id for deletion
+            filename: d.original_filename,
+            status: d.status,
+            errorMessage: d.error_message || null,
+            created_at: d.created_at || null, // Store timestamp for display
+          };
+        });
         renderDocs();
       }
     } catch (err) {
@@ -1076,6 +1318,58 @@
       if (String(err).includes('docs failed: 404')) {
         stopPolling();
       }
+    }
+  }
+
+  async function refreshSessions() {
+    try {
+      const data = await api.listSessions();
+      if (data && Array.isArray(data.sessions)) {
+        state.sessions = data.sessions;
+        // Set current session if not set or if it doesn't exist
+        if (!state.currentSessionId && state.sessions.length > 0) {
+          state.currentSessionId = state.sessions[0].session_id;
+        }
+        renderSessionSelector();
+        updateCurrentSessionDisplay();
+      }
+    } catch (err) {
+      console.warn('Sessions refresh failed:', err);
+      // Show error in dropdown
+      if (refs.sessionSelect) {
+        refs.sessionSelect.innerHTML = '<option value="">Error loading sessions</option>';
+      }
+    }
+  }
+
+  function renderSessionSelector() {
+    if (!refs.sessionSelect) return;
+    
+    if (state.sessions.length === 0) {
+      refs.sessionSelect.innerHTML = '<option value="">No sessions</option>';
+      return;
+    }
+    
+    const options = state.sessions.map((s) => {
+      const name = s.name || `Session ${s.session_id.split('_').pop()?.slice(0, 8) || 'new'}`;
+      const date = s.created_at ? new Date(s.created_at).toLocaleDateString() : '';
+      const label = `${name} (${s.document_count} docs) - ${date}`;
+      const selected = s.session_id === state.currentSessionId ? 'selected' : '';
+      return `<option value="${escapeHtml(s.session_id)}" ${selected}>${escapeHtml(label)}</option>`;
+    }).join('');
+    
+    refs.sessionSelect.innerHTML = options;
+  }
+
+  function updateCurrentSessionDisplay() {
+    if (!refs.currentSessionName) return;
+    
+    const current = state.sessions.find(s => s.session_id === state.currentSessionId);
+    if (current) {
+      const name = current.name || `Session ${current.session_id.split('_').pop()?.slice(0, 8) || 'new'}`;
+      refs.currentSessionName.textContent = name;
+    } else {
+      refs.currentSessionName.textContent = state.currentSessionId || 'None';
     }
   }
 
@@ -1195,11 +1489,14 @@
   }
 
   // -------- init --------
-  initTooltips();
-  renderDocs();
-  renderChains();
-  renderRun();
-  updateRunButton();
+  (async function() {
+    initTooltips();
+    renderDocs();
+    renderChains();
+    renderRun();
+    await refreshSessions();
+    updateRunButton();
+  })();
 })();
 
 

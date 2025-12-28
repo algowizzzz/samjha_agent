@@ -9,10 +9,10 @@
 <div id="bulkDocApp" class="bulk-doc-app" data-session-id="{{ bulk_doc_ui_session_id }}">
   <!-- Feature header (spec: 56px height) -->
   <div class="bulk-doc-header">
-    <div class="bulk-doc-header__left">
+      <div class="bulk-doc-header__left">
       <div class="bulk-doc-title">AI Bulk Doc Analysis</div>
       <div class="bulk-doc-meta">
-        Session: <span id="bulkDocSessionId" class="bulk-doc-mono">{{ bulk_doc_ui_session_id }}</span>
+        Current Session: <span id="bulkDocCurrentSessionName" class="bulk-doc-mono">Loading...</span>
       </div>
     </div>
     <div class="bulk-doc-header__right">
@@ -26,6 +26,14 @@
     <section class="bulk-doc-panel bulk-doc-panel--p1" aria-label="Documents">
       <div class="bulk-doc-panel__header">
         <div class="bulk-doc-panel__title">Documents</div>
+        <div class="d-flex gap-2 align-items-center">
+          <select id="bulkDocSessionSelect" class="form-select form-select-sm" style="width: auto; min-width: 200px;">
+            <option value="">Loading sessions...</option>
+          </select>
+          <button id="bulkDocNewSessionBtn" type="button" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-plus-circle"></i> New Session
+          </button>
+        </div>
       </div>
       <div class="bulk-doc-panel__body">
         <div class="bulk-doc-block">

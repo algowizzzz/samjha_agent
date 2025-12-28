@@ -1,0 +1,6 @@
+product,sales,region,month
+Widget A,150,North,2024-01
+Widget B,200,South,2024-01
+Widget A,180,East,2024-02
+Widget C,120,West,2024-02
+Widget B,250,North,2024-03
