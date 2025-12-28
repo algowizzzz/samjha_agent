@@ -137,14 +137,33 @@ Output your decision as JSON only (no markdown, no prose):
             # Per-request enablement: user/UI toggle OR env default.
             want_thinking = bool(state.get("show_thinking", False)) or DECIDER_THINKING_ENABLED
 
+            # Get model-specific max_tokens limit
+            # Haiku: 4096, Sonnet 3.5: 8192, Sonnet 4: 8192, Opus: 4096
+            model = llm_client.model if hasattr(llm_client, 'model') else None
+            model_max_tokens = 4096  # Default conservative limit
+            if model:
+                model_lower = model.lower()
+                if "sonnet" in model_lower:
+                    model_max_tokens = 8192
+                elif "haiku" in model_lower:
+                    model_max_tokens = 4096
+                elif "opus" in model_lower:
+                    model_max_tokens = 4096
+            
+            # Use the minimum of requested max_tokens and model limit
+            base_max_tokens = min(DECIDER_MAX_TOKENS, model_max_tokens)
+            logger.debug(f"[DECIDER] Model: {model}, model_max_tokens: {model_max_tokens}, base_max_tokens: {base_max_tokens}")
+
             thinking = None
             temperature = 0.0
-            max_tokens = DECIDER_MAX_TOKENS
+            max_tokens = base_max_tokens
             if want_thinking and DECIDER_THINKING_BUDGET_TOKENS > 0:
                 thinking = {"type": "enabled", "budget_tokens": DECIDER_THINKING_BUDGET_TOKENS}
                 # Anthropic extended thinking requires temperature=1 and max_tokens > budget_tokens
                 temperature = 1.0
-                max_tokens = max(max_tokens, int(thinking.get("budget_tokens", 0)) + 1)
+                # Ensure max_tokens respects model limit AND is > budget_tokens
+                required_max = int(thinking.get("budget_tokens", 0)) + 1
+                max_tokens = min(max(base_max_tokens, required_max), model_max_tokens)
 
                 detailed = llm_client.invoke_with_prompt_detailed(
                     system_prompt="",
@@ -161,11 +180,12 @@ Output your decision as JSON only (no markdown, no prose):
                 response_text = detailed.get("text") or ""
             else:
                 state["thinking_trace"] = None
+                # Use the same model-respecting max_tokens for non-thinking path
                 response_text = llm_client.invoke_with_prompt(
                     system_prompt="",
                     user_prompt=prompt,
                     temperature=temperature,
-                    max_tokens=max_tokens,
+                    max_tokens=max_tokens,  # Already set to base_max_tokens (respects model limit)
                     response_format="json",
                     thinking=None
                 )
@@ -173,8 +193,6 @@ Output your decision as JSON only (no markdown, no prose):
             output = parse_json_response(response_text)
             
             # LOG FOR COMPARISON: thinking=true vs thinking=false
-            import logging
-            logger = logging.getLogger(__name__)
             logger.info(f"[DECIDER_COMPARISON] thinking={want_thinking}, response_text_length={len(response_text)}")
             logger.info(f"[DECIDER_COMPARISON] response_text_snippet: {response_text[:800]}")
             grain_value = output.get('query_spec', {}).get('grain', 'MISSING')

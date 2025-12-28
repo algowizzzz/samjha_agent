@@ -19,6 +19,7 @@ class ExecutorState(TypedDict):
     halt_execution: bool  # Early halt flag
     user_query: Optional[str]  # User's original query for LLM commentary
     conversation_history: Optional[list]  # Conversation history for context
+    agent_data_folder: Optional[str]  # Agent's data folder for path scoping in tools
 
 
 class ControllerState(TypedDict):
@@ -34,4 +35,6 @@ class ControllerState(TypedDict):
     thinking_trace: Optional[str]
     last_executor_report: Optional[dict]
     attempt_count: int
+    agent_id: Optional[str]  # Agent instance ID
+    agent_data_folder: Optional[str]  # Agent's data folder for path scoping
 

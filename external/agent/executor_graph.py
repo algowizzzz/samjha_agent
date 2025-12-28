@@ -96,7 +96,8 @@ def run_executor_sequential(decider_output: dict, state: ControllerState, tools_
         "policy_limits": state.get("policy_limits", {}),
         "halt_execution": False,
         "user_query": state.get("user_query"),
-        "conversation_history": state.get("conversation_history", [])
+        "conversation_history": state.get("conversation_history", []),
+        "agent_data_folder": state.get("agent_data_folder")  # Pass agent data folder to executor
     }
     
     # Run nodes sequentially
@@ -155,7 +156,8 @@ def run_executor(decider_output: dict, state: ControllerState, tools_registry, d
                 "policy_limits": state.get("policy_limits", {}),
                 "halt_execution": False,
                 "user_query": state.get("user_query"),
-                "conversation_history": state.get("conversation_history", [])
+                "conversation_history": state.get("conversation_history", []),
+                "agent_data_folder": state.get("agent_data_folder")  # Pass agent data folder to executor
             }
             
             # Run graph

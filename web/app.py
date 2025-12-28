@@ -79,6 +79,20 @@ def create_app():
     # Setup logging
     logging.basicConfig(level=logging.INFO)
     
+    # Initialize DB schema and import existing data
+    try:
+        from external.agent.persistence import ensure_schema, import_prompts_from_files, import_agents_from_files
+        from core.db.session import get_db_session
+        ensure_schema()
+        with get_db_session() as db:
+            prompts_imported = import_prompts_from_files(db)
+            agents_imported = import_agents_from_files(db)
+            db.commit()
+            if prompts_imported > 0 or agents_imported > 0:
+                logging.info(f"Imported {prompts_imported} prompts and {agents_imported} agents from files to DB")
+    except Exception as e:
+        logging.warning(f"DB initialization failed (continuing anyway): {e}")
+    
     # Register routes
     register_all_routes(app, socketio)
     
@@ -108,7 +122,7 @@ def register_all_routes(app, socketio):
         if not session_data:
             session.pop('token', None)
             return redirect(url_for('login'))
-        return render_template('home.html', user=session_data)
+        return render_template('home.html', user=session_data, bulk_doc_available=BULK_DOC_AVAILABLE)
 
     # Register AI Bulk Doc Analysis UI (isolated feature)
     if BULK_DOC_AVAILABLE and create_bulk_doc_blueprint is not None:
@@ -141,6 +155,12 @@ def register_all_routes(app, socketio):
             agent_routes = AgentRoutes(auth_manager, tools_registry)
             agent_routes.register_routes(app)
             logging.info("Agent routes registered successfully")
+            
+            # Register agent run routes (SSE)
+            from external.routes.agent_run_routes import AgentRunRoutes
+            agent_run_routes = AgentRunRoutes(auth_manager, tools_registry)
+            agent_run_routes.register_routes(app)
+            logging.info("Agent run routes (SSE) registered successfully")
         except Exception as e:
             logging.error(f"Failed to register agent routes: {e}")
     else:

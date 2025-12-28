@@ -72,33 +72,26 @@ def generate_response_commentary(
             f"  {json.dumps(row, default=str)}"
             for row in sample_rows
         ])
+    else:
+        sample_rows_text = "  (No rows returned)"
     
-    prompt = f"""You are a helpful data analyst assistant. Write a natural, conversational response to the user's query based on the SQL results.
-
-User Query: {user_query}
-Business Question: {business_question}
-
-SQL Query Executed:
-{sql}
-
-Results Summary:
-- Row Count: {results_summary.get('row_count', 0)}
-- Columns: {', '.join(results_summary.get('columns', []))}
-- Sample Rows:
-{sample_rows_text if sample_rows_text else '  (No rows returned)'}
-
-{f'Recent Conversation History:\n{conv_history_text}' if conv_history_text else ''}
-
-{f'Evaluation Notes: {evaluation_notes}' if evaluation_notes else ''}
-
-Write a concise, helpful response (2-4 sentences) that:
-1. Directly answers the user's question
-2. Highlights key findings from the results
-3. Uses natural language (avoid technical jargon like "row_count" or "columns")
-4. If conversation history exists, acknowledge context appropriately
-5. Be conversational and friendly
-
-Response:"""
+    # Format conversation history and evaluation notes
+    conv_history_section = f"Recent Conversation History:\n{conv_history_text}" if conv_history_text else ""
+    eval_notes_section = f"Evaluation Notes: {evaluation_notes}" if evaluation_notes else ""
+    
+    # Load prompt template and format it
+    from external.platform.prompt_loader import load_prompt
+    prompt_template = load_prompt("response_commentary")
+    prompt = prompt_template.format(
+        user_query=user_query,
+        business_question=business_question,
+        sql=sql,
+        row_count=results_summary.get('row_count', 0),
+        columns=', '.join(results_summary.get('columns', [])),
+        sample_rows=sample_rows_text,
+        conversation_history=conv_history_section,
+        evaluation_notes=eval_notes_section
+    )
     
     try:
         # Use invoke_with_prompt - takes system_prompt and user_prompt separately
@@ -152,19 +145,46 @@ def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
             
             # Execute tool
             # Normalize dataset paths to match tool base directory (external/datawarehouse)
-            # This prevents failures like "ecomm/sample_sales_data.csv" when the actual directory is "ECommerce/...".
+            # Scope paths to agent's data_folder if provided
+            agent_data_folder = state.get("agent_data_folder")
+            
             def normalize_data_path(p: str) -> str:
                 """
                 Normalize tool paths to match our on-disk datawarehouse layout.
-
-                Canonical root: external/datawarehouse/ECommerce/...
-                We accept common decider variants like:
-                - "ecomm" or "ecommerce" (folder)
-                - "ecomm/<file>" or "ecommerce/<file>"
+                If agent_data_folder is set, scope all paths to that folder.
+                
+                Canonical root: external/datawarehouse/{agent_data_folder}/...
+                Fallback: accepts common decider variants like "ecomm" -> "ECommerce"
                 """
                 if not isinstance(p, str):
                     return p
                 p2 = p.strip().lstrip("/")
+                
+                # If agent has specific data folder, scope to it
+                if agent_data_folder:
+                    # If path already starts with agent folder, use as-is
+                    if p2.startswith(agent_data_folder + "/") or p2 == agent_data_folder:
+                        return p2
+                    # Normalize common variants first, then prefix with agent folder
+                    lower = p2.lower()
+                    if lower in ("ecomm", "ecommerce"):
+                        # Already at agent folder root
+                        return agent_data_folder
+                    if lower.startswith("ecomm/") or lower.startswith("ecommerce/"):
+                        # Extract file part and prefix with agent folder
+                        file_part = p2.split("/", 1)[1]
+                        return f"{agent_data_folder}/{file_part}"
+                    # Handle domain_key variants (e.g., "widgets/file.csv" when agent folder is "WidgetSales")
+                    if "/" in p2:
+                        parts = p2.split("/", 1)
+                        folder_part = parts[0].lower()
+                        # If folder part looks like a domain key variant, replace with agent folder
+                        if folder_part not in (agent_data_folder.lower(), "ecomm", "ecommerce"):
+                            return f"{agent_data_folder}/{parts[1]}"
+                    # Otherwise, prefix with agent folder
+                    return f"{agent_data_folder}/{p2}"
+                
+                # Fallback: legacy normalization for ecomm/ecommerce
                 lower = p2.lower()
                 if lower in ("ecomm", "ecommerce"):
                     return "ECommerce"

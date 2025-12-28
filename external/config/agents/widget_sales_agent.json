@@ -1,0 +1,10 @@
+{
+  "agent_type": "structured",
+  "created_at": "2025-12-28T04:30:46+00:00",
+  "data_folder": "WidgetSales",
+  "description": "Analyze widget sales data by product, region, and month",
+  "domain_file": "widget_sales_agent_domain.md",
+  "id": "widget_sales_agent",
+  "name": "Widget Sales Agent",
+  "updated_at": "2025-12-28T04:30:46+00:00"
+}

@@ -75,6 +75,7 @@ class LangGraphAgentTool(BaseMCPTool):
         user_id: Optional[str] = arguments.get("user_id")  # may be injected by server later
         user_clarification: Optional[str] = arguments.get("user_clarification")
         show_thinking: bool = bool(arguments.get("show_thinking", False))
+        agent_id: Optional[str] = arguments.get("agent_id")  # agent instance ID
 
         # v1: HTTP-only agent/chat. We keep continuity (follow-ups + user answers) via session_id.
         # If no session_id is provided, run stateless.
@@ -96,6 +97,7 @@ class LangGraphAgentTool(BaseMCPTool):
             tools_registry=self.agent.tools_registry,
             policy_limits={"max_attempts": 3, "max_rows": 1000, "timeout_seconds": 60, "allow_cross_join": False},
             show_thinking=show_thinking,
+            agent_id=agent_id,  # Pass agent_id to handle_query
         )
 
         # Update session state for continuity
@@ -111,7 +113,17 @@ class LangGraphAgentTool(BaseMCPTool):
             conversation_history.append(turn)
 
             # Build minimal ControllerState for next follow-up
-            domain_md = load_domain_md(effective_query, conversation_history)
+            domain_md = load_domain_md(effective_query, conversation_history, agent_id)
+            # Load agent config to get data_folder
+            agent_data_folder = None
+            if agent_id:
+                try:
+                    from external.agent.agent_registry import get_agent
+                    agent = get_agent(agent_id)
+                    if agent:
+                        agent_data_folder = agent.get("data_folder")
+                except Exception:
+                    pass
             prior_state = {
                 "user_query": effective_query,
                 "conversation_history": conversation_history,
@@ -121,6 +133,8 @@ class LangGraphAgentTool(BaseMCPTool):
                 "query_spec_status": raw.get("query_spec_status", prior_state.get("query_spec_status", {}) if isinstance(prior_state, dict) else {}),
                 "last_executor_report": None,
                 "attempt_count": 0,
+                "agent_id": agent_id,
+                "agent_data_folder": agent_data_folder,
             }
 
             self._sessions[session_id] = {

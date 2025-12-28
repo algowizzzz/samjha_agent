@@ -90,7 +90,7 @@
         </a>
 
         <!-- Chat Agents Box -->
-        <a href="{{ url_for('agent_chat') }}" class="home-box">
+        <a href="{{ url_for('agents_selection') }}" class="home-box">
             <div class="home-box-icon">
                 <i class="bi bi-chat-dots"></i>
             </div>
@@ -101,6 +101,7 @@
         </a>
 
         <!-- AI Bulk Doc Analysis Box -->
+        {% if bulk_doc_available %}
         <a href="{{ url_for('bulk_doc.bulk_doc_home') }}" class="home-box">
             <div class="home-box-icon">
                 <i class="bi bi-diagram-3"></i>
@@ -110,6 +111,7 @@
                 Upload PDFs, run deterministic multi-step prompt chains, and download auditable Markdown outputs.
             </div>
         </a>
+        {% endif %}
 
         <!-- Admin Panel Box -->
         <a href="{{ url_for('admin_panel') }}" class="home-box">

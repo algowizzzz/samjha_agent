@@ -956,6 +956,9 @@
         // v1: keep chat UI minimal; no external welcome/config endpoints.
     }
 
+    let currentEventSource = null;
+    let currentRunId = null;
+
     function sendQuery() {
         const q = inputEl.value.trim();
         if (!q) return;
@@ -966,7 +969,11 @@
         $('#sendBtn').prop('disabled', true);
         isQueryRunning = true;
 
-        // Reset state
+        // Close previous SSE connection if any
+        if (currentEventSource) {
+            currentEventSource.close();
+            currentEventSource = null;
+        }
 
         // Create placeholder for agent response
         messageCounter++;
@@ -977,135 +984,242 @@
         const messageDiv = document.createElement('div');
         messageDiv.id = currentResponseId;
         messageDiv.className = 'chat-message agent';
-        messageDiv.innerHTML = '<span class="badge bg-success me-2">Agent</span><div class="markdown-body"></div>';
+        messageDiv.innerHTML = '<span class="badge bg-success me-2">Agent</span><div class="markdown-body"><em>Processing...</em></div>';
         wrapper.appendChild(messageDiv);
         historyEl.appendChild(wrapper);
         
         // Smooth scroll to new message
         smoothScrollToBottom();
 
-        // v1: HTTP-only (ignore websocket path)
-            const requestArgs = {
-                query: q,
-                session_id: currentSessionId,
-                user_id: '{{ user.user_id | default("anonymous") }}',
+        // Get agent_id from route
+        const agentId = {% if agent_id %}'{{ agent_id }}'{% else %}null{% endif %};
+        if (!agentId) {
+            console.error('No agent_id available');
+            $('#sendBtn').prop('disabled', false);
+            isQueryRunning = false;
+            return;
+        }
+
+        // Start run via POST
+        const requestData = {
+            query: q,
+            conversation_id: currentSessionId || null,
             show_thinking: showThinking
-            };
+        };
 
-            if (awaitingClarification) {
-                requestArgs.user_clarification = q;
-                awaitingClarification = false;
-                inputEl.placeholder = 'Ask a question or provide a follow-up...';
-            }
+        if (awaitingClarification) {
+            requestData.user_clarification = q;
+            awaitingClarification = false;
+            inputEl.placeholder = 'Ask a question or provide a follow-up...';
+        }
 
-        console.log('[DEBUG] Sending API request:', { url: '/api/tools/execute', requestArgs: requestArgs });
-            API.post('/api/tools/execute', {
-                tool: 'parquet_agent',
-                arguments: requestArgs
-            }).done(function(resp) {
-            console.log('[DEBUG] API Response received:', resp);
-            const result = (resp && resp.result) ? resp.result : resp;
-            console.log('[DEBUG] Result extracted:', result);
-            console.log('[DEBUG] final_output:', result.final_output);
-            console.log('[DEBUG] thinking present:', !!(result.final_output && result.final_output.thinking));
-            if (result.final_output && result.final_output.thinking) {
-                console.log('[DEBUG] thinking length:', result.final_output.thinking.length);
-            }
-            
-            // Update session ID if provided
-            if (result.session_id) {
-                currentSessionId = result.session_id;
-                localStorage.setItem('agentSessionId', currentSessionId);
-            }
-            
-            // Check if agent needs clarification
-            if (result.control === 'wait_for_user') {
-                const clarification = result.clarification || {};
-                const clarifyPrompt = clarification.prompt || clarification.questions?.[0] || 'I need clarification on your query. Please provide more details.';
-                console.log('[DEBUG] Clarification needed:', clarifyPrompt);
+        console.log('[DEBUG] Starting run:', requestData);
+        API.post(`/api/agents/${agentId}/runs`, requestData)
+            .done(function(resp) {
+                currentRunId = resp.run_id;
+                if (resp.conversation_id) {
+                    currentSessionId = resp.conversation_id;
+                    localStorage.setItem('agentSessionId', currentSessionId);
+                }
+                
+                // Open SSE stream
+                const eventSource = new EventSource(`/api/runs/${currentRunId}/events`);
+                currentEventSource = eventSource;
+                
+                let sqlGenerated = false;
+                let resultsReady = false;
+                const messageEl = document.getElementById(currentResponseId);
+                const markdownBody = messageEl ? messageEl.querySelector('.markdown-body') : null;
+                
+                eventSource.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        console.log('[DEBUG] SSE event:', data);
+                        
+                        const eventType = data.event_type || data.payload?.event_type;
+                        const payload = data.payload || {};
+                        
+                        switch (eventType) {
+                            case 'run_started':
+                                if (markdownBody) {
+                                    markdownBody.innerHTML = '<em>Starting analysis...</em>';
+                                }
+                                break;
+                                
+                            case 'decider_done':
+                                if (markdownBody) {
+                                    markdownBody.innerHTML = '<em>Planning query...</em>';
+                                }
+                                break;
+                                
+                            case 'sql_generated':
+                                sqlGenerated = true;
+                                const sql = payload.sql || '';
+                                if (sql && messageEl) {
+                                    messageEl.dataset.sql = sql;
+                                }
+                                if (markdownBody) {
+                                    markdownBody.innerHTML = '<em>Executing query...</em>';
+                                }
+                                break;
+                                
+                            case 'results_ready':
+                                resultsReady = true;
+                                const rowCount = payload.row_count || 0;
+                                if (markdownBody) {
+                                    markdownBody.innerHTML = `<em>Query executed (${rowCount} rows). Generating response...</em>`;
+                                }
+                                break;
+                                
+                            case 'final_response':
+                                const response = payload.response || '';
+                                if (markdownBody && typeof marked !== 'undefined') {
+                                    markdownBody.innerHTML = marked.parse(response);
+                                } else if (markdownBody) {
+                                    markdownBody.innerHTML = '<div>' + escapeHtml(response) + '</div>';
+                                }
+                                break;
+                                
+                            case 'ask_user':
+                                const question = payload.question || 'I need clarification.';
+                                if (markdownBody && typeof marked !== 'undefined') {
+                                    markdownBody.innerHTML = marked.parse(question);
+                                } else if (markdownBody) {
+                                    markdownBody.innerHTML = '<div>' + escapeHtml(question) + '</div>';
+                                }
+                                awaitingClarification = true;
+                                inputEl.placeholder = 'Provide clarification...';
+                                break;
+                                
+                            case 'run_completed':
+                            case 'run_failed':
+                            case 'run_blocked':
+                                eventSource.close();
+                                currentEventSource = null;
+                                
+                                // Fetch final run state to get results
+                                if (currentRunId) {
+                                    API.get(`/api/runs/${currentRunId}`)
+                                        .done(function(runData) {
+                                            if (runData.results && messageEl) {
+                                                displaySQLResults(messageEl, {
+                                                    columns: Object.keys(runData.results.schema || {}),
+                                                    rows: runData.results.rows || [],
+                                                    row_count: (runData.results.rows || []).length
+                                                });
+                                            }
+                                        })
+                                        .always(function() {
+                                            $('#sendBtn').prop('disabled', false);
+                                            isQueryRunning = false;
+                                            currentResponseId = null;
+                                        });
+                                } else {
+                                    $('#sendBtn').prop('disabled', false);
+                                    isQueryRunning = false;
+                                    currentResponseId = null;
+                                }
+                                break;
+                        }
+                        
+                        smoothScrollToBottom();
+                    } catch (e) {
+                        console.error('Error parsing SSE event:', e);
+                    }
+                };
+                
+                eventSource.onerror = function(e) {
+                    console.error('SSE error:', e);
+                    if (eventSource.readyState === EventSource.CLOSED) {
+                        eventSource.close();
+                        currentEventSource = null;
+                        $('#sendBtn').prop('disabled', false);
+                        isQueryRunning = false;
+                        if (markdownBody) {
+                            markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Connection closed.';
+                        }
+                    }
+                };
+            })
+            .fail(function(xhr) {
+                const err = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : ('HTTP ' + xhr.status);
+                console.error('Error starting run:', err);
+                
                 if (currentResponseId) {
                     const msgEl = document.getElementById(currentResponseId);
                     if (msgEl) {
+                        msgEl.classList.add('error-message');
                         const markdownBody = msgEl.querySelector('.markdown-body');
-                        if (markdownBody && typeof marked !== 'undefined') {
-                            markdownBody.innerHTML = marked.parse(clarifyPrompt);
-                        } else if (markdownBody) {
-                            markdownBody.innerHTML = '<div>' + escapeHtml(clarifyPrompt) + '</div>';
+                        if (markdownBody) {
+                            markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Error: ' + escapeHtml(err);
                         }
                     }
                 } else {
-                    appendMessage('agent', clarifyPrompt);
-                }
-                awaitingClarification = true;
-                inputEl.placeholder = 'Provide clarification...';
-            } else {
-                // Normal response
-                const finalOut = (result && result.final_output) ? result.final_output : {};
-                const answer = finalOut.response || '';
-                console.log('[DEBUG] Normal response:', { answer: answer.substring(0, 100), hasResults: !!finalOut.results });
-                
-                // Update the placeholder message with final result
-                if (currentResponseId) {
-                    finalizeMessage(currentResponseId, result);
-                } else {
-                    appendMessage('agent', answer, result);
+                    appendMessage('agent', 'Error: ' + err);
                 }
                 awaitingClarification = false;
                 inputEl.placeholder = 'Ask a question or provide a follow-up...';
-            }
-        }).fail(function(xhr) {
-            const err = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : ('HTTP ' + xhr.status);
-            
-            // Hide loading states
-            
-            // Show error message
-            if (currentResponseId) {
-                const msgEl = document.getElementById(currentResponseId);
-                if (msgEl) {
-                    msgEl.classList.add('error-message');
-                    const markdownBody = msgEl.querySelector('.markdown-body');
-                    if (markdownBody) {
-                        markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Error: ' + escapeHtml(err);
-                    }
-                }
-            } else {
-                appendMessage('agent', 'Error: ' + err);
-            }
-            awaitingClarification = false;
-            inputEl.placeholder = 'Ask a question or provide a follow-up...';
-        }).always(function() {
-            $('#sendBtn').prop('disabled', false);
-            isQueryRunning = false;
-            
-            // Clean up state variables
-            currentResponseId = null;
-        });
+                $('#sendBtn').prop('disabled', false);
+                isQueryRunning = false;
+                currentResponseId = null;
+            });
     }
     
     // ====================================================================================
-    // PHASE: Welcome Message on Page Load
+    // Event Listeners Setup
     // ====================================================================================
     
-    function loadWelcomeMessage() {
-        // v1: minimal agent chat UI. No welcome/config endpoints.
-                return;
-            }
-    // No welcome/config/agent-management initialization in v1 minimal UI.
-    
-    // Event listeners
-    sendBtn.addEventListener('click', sendQuery);
-    inputEl.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') sendQuery();
-    });
-    
-    // New Chat button
-    const newChatBtn = document.getElementById('newChatBtn');
-    if (newChatBtn) {
-        newChatBtn.addEventListener('click', function() {
-            if (confirm('Start a new chat? This will clear the current conversation history.')) {
-                startNewChat();
+    // Function to setup event listeners
+    function setupEventListeners() {
+        // Re-get elements in case they weren't ready before
+        const btn = document.getElementById('sendBtn');
+        const input = document.getElementById('chatInput');
+        const newChatBtn = document.getElementById('newChatBtn');
+        
+        if (!btn) {
+            console.error('[DEBUG] sendBtn not found! Retrying in 100ms...');
+            setTimeout(setupEventListeners, 100);
+            return;
+        }
+        
+        if (!input) {
+            console.error('[DEBUG] inputEl not found! Retrying in 100ms...');
+            setTimeout(setupEventListeners, 100);
+            return;
+        }
+        
+        // Add click listener
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            sendQuery();
+        });
+        console.log('[DEBUG] Send button event listener attached');
+        
+        // Add Enter key listener
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendQuery();
             }
         });
+        console.log('[DEBUG] Input keydown listener attached');
+        
+        // New Chat button
+        if (newChatBtn) {
+            newChatBtn.addEventListener('click', function() {
+                if (confirm('Start a new chat? This will clear the current conversation history.')) {
+                    startNewChat();
+                }
+            });
+        }
+    }
+    
+    // Setup listeners when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupEventListeners);
+    } else {
+        // DOM already ready
+        setupEventListeners();
     }
     
     // v1: no agent-management controls.

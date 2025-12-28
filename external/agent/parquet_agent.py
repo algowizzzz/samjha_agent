@@ -15,15 +15,28 @@ from tools.tools_registry import ToolsRegistry
 logger = logging.getLogger(__name__)
 
 
-def load_domain_md(user_query: str, conversation_history: list) -> str:
+def load_domain_md(user_query: str, conversation_history: list, agent_id: Optional[str] = None) -> str:
     """
-    Load domain markdown file based on user query and history.
-    Simple implementation: defaults to ecomm domain.
+    Load domain markdown file from agent config, or fallback to query-based selection.
     """
-    # Simple domain selection - can be enhanced later
-    domain = "ecomm"  # Default domain
+    # If agent_id provided, load from agent config
+    if agent_id:
+        try:
+            from external.agent.agent_registry import get_agent
+            agent = get_agent(agent_id)
+            if agent:
+                domain_file_name = agent.get("domain_file", "")
+                if domain_file_name:
+                    domain_path = Path(f"external/config/domains/{domain_file_name}")
+                    if domain_path.exists():
+                        return domain_path.read_text()
+                    else:
+                        logger.warning(f"Domain file not found for agent {agent_id}: {domain_path}")
+        except Exception as e:
+            logger.warning(f"Error loading domain for agent {agent_id}: {e}")
     
-    # Check if query mentions specific domain keywords
+    # Fallback: Simple domain selection based on query (legacy behavior)
+    domain = "ecomm"  # Default domain
     query_lower = user_query.lower()
     if "market risk" in query_lower or "limits" in query_lower or "mr" in query_lower:
         domain = "mr"
@@ -94,7 +107,8 @@ def initialize_controller_state(
     conversation_history: list,
     prior_state: Optional[ControllerState] = None,
     policy_limits: Optional[dict] = None,
-    show_thinking: bool = False
+    show_thinking: bool = False,
+    agent_id: Optional[str] = None
 ) -> ControllerState:
     """
     Initialize or restore controller state.
@@ -143,17 +157,30 @@ def initialize_controller_state(
     if policy_limits:
         default_policy_limits.update(policy_limits)
     
+    # Load agent config if agent_id provided
+    agent_data_folder = None
+    if agent_id:
+        try:
+            from external.agent.agent_registry import get_agent
+            agent = get_agent(agent_id)
+            if agent:
+                agent_data_folder = agent.get("data_folder")
+        except Exception as e:
+            logger.warning(f"Error loading agent config for {agent_id}: {e}")
+    
     return {
         "user_query": user_query,
         "conversation_history": conversation_history,
-        "domain_md": load_domain_md(user_query, conversation_history),
+        "domain_md": load_domain_md(user_query, conversation_history, agent_id),
         "policy_limits": default_policy_limits,
         "query_spec": {},
         "query_spec_status": {},
         "show_thinking": bool(show_thinking),
         "thinking_trace": None,
         "last_executor_report": None,
-        "attempt_count": 0
+        "attempt_count": 0,
+        "agent_id": agent_id,  # Store agent_id in state
+        "agent_data_folder": agent_data_folder  # Store data folder for path scoping
     }
 
 
@@ -163,7 +190,8 @@ def handle_query(
     prior_state: Optional[ControllerState] = None,
     tools_registry: Optional[ToolsRegistry] = None,
     policy_limits: Optional[dict] = None,
-    show_thinking: bool = False
+    show_thinking: bool = False,
+    agent_id: Optional[str] = None
 ) -> dict:
     """
     Controller orchestrates:
@@ -196,7 +224,7 @@ def handle_query(
                     logger.warning(f"Failed to load tool {tool_config.stem}: {e}")
     
     # Initialize controller state
-    state = initialize_controller_state(user_query, conversation_history, prior_state, policy_limits, show_thinking=show_thinking)
+    state = initialize_controller_state(user_query, conversation_history, prior_state, policy_limits, show_thinking=show_thinking, agent_id=agent_id)
     max_attempts = int(state["policy_limits"]["max_attempts"])
     domain_md = state["domain_md"]
     

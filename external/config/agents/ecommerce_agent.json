@@ -1,0 +1,10 @@
+{
+  "agent_type": "structured",
+  "created_at": "2025-12-28T04:11:41+00:00",
+  "data_folder": "ECommerce",
+  "description": "Analyze sales and customer data (structured parquet/csv via DuckDB).",
+  "domain_file": "ecommerce_agent_domain.md",
+  "id": "ecommerce_agent",
+  "name": "Ecommerce Agent",
+  "updated_at": "2025-12-28T04:11:41+00:00"
+}

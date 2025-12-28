@@ -12,6 +12,8 @@ from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
+# Also load .env.local if it exists (for local development)
+load_dotenv('.env.local', override=False)
 
 # Add project root to Python path
 project_root = Path(__file__).parent.absolute()

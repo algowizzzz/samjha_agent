@@ -1,4 +1,4 @@
-# DECIDER (Gate) — Single Canonical Prompt
+# DECIDER (Gate) — Single Canonical Prompt. 
 
 ## ROLE
 
