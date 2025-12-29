@@ -57,7 +57,8 @@ class LLMClient:
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         response_format: Optional[str] = None,
-        thinking: Optional[Dict[str, Any]] = None
+        thinking: Optional[Dict[str, Any]] = None,
+        model: Optional[str] = None  # Override model for this call
     ) -> str:
         """
         Invoke LLM with messages.
@@ -77,9 +78,10 @@ class LLMClient:
         
         temp = temperature if temperature is not None else self.temperature
         max_tok = max_tokens if max_tokens is not None else self.max_tokens
+        use_model = model if model is not None else self.model
         
         if self.provider == "anthropic":
-            return self._invoke_anthropic(messages, system, temp, max_tok, response_format, thinking)
+            return self._invoke_anthropic(messages, system, temp, max_tok, response_format, thinking, model=use_model)
         
         raise RuntimeError(f"Unknown provider: {self.provider}")
     
@@ -90,7 +92,8 @@ class LLMClient:
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         response_format: Optional[str] = None,
-        thinking: Optional[Dict[str, Any]] = None
+        thinking: Optional[Dict[str, Any]] = None,
+        model: Optional[str] = None  # Override model for this call
     ) -> str:
         """
         Simplified invoke with system and user prompts.
@@ -111,7 +114,8 @@ class LLMClient:
             temperature=temperature,
             max_tokens=max_tokens,
             response_format=response_format,
-            thinking=thinking
+            thinking=thinking,
+            model=model
         )
 
     def invoke_with_prompt_detailed(
@@ -121,7 +125,8 @@ class LLMClient:
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         response_format: Optional[str] = None,
-        thinking: Optional[Dict[str, Any]] = None
+        thinking: Optional[Dict[str, Any]] = None,
+        model: Optional[str] = None  # Override model for this call
     ) -> Dict[str, str]:
         """
         Invoke LLM and return both user-visible text and (if present) extended thinking text.
@@ -134,6 +139,7 @@ class LLMClient:
 
         temp = temperature if temperature is not None else self.temperature
         max_tok = max_tokens if max_tokens is not None else self.max_tokens
+        use_model = model if model is not None else self.model
 
         if self.provider == "anthropic":
             return self._invoke_anthropic_detailed(
@@ -142,7 +148,8 @@ class LLMClient:
                 temperature=temp,
                 max_tokens=max_tok,
                 response_format=response_format,
-                thinking=thinking
+                thinking=thinking,
+                model=use_model
             )
 
         raise RuntimeError(f"Unknown provider: {self.provider}")
@@ -274,11 +281,13 @@ class LLMClient:
         temperature: float,
         max_tokens: int,
         response_format: Optional[str],
-        thinking: Optional[Dict[str, Any]]
+        thinking: Optional[Dict[str, Any]],
+        model: Optional[str] = None
     ) -> Dict[str, str]:
         """Invoke Anthropic Claude API and return both thinking and text blocks."""
+        use_model = model if model is not None else self.model
         kwargs = {
-            "model": self.model,
+            "model": use_model,
             "messages": messages,
             "temperature": temperature,
             "max_tokens": max_tokens

@@ -5,7 +5,7 @@ Controller orchestrates Decider -> Executor -> retry loop
 
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Callable
 
 from external.agent.state_types import ControllerState
 from external.agent.decider import run_decider
@@ -17,21 +17,22 @@ logger = logging.getLogger(__name__)
 
 def load_domain_md(user_query: str, conversation_history: list, agent_id: Optional[str] = None) -> str:
     """
-    Load domain markdown file from agent config, or fallback to query-based selection.
+    Load domain markdown content from database, or fallback to query-based selection.
     """
-    # If agent_id provided, load from agent config
+    # If agent_id provided, load from database
     if agent_id:
         try:
-            from external.agent.agent_registry import get_agent
-            agent = get_agent(agent_id)
-            if agent:
-                domain_file_name = agent.get("domain_file", "")
-                if domain_file_name:
-                    domain_path = Path(f"external/config/domains/{domain_file_name}")
-                    if domain_path.exists():
-                        return domain_path.read_text()
+            from core.db.session import get_db_session
+            from external.agent.persistence import get_agent_db
+            
+            with get_db_session() as db:
+                agent = get_agent_db(db, agent_id)
+                if agent:
+                    domain_content = agent.get("domain_content")
+                    if domain_content:
+                        return domain_content
                     else:
-                        logger.warning(f"Domain file not found for agent {agent_id}: {domain_path}")
+                        logger.warning(f"Domain content not found for agent {agent_id}")
         except Exception as e:
             logger.warning(f"Error loading domain for agent {agent_id}: {e}")
     
@@ -180,7 +181,8 @@ def initialize_controller_state(
         "last_executor_report": None,
         "attempt_count": 0,
         "agent_id": agent_id,  # Store agent_id in state
-        "agent_data_folder": agent_data_folder  # Store data folder for path scoping
+        "agent_data_folder": agent_data_folder,  # Store data folder for path scoping
+        "agent_model": agent_model  # Store agent's configured model
     }
 
 
@@ -191,7 +193,8 @@ def handle_query(
     tools_registry: Optional[ToolsRegistry] = None,
     policy_limits: Optional[dict] = None,
     show_thinking: bool = False,
-    agent_id: Optional[str] = None
+    agent_id: Optional[str] = None,
+    on_decider_output: Optional[Callable[[dict, ControllerState], None]] = None,
 ) -> dict:
     """
     Controller orchestrates:
@@ -260,8 +263,10 @@ def handle_query(
         new_query_spec = decider_output.get("query_spec", {})
         new_query_spec_status = decider_output.get("query_spec_status", {})
         
-        # For FOLLOW_UP queries, preserve missing fields from prior state
-        if query_type == "FOLLOW_UP" and state.get("query_spec"):
+        # For FOLLOW_UP and RETRY queries, preserve missing fields from prior state.
+        # - FOLLOW_UP: merge intent changes while keeping verified context.
+        # - RETRY: keep the same intent, but carry forward verified context to avoid repeating work.
+        if query_type in ("FOLLOW_UP", "RETRY") and state.get("query_spec"):
             prior_spec = state["query_spec"]
             prior_status = state.get("query_spec_status", {})
             
@@ -277,8 +282,12 @@ def handle_query(
             
             # Preserve business_question if empty
             if not new_query_spec.get("business_question") and prior_spec.get("business_question"):
-                # For follow-ups, combine prior question with new context
-                new_query_spec["business_question"] = f"Follow-up: {state['user_query']} (based on: {prior_spec['business_question']})"
+                if query_type == "FOLLOW_UP":
+                    # For follow-ups, combine prior question with new context
+                    new_query_spec["business_question"] = f"Follow-up: {state['user_query']} (based on: {prior_spec['business_question']})"
+                else:
+                    # For retries, keep the same business question baseline
+                    new_query_spec["business_question"] = prior_spec["business_question"]
             
             # Preserve verified status fields from prior
             for field in ["business_question", "output_shape", "start_table_grain", "time", "metrics", "dimensions", "filters", "joins", "aggregation_plan"]:
@@ -292,6 +301,18 @@ def handle_query(
         # Keep canonical spec in controller state (single contract)
         state["query_spec"] = new_query_spec
         state["query_spec_status"] = new_query_spec_status
+
+        # Optional hook for callers (e.g., SSE runner) to persist decider output.
+        # We persist the *effective* spec/status that the controller will use (after preservation/merges).
+        if on_decider_output is not None:
+            try:
+                enriched = dict(decider_output or {})
+                enriched["query_spec"] = new_query_spec
+                enriched["query_spec_status"] = new_query_spec_status
+                on_decider_output(enriched, state)
+            except Exception as e:
+                # Never break the agent flow because persistence/telemetry failed.
+                logger.warning(f"on_decider_output hook failed: {e}", exc_info=True)
         
         # 2B) Route actions
         if action == "ASK_USER":

@@ -22,6 +22,7 @@ from external.agent.persistence import (
     get_or_create_conversation,
     append_message,
     create_run,
+    set_run_decider_output,
     append_event,
     list_events,
     finish_run_success,
@@ -30,7 +31,7 @@ from external.agent.persistence import (
     get_agent_db,
 )
 from external.agent.agent_registry import get_agent
-from external.agent.parquet_agent import handle_query
+from external.agent.parquet_agent import handle_query, load_domain_md
 
 logger = logging.getLogger(__name__)
 
@@ -161,13 +162,14 @@ class AgentRunRoutes(BaseRoutes):
             after_seq = int(request.args.get('after_seq', 0))
             
             def generate():
+                cursor_seq = after_seq
                 # First, send any existing events (replay)
                 try:
                     with get_db_session() as db:
-                        existing = list_events(db, run_id, after_seq=after_seq)
+                        existing = list_events(db, run_id, after_seq=cursor_seq)
                         for evt in existing:
                             yield f"data: {json.dumps(evt)}\n\n"
-                            after_seq = evt.get('seq', after_seq)
+                            cursor_seq = evt.get('seq', cursor_seq)
                 except Exception as e:
                     logger.error(f"Error replaying events for {run_id}: {e}")
                 
@@ -280,7 +282,7 @@ def _run_agent_async(
     
     try:
         # Load conversation history
-        from core.db.models import Message
+        from core.db.models import Message, Run, RunResult
         from sqlalchemy import select
         with get_db_session() as db:
             stmt = (
@@ -289,13 +291,123 @@ def _run_agent_async(
                 .order_by(Message.created_at.asc())
             )
             messages = db.execute(stmt).scalars().all()
+            # Build turn-based conversation history for Decider (query/response pairs).
+            # This is important for USER_ANSWER classification when the last assistant turn was ASK_USER.
             conversation_history = []
+            current_turn = None
             for msg in messages:
                 if msg.role == "user":
-                    conversation_history.append({"query": msg.content})
+                    if current_turn:
+                        conversation_history.append(current_turn)
+                    current_turn = {"query": msg.content}
                 elif msg.role == "agent":
-                    # Try to extract SQL and response from previous runs
-                    conversation_history.append({"response": msg.content})
+                    if current_turn is None:
+                        current_turn = {"query": ""}
+                    current_turn["response"] = msg.content
+                    if isinstance(msg.content, str) and msg.content.startswith("ASK_USER:"):
+                        current_turn["status"] = "ASK_USER"
+            if current_turn:
+                conversation_history.append(current_turn)
+
+            # ------------------------------------------------------------------
+            # Standardized continuity packet + prior structured state
+            # ------------------------------------------------------------------
+            # Pre-SSE we persisted this in-memory per session_id. In SSE, each user turn is a new run,
+            # so we rehydrate from DB by conversation_id.
+            last_run = (
+                db.query(Run)
+                .filter(Run.conversation_id == conversation_id)
+                .filter(Run.id != run_id)
+                .order_by(Run.created_at.desc())
+                .first()
+            )
+
+            prior_query_spec = {}
+            prior_query_spec_status = {}
+            last_run_context: Dict[str, Any] = {
+                "last_action": "",
+                "last_query_type": "",
+                "last_sql": "",
+                "last_error": "",
+                "last_error_type": "",
+                "last_result_summary": "",
+                "last_results_schema": None,
+                "last_results_preview": None,
+            }
+            pending_clarification: Dict[str, Any] = {
+                "question": "",
+                "missing_field": "",
+                "candidate_columns": [],
+            }
+
+            if last_run is not None:
+                dj = last_run.decider_output_json if isinstance(last_run.decider_output_json, dict) else None
+                if isinstance(dj, dict):
+                    prior_query_spec = dj.get("query_spec") or {}
+                    prior_query_spec_status = dj.get("query_spec_status") or {}
+                    last_run_context["last_action"] = str(dj.get("action") or "")
+                    last_run_context["last_query_type"] = str(dj.get("query_type") or "")
+
+                    # If the last turn ended with ASK_USER, capture the question (for USER_ANSWER decisions)
+                    au = dj.get("ask_user") or {}
+                    if isinstance(au, dict) and au.get("question"):
+                        pending_clarification["question"] = str(au.get("question") or "")
+                        # Best-effort: parse missing_field from question like: instead of 'promo_code'
+                        try:
+                            import re
+                            m = re.search(r"instead of\\s+'([^']+)'", pending_clarification["question"], flags=re.IGNORECASE)
+                            if m:
+                                pending_clarification["missing_field"] = m.group(1)
+                        except Exception:
+                            pass
+                        # Best-effort: parse candidate columns from "(Candidate columns: ...)"
+                        try:
+                            qtxt = pending_clarification["question"]
+                            if "Candidate columns:" in qtxt:
+                                tail = qtxt.split("Candidate columns:", 1)[1]
+                                tail = tail.split(")", 1)[0]
+                                cands = [c.strip().strip('"').strip("'") for c in tail.split(",") if c.strip()]
+                                pending_clarification["candidate_columns"] = cands[:10]
+                        except Exception:
+                            pass
+
+                last_run_context["last_sql"] = str(last_run.final_sql or "")
+                last_run_context["last_error_type"] = str(last_run.error_type or "")
+                last_run_context["last_result_summary"] = str(last_run.result_summary or "")
+                # NOTE: we don't currently persist raw engine error text; this remains best-effort.
+                last_run_context["last_error"] = str(last_run.result_summary or "")
+
+                # Attach last results (schema + small preview) if present
+                try:
+                    rr = last_run.results
+                    if rr is not None:
+                        last_run_context["last_results_schema"] = rr.schema_json
+                        if isinstance(rr.rows_json, list):
+                            last_run_context["last_results_preview"] = rr.rows_json[:20]
+                except Exception:
+                    pass
+
+            # Also set pending_clarification from conversation_history if the last assistant turn was ASK_USER:
+            # this catches cases where ask_user.question wasn't available in decider_output_json.
+            try:
+                if conversation_history:
+                    # Find most recent ASK_USER turn (if any)
+                    for turn in reversed(conversation_history):
+                        if (turn or {}).get("status") == "ASK_USER":
+                            resp = str((turn or {}).get("response") or "")
+                            if resp.startswith("ASK_USER:"):
+                                pending_clarification["question"] = resp[len("ASK_USER:"):].strip()
+                            break
+            except Exception:
+                pass
+
+            continuity_packet = {
+                "prior_query_spec": prior_query_spec,
+                "prior_query_spec_status": prior_query_spec_status,
+                "conversation_history": conversation_history,
+                "last_run_context": last_run_context,
+                "pending_clarification": pending_clarification,
+            }
         
         # Call agent handler (with cancellation check wrapper)
         # Note: Full event instrumentation would require modifying handle_query itself
@@ -309,14 +421,50 @@ def _run_agent_async(
                 db.commit()
             return
         
+        # Build a minimal ControllerState-like prior_state (pre-SSE continuity used in-memory session state).
+        # This keeps structured spec/status stable across turns without forcing deterministic routing.
+        # Load agent model configuration
+        agent_model = None
+        if agent_id:
+            try:
+                agent = get_agent_db(db, agent_id)
+                if agent:
+                    agent_model = agent.get("model") or "claude-3-5-sonnet-20241022"
+            except Exception as e:
+                logger.warning(f"Error loading agent model for {agent_id}: {e}")
+        
+        prior_state = {
+            "user_query": user_query,  # will be overwritten by initialize_controller_state
+            "conversation_history": conversation_history,
+            "domain_md": load_domain_md(user_query, conversation_history, agent_id=agent_id),
+            "policy_limits": {
+                "max_attempts": 3,
+                "max_rows": 5000,
+                "timeout_seconds": 30,
+                "allow_cross_join": False,
+            },
+            "query_spec": prior_query_spec,
+            "query_spec_status": prior_query_spec_status,
+            "show_thinking": bool(show_thinking),
+            "thinking_trace": None,
+            "last_executor_report": None,
+            "attempt_count": 0,
+            "agent_id": agent_id,
+            "agent_data_folder": None,
+            "agent_model": agent_model,  # Store agent's configured model
+            # Keep for prompt consumption (decider.py will include this in context)
+            "continuity_packet": continuity_packet,
+        }
+
         result = handle_query(
             user_query=user_query,
             conversation_history=conversation_history,
-            prior_state=None,
+            prior_state=prior_state,
             tools_registry=None,  # Will use default
             policy_limits=None,
             show_thinking=show_thinking,
             agent_id=agent_id,
+            on_decider_output=lambda decider_output, _state: _persist_decider_output(run_id, decider_output),
         )
         
         if _is_run_cancelled(run_id):
@@ -370,6 +518,11 @@ def _run_agent_async(
             _emit_event(run_id, "ask_user", result)
             with get_db_session() as db:
                 finish_run_error(db, run_id, "ask_user", "Waiting for user input")
+                # Persist the clarification question into the conversation so the next user message
+                # can be classified as USER_ANSWER by the Decider.
+                q = result.get("question", "") or result.get("ask_user", {}).get("question", "")
+                if q:
+                    append_message(db, conversation_id, "agent", f"ASK_USER: {q}")
                 db.commit()
                 
         elif status == "BLOCK":
@@ -393,4 +546,14 @@ def _run_agent_async(
             finish_run_error(db, run_id, "internal_error", str(e))
             db.commit()
         _emit_event(run_id, "run_failed", {"error": str(e)})
+
+
+def _persist_decider_output(run_id: str, decider_output: Dict[str, Any]) -> None:
+    """Persist latest decider output for a run (best-effort)."""
+    try:
+        with get_db_session() as db:
+            set_run_decider_output(db, run_id, decider_output or {})
+            db.commit()
+    except Exception as e:
+        logger.warning(f"Failed to persist decider_output_json for run {run_id}: {e}")
 

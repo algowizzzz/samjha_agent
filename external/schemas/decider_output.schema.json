@@ -21,7 +21,7 @@
   "properties": {
     "action": { "enum": ["ASK_USER", "EXECUTE", "BLOCK"] },
     "query_type": { 
-      "enum": ["FOLLOW_UP", "USER_ANSWER", "NEW_QUERY"],
+      "enum": ["FOLLOW_UP", "USER_ANSWER", "NEW_QUERY", "RETRY"],
       "description": "Classification of the user query based on Step 0 analysis"
     },
     "query_type_signals": { 
@@ -45,7 +45,7 @@
     "query_spec_status": { "$ref": "query_spec_status.schema.json" },
     "investigation_plan": {
       "type": "array",
-      "maxItems": 4,
+      "maxItems": 6,
       "items": { "$ref": "investigation_plan_step.schema.json" }
     },
     "expected_output": { "type": "string" },

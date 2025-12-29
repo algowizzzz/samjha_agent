@@ -81,11 +81,14 @@ def run_decider(state: ControllerState) -> dict:
     if not LLM_AVAILABLE:
         raise ValueError("LLM client not available for Decider")
     
-    llm_client = get_llm_client()
-    if not llm_client.is_available():
-        raise ValueError("LLM client is not available")
-    
-    prompt_template = load_decider_prompt()
+            llm_client = get_llm_client()
+            if not llm_client.is_available():
+                raise ValueError("LLM client is not available")
+            
+            # Get agent's configured model (default to Sonnet)
+            agent_model = state.get("agent_model") or "claude-3-5-sonnet-20241022"
+            
+            prompt_template = load_decider_prompt()
     
     # Build prompt context from state
     context = {
@@ -94,6 +97,7 @@ def run_decider(state: ControllerState) -> dict:
         "domain_md": state.get("domain_md", ""),
         "prior_query_spec": json.dumps(state.get("query_spec", {}), indent=2),
         "prior_query_spec_status": json.dumps(state.get("query_spec_status", {}), indent=2),
+        "continuity_packet": json.dumps(state.get("continuity_packet", {}), indent=2),
         "last_executor_report": json.dumps(state.get("last_executor_report", {}), indent=2) if state.get("last_executor_report") else "None",
         "policy_limits": json.dumps(state.get("policy_limits", {}), indent=2)
     }
@@ -118,6 +122,9 @@ Prior Query Spec:
 Prior Query Spec Status:
 {context['prior_query_spec_status']}
 
+Continuity Packet (standardized; may be empty):
+{context['continuity_packet']}
+
 Last Executor Report:
 {context['last_executor_report']}
 
@@ -137,22 +144,38 @@ Output your decision as JSON only (no markdown, no prose):
             # Per-request enablement: user/UI toggle OR env default.
             want_thinking = bool(state.get("show_thinking", False)) or DECIDER_THINKING_ENABLED
 
-            # Get model-specific max_tokens limit
-            # Haiku: 4096, Sonnet 3.5: 8192, Sonnet 4: 8192, Opus: 4096
-            model = llm_client.model if hasattr(llm_client, 'model') else None
+            # Get agent's configured model (defaults to Sonnet)
+            agent_model = state.get("agent_model") or "claude-3-5-sonnet-20241022"
+            
+            # Get model-specific max_tokens limit and thinking support
+            # Haiku: 4096, NO thinking support
+            # Sonnet 3.5: 8192, supports thinking
+            # Sonnet 4: 8192, supports thinking
+            # Opus: 4096, supports thinking (but check model version)
+            model = agent_model
             model_max_tokens = 4096  # Default conservative limit
+            model_supports_thinking = False  # Default: assume no thinking support
+            
             if model:
                 model_lower = model.lower()
                 if "sonnet" in model_lower:
                     model_max_tokens = 8192
+                    model_supports_thinking = True  # Sonnet models support thinking
                 elif "haiku" in model_lower:
                     model_max_tokens = 4096
+                    model_supports_thinking = False  # Haiku does NOT support thinking
                 elif "opus" in model_lower:
                     model_max_tokens = 4096
+                    model_supports_thinking = True  # Opus supports thinking
+            
+            # Disable thinking if model doesn't support it
+            if want_thinking and not model_supports_thinking:
+                logger.info(f"Model {model} does not support thinking mode. Disabling thinking.")
+                want_thinking = False
             
             # Use the minimum of requested max_tokens and model limit
             base_max_tokens = min(DECIDER_MAX_TOKENS, model_max_tokens)
-            logger.debug(f"[DECIDER] Model: {model}, model_max_tokens: {model_max_tokens}, base_max_tokens: {base_max_tokens}")
+            logger.debug(f"[DECIDER] Model: {model}, model_max_tokens: {model_max_tokens}, base_max_tokens: {base_max_tokens}, thinking_enabled: {want_thinking}")
 
             thinking = None
             temperature = 0.0
@@ -171,7 +194,8 @@ Output your decision as JSON only (no markdown, no prose):
                     temperature=temperature,
                     max_tokens=max_tokens,
                     response_format="json",
-                    thinking=thinking
+                    thinking=thinking,
+                    model=agent_model  # Use agent's configured model
                 )
                 thinking_text = detailed.get("thinking") or ""
                 if THINKING_TRACE_MAX_CHARS > 0 and len(thinking_text) > THINKING_TRACE_MAX_CHARS:
@@ -187,10 +211,135 @@ Output your decision as JSON only (no markdown, no prose):
                     temperature=temperature,
                     max_tokens=max_tokens,  # Already set to base_max_tokens (respects model limit)
                     response_format="json",
-                    thinking=None
+                    thinking=None,
+                    model=agent_model  # Use agent's configured model
                 )
 
             output = parse_json_response(response_text)
+
+            # ------------------------------------------------------------------
+            # Deterministic retry semantics (guardrails)
+            # ------------------------------------------------------------------
+            # The LLM sometimes misclassifies retries as FOLLOW_UP/NEW_QUERY even when an executor
+            # error exists. In controller retry loops, `state.last_executor_report` is the signal
+            # that we're retrying the same intent due to failure.
+            last_rep = state.get("last_executor_report")
+            if isinstance(last_rep, dict) and last_rep:
+                if last_rep.get("status") == "ERROR" and output.get("query_type") != "USER_ANSWER":
+                    output["query_type"] = "RETRY"
+                    sigs = output.get("query_type_signals", [])
+                    if not isinstance(sigs, list):
+                        sigs = []
+                    if "prior executor error present" not in sigs:
+                        sigs.append("prior executor error present")
+                    output["query_type_signals"] = sigs
+
+                    # If the last error clearly indicates a missing column/table, prefer ASK_USER
+                    # to avoid burning attempts on repeated EXECUTE.
+                    last_err = (last_rep.get("last_error") or "")
+                    last_err_l = str(last_err).lower()
+                    missing_signal = (
+                        "referenced column" in last_err_l
+                        or "not found in from clause" in last_err_l
+                        or "binder error" in last_err_l
+                        or "does not exist" in last_err_l
+                        or "table" in last_err_l and "does not exist" in last_err_l
+                    )
+                    if missing_signal:
+                        # Try to extract the missing identifier and candidate bindings from DuckDB error text
+                        import re
+                        missing_name = None
+                        m = re.search(r'referenced column\\s+\"([^\"]+)\"\\s+not found', last_err, flags=re.IGNORECASE)
+                        if m:
+                            missing_name = m.group(1)
+                        # Candidate bindings (DuckDB often provides a helpful list)
+                        candidates = None
+                        try:
+                            for line in str(last_err).splitlines():
+                                if line.strip().lower().startswith("candidate bindings:"):
+                                    candidates = line.split(":", 1)[1].strip()
+                                    break
+                        except Exception:
+                            candidates = None
+
+                        output["action"] = "ASK_USER"
+
+                        # Prefer an LLM-crafted clarification message (more helpful UX),
+                        # but fall back to a deterministic message if anything fails.
+                        ask_user_payload = None
+                        try:
+                            from external.platform.prompt_loader import load_prompt
+                            llm_client_for_ask = get_llm_client()
+                            if llm_client_for_ask and llm_client_for_ask.is_available():
+                                tmpl = load_prompt("ask_user_clarification")
+                                dataset_path = (output.get("query_spec", {}) or {}).get("start_table", {}).get("path", "") or ""
+                                prompt2 = tmpl.format(
+                                    user_query=state.get("user_query", ""),
+                                    last_error=str(last_err),
+                                    dataset_path=dataset_path,
+                                    attempt_count=str(state.get("attempt_count", 0)),
+                                    max_attempts=str((state.get("policy_limits") or {}).get("max_attempts", "")),
+                                    candidate_bindings=candidates or "",
+                                    missing_field=missing_name or ""
+                                )
+                                resp_json = llm_client_for_ask.invoke_with_prompt(
+                                    system_prompt="Return JSON only. Do not include markdown.",
+                                    user_prompt=prompt2,
+                                    temperature=0.2,
+                                    max_tokens=400,
+                                    response_format="json"
+                                )
+                                ask_user_payload = parse_json_response(resp_json)
+                        except Exception:
+                            ask_user_payload = None
+
+                        if isinstance(ask_user_payload, dict) and all(k in ask_user_payload for k in ("question", "why_non_defaultable", "what_answer_unblocks")):
+                            # Guardrail: if model returns a non-question or just repeats the user query, fall back.
+                            qtxt = str(ask_user_payload.get("question", "")).strip()
+                            uq = str(state.get("user_query", "") or "").strip()
+                            if (not qtxt) or (uq and qtxt.lower() == uq.lower()):
+                                ask_user_payload = None
+                            elif missing_name and (missing_name.lower() not in qtxt.lower()):
+                                # Missing field should be mentioned for clarity
+                                ask_user_payload = None
+
+                        if isinstance(ask_user_payload, dict) and all(k in ask_user_payload for k in ("question", "why_non_defaultable", "what_answer_unblocks")):
+                            output["ask_user"] = {
+                                "question": str(ask_user_payload.get("question", "")),
+                                "why_non_defaultable": str(ask_user_payload.get("why_non_defaultable", "")),
+                                "what_answer_unblocks": str(ask_user_payload.get("what_answer_unblocks", "")),
+                            }
+                            # If we have candidate bindings from the engine and the LLM didn't mention
+                            # any, append a short hint so the user can answer quickly.
+                            try:
+                                if candidates:
+                                    q_txt = output["ask_user"]["question"] or ""
+                                    q_low = q_txt.lower()
+                                    # If the question doesn't already contain a hint, append candidate columns
+                                    # so the user can answer quickly without guessing.
+                                    if "candidate columns" in q_low:
+                                        raise RuntimeError("already has candidate hint")
+                                    cand_tokens = [c.strip().strip('"').strip("'") for c in str(candidates).split(",") if c.strip()]
+                                    if cand_tokens:
+                                        output["ask_user"]["question"] = (
+                                            q_txt.rstrip()
+                                            + f" (Candidate columns: {', '.join(cand_tokens[:5])})"
+                                        )
+                            except Exception:
+                                pass
+                        else:
+                            # Deterministic fallback
+                            q_missing = f"`{missing_name}`" if missing_name else "that field"
+                            cand_txt = f" Available columns include: {candidates}." if candidates else ""
+                            output["ask_user"] = {
+                                "question": f"I can’t find {q_missing} in this dataset.{cand_txt} Which column should I use instead?",
+                                "why_non_defaultable": "Choosing the wrong column would change the meaning of the results.",
+                                "what_answer_unblocks": "Tell me the correct column name to use (or what concept you mean), and I’ll rerun the query."
+                            }
+                        # Align decision fields if present
+                        if isinstance(output.get("decisions"), dict):
+                            output["decisions"]["clarification_need"] = "ASK_REQUIRED"
+                            output["decisions"]["determinacy"] = "UNDERDETERMINED"
             
             # LOG FOR COMPARISON: thinking=true vs thinking=false
             logger.info(f"[DECIDER_COMPARISON] thinking={want_thinking}, response_text_length={len(response_text)}")
@@ -270,6 +419,22 @@ Output your decision as JSON only (no markdown, no prose):
                     if st in ["verified", "inferred", "defaulted"]:
                         output["query_spec_status"][field]["blocks_execution"] = False
 
+            # Coherence: if business_question is present in query_spec, it must not be treated as missing.
+            # This prevents the SQL gate from blocking on business_question due to missing status defaults.
+            try:
+                bq = (output.get("query_spec", {}) or {}).get("business_question", "")
+                if isinstance(bq, str) and bq.strip():
+                    bqs = output.get("query_spec_status", {}).get("business_question", {})
+                    if bqs.get("status") in ["missing", "", None]:
+                        bqs["status"] = "inferred"
+                        # Source enum must be one of: domain_md | tool_result | user | rule
+                        bqs["source"] = bqs.get("source") if bqs.get("source") in ["domain_md", "tool_result", "user", "rule"] else "user"
+                        bqs["notes"] = bqs.get("notes") or "Derived from user query"
+                        bqs["blocks_execution"] = False
+                        output["query_spec_status"]["business_question"] = bqs
+            except Exception:
+                pass
+
             # Coherence: if time.rule is no_time, time must not block execution.
             try:
                 if (output.get("query_spec", {}).get("time", {}) or {}).get("rule") == "no_time":
@@ -312,6 +477,136 @@ Output your decision as JSON only (no markdown, no prose):
             valid, error = validate_decider_output(output)
             if valid:
                 logger.info(f"Decider output validated successfully (attempt {attempt + 1})")
+                
+                # ------------------------------------------------------------------
+                # Post-process: Route ALL ASK_USER cases through ask_user_clarification.md
+                # This ensures consistent, helpful clarification messages with full context.
+                # ------------------------------------------------------------------
+                if output.get("action") == "ASK_USER":
+                    # Determine what was found vs what's missing from query_spec and status
+                    qs = output.get("query_spec", {})
+                    qss = output.get("query_spec_status", {})
+                    
+                    # Build "found" summary
+                    found_items = []
+                    if qs.get("business_question"):
+                        found_items.append(f"Business question: {qs['business_question']}")
+                    if qs.get("start_table", {}).get("path"):
+                        found_items.append(f"Table: {qs['start_table']['path']}")
+                    if qs.get("dimensions"):
+                        found_items.append(f"Dimensions: {', '.join(qs['dimensions'])}")
+                    if qs.get("metrics"):
+                        metric_names = [m.get("name") if isinstance(m, dict) else str(m) for m in qs["metrics"]]
+                        found_items.append(f"Metrics: {', '.join(metric_names)}")
+                    query_spec_found = "\n".join(found_items) if found_items else "None yet"
+                    
+                    # Build "missing" summary from status
+                    missing_items = []
+                    for field, status_obj in (qss or {}).items():
+                        if isinstance(status_obj, dict):
+                            st = status_obj.get("status", "")
+                            be = status_obj.get("blocks_execution", False)
+                            if st in ("missing", "conflict") or be:
+                                missing_items.append(f"- {field}: {status_obj.get('notes', 'missing')}")
+                    query_spec_missing = "\n".join(missing_items) if missing_items else "No blocking issues detected (this may be a comprehension/clarity issue)"
+                    
+                    # Extract missing field and candidates if available (for retry cases)
+                    missing_name = None
+                    candidates = None
+                    last_err = ""
+                    if isinstance(state.get("last_executor_report"), dict):
+                        last_rep = state.get("last_executor_report", {})
+                        last_err = str(last_rep.get("last_error", ""))
+                        if last_err:
+                            import re
+                            m = re.search(r'referenced column\s+\"([^\"]+)\"\s+not found', last_err, flags=re.IGNORECASE)
+                            if m:
+                                missing_name = m.group(1)
+                            for line in last_err.splitlines():
+                                if line.strip().lower().startswith("candidate bindings:"):
+                                    candidates = line.split(":", 1)[1].strip()
+                                    break
+                    
+                    # Build conversation history summary
+                    conv_hist = state.get("conversation_history", [])
+                    conv_summary = ""
+                    if conv_hist:
+                        conv_summary = "\n".join([
+                            f"Turn {i+1}: User: {t.get('query', '')[:100]}"
+                            for i, t in enumerate(conv_hist[-3:])  # Last 3 turns
+                        ])
+                    else:
+                        conv_summary = "None (first query in conversation)"
+                    
+                    # Get comprehension/determinacy from decisions
+                    decisions = output.get("decisions", {})
+                    comprehension_status = decisions.get("comprehension", "INTELLIGIBLE")
+                    determinacy_status = decisions.get("determinacy", "DETERMINED")
+                    
+                    # Call ask_user_clarification.md with full context
+                    try:
+                        from external.platform.prompt_loader import load_prompt
+                        llm_client_for_ask = get_llm_client()
+                        if llm_client_for_ask and llm_client_for_ask.is_available():
+                            tmpl = load_prompt("ask_user_clarification")
+                            dataset_path = qs.get("start_table", {}).get("path", "") or ""
+                            domain_md = state.get("domain_md", "") or ""
+                            prompt2 = tmpl.format(
+                                user_query=state.get("user_query", ""),
+                                query_spec_found=query_spec_found,
+                                query_spec_missing=query_spec_missing,
+                                conversation_history=conv_summary,
+                                last_error=last_err if last_err else "None (initial comprehension/determinacy check)",
+                                dataset_path=dataset_path,
+                                attempt_count=str(state.get("attempt_count", 0)),
+                                max_attempts=str((state.get("policy_limits") or {}).get("max_attempts", "")),
+                                candidate_bindings=candidates or "",
+                                missing_field=missing_name or "",
+                                comprehension_status=comprehension_status,
+                                determinacy_status=determinacy_status,
+                                domain_md=domain_md
+                            )
+                            resp_json = llm_client_for_ask.invoke_with_prompt(
+                                system_prompt="Return JSON only. Do not include markdown.",
+                                user_prompt=prompt2,
+                                temperature=0.2,
+                                max_tokens=500,
+                                response_format="json"
+                            )
+                            ask_user_payload = parse_json_response(resp_json)
+                            
+                            # Validate the response has required fields
+                            if isinstance(ask_user_payload, dict) and all(k in ask_user_payload for k in ("question", "why_non_defaultable", "what_answer_unblocks")):
+                                qtxt = str(ask_user_payload.get("question", "")).strip()
+                                uq = str(state.get("user_query", "") or "").strip()
+                                # Guardrail: don't just repeat the user query
+                                if qtxt and (not uq or qtxt.lower() != uq.lower()):
+                                    output["ask_user"] = {
+                                        "question": qtxt,
+                                        "why_non_defaultable": str(ask_user_payload.get("why_non_defaultable", "")),
+                                        "what_answer_unblocks": str(ask_user_payload.get("what_answer_unblocks", "")),
+                                    }
+                                    # Append candidate bindings if available and not already mentioned
+                                    if candidates:
+                                        q_low = qtxt.lower()
+                                        if "candidate" not in q_low and "column" in q_low:
+                                            cand_tokens = [c.strip().strip('"').strip("'") for c in str(candidates).split(",") if c.strip()]
+                                            if cand_tokens:
+                                                output["ask_user"]["question"] = (
+                                                    qtxt.rstrip()
+                                                    + f" (Candidate columns: {', '.join(cand_tokens[:5])})"
+                                                )
+                                    logger.info(f"Enhanced ASK_USER clarification via ask_user_clarification.md prompt")
+                    except Exception as e:
+                        logger.warning(f"Failed to enhance ASK_USER via ask_user_clarification.md: {e}. Using Decider's original ask_user.")
+                        # Keep the Decider's original ask_user (or ensure it exists)
+                        if not output.get("ask_user") or not output["ask_user"].get("question"):
+                            output["ask_user"] = {
+                                "question": "I need more information to proceed. Could you clarify your query?",
+                                "why_non_defaultable": "The query requires additional details to execute.",
+                                "what_answer_unblocks": "Providing the missing information will allow me to proceed."
+                            }
+                
                 return output
             
             # Validation failed - add error to prompt and retry

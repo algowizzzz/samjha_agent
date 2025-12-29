@@ -32,7 +32,7 @@ class AuthRoutes(BaseRoutes):
                     session.permanent = True
 
                     # Redirect to next page or dashboard
-                    next_page = request.args.get('next', url_for('dashboard'))
+                    next_page = request.args.get('next', url_for('home'))
                     return redirect(next_page)
                 else:
                     return render_template('login.html', error="Invalid credentials")

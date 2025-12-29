@@ -31,8 +31,10 @@ class Agent(Base):
     agent_type: Mapped[str] = mapped_column(String(32), nullable=False)  # structured|unstructured|external
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
-    domain_file: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
+    domain_file: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)  # Filename only (for reference)
+    domain_content: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # Actual domain file content
     data_folder: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
+    model: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)  # LLM model (e.g., claude-3-5-sonnet-20241022)
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow, nullable=False)

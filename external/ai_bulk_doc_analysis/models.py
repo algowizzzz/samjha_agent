@@ -11,6 +11,16 @@ from sqlalchemy.sql import func
 
 Base = declarative_base()
 
+# Detect if using PostgreSQL
+_is_postgresql = False
+try:
+    import os
+    database_url = os.getenv("DATABASE_URL", "")
+    if database_url and "postgresql" in database_url.lower():
+        _is_postgresql = True
+except Exception:
+    pass
+
 # Use JSONB for PostgreSQL, JSON for SQLite
 def get_json_type():
     """Return JSONB for PostgreSQL, JSON for SQLite."""

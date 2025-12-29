@@ -10,10 +10,6 @@ from routes.base_routes import BaseRoutes
 from werkzeug.utils import secure_filename
 
 from external.agent.agent_registry import (
-    create_agent,
-    delete_agent,
-    get_agent,
-    list_agents,
     validate_agent_type,
     validate_safe_name,
     slugify_name,
@@ -26,6 +22,7 @@ from external.agent.persistence import (
     list_agents_db,
     get_agent_db,
     create_agent_db,
+    update_agent_db,
     delete_agent_db,
 )
 
@@ -51,7 +48,7 @@ class AdminRoutes(BaseRoutes):
 
         @app.route('/api/admin/prompts')
         @self.admin_required
-        def list_prompts():
+        def list_prompts_endpoint():
             """List all available prompts, optionally filtered by category"""
             try:
                 category = request.args.get('category', '').strip() or None
@@ -138,6 +135,152 @@ class AdminRoutes(BaseRoutes):
                 logger.error(f"Error getting agent {agent_id}: {e}")
                 return jsonify({"error": str(e)}), 500
 
+        @app.route('/api/admin/agents/<agent_id>', methods=['PUT'])
+        @self.admin_required
+        def api_update_agent(agent_id):
+            """Update an existing agent (supports name, description, domain_file, data_folder, and data_files)"""
+            MAX_FILE_BYTES = 10 * 1024 * 1024
+            try:
+                # Check if this is multipart/form-data (file upload) or JSON
+                if request.content_type and 'multipart/form-data' in request.content_type:
+                    # Handle file uploads (similar to create)
+                    name = (request.form.get("name") or "").strip()
+                    description = (request.form.get("description") or "").strip()
+                    
+                    if not name:
+                        return jsonify({"error": "Agent name is required"}), 400
+                    
+                    domain_file = request.files.get("domain_file")
+                    domain_filename = None
+                    domain_text = None
+                    if domain_file and domain_file.filename:
+                        domain_filename = secure_filename(domain_file.filename)
+                        if not (domain_filename.lower().endswith(".md") or domain_filename.lower().endswith(".txt")):
+                            return jsonify({"error": "domain_file must be .md or .txt"}), 400
+                        domain_bytes = domain_file.read()
+                        if len(domain_bytes) > MAX_FILE_BYTES:
+                            return jsonify({"error": "domain_file exceeds 10MB limit"}), 400
+                        domain_text = domain_bytes.decode("utf-8", errors="replace")
+                        domain_filename = domain_filename
+                    
+                    data_folder = None
+                    data_folder_mode = request.form.get("data_folder_mode", "select")
+                    if data_folder_mode == "select":
+                        data_folder = (request.form.get("data_folder") or "").strip()
+                    elif data_folder_mode == "create":
+                        data_folder_name = (request.form.get("data_folder") or "").strip()
+                        if not data_folder_name:
+                            return jsonify({"error": "data_folder name is required when creating new folder"}), 400
+                        # Slugify folder name for create mode
+                        data_folder = slugify_name(data_folder_name)
+                        validate_safe_name(data_folder, "data_folder")
+                    # If data_folder_mode not provided, check if data_folder was directly provided
+                    if not data_folder:
+                        data_folder = (request.form.get("data_folder") or "").strip()
+                    
+                    # Store domain file content in DB (not on disk)
+                    if domain_filename and domain_text:
+                        # Content will be stored in domain_content column
+                        pass
+                    elif domain_file is None:
+                        # Not updating domain file - get current values from DB
+                        with get_db_session() as db:
+                            current_agent = get_agent_db(db, agent_id)
+                            if current_agent:
+                                domain_filename = current_agent.get("domain_file")
+                                domain_text = current_agent.get("domain_content")
+                    
+                    # Handle data files if provided
+                    data_files = request.files.getlist("data_files")
+                    if data_files and len(data_files) > 0:
+                        if not data_folder:
+                            # Use current data folder
+                            with get_db_session() as db:
+                                current_agent = get_agent_db(db, agent_id)
+                                if current_agent:
+                                    data_folder = current_agent.get("data_folder")
+                                else:
+                                    return jsonify({"error": "Agent not found"}), 404
+                        
+                        if not data_folder:
+                            return jsonify({"error": "data_folder is required when uploading data files"}), 400
+                        
+                        base_folder = Path("external/datawarehouse") / data_folder
+                        if data_folder_mode == "create":
+                            base_folder.mkdir(parents=True, exist_ok=True)
+                        elif not base_folder.exists():
+                            return jsonify({"error": f"Data folder '{data_folder}' does not exist"}), 400
+                        
+                        for data_file in data_files:
+                            if not data_file.filename:
+                                continue
+                            safe_name = secure_filename(data_file.filename)
+                            if not safe_name:
+                                continue
+                            if not (safe_name.lower().endswith(".csv") or safe_name.lower().endswith(".parquet")):
+                                return jsonify({"error": f"File '{safe_name}' must be .csv or .parquet"}), 400
+                            data_bytes = data_file.read()
+                            if len(data_bytes) > MAX_FILE_BYTES:
+                                return jsonify({"error": f"File '{safe_name}' exceeds 10MB limit"}), 400
+                            target_path = base_folder / safe_name
+                            target_path.write_bytes(data_bytes)
+                    
+                    # Get model from form (optional update)
+                    model = (request.form.get("model") or "").strip()
+                    
+                    # Update in DB
+                    with get_db_session() as db:
+                        update_data = {"name": name}
+                        if description:
+                            update_data["description"] = description
+                        if domain_filename:
+                            update_data["domain_file"] = domain_filename
+                        if domain_text is not None:
+                            update_data["domain_content"] = domain_text
+                        if data_folder:
+                            update_data["data_folder"] = data_folder
+                        if model:
+                            update_data["model"] = model
+                        
+                        agent = update_agent_db(
+                            db,
+                            agent_id=agent_id,
+                            **update_data
+                        )
+                        if not agent:
+                            return jsonify({"error": "Agent not found"}), 404
+                        db.commit()
+                        return jsonify({
+                            "success": True,
+                            "message": f"Agent '{name}' updated successfully",
+                            "agent": get_agent_db(db, agent_id)
+                        })
+                else:
+                    # JSON update (name/description/model only)
+                    data = request.get_json()
+                    if not data:
+                        return jsonify({"error": "No data provided"}), 400
+                    
+                    with get_db_session() as db:
+                        agent = update_agent_db(
+                            db,
+                            agent_id=agent_id,
+                            name=data.get("name"),
+                            description=data.get("description"),
+                            model=data.get("model"),
+                        )
+                        if not agent:
+                            return jsonify({"error": "Agent not found"}), 404
+                        db.commit()
+                        return jsonify({
+                            "success": True,
+                            "message": f"Agent '{agent_id}' updated successfully",
+                            "agent": get_agent_db(db, agent_id)
+                        })
+            except Exception as e:
+                logger.error(f"Error updating agent {agent_id}: {e}")
+                return jsonify({"error": str(e)}), 500
+
         @app.route('/api/admin/agents/<agent_id>', methods=['DELETE'])
         @self.admin_required
         def api_delete_agent(agent_id):
@@ -147,11 +290,6 @@ class AdminRoutes(BaseRoutes):
                     if not deleted:
                         return jsonify({"error": "Agent not found"}), 404
                     db.commit()
-                    # Also delete from file-based registry for now (dual-write)
-                    try:
-                        delete_agent(agent_id)
-                    except Exception:
-                        pass  # Ignore file deletion errors
                     return jsonify({"success": True})
             except Exception as e:
                 logger.error(f"Error deleting agent {agent_id}: {e}")
@@ -255,26 +393,28 @@ class AdminRoutes(BaseRoutes):
                     if not base_folder.exists() or not base_folder.is_dir():
                         return jsonify({"error": f"Selected folder does not exist: {data_folder}"}), 400
 
-                # Create agent config + domain file + ensure folder exists
-                # Dual-write: file-based (legacy) + DB
-                cfg = create_agent(
-                    name=name,
-                    description=description,
-                    agent_type=agent_type,
-                    domain_text=domain_text,
-                    data_folder=data_folder,
-                )
+                # Generate agent_id (use slugified name)
+                from external.agent.agent_registry import slugify_name
+                agent_id = slugify_name(name)
                 
-                # Also write to DB
+                # Get model from form (default to Sonnet for thinking support)
+                model = (request.form.get("model") or "").strip() or "claude-3-5-sonnet-20241022"
+                
+                # Store domain file content in DB (not on disk)
+                # Only store filename for reference, content goes in domain_content column
+                
+                # Write to DB only (no file-based storage)
                 with get_db_session() as db:
                     create_agent_db(
                         db,
-                        agent_id=cfg['id'],
-                        name=cfg['name'],
-                        agent_type=cfg['agent_type'],
-                        description=cfg.get('description'),
-                        domain_file=cfg.get('domain_file'),
-                        data_folder=cfg.get('data_folder'),
+                        agent_id=agent_id,
+                        name=name,
+                        agent_type=agent_type,
+                        description=description,
+                        domain_file=domain_filename,  # Filename for reference
+                        domain_content=domain_text,  # Content stored in DB
+                        data_folder=data_folder,
+                        model=model,
                     )
                     db.commit()
 

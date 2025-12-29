@@ -20,7 +20,12 @@ EVALUATION STEPS
 2) Grain check:
    - Verify results are consistent with query_spec.grain (using row_count, distinct counts if provided).
 3) Sanity checks:
-   - Flag zero rows if business_question implies results should exist (only if validation_checks mention it).
+   - ZERO ROWS RULE (STRICT):
+     - If results_summary.row_count == 0 AND there is NO explicit validation_check requiring non-empty results (e.g. mentions \"row_count > 0\", \"non-empty\", \"must return rows\"), then:
+       - You MUST set \"satisfied\": true
+       - \"issues\": []
+       - \"notes\": briefly state that 0 rows were returned and this may be due to filters/time window.
+     - Only mark zero rows as unsatisfied if validation_checks explicitly require non-empty results.
 4) Apply validation_checks exactly as written (interpret as pass/fail checks).
 
 OUTPUT (JSON)

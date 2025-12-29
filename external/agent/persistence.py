@@ -51,11 +51,52 @@ def upsert_prompt(db, name: str, category: str, content: str, editor_user_id: Op
 
 
 def list_prompts(db, category: Optional[str] = None) -> List[Dict[str, Any]]:
+    """List prompts with user-friendly names and descriptions"""
+    # Mapping of prompt names to user-friendly display names and descriptions
+    PROMPT_METADATA = {
+        "decider": {
+            "display_name": "Query Decider",
+            "description": "Main decision-making prompt that determines if a query can be executed, what information is needed, and generates the query specification. Used in the Decider component before execution."
+        },
+        "ask_user_clarification": {
+            "display_name": "User Clarification",
+            "description": "Generates helpful clarification questions when the agent needs more information from the user. Used when the Decider sends ASK_USER actions."
+        },
+        "nl_to_sql_planner": {
+            "display_name": "SQL Generator",
+            "description": "Converts natural language query specifications into SQL queries. Used in the Executor's SQL generation step."
+        },
+        "sql_plan_updater": {
+            "display_name": "SQL Plan Updater",
+            "description": "Applies minimal fixes to SQL queries when errors are detected. Used in the Executor's SQL patching step."
+        },
+        "query_result_evaluator": {
+            "display_name": "Result Evaluator",
+            "description": "Evaluates whether query results satisfy the user's original query. Used in the Executor's evaluation step."
+        },
+        "response_commentary": {
+            "display_name": "Response Commentary",
+            "description": "Generates natural language explanations of query results for the user. Used in the Executor's final response generation step."
+        }
+    }
+    
     stmt = select(Prompt)
     if category:
         stmt = stmt.where(Prompt.category == category)
     rows = db.execute(stmt.order_by(Prompt.name.asc())).scalars().all()
-    return [{"name": r.name, "category": r.category, "filename": f"{r.name}.md", "updated_at": r.updated_at.isoformat()} for r in rows]
+    
+    result = []
+    for r in rows:
+        metadata = PROMPT_METADATA.get(r.name, {})
+        result.append({
+            "name": r.name,
+            "display_name": metadata.get("display_name", r.name.replace("_", " ").title()),
+            "description": metadata.get("description", "No description available."),
+            "category": r.category,
+            "filename": f"{r.name}.md",
+            "updated_at": r.updated_at.isoformat()
+        })
+    return result
 
 
 def get_prompt_content(db, name: str) -> Optional[str]:
@@ -222,7 +263,9 @@ def list_agents_db(db) -> List[Dict[str, Any]]:
             "agent_type": r.agent_type,
             "description": r.description,
             "domain_file": r.domain_file,
+            "domain_content": r.domain_content,  # Include domain content
             "data_folder": r.data_folder,
+            "model": r.model or "claude-3-5-sonnet-20241022",  # Default to Sonnet
             "created_at": r.created_at.isoformat(),
             "updated_at": r.updated_at.isoformat(),
         }
@@ -240,7 +283,9 @@ def get_agent_db(db, agent_id: str) -> Optional[Dict[str, Any]]:
         "agent_type": a.agent_type,
         "description": a.description,
         "domain_file": a.domain_file,
+        "domain_content": a.domain_content,  # Include domain content
         "data_folder": a.data_folder,
+        "model": a.model or "claude-3-5-sonnet-20241022",  # Default to Sonnet
         "created_at": a.created_at.isoformat(),
         "updated_at": a.updated_at.isoformat(),
     }
@@ -251,19 +296,58 @@ def create_agent_db(
     agent_id: str,
     name: str,
     agent_type: str,
-    description: Optional[str],
-    domain_file: Optional[str],
-    data_folder: Optional[str],
+    description: Optional[str] = None,
+    domain_file: Optional[str] = None,
+    domain_content: Optional[str] = None,
+    data_folder: Optional[str] = None,
+    model: Optional[str] = None,
 ) -> Agent:
+    # Default to Sonnet if not specified (enables thinking/reasoning)
+    if model is None:
+        model = "claude-3-5-sonnet-20241022"
+    
     a = Agent(
         id=agent_id,
         name=name,
         agent_type=agent_type,
         description=description,
         domain_file=domain_file,
+        domain_content=domain_content,
         data_folder=data_folder,
+        model=model,
     )
     db.add(a)
+    return a
+
+
+def update_agent_db(
+    db,
+    agent_id: str,
+    name: Optional[str] = None,
+    description: Optional[str] = None,
+    domain_file: Optional[str] = None,
+    domain_content: Optional[str] = None,
+    data_folder: Optional[str] = None,
+    model: Optional[str] = None,
+) -> Optional[Agent]:
+    """Update an existing agent. Returns the updated agent or None if not found."""
+    a = db.get(Agent, agent_id)
+    if not a:
+        return None
+    
+    if name is not None:
+        a.name = name
+    if description is not None:
+        a.description = description
+    if domain_file is not None:
+        a.domain_file = domain_file
+    if domain_content is not None:
+        a.domain_content = domain_content
+    if data_folder is not None:
+        a.data_folder = data_folder
+    if model is not None:
+        a.model = model
+    
     return a
 
 

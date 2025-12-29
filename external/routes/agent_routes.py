@@ -44,8 +44,11 @@ class AgentRoutes(BaseRoutes):
             
             # Validate agent exists
             try:
-                from external.agent.agent_registry import get_agent
-                agent = get_agent(agent_id)
+                from core.db.session import get_db_session
+                from external.agent.persistence import get_agent_db
+                
+                with get_db_session() as db:
+                    agent = get_agent_db(db, agent_id)
                 if not agent:
                     return render_template('error.html', 
                                          user=user_session,

@@ -20,6 +20,7 @@ class ExecutorState(TypedDict):
     user_query: Optional[str]  # User's original query for LLM commentary
     conversation_history: Optional[list]  # Conversation history for context
     agent_data_folder: Optional[str]  # Agent's data folder for path scoping in tools
+    last_error: Optional[str]  # Propagated execution/gate error (must be part of state for LangGraph)
 
 
 class ControllerState(TypedDict):
