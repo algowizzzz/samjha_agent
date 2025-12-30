@@ -173,6 +173,58 @@ def append_message(db, conversation_id: str, role: str, content: str) -> str:
     return m.id
 
 
+def list_conversations_for_agent(db, agent_id: str, user_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+    """
+    List conversations for a specific agent instance and user.
+    
+    Returns list of conversations with:
+    - id: conversation ID
+    - title: first 20 characters of first user message
+    - created_at: conversation creation timestamp
+    - message_count: number of messages in conversation
+    """
+    # Query conversations filtered by agent_id and user_id
+    stmt = (
+        select(Conversation)
+        .where(Conversation.agent_id == agent_id)
+        .where(Conversation.user_id == user_id)
+        .order_by(Conversation.created_at.desc())
+        .limit(limit)
+    )
+    conversations = db.execute(stmt).scalars().all()
+    
+    result = []
+    for conv in conversations:
+        # Get first user message for title
+        first_msg_stmt = (
+            select(Message)
+            .where(Message.conversation_id == conv.id)
+            .where(Message.role == "user")
+            .order_by(Message.created_at.asc())
+            .limit(1)
+        )
+        first_msg = db.execute(first_msg_stmt).scalar_one_or_none()
+        title = ""
+        if first_msg:
+            title = first_msg.content[:20] if len(first_msg.content) > 20 else first_msg.content
+        
+        # Count total messages
+        msg_count_stmt = (
+            select(func.count(Message.id))
+            .where(Message.conversation_id == conv.id)
+        )
+        msg_count = db.execute(msg_count_stmt).scalar() or 0
+        
+        result.append({
+            "id": conv.id,
+            "title": title,
+            "created_at": conv.created_at.isoformat() if conv.created_at else "",
+            "message_count": msg_count
+        })
+    
+    return result
+
+
 def create_run(
     db,
     conversation_id: Optional[str],

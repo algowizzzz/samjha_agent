@@ -29,6 +29,7 @@ from external.agent.persistence import (
     finish_run_error,
     save_full_results,
     get_agent_db,
+    list_conversations_for_agent,
 )
 from external.agent.agent_registry import get_agent
 from external.agent.parquet_agent import handle_query, load_domain_md
@@ -250,6 +251,68 @@ class AgentRunRoutes(BaseRoutes):
                 return jsonify({"success": True})
             except Exception as e:
                 logger.error(f"Error cancelling run {run_id}: {e}")
+                return jsonify({"error": str(e)}), 500
+
+        @app.route('/api/agents/<agent_id>/conversations', methods=['GET'])
+        @self.login_required
+        def list_conversations(agent_id):
+            """List conversations for a specific agent instance"""
+            try:
+                user_session = self.get_user_session()
+                user_id = user_session.get('user_id')
+                
+                limit = int(request.args.get('limit', 50))
+                
+                with get_db_session() as db:
+                    conversations = list_conversations_for_agent(db, agent_id, user_id, limit)
+                    return jsonify(conversations)
+            except Exception as e:
+                logger.error(f"Error listing conversations: {e}", exc_info=True)
+                return jsonify({"error": str(e)}), 500
+
+        @app.route('/api/conversations/<conversation_id>/messages', methods=['GET'])
+        @self.login_required
+        def get_conversation_messages(conversation_id):
+            """Get all messages for a conversation"""
+            try:
+                user_session = self.get_user_session()
+                user_id = user_session.get('user_id')
+                
+                from sqlalchemy import select
+                from core.db.models import Message, Conversation
+                
+                with get_db_session() as db:
+                    # Verify conversation exists and belongs to user
+                    conv = db.get(Conversation, conversation_id)
+                    if not conv:
+                        return jsonify({"error": "Conversation not found"}), 404
+                    if conv.user_id != user_id:
+                        return jsonify({"error": "Unauthorized"}), 403
+                    
+                    # Get all messages
+                    stmt = (
+                        select(Message)
+                        .where(Message.conversation_id == conversation_id)
+                        .order_by(Message.created_at.asc())
+                    )
+                    messages = db.execute(stmt).scalars().all()
+                    
+                    result = [
+                        {
+                            "id": msg.id,
+                            "role": msg.role,
+                            "content": msg.content,
+                            "created_at": msg.created_at.isoformat() if msg.created_at else ""
+                        }
+                        for msg in messages
+                    ]
+                    
+                    return jsonify({
+                        "conversation_id": conversation_id,
+                        "messages": result
+                    })
+            except Exception as e:
+                logger.error(f"Error loading conversation messages: {e}", exc_info=True)
                 return jsonify({"error": str(e)}), 500
 
 
@@ -526,16 +589,16 @@ def _run_agent_async(
         else:
             # Structured agent (default)
             from external.agent.parquet_agent import handle_query
-            result = handle_query(
-                user_query=user_query,
-                conversation_history=conversation_history,
+        result = handle_query(
+            user_query=user_query,
+            conversation_history=conversation_history,
                 prior_state=prior_state,
-                tools_registry=None,  # Will use default
-                policy_limits=None,
-                show_thinking=show_thinking,
-                agent_id=agent_id,
+            tools_registry=None,  # Will use default
+            policy_limits=None,
+            show_thinking=show_thinking,
+            agent_id=agent_id,
                 on_decider_output=lambda decider_output, _state: _persist_decider_output(run_id, decider_output),
-            )
+        )
         
         if _is_run_cancelled(run_id):
             _emit_event(run_id, "run_cancelled", {})
@@ -589,8 +652,8 @@ def _run_agent_async(
                 # Prefer finished_output (LLM-generated commentary) over result_summary (basic string)
                 response_text = finished_output if finished_output else result_summary
                 results = result.get("results", {})
-                
-                # Save results to DB
+            
+            # Save results to DB
                 # Transform results from executor format to DB format
                 # Executor format: {"columns": [...], "rows_preview": [...]}
                 # DB format: {"schema": {col_name: type, ...}, "rows": [...]}
@@ -622,7 +685,7 @@ def _run_agent_async(
                 with get_db_session() as db:
                     append_message(db, conversation_id, "agent", response_text)
                     db.commit()
-                
+            
                 _emit_event(run_id, "sql_generated", {"sql": final_sql})
                 _emit_event(run_id, "results_ready", {"row_count": len(rows)})
                 # Send finished_output (LLM commentary) to frontend

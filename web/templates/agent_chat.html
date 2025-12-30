@@ -420,33 +420,140 @@
             display: none;
         }
     }
+    
+    /* Sidebar Styles */
+    #chatSidebar {
+        height: 100%;
+        max-height: calc(100vh - 56px); /* Account for navbar */
+    }
+    
+    #chatSidebar.collapsed {
+        width: 0 !important;
+        border: none !important;
+        overflow: hidden;
+    }
+    
+    .conversation-item {
+        padding: 10px 12px;
+        margin-bottom: 4px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border: 1px solid transparent;
+    }
+    
+    .conversation-item:hover {
+        background-color: #e9ecef;
+    }
+    
+    .conversation-item.active {
+        background-color: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+    }
+    
+    .conversation-item.active:hover {
+        background-color: #0b5ed7;
+    }
+    
+    .conversation-title {
+        font-size: 13px;
+        font-weight: 500;
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .conversation-meta {
+        font-size: 11px;
+        opacity: 0.7;
+        margin-top: 4px;
+    }
+    
+    .conversation-item.active .conversation-meta {
+        opacity: 0.9;
+    }
+    
+    .conversation-group {
+        margin-bottom: 16px;
+    }
+    
+    .conversation-group-title {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #6c757d;
+        padding: 8px 12px 4px;
+        margin: 0;
+    }
+    
+    /* Header toggle button - always visible */
+    #sidebarToggleHeader {
+        padding: 4px 8px;
+    }
+    
+    /* Responsive: Handle sidebar on mobile */
+    @media (max-width: 768px) {
+        #chatSidebar {
+            position: fixed;
+            left: 0;
+            top: 56px;
+            z-index: 1000;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+        }
+        
+        #chatSidebar.collapsed {
+            left: -250px;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="p-0 m-0" style="height: 100%; width: 100%; display: flex; flex-direction: column; margin: 0 !important; padding: 0 !important;">
-    <div class="card shadow-sm h-100 d-flex flex-column m-0" style="border-radius: 0; border: none; height: 100%; margin: 0 !important; width: 100%;">
-        <div class="card-header bg-primary text-white" style="flex-shrink: 0;">
-            <h5 class="mb-0"><i class="bi bi-chat-text"></i> {{ agent_name or 'AI Agent Chat' }}</h5>
+<div class="p-0 m-0" style="height: 100%; width: 100%; display: flex; flex-direction: row; margin: 0 !important; padding: 0 !important;">
+    <!-- Sidebar -->
+    <div id="chatSidebar" class="bg-light border-end" style="width: 250px; flex-shrink: 0; display: flex; flex-direction: column; overflow: hidden; transition: width 0.3s;">
+        <div class="p-3 border-bottom" style="flex-shrink: 0;">
+            <button id="newChatSidebarBtn" class="btn btn-primary btn-sm" style="width: 100%;">
+                <i class="bi bi-plus-circle"></i> New Chat
+            </button>
         </div>
-        <div class="card-body d-flex flex-column p-3" style="flex: 1; overflow: hidden; min-height: 0;">
-            <div id="chatHistory" class="mb-3 flex-grow-1" style="overflow-y: auto; border: 1px solid #eee; padding: 12px; border-radius: 6px; background: #fafafa; min-height: 0; max-height: calc(100vh - 180px);">
-                <!-- Messages will be appended here -->
+        <div id="conversationList" class="flex-grow-1" style="overflow-y: auto; padding: 8px;">
+            <!-- Conversations will be loaded here -->
+            <div class="text-center text-muted mt-3">
+                <small>Loading conversations...</small>
             </div>
-            <div class="input-group" style="flex-shrink: 0;">
-                <input id="chatInput" type="text" class="form-control" placeholder="Ask a question or follow up..." />
-                <button id="sendBtn" class="btn btn-primary">
-                    <i class="bi bi-send"></i> Send
-                </button>
-                <button id="newChatBtn" class="btn btn-primary" title="Start a new chat session">
-                    <i class="bi bi-plus-circle"></i> New
-                </button>
+        </div>
+    </div>
+    
+    <!-- Main Chat Area -->
+    <div class="flex-grow-1 d-flex flex-column" style="min-width: 0;">
+        <div class="card shadow-sm h-100 d-flex flex-column m-0" style="border-radius: 0; border: none; height: 100%; margin: 0 !important; width: 100%;">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" style="flex-shrink: 0;">
+                <div class="d-flex align-items-center gap-2">
+                    <button id="sidebarToggleHeader" class="btn btn-sm btn-light" title="Toggle sidebar">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <h5 class="mb-0"><i class="bi bi-chat-text"></i> {{ agent_name or 'AI Agent Chat' }}</h5>
+                </div>
             </div>
-            <div class="form-check mt-2" style="flex-shrink: 0;">
-                <input class="form-check-input" type="checkbox" id="showThinkingToggle">
-                <label class="form-check-label text-muted" for="showThinkingToggle" style="font-size: 12px;">
-                    Show reasoning
-                </label>
+            <div class="card-body d-flex flex-column p-3" style="flex: 1; overflow: hidden; min-height: 0;">
+                <div id="chatHistory" class="mb-3 flex-grow-1" style="overflow-y: auto; border: 1px solid #eee; padding: 12px; border-radius: 6px; background: #fafafa; min-height: 0; max-height: calc(100vh - 180px);">
+                    <!-- Messages will be appended here -->
+                </div>
+                <div class="input-group" style="flex-shrink: 0;">
+                    <input id="chatInput" type="text" class="form-control" placeholder="Ask a question or follow up..." />
+                    <button id="sendBtn" class="btn btn-primary">
+                        <i class="bi bi-send"></i> Send
+                    </button>
+                </div>
+                <div class="form-check mt-2" style="flex-shrink: 0;">
+                    <input class="form-check-input" type="checkbox" id="showThinkingToggle">
+                    <label class="form-check-label text-muted" for="showThinkingToggle" style="font-size: 12px;">
+                        Show reasoning
+                    </label>
+                </div>
             </div>
         </div>
     </div>
@@ -611,11 +718,13 @@
     // ====================================================================================
     
     function isNearBottom() {
+        if (!historyEl) return true;
         const threshold = 100;
         return (historyEl.scrollHeight - historyEl.scrollTop - historyEl.clientHeight) <= threshold;
     }
     
     function smoothScrollToBottom() {
+        if (!historyEl) return;
         if (!isUserScrolling || isNearBottom()) {
             requestAnimationFrame(() => {
                 historyEl.scrollTo({
@@ -628,23 +737,25 @@
     
     // Track user scrolling
     let scrollTimeout;
-    historyEl.addEventListener('scroll', () => {
-        clearTimeout(scrollTimeout);
-        
-        // Check if user scrolled up
-        if (!isNearBottom()) {
-            isUserScrolling = true;
-        } else {
-            isUserScrolling = false;
-        }
-        
-        // Reset after a delay
-        scrollTimeout = setTimeout(() => {
-            if (isNearBottom()) {
+    if (historyEl) {
+        historyEl.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            
+            // Check if user scrolled up
+            if (!isNearBottom()) {
+                isUserScrolling = true;
+            } else {
                 isUserScrolling = false;
             }
-        }, 1000);
-    });
+            
+            // Reset after a delay
+            scrollTimeout = setTimeout(() => {
+                if (isNearBottom()) {
+                    isUserScrolling = false;
+                }
+            }, 1000);
+        });
+    }
 
     // HTTP-only mode - WebSocket removed
 
@@ -950,18 +1061,195 @@
         }, 3000);
         
         // v1: keep chat UI minimal; no external welcome/config endpoints.
+        
+        // Refresh conversation list
+        loadConversationList();
+    }
+
+    // Conversation management functions
+    function groupByDate(conversations) {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const lastWeek = new Date(today);
+        lastWeek.setDate(lastWeek.getDate() - 7);
+        
+        const groups = {
+            today: [],
+            yesterday: [],
+            lastWeek: [],
+            older: []
+        };
+        
+        conversations.forEach(conv => {
+            const convDate = new Date(conv.created_at);
+            if (convDate >= today) {
+                groups.today.push(conv);
+            } else if (convDate >= yesterday) {
+                groups.yesterday.push(conv);
+            } else if (convDate >= lastWeek) {
+                groups.lastWeek.push(conv);
+            } else {
+                groups.older.push(conv);
+            }
+        });
+        
+        return groups;
+    }
+
+    function loadConversationList() {
+        const agentId = {% if agent_id %}'{{ agent_id }}'{% else %}null{% endif %};
+        if (!agentId) {
+            console.log('[ConversationList] No agentId available');
+            return;
+        }
+        
+        const listEl = document.getElementById('conversationList');
+        if (!listEl) {
+            console.error('[ConversationList] conversationList element not found');
+            return;
+        }
+        
+        listEl.innerHTML = '<div class="text-center text-muted mt-3"><small>Loading...</small></div>';
+        
+        if (typeof API === 'undefined') {
+            console.error('[ConversationList] API object not defined');
+            listEl.innerHTML = '<div class="text-center text-danger mt-3"><small>Error: API not available</small></div>';
+            return;
+        }
+        
+        API.get(`/api/agents/${agentId}/conversations`)
+            .done(function(conversations) {
+                console.log('[ConversationList] Loaded conversations:', conversations);
+                
+                if (!conversations || conversations.length === 0) {
+                    listEl.innerHTML = '<div class="text-center text-muted mt-3"><small>No previous conversations</small></div>';
+                    return;
+                }
+                
+                const groups = groupByDate(conversations);
+                let html = '';
+                
+                if (groups.today.length > 0) {
+                    html += '<div class="conversation-group"><p class="conversation-group-title">Today</p>';
+                    groups.today.forEach(conv => {
+                        const isActive = conv.id === currentSessionId;
+                        html += `<div class="conversation-item ${isActive ? 'active' : ''}" data-conv-id="${conv.id}">
+                            <div class="conversation-title">${escapeHtml(conv.title || 'New conversation')}</div>
+                            <div class="conversation-meta">${conv.message_count} messages</div>
+                        </div>`;
+                    });
+                    html += '</div>';
+                }
+                
+                if (groups.yesterday.length > 0) {
+                    html += '<div class="conversation-group"><p class="conversation-group-title">Yesterday</p>';
+                    groups.yesterday.forEach(conv => {
+                        const isActive = conv.id === currentSessionId;
+                        html += `<div class="conversation-item ${isActive ? 'active' : ''}" data-conv-id="${conv.id}">
+                            <div class="conversation-title">${escapeHtml(conv.title || 'New conversation')}</div>
+                            <div class="conversation-meta">${conv.message_count} messages</div>
+                        </div>`;
+                    });
+                    html += '</div>';
+                }
+                
+                if (groups.lastWeek.length > 0) {
+                    html += '<div class="conversation-group"><p class="conversation-group-title">Last 7 days</p>';
+                    groups.lastWeek.forEach(conv => {
+                        const isActive = conv.id === currentSessionId;
+                        html += `<div class="conversation-item ${isActive ? 'active' : ''}" data-conv-id="${conv.id}">
+                            <div class="conversation-title">${escapeHtml(conv.title || 'New conversation')}</div>
+                            <div class="conversation-meta">${conv.message_count} messages</div>
+                        </div>`;
+                    });
+                    html += '</div>';
+                }
+                
+                if (groups.older.length > 0) {
+                    html += '<div class="conversation-group"><p class="conversation-group-title">Older</p>';
+                    groups.older.forEach(conv => {
+                        const isActive = conv.id === currentSessionId;
+                        html += `<div class="conversation-item ${isActive ? 'active' : ''}" data-conv-id="${conv.id}">
+                            <div class="conversation-title">${escapeHtml(conv.title || 'New conversation')}</div>
+                            <div class="conversation-meta">${conv.message_count} messages</div>
+                        </div>`;
+                    });
+                    html += '</div>';
+                }
+                
+                listEl.innerHTML = html;
+                
+                // Add click handlers
+                listEl.querySelectorAll('.conversation-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const convId = this.dataset.convId;
+                        loadConversation(convId);
+                    });
+                });
+            })
+            .fail(function(xhr, status, error) {
+                console.error('[ConversationList] Failed to load conversations:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText,
+                    error: error
+                });
+                const errorMsg = xhr.responseJSON?.error || xhr.statusText || 'Unknown error';
+                listEl.innerHTML = `<div class="text-center text-danger mt-3"><small>Error: ${errorMsg}</small></div>`;
+            });
+    }
+
+    function loadConversation(convId) {
+        if (!convId) return;
+        
+        // Clear current chat
+        historyEl.innerHTML = '<div class="text-center text-muted mt-3"><small>Loading conversation...</small></div>';
+        
+        API.get(`/api/conversations/${convId}/messages`)
+            .done(function(data) {
+                const messages = data.messages || [];
+                
+                // Update current session ID
+                currentSessionId = data.conversation_id;
+                localStorage.setItem('agentSessionId', currentSessionId);
+                
+                // Clear and render messages
+                historyEl.innerHTML = '';
+                messages.forEach(msg => {
+                    appendMessage(msg.role, msg.content);
+                });
+                
+                // Refresh conversation list to highlight active
+                loadConversationList();
+                
+                // Scroll to bottom
+                smoothScrollToBottom();
+            })
+            .fail(function(xhr) {
+                console.error('Failed to load conversation:', xhr);
+                historyEl.innerHTML = '<div class="alert alert-danger">Failed to load conversation</div>';
+            });
     }
 
     let currentEventSource = null;
     let currentRunId = null;
 
     function sendQuery() {
-        const q = inputEl.value.trim();
+        // Re-get input element in case it wasn't available during initialization
+        const input = inputEl || document.getElementById('chatInput');
+        if (!input) {
+            console.error('[sendQuery] chatInput element not found');
+            return;
+        }
+        
+        const q = input.value.trim();
         if (!q) return;
         const showThinking = !!document.getElementById('showThinkingToggle')?.checked;
         console.log('[DEBUG] sendQuery called:', { query: q, showThinking: showThinking });
         appendMessage('user', q);
-        inputEl.value = '';
+        input.value = '';
         $('#sendBtn').prop('disabled', true);
         isQueryRunning = true;
 
@@ -1016,6 +1304,8 @@
                 if (resp.conversation_id) {
                     currentSessionId = resp.conversation_id;
                     localStorage.setItem('agentSessionId', currentSessionId);
+                    // Refresh conversation list to show new conversation
+                    loadConversationList();
                 }
                 
                 // Open SSE stream
@@ -1155,11 +1445,15 @@
                                             $('#sendBtn').prop('disabled', false);
                                             isQueryRunning = false;
                                             currentResponseId = null;
+                                            // Refresh conversation list to update message counts
+                                            loadConversationList();
                                         });
                                 } else {
                                     $('#sendBtn').prop('disabled', false);
                                     isQueryRunning = false;
                                     currentResponseId = null;
+                                    // Refresh conversation list
+                                    loadConversationList();
                                 }
                                 break;
                         }
@@ -1216,7 +1510,6 @@
         // Re-get elements in case they weren't ready before
         const btn = document.getElementById('sendBtn');
         const input = document.getElementById('chatInput');
-    const newChatBtn = document.getElementById('newChatBtn');
         
         if (!btn) {
             console.error('[DEBUG] sendBtn not found! Retrying in 100ms...');
@@ -1246,22 +1539,58 @@
         });
         console.log('[DEBUG] Input keydown listener attached');
     
-    // New Chat button
-    if (newChatBtn) {
-        newChatBtn.addEventListener('click', function() {
-            if (confirm('Start a new chat? This will clear the current conversation history.')) {
-                startNewChat();
-            }
-        });
+    // Sidebar toggle button (in header)
+    const sidebarToggleHeader = document.getElementById('sidebarToggleHeader');
+    const sidebar = document.getElementById('chatSidebar');
+    
+    function toggleSidebar() {
+        if (sidebar) {
+            sidebar.classList.toggle('collapsed');
         }
     }
     
-    // Setup listeners when DOM is ready
+    if (sidebarToggleHeader) {
+        sidebarToggleHeader.addEventListener('click', toggleSidebar);
+    }
+    
+    // New Chat button in sidebar
+    const newChatSidebarBtn = document.getElementById('newChatSidebarBtn');
+    if (newChatSidebarBtn) {
+        newChatSidebarBtn.addEventListener('click', function() {
+            startNewChat();
+        });
+    }
+    } // Close setupEventListeners function
+    
+    // Load conversation list on page load (after everything is ready)
+    function initializeConversationList() {
+        // Wait a bit to ensure API is loaded
+        if (typeof API === 'undefined' || typeof $ === 'undefined') {
+            setTimeout(initializeConversationList, 100);
+            return;
+        }
+        try {
+            loadConversationList();
+        } catch (e) {
+            console.error('[ConversationList] Error initializing:', e);
+        }
+    }
+    
+    // Initialize everything when DOM is ready
+    function initializePage() {
+        try {
+            setupEventListeners();
+            initializeConversationList();
+        } catch (e) {
+            console.error('[Init] Error during page initialization:', e);
+        }
+    }
+    
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupEventListeners);
+        document.addEventListener('DOMContentLoaded', initializePage);
     } else {
-        // DOM already ready
-        setupEventListeners();
+        // DOM already ready - wait a tiny bit to ensure all scripts are loaded
+        setTimeout(initializePage, 0);
     }
     
     // v1: no agent-management controls.
