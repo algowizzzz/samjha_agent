@@ -1,0 +1,6 @@
+{
+  "ticket_id": "TCK-002",
+  "recommended_ingestion_mode": "programmatic",
+  "recommended_output": "json",
+  "notes": "Task is requirement extraction and summarization; programmatic ingestion plus structured JSON output supports downstream compilation."
+}

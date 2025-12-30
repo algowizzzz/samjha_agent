@@ -20,7 +20,9 @@
             "columns": { "type": "array", "items": { "type": "string" } },
             "rows_preview": { "type": "array", "items": { "type": "object" } }
           }
-        }
+        },
+        "query_spec": { "$ref": "query_spec.schema.json" },
+        "query_spec_status": { "$ref": "query_spec_status.schema.json" }
       }
     },
     {

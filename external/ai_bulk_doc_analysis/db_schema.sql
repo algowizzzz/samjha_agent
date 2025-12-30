@@ -201,3 +201,115 @@ FROM sessions s
 LEFT JOIN documents d ON s.session_id = d.session_id
 GROUP BY s.session_id;
 
+-- ============================================================================
+-- 9. WORKFLOWS (Top-Level Entity)
+-- ============================================================================
+CREATE TABLE workflows (
+    workflow_id VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(500) NOT NULL,
+    description TEXT NOT NULL,
+    visibility_scope VARCHAR(50) NOT NULL,  -- 'super' | 'domain'
+    created_by VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    metadata JSONB DEFAULT '{}'::jsonb
+);
+
+CREATE INDEX idx_workflows_created_by ON workflows(created_by);
+CREATE INDEX idx_workflows_updated_at ON workflows(updated_at);
+
+-- ============================================================================
+-- 10. WORKFLOW_VERSIONS (Immutable Snapshots)
+-- ============================================================================
+CREATE TABLE workflow_versions (
+    workflow_version_id VARCHAR(255) PRIMARY KEY,
+    workflow_id VARCHAR(255) NOT NULL REFERENCES workflows(workflow_id) ON DELETE CASCADE,
+    version_number INTEGER NOT NULL,
+    ingestion_profile_id VARCHAR(255) NOT NULL,
+    chain_version_id VARCHAR(255) NOT NULL REFERENCES chain_versions(chain_version_id),
+    export_profile_id VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(workflow_id, version_number)
+);
+
+CREATE INDEX idx_workflow_versions_workflow_id ON workflow_versions(workflow_id);
+CREATE INDEX idx_workflow_versions_chain_version_id ON workflow_versions(chain_version_id);
+
+-- ============================================================================
+-- 11. WORKFLOW_DOMAINS (Many-to-Many)
+-- ============================================================================
+CREATE TABLE workflow_domains (
+    id SERIAL PRIMARY KEY,
+    workflow_id VARCHAR(255) NOT NULL REFERENCES workflows(workflow_id) ON DELETE CASCADE,
+    domain VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(workflow_id, domain)
+);
+
+CREATE INDEX idx_workflow_domains_workflow_id ON workflow_domains(workflow_id);
+CREATE INDEX idx_workflow_domains_domain ON workflow_domains(domain);
+
+-- ============================================================================
+-- 12. INGESTION_PROFILES
+-- ============================================================================
+CREATE TABLE ingestion_profiles (
+    ingestion_profile_id VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(500) NOT NULL,
+    accepted_input_types TEXT[] NOT NULL,  -- ['PDF', 'DOCX', 'TXT', 'MD', 'CSV']
+    mode VARCHAR(50) NOT NULL,  -- 'programmatic' | 'vision'
+    vision_prompt TEXT,  -- Stored in DB, not file path
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    metadata JSONB DEFAULT '{}'::jsonb
+);
+
+CREATE INDEX idx_ingestion_profiles_mode ON ingestion_profiles(mode);
+
+-- ============================================================================
+-- 13. EXPORT_PROFILES
+-- ============================================================================
+CREATE TABLE export_profiles (
+    export_profile_id VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(500) NOT NULL,
+    format VARCHAR(50) NOT NULL,  -- 'CSV' | 'JSON' | 'MD' | 'DOCX' | 'PDF'
+    config_json JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_export_profiles_format ON export_profiles(format);
+
+-- ============================================================================
+-- 14. EXECUTION_TASKS (For CSV row-based execution)
+-- ============================================================================
+CREATE TABLE execution_tasks (
+    task_id VARCHAR(255) PRIMARY KEY,
+    run_id VARCHAR(255) NOT NULL REFERENCES runs(run_id) ON DELETE CASCADE,
+    doc_id VARCHAR(255) NOT NULL REFERENCES documents(doc_id) ON DELETE CASCADE,
+    row_index INTEGER NOT NULL,
+    row_data JSONB NOT NULL,  -- Serialized row data
+    status VARCHAR(50) NOT NULL,  -- 'QUEUED' | 'RUNNING' | 'SUCCESS' | 'ERROR'
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(run_id, doc_id, row_index)
+);
+
+CREATE INDEX idx_execution_tasks_run_id ON execution_tasks(run_id);
+CREATE INDEX idx_execution_tasks_doc_id ON execution_tasks(doc_id);
+CREATE INDEX idx_execution_tasks_status ON execution_tasks(status);
+
+-- ============================================================================
+-- MODIFICATIONS TO EXISTING TABLES
+-- ============================================================================
+
+-- Add title to chain_steps
+ALTER TABLE chain_steps ADD COLUMN title VARCHAR(500);
+
+-- Add workflow_version_id to runs
+ALTER TABLE runs ADD COLUMN workflow_version_id VARCHAR(255) REFERENCES workflow_versions(workflow_version_id);
+CREATE INDEX idx_runs_workflow_version_id ON runs(workflow_version_id);
+
+-- Add task_id to step_results
+ALTER TABLE step_results ADD COLUMN task_id VARCHAR(255) REFERENCES execution_tasks(task_id);
+CREATE INDEX idx_step_results_task_id ON step_results(task_id);
+

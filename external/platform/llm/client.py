@@ -231,11 +231,13 @@ class LLMClient:
         temperature: float,
         max_tokens: int,
         response_format: Optional[str],
-        thinking: Optional[Dict[str, Any]]
+        thinking: Optional[Dict[str, Any]],
+        model: Optional[str] = None
     ) -> str:
         """Invoke Anthropic Claude API"""
+        use_model = model if model is not None else self.model
         kwargs = {
-            "model": self.model,
+            "model": use_model,
             "messages": messages,
             "temperature": temperature,
             "max_tokens": max_tokens

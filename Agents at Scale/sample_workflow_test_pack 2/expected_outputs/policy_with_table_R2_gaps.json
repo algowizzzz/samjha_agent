@@ -1,0 +1,25 @@
+{
+  "gaps": [
+    {
+      "obligation_statement": "Enforce MFA for all privileged accounts.",
+      "gap_description": "The policy states MFA is required, but does not specify acceptable MFA methods (e.g., phishing-resistant factors) or exceptions/approval process.",
+      "severity": "Medium"
+    },
+    {
+      "obligation_statement": "Review access for admin groups monthly.",
+      "gap_description": "The policy requires monthly review but does not define ownership, evidence retention requirements, or escalation steps for overdue reviews.",
+      "severity": "Medium"
+    },
+    {
+      "obligation_statement": "Implement just-in-time access for production systems where feasible.",
+      "gap_description": "The guidance is non-specific; feasibility criteria and target scope/timeline are not defined, which may reduce adoption.",
+      "severity": "Low"
+    }
+  ],
+  "questions": [
+    "Who is accountable for performing and attesting monthly admin access reviews (role/team)?",
+    "What evidence must be retained for access reviews and for how long?",
+    "Are any privileged accounts exempt from MFA, and if so what is the approval process?",
+    "What does 'feasible' mean for just-in-time access, and is there a target implementation timeline?"
+  ]
+}

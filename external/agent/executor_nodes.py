@@ -4,6 +4,7 @@ Executor Nodes - 6 nodes for linear Executor graph.
 
 import logging
 import json
+import fnmatch
 from typing import Dict, Any, Optional
 from external.agent.state_types import ExecutorState
 from external.agent.sql_gate import spec_ready_for_sql
@@ -126,6 +127,21 @@ def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
     
     logger.info(f"InvestigationNode: Running {len(investigation_plan)} plan steps")
     
+    # Reorder investigation plan to ensure catalog_data runs first if present
+    # This is critical because catalog_data provides concrete paths that other tools (like inspect_table) depend on
+    def get_tool_priority(tool_name: str) -> int:
+        """Lower priority number = runs first"""
+        if tool_name == "catalog_data":
+            return 0  # Highest priority - must run first
+        elif tool_name == "list_dir":
+            return 1  # Second priority - discovery tools
+        else:
+            return 2  # Other tools (inspect_table, preview_rows, etc.)
+    
+    # Sort investigation plan by tool priority, maintaining original step numbers
+    investigation_plan = sorted(investigation_plan, key=lambda s: (get_tool_priority(s.get("tool", "")), s.get("step", 999)))
+    logger.info(f"Investigation plan reordered: {[s.get('tool') for s in investigation_plan]}")
+    
     # Execute each step in the plan
     for step in investigation_plan:
         step_num = step.get("step", 0)
@@ -137,6 +153,14 @@ def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
         logger.info(f"Step {step_num}: {tool_name} - {fills_gap}")
         
         try:
+            # Prefer deterministic catalog over list_dir for resolving start_table.path.
+            # list_dir is non-recursive and cannot locate nested/subfolder files reliably.
+            if tool_name == "list_dir" and fills_gap == "start_table.path":
+                agent_folder = state.get("agent_data_folder")
+                if agent_folder:
+                    tool_name = "catalog_data"
+                    args = {"agent_data_folder": agent_folder}
+
             # Get tool from registry
             tool = tools_registry.get_tool(tool_name)
             if not tool:
@@ -174,14 +198,7 @@ def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
                         # Extract file part and prefix with agent folder
                         file_part = p2.split("/", 1)[1]
                         return f"{agent_data_folder}/{file_part}"
-                    # Handle domain_key variants (e.g., "widgets/file.csv" when agent folder is "WidgetSales")
-                    if "/" in p2:
-                        parts = p2.split("/", 1)
-                        folder_part = parts[0].lower()
-                        # If folder part looks like a domain key variant, replace with agent folder
-                        if folder_part not in (agent_data_folder.lower(), "ecomm", "ecommerce"):
-                            return f"{agent_data_folder}/{parts[1]}"
-                    # Otherwise, prefix with agent folder
+                    # Otherwise, prefix with agent folder (preserve subfolders like date partitions)
                     return f"{agent_data_folder}/{p2}"
                 
                 # Fallback: legacy normalization for ecomm/ecommerce
@@ -195,8 +212,20 @@ def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
             if tool_name == "list_dir" and isinstance(args.get("path"), str):
                 args["path"] = normalize_data_path(args["path"])
 
-            if tool_name in ("inspect_table", "preview_rows", "execute_sql") and isinstance(args.get("path"), str):
-                args["path"] = normalize_data_path(args["path"])
+            if tool_name in ("inspect_table", "preview_rows") and isinstance(args.get("path"), str):
+                # Keep tool args agent-relative when agent_data_folder is available.
+                # Tools accept agent_data_folder for scoping; this prevents path guessing and double-prefix issues.
+                p_norm = normalize_data_path(args["path"])
+                if agent_data_folder and isinstance(p_norm, str):
+                    prefix = agent_data_folder.rstrip("/") + "/"
+                    if p_norm.startswith(prefix):
+                        p_norm = p_norm[len(prefix):]
+                args["path"] = p_norm
+                args["agent_data_folder"] = agent_data_folder
+            
+            # Pass agent_data_folder to execute_sql tool for view scoping
+            if tool_name == "execute_sql":
+                args["agent_data_folder"] = agent_data_folder
 
             # If Decider is inspecting start table grain/schema, prefer the canonical start_table.path found/known in query_spec.
             if tool_name == "inspect_table":
@@ -204,7 +233,13 @@ def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
                 if isinstance(start_table_path, str) and start_table_path.strip():
                     # Only override when we're clearly trying to validate the start table
                     if fills_gap == "start_table_grain" or "start_table" in str(fills_gap):
-                        args["path"] = normalize_data_path(start_table_path)
+                        # start_table.path is stored as agent-relative (especially when resolved via catalog_data).
+                        # Keep inspect_table args agent-relative and rely on agent_data_folder scoping.
+                        p = start_table_path.strip().lstrip("/")
+                        if agent_data_folder and p.startswith(agent_data_folder.rstrip("/") + "/"):
+                            p = p[len(agent_data_folder.rstrip("/") + "/"):]
+                        args["path"] = p
+                        args["agent_data_folder"] = agent_data_folder
 
             result = tool.execute(args)
             
@@ -227,6 +262,146 @@ def investigation_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
                         query_spec_status["start_table_grain"]["blocks_execution"] = False
                         logger.info(f"Updated start_table.path to: {entry.get('path')}")
                         break
+
+            elif tool_name == "catalog_data" and (fills_gap == "start_table.path" or fills_gap == "start_table.name" or "start_table" in str(fills_gap)):
+                # Use deterministic catalog output to set BOTH:
+                # - query_spec.start_table.path (agent-relative file path)
+                # - query_spec.start_table.name (concrete view name for SQL)
+                entries = result.get("entries", []) if isinstance(result, dict) else []
+                if not isinstance(entries, list):
+                    entries = []
+
+                def _pick_best(candidates: list, desired: str, user_query: str) -> Optional[dict]:
+                    desired = (desired or "").strip()
+                    uq = (user_query or "").lower()
+                    # If desired looks like a wildcard pattern, reduce to a simple substring token.
+                    desired_token = desired.replace("*", "").strip().lower()
+                    # If the user explicitly mentions a month, prefer candidates in that month folder.
+                    month_map = {
+                        "january": "jan",
+                        "february": "feb",
+                        "march": "mar",
+                        "april": "apr",
+                        "may": "may",
+                        "june": "jun",
+                        "july": "jul",
+                        "august": "aug",
+                        "september": "sep",
+                        "october": "oct",
+                        "november": "nov",
+                        "december": "dec",
+                    }
+                    for month_name, month_prefix in month_map.items():
+                        if month_name in uq:
+                            for c in candidates:
+                                vn = str(c.get("view_name", "")).lower()
+                                fp = str(c.get("file_path", "")).lower()
+                                if desired_token and (desired_token not in vn and desired_token not in fp):
+                                    continue
+                                if vn.startswith(month_prefix) or fp.startswith(month_prefix) or f"/{month_prefix}" in fp:
+                                    return c
+                            break
+                    if not desired_token:
+                        # Heuristic: pick sales if query mentions sales/revenue; else first.
+                        for c in candidates:
+                            vn = str(c.get("view_name", "")).lower()
+                            fp = str(c.get("file_path", "")).lower()
+                            if ("sales" in uq or "revenue" in uq) and ("sales" in vn or "sales" in fp):
+                                return c
+                        return candidates[0] if candidates else None
+
+                    for c in candidates:
+                        vn = str(c.get("view_name", "")).lower()
+                        fp = str(c.get("file_path", "")).lower()
+                        if desired_token in vn or desired_token in fp:
+                            return c
+
+                    # Fallback heuristic for common entities
+                    for token in ["sales", "customer", "inventory", "product", "orders"]:
+                        if token in uq:
+                            for c in candidates:
+                                vn = str(c.get("view_name", "")).lower()
+                                fp = str(c.get("file_path", "")).lower()
+                                if token in vn or token in fp:
+                                    return c
+                    return candidates[0] if candidates else None
+
+                desired_name = query_spec.get("start_table", {}).get("name", "")
+                
+                # Check if UNION ALL strategy is needed:
+                # 1. Pattern exists (contains *)
+                # 2. Dimensions include date/time column for grouping
+                # 3. Query suggests multi-month/trend analysis
+                needs_union = False
+                pattern = desired_name
+                if "*" in desired_name:
+                    dimensions = query_spec.get("dimensions", [])
+                    # Check if dimensions include date/time column (common names)
+                    date_columns = ["report_date", "order_date", "date", "created_at", "timestamp", "time"]
+                    has_date_dimension = any(dim in date_columns for dim in dimensions)
+                    # Check query intent (trend analysis keywords)
+                    user_query_lower = (state.get("user_query") or "").lower()
+                    trend_keywords = ["month over month", "trend", "over time", "across", "compare"]
+                    suggests_trend = any(kw in user_query_lower for kw in trend_keywords)
+                    needs_union = has_date_dimension or suggests_trend
+                
+                if needs_union and pattern:
+                    # Preserve pattern and ensure aggregation_plan is set
+                    if "start_table" not in query_spec:
+                        query_spec["start_table"] = {}
+                    # Keep the pattern, don't collapse to single table
+                    query_spec["start_table"]["name"] = pattern
+                    # Set a representative path (first matching entry) for reference, but keep pattern in name
+                    chosen = _pick_best(entries, desired_name, state.get("user_query") or "")
+                    if chosen:
+                        query_spec["start_table"]["path"] = chosen.get("file_path", "")
+                        logger.info(f"Preserved pattern {pattern} for UNION ALL, set representative path: {query_spec['start_table'].get('path')}")
+                    else:
+                        # Fallback: use first matching entry if available
+                        matching_entries = [e for e in entries if fnmatch.fnmatch(e.get("view_name", ""), pattern)]
+                        if matching_entries:
+                            query_spec["start_table"]["path"] = matching_entries[0].get("file_path", "")
+                    
+                    # Ensure aggregation_plan is populated if Decider didn't set it
+                    current_plan = query_spec.get("aggregation_plan")
+                    if not current_plan or current_plan == "" or (isinstance(current_plan, str) and "UNION ALL" not in current_plan):
+                        date_dim = next((dim for dim in query_spec.get("dimensions", []) if dim in ["report_date", "order_date", "date"]), query_spec.get("dimensions", [None])[0])
+                        if date_dim:
+                            # Set as structured object
+                            query_spec["aggregation_plan"] = {
+                                "aggregation_type": "union_all_then_group",
+                                "union_strategy": {
+                                    "pattern": pattern
+                                },
+                                "group_by": [date_dim] if date_dim else [],
+                                "description": f"UNION ALL all views matching pattern {pattern}, then GROUP BY {date_dim}"
+                            }
+                            logger.info(f"Set aggregation_plan for UNION ALL: {query_spec['aggregation_plan']}")
+                    
+                    # Mark as verified
+                    if "start_table_grain" not in query_spec_status:
+                        query_spec_status["start_table_grain"] = {}
+                    query_spec_status["start_table_grain"]["status"] = "verified"
+                    query_spec_status["start_table_grain"]["source"] = "tool_result"
+                    query_spec_status["start_table_grain"]["blocks_execution"] = False
+                    query_spec_status["start_table_grain"]["notes"] = f"Resolved via catalog_data, preserved pattern {pattern} for UNION ALL"
+                else:
+                    # Single table case: pick one and collapse pattern
+                    chosen = _pick_best(entries, desired_name, state.get("user_query") or "")
+                    if chosen:
+                        if "start_table" not in query_spec:
+                            query_spec["start_table"] = {}
+                        query_spec["start_table"]["path"] = chosen.get("file_path", "")
+                        query_spec["start_table"]["name"] = chosen.get("view_name", "") or desired_name
+
+                        # Mark as verified
+                        if "start_table_grain" not in query_spec_status:
+                            query_spec_status["start_table_grain"] = {}
+                        query_spec_status["start_table_grain"]["status"] = "verified"
+                        query_spec_status["start_table_grain"]["source"] = "tool_result"
+                        query_spec_status["start_table_grain"]["blocks_execution"] = False
+                        query_spec_status["start_table_grain"]["notes"] = "Resolved start table via catalog_data"
+                        logger.info(f"Updated start_table via catalog_data: path={query_spec['start_table'].get('path')}, name={query_spec['start_table'].get('name')}")
             
             elif tool_name == "inspect_table":
                 # Update grain, dimensions, filters, or time from schema inspection
@@ -464,10 +639,13 @@ def sql_generation_node(state: ExecutorState, tools_registry, domain_md: str) ->
             logger.error("nl_to_sql_planner tool not found")
             return {"halt_execution": True}
         
-        result = tool.execute({
+        # Pass agent_data_folder for UNION ALL catalog lookup
+        tool_args = {
             "query_spec": query_spec,
-            "query_spec_status": query_spec_status
-        })
+            "query_spec_status": query_spec_status,
+            "agent_data_folder": state.get("agent_data_folder")  # Pass agent_data_folder for catalog lookup
+        }
+        result = tool.execute(tool_args)
         
         sql = result.get("sql", "")
         if sql.startswith("ERROR:"):
@@ -544,7 +722,8 @@ def execution_node(state: ExecutorState, tools_registry) -> Dict[str, Any]:
         result = tool.execute({
             "sql": final_sql,
             "timeout_seconds": policy_limits.get("timeout_seconds"),
-            "max_rows": policy_limits.get("max_rows")
+            "max_rows": policy_limits.get("max_rows"),
+            "agent_data_folder": state.get("agent_data_folder")  # Pass agent data folder for view scoping
         })
         
         return {"results": result}
@@ -690,7 +869,9 @@ def outcome_node(state: ExecutorState) -> Dict[str, Any]:
             "result_summary": result_summary,
             "evaluation": evaluation,
             "finished_output": finished_output,
-            "results": results  # Include full results for UI table display
+            "results": results,  # Include full results for UI table display
+            "query_spec": query_spec,  # Include updated query_spec (with aggregation_plan, etc.)
+            "query_spec_status": state.get("query_spec_status", {})  # Include updated status
         }
     
     # Validate report

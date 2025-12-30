@@ -51,7 +51,7 @@ class Document(Base):
     doc_id = Column(String(255), primary_key=True)
     session_id = Column(String(255), ForeignKey("sessions.session_id", ondelete="CASCADE"), nullable=False, index=True)
     original_filename = Column(String(500), nullable=False)
-    file_type = Column(String(50), nullable=False)  # 'PDF', 'DOCX', 'TXT', 'MD'
+    file_type = Column(String(50), nullable=False)  # 'PDF', 'DOCX', 'TXT', 'MD', 'CSV'
     size_bytes = Column(BigInteger, nullable=False)
     status = Column(String(50), nullable=False, index=True)  # 'QUEUED', 'PROCESSING', 'CONVERTED', 'ERROR'
     error_code = Column(String(100), nullable=True)
@@ -64,6 +64,7 @@ class Document(Base):
     # Relationships
     session = relationship("Session", back_populates="documents")
     step_results = relationship("StepResult", back_populates="document", cascade="all, delete-orphan")
+    tasks = relationship("ExecutionTask", back_populates="document", cascade="all, delete-orphan")
 
 
 class Chain(Base):
@@ -90,6 +91,7 @@ class ChainStep(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     chain_id = Column(String(255), ForeignKey("chains.chain_id", ondelete="CASCADE"), nullable=False, index=True)
     step_index = Column(Integer, nullable=False)
+    title = Column(String(500), nullable=True)  # Step title (required in UI, nullable in DB for migration)
     prompt = Column(Text, nullable=False)
     description = Column(Text, nullable=True)
     required_inputs = Column(ARRAY(String).with_variant(Text(), 'sqlite'), nullable=False)  # Array: ['R0', 'R1', ...]
@@ -118,6 +120,7 @@ class ChainVersion(Base):
     # Relationships
     chain = relationship("Chain", back_populates="versions")
     runs = relationship("Run", back_populates="chain_version")
+    workflow_versions = relationship("WorkflowVersion", back_populates="chain_version")
 
     __table_args__ = (UniqueConstraint("chain_id", "version_number", name="uq_chain_version"),)
 
@@ -129,6 +132,7 @@ class Run(Base):
     run_id = Column(String(255), primary_key=True)
     session_id = Column(String(255), ForeignKey("sessions.session_id", ondelete="CASCADE"), nullable=False, index=True)
     chain_version_id = Column(String(255), ForeignKey("chain_versions.chain_version_id"), nullable=False, index=True)
+    workflow_version_id = Column(String(255), ForeignKey("workflow_versions.workflow_version_id"), nullable=True, index=True)
     status = Column(String(50), nullable=False, index=True)  # 'QUEUED', 'RUNNING', 'COMPLETE', 'ERROR'
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), index=True)
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
@@ -141,7 +145,9 @@ class Run(Base):
     # Relationships
     session = relationship("Session", back_populates="runs")
     chain_version = relationship("ChainVersion", back_populates="runs")
+    workflow_version = relationship("WorkflowVersion", back_populates="runs")
     step_results = relationship("StepResult", back_populates="run", cascade="all, delete-orphan")
+    tasks = relationship("ExecutionTask", back_populates="run", cascade="all, delete-orphan")
 
 
 class StepResult(Base):
@@ -151,6 +157,7 @@ class StepResult(Base):
     id = Column(String(255), primary_key=True)
     run_id = Column(String(255), ForeignKey("runs.run_id", ondelete="CASCADE"), nullable=False, index=True)
     doc_id = Column(String(255), ForeignKey("documents.doc_id", ondelete="CASCADE"), nullable=False, index=True)
+    task_id = Column(String(255), ForeignKey("execution_tasks.task_id"), nullable=True, index=True)  # For CSV task-based execution
     step_index = Column(Integer, nullable=False)
     status = Column(String(50), nullable=False, index=True)  # 'QUEUED', 'RUNNING', 'SUCCESS', 'ERROR'
     error_code = Column(String(100), nullable=True)
@@ -169,8 +176,15 @@ class StepResult(Base):
     # Relationships
     run = relationship("Run", back_populates="step_results")
     document = relationship("Document", back_populates="step_results")
+    task = relationship("ExecutionTask", back_populates="step_results")
 
-    __table_args__ = (UniqueConstraint("run_id", "doc_id", "step_index", name="uq_step_result"),)
+    # Unique constraint: for CSV workflows, task_id is part of uniqueness
+    # For non-CSV, task_id is NULL, so (run_id, doc_id, step_index) must be unique
+    # For CSV, (run_id, doc_id, step_index, task_id) must be unique
+    # Using COALESCE to handle NULL task_id: use empty string for NULL in constraint
+    __table_args__ = (
+        UniqueConstraint("run_id", "doc_id", "step_index", "task_id", name="uq_step_result"),
+    )
 
 
 class JobQueueLog(Base):
@@ -190,4 +204,108 @@ class JobQueueLog(Base):
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
     completed_at = Column(TIMESTAMP(timezone=True), nullable=True)
+
+
+# ============================================================================
+# Workflow System Models
+# ============================================================================
+
+class Workflow(Base):
+    __tablename__ = "workflows"
+    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+
+    workflow_id = Column(String(255), primary_key=True)
+    name = Column(String(500), nullable=False)
+    description = Column(Text, nullable=False)
+    visibility_scope = Column(String(50), nullable=False)  # 'super' | 'domain'
+    created_by = Column(String(255), nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+    metadata_json = Column("metadata", JSONB().with_variant(JSON(), 'sqlite'), default={})
+
+    # Relationships
+    domains = relationship("WorkflowDomain", back_populates="workflow", cascade="all, delete-orphan")
+    versions = relationship("WorkflowVersion", back_populates="workflow", cascade="all, delete-orphan")
+
+
+class WorkflowVersion(Base):
+    __tablename__ = "workflow_versions"
+    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+
+    workflow_version_id = Column(String(255), primary_key=True)
+    workflow_id = Column(String(255), ForeignKey("workflows.workflow_id", ondelete="CASCADE"), nullable=False, index=True)
+    version_number = Column(Integer, nullable=False)
+    ingestion_profile_id = Column(String(255), nullable=False)
+    chain_version_id = Column(String(255), ForeignKey("chain_versions.chain_version_id"), nullable=False, index=True)
+    export_profile_id = Column(String(255), nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+
+    # Relationships
+    workflow = relationship("Workflow", back_populates="versions")
+    chain_version = relationship("ChainVersion", back_populates="workflow_versions")
+    runs = relationship("Run", back_populates="workflow_version")
+
+    __table_args__ = (UniqueConstraint("workflow_id", "version_number", name="uq_workflow_version"),)
+
+
+class WorkflowDomain(Base):
+    __tablename__ = "workflow_domains"
+    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    workflow_id = Column(String(255), ForeignKey("workflows.workflow_id", ondelete="CASCADE"), nullable=False, index=True)
+    domain = Column(String(255), nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+
+    # Relationships
+    workflow = relationship("Workflow", back_populates="domains")
+
+    __table_args__ = (UniqueConstraint("workflow_id", "domain", name="uq_workflow_domain"),)
+
+
+class IngestionProfile(Base):
+    __tablename__ = "ingestion_profiles"
+    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+
+    ingestion_profile_id = Column(String(255), primary_key=True)
+    name = Column(String(500), nullable=False)
+    accepted_input_types = Column(ARRAY(String).with_variant(Text(), 'sqlite'), nullable=False)  # ['PDF', 'DOCX', 'TXT', 'MD', 'CSV']
+    mode = Column(String(50), nullable=False)  # 'programmatic' | 'vision'
+    vision_prompt = Column(Text, nullable=True)  # Stored in DB, not file path
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+    metadata_json = Column("metadata", JSONB().with_variant(JSON(), 'sqlite'), default={})
+
+
+class ExportProfile(Base):
+    __tablename__ = "export_profiles"
+    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+
+    export_profile_id = Column(String(255), primary_key=True)
+    name = Column(String(500), nullable=False)
+    format = Column(String(50), nullable=False)  # 'CSV' | 'JSON' | 'MD' | 'DOCX' | 'PDF'
+    config_json = Column(JSONB().with_variant(JSON(), 'sqlite'), default={})
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
+class ExecutionTask(Base):
+    __tablename__ = "execution_tasks"
+    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+
+    task_id = Column(String(255), primary_key=True)
+    run_id = Column(String(255), ForeignKey("runs.run_id", ondelete="CASCADE"), nullable=False, index=True)
+    doc_id = Column(String(255), ForeignKey("documents.doc_id", ondelete="CASCADE"), nullable=False, index=True)
+    row_index = Column(Integer, nullable=False)
+    row_data = Column(JSONB().with_variant(JSON(), 'sqlite'), nullable=False)  # Serialized row data
+    status = Column(String(50), nullable=False, index=True)  # 'QUEUED' | 'RUNNING' | 'SUCCESS' | 'ERROR'
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    # Relationships
+    run = relationship("Run", back_populates="tasks")
+    document = relationship("Document", back_populates="tasks")
+    step_results = relationship("StepResult", back_populates="task", cascade="all, delete-orphan")
+
+    __table_args__ = (UniqueConstraint("run_id", "doc_id", "row_index", name="uq_execution_task"),)
 

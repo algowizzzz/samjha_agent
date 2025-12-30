@@ -5,6 +5,7 @@ Produces QuerySpec + InvestigationPlan, decides ASK_USER/EXECUTE/BLOCK.
 
 import json
 import logging
+import re
 from pathlib import Path
 import os
 from typing import Dict, Any, Optional
@@ -54,6 +55,11 @@ def parse_json_response(response: str) -> dict:
         elif "```" in response:
             response = response.rsplit("```", 1)[0].strip()
     
+    # Remove control characters that can break JSON parsing (but preserve \n, \t, \r)
+    # Control characters are chars < 0x20 except for \n (0x0A), \r (0x0D), \t (0x09)
+    # Remove control characters except newlines, carriage returns, and tabs
+    response = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', '', response)
+    
     # Try to parse JSON
     try:
         return json.loads(response)
@@ -81,14 +87,11 @@ def run_decider(state: ControllerState) -> dict:
     if not LLM_AVAILABLE:
         raise ValueError("LLM client not available for Decider")
     
-            llm_client = get_llm_client()
-            if not llm_client.is_available():
-                raise ValueError("LLM client is not available")
-            
-            # Get agent's configured model (default to Sonnet)
-            agent_model = state.get("agent_model") or "claude-3-5-sonnet-20241022"
-            
-            prompt_template = load_decider_prompt()
+    llm_client = get_llm_client()
+    if not llm_client.is_available():
+        raise ValueError("LLM client is not available")
+    
+    prompt_template = load_decider_prompt()
     
     # Build prompt context from state
     context = {
@@ -145,7 +148,7 @@ Output your decision as JSON only (no markdown, no prose):
             want_thinking = bool(state.get("show_thinking", False)) or DECIDER_THINKING_ENABLED
 
             # Get agent's configured model (defaults to Sonnet)
-            agent_model = state.get("agent_model") or "claude-3-5-sonnet-20241022"
+            agent_model = state.get("agent_model") or "claude-3-sonnet-20240229"
             
             # Get model-specific max_tokens limit and thinking support
             # Haiku: 4096, NO thinking support

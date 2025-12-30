@@ -360,3 +360,196 @@ When extracting file paths for investigation_plan steps (inspect_table, preview_
 - **Schema consistency**: All views within the same entity type (sales, customer, inventory) have identical schemas, making UNION ALL straightforward.
 - Default interpretation (PM policy): If user says "sales" without specifying, interpret as **revenue** = SUM(quantity * price) from the sales views (`*_sales_*`). For "in January", filter `report_date` to that month and prefer the matching monthly sales view (e.g., `jan012024_sales_jan012024`) when possible.
 
+---
+
+## 11) Example Patterns (LLM Reference Examples)
+
+This section provides concrete examples for the LLM to understand how to process queries for this dataset. **System prompts should reference this section instead of using hardcoded examples.**
+
+### 11.0 PROCEED vs ASK_USER Policy (CRITICAL)
+
+**PROCEED without clarification when:**
+1. Query closely matches an example in Section 11.1 → Use that example's query_spec directly
+2. All required fields (metrics, dimensions, filters) can be resolved from Sections 5-7
+3. Join is needed but can be resolved from Section 8 canonical_joins → Fill `joins` array and PROCEED
+4. Start table can be determined from Table Selection rules below
+5. Query uses standard patterns like "top N", "by X", "over time" with clear intent
+
+**ASK_USER only when:**
+1. Query references a column/entity NOT in this domain_md
+2. Query is genuinely ambiguous AND domain_md provides no default interpretation
+3. Multiple valid interpretations exist with significantly different results
+
+**Default behaviors (use these, don't ask):**
+- "top products" / "best products" → revenue metric, DESC sort
+- "sales" without metric specified → revenue = SUM(quantity * price)
+- "stock value" / "inventory value" → SUM(stock_quantity * unit_cost)
+- No limit specified for "top N" → default to 10
+
+### 11.0.1 Table Selection Logic
+
+| Query Keywords | Start Table Pattern | Reason |
+|----------------|---------------------|--------|
+| "inventory", "stock", "warehouse" | *_inventory_* | Inventory entity keywords |
+| "customer tier", "customer segment" | *_sales_* (with join to *_customer_*) | Metric source is sales, dimension from customer |
+| "sales", "revenue", "orders", "products", "top products" | *_sales_* | Sales/revenue metrics |
+| "customer purchases", "customer spending" | *_customer_* OR *_sales_* | Check if metric exists in customer table first |
+
+### 11.1 User Query → Query Spec Examples (Complete)
+
+| User Query | start_table | metrics | dimensions | filters | joins | sorting | limit |
+|------------|-------------|---------|------------|---------|-------|---------|-------|
+| "top products by sales" | *_sales_* | [{"name": "revenue", "definition": "Sum of (quantity * price)"}] | ["product"] | - | [] | {"order_by": ["revenue"], "direction": "DESC"} | 10 |
+| "revenue by region" | *_sales_* | [{"name": "revenue", "definition": "Sum of (quantity * price)"}] | ["region"] | - | [] | - | - |
+| "sales by category" | *_sales_* | [{"name": "revenue", "definition": "Sum of (quantity * price)"}] | ["category"] | - | [] | - | - |
+| "revenue by region and category" | *_sales_* | [{"name": "revenue", "definition": "Sum of (quantity * price)"}] | ["region", "category"] | - | [] | - | - |
+| "sales over time" | *_sales_* | [{"name": "revenue", "definition": "Sum of (quantity * price)"}] | ["report_date"] | - | [] | {"order_by": ["report_date"], "direction": "ASC"} | - |
+| "month over month revenue" | *_sales_* | [{"name": "revenue", "definition": "Sum of (quantity * price)"}] | ["report_date"] | - | [] | {"order_by": ["report_date"], "direction": "ASC"} | - |
+| "average order value by customer tier" | *_sales_* | [{"name": "avg_order_value", "definition": "revenue / order_count"}] | ["customer_tier"] | - | [SEE 11.5.1] | - | - |
+| "top 5 customers by total purchases" | *_customer_* | [{"name": "total_purchases", "definition": "Sum of total_purchases"}] | ["customer_id"] | - | [] | {"order_by": ["total_purchases"], "direction": "DESC"} | 5 |
+| "inventory stock value" | *_inventory_* | [{"name": "stock_value", "definition": "Sum of (stock_quantity * unit_cost)"}] | ["product"] | - | [] | - | - |
+| "top 3 products in Electronics category" | *_sales_* | [{"name": "revenue", "definition": "Sum of (quantity * price)"}] | ["product"] | [{"field": "category", "op": "=", "value": "Electronics"}] | [] | {"order_by": ["revenue"], "direction": "DESC"} | 3 |
+| "lowest selling products" | *_sales_* | [{"name": "revenue", "definition": "Sum of (quantity * price)"}] | ["product"] | - | [] | {"order_by": ["revenue"], "direction": "ASC"} | 10 |
+
+### 11.2 Dimension Inference Examples
+
+| User Language | Dimension Found | Column Used | Table Pattern |
+|---------------|-----------------|-------------|---------------|
+| "by region" | region | region | *_sales_* |
+| "top products" | product | product | *_sales_* |
+| "by category" | category | category | *_sales_* |
+| "by customer tier" | customer_tier | customer_tier | *_customer_* |
+| "over time" / "by month" | report_date | report_date | *_sales_* |
+| "by customer" | customer_id | customer_id | *_sales_* |
+
+### 11.3 Metric Calculation Examples
+
+| Metric Name | Definition (Natural) | SQL Expression |
+|-------------|---------------------|----------------|
+| revenue | "Sum of (quantity * price)" | `SUM(quantity * price) AS revenue` |
+| order_count | "Count of distinct order_id" | `COUNT(DISTINCT order_id) AS order_count` |
+| avg_order_value | "revenue / order_count" | `SUM(quantity * price) / COUNT(DISTINCT order_id) AS avg_order_value` |
+| stock_value | "Sum of (stock_quantity * unit_cost)" | `SUM(stock_quantity * unit_cost) AS stock_value` |
+| total_purchases | "Sum of total_purchases" | `SUM(total_purchases) AS total_purchases` |
+
+**Metric Expansion Example:**
+- Query: "average order value by customer tier"
+- `avg_order_value = revenue / order_count`
+- `revenue = Sum of (quantity * price)` → `SUM(quantity * price)`
+- `order_count = Count of distinct order_id` → `COUNT(DISTINCT order_id)`
+- Final SQL: `SUM(quantity * price) / COUNT(DISTINCT order_id) AS avg_order_value`
+
+### 11.4 Filter Pattern Examples
+
+| User Language | Filter Generated |
+|---------------|------------------|
+| "only East" / "for East region" | `{"field": "region", "op": "=", "value": "East"}` |
+| "Electronics only" | `{"field": "category", "op": "=", "value": "Electronics"}` |
+| "for January" | `{"field": "report_date", "op": "=", "value": "2024-01-01"}` |
+| "between Jan and Mar" | `{"field": "report_date", "op": "BETWEEN", "start": "2024-01-01", "end": "2024-03-01"}` |
+| "for customer C001" | `{"field": "customer_id", "op": "=", "value": "C001"}` |
+| "Premium customers" | `{"field": "customer_tier", "op": "=", "value": "Premium"}` |
+
+### 11.5 Join Detection Examples
+
+| Query Pattern | Start Table | Dimension Table | Join Required | Join Condition |
+|---------------|-------------|-----------------|---------------|----------------|
+| "revenue by customer tier" | *_sales_* | *_customer_* | Yes | `{sales_view}.customer_id = {customer_view}.customer_id` |
+| "average order value by tier" | *_sales_* | *_customer_* | Yes | `{sales_view}.customer_id = {customer_view}.customer_id` |
+| "sales with inventory cost" | *_sales_* | *_inventory_* | Yes | `{sales_view}.product = {inventory_view}.product_name` |
+| "revenue by region" | *_sales_* | *_sales_* (same) | No | - |
+| "top products by sales" | *_sales_* | *_sales_* (same) | No | - |
+
+#### 11.5.1 Complete Joins Array Output (CRITICAL)
+
+When a join is required, the Decider MUST populate the `joins` array. Do NOT leave it empty and ASK_USER.
+
+**Example: "average order value by customer tier"**
+
+```json
+{
+  "start_table": {"name": "feb012024_sales_feb012024", "path": "feb012024/sales_feb012024.csv"},
+  "metrics": [{"name": "avg_order_value", "definition": "revenue / order_count"}],
+  "dimensions": ["customer_tier"],
+  "joins": [
+    {
+      "left_table": "*_sales_*",
+      "right_table": "*_customer_*",
+      "on": "{sales_view}.customer_id = {customer_view}.customer_id",
+      "join_type": "INNER"
+    }
+  ]
+}
+```
+
+**Join Detection Logic:**
+1. For each dimension in `query_spec.dimensions`, check Section 5 for its `table` field
+2. If dimension's `table` pattern differs from `start_table` pattern → JOIN REQUIRED
+3. Look up Section 8 canonical_joins for the join condition
+4. Populate `joins` array and PROCEED (do NOT ask user)
+
+### 11.6 UNION ALL Aggregation Examples
+
+| Query Type | View Pattern | Aggregation Plan | SQL Template |
+|------------|--------------|------------------|--------------|
+| "sales over time" | *_sales_* | union_all_then_group | `SELECT report_date, SUM(quantity * price) AS revenue FROM (SELECT * FROM jan012024_sales_jan012024 UNION ALL SELECT * FROM feb012024_sales_feb012024 UNION ALL SELECT * FROM mar012024_sales_mar012024) GROUP BY report_date` |
+| "month over month revenue" | *_sales_* | union_all_then_group | Same as above |
+| "revenue for January only" | jan012024_sales_jan012024 | single_table | `SELECT SUM(quantity * price) AS revenue FROM jan012024_sales_jan012024` |
+| "inventory trend" | *_inventory_* | union_all_then_group | `SELECT report_date, SUM(stock_quantity * unit_cost) AS stock_value FROM (SELECT * FROM jan012024_inventory_jan012024 UNION ALL ...) GROUP BY report_date` |
+
+### 11.7 Sorting and Limit Examples
+
+| User Language | sorting | limit |
+|---------------|---------|-------|
+| "top 5 products" | `{"order_by": ["revenue"], "direction": "DESC"}` | 5 |
+| "top 10 by revenue" | `{"order_by": ["revenue"], "direction": "DESC"}` | 10 |
+| "lowest 3 by stock" | `{"order_by": ["stock_value"], "direction": "ASC"}` | 3 |
+| "ordered by date" | `{"order_by": ["report_date"], "direction": "ASC"}` | null |
+| "highest revenue" | `{"order_by": ["revenue"], "direction": "DESC"}` | null |
+
+### 11.8 Grain Derivation Examples
+
+| Dimensions Array | Grain |
+|------------------|-------|
+| `["region"]` | "one row per region" |
+| `["product"]` | "one row per product" |
+| `["category"]` | "one row per category" |
+| `["region", "category"]` | "one row per region-category combination" |
+| `["customer_tier"]` | "one row per customer_tier" |
+| `["report_date"]` | "one row per report_date" |
+| `["report_date", "region"]` | "one row per report_date-region combination" |
+| `[]` | "one row total" |
+
+### 11.9 Follow-Up Query Examples
+
+| Prior Query | Follow-Up | Action | Result |
+|-------------|-----------|--------|--------|
+| "revenue by region" | "what about by product too?" | Append dimension | dimensions: ["region", "product"] |
+| "revenue by region" | "only for East" | Add filter, remove dimension | filters: [region=East], dimensions: [] |
+| "revenue by region" | "order count instead" | Replace metric | metrics: [order_count] |
+| "revenue for Jan" | "what about Feb instead?" | Update time | time: {report_date = 2024-02-01} |
+| "top products" | "now by category" | Replace dimension | dimensions: ["category"] |
+| "sales by region" | "also show the count" | Add metric | metrics: [revenue, order_count] |
+
+### 11.10 Error Recovery Examples
+
+| Error Type | Example Message | Action |
+|------------|-----------------|--------|
+| column_not_found | "I can't find `promo_code` in this dataset. Did you mean `product` or `category`?" | ASK_USER |
+| ambiguous_metric | "By 'sales', did you mean revenue (total value) or order_count (number of orders)?" | Use default: revenue |
+| missing_table | "I found views for sales and customers, but not for `promotions`. The available entities are: sales, customers, inventory." | ASK_USER |
+| join_required | - | PROCEED (fill joins array from Section 8, don't ask) |
+
+**IMPORTANT:** For `join_required`, do NOT ask the user. Instead:
+1. Look up canonical_joins in Section 8
+2. Populate the `joins` array in query_spec
+3. PROCEED with action=EXECUTE
+
+### 11.11 Table/View Reference Examples
+
+| Entity | Pattern | Specific Views | Paths |
+|--------|---------|----------------|-------|
+| sales | *_sales_* | jan012024_sales_jan012024, feb012024_sales_feb012024, mar012024_sales_mar012024 | jan012024/sales_jan012024.csv, feb012024/sales_feb012024.csv, mar012024/sales_mar012024.csv |
+| customers | *_customer_* | jan012024_customer_jan012024, feb012024_customer_feb012024, mar012024_customer_mar012024 | jan012024/customer_jan012024.csv, feb012024/customer_feb012024.csv, mar012024/customer_mar012024.csv |
+| inventory | *_inventory_* | jan012024_inventory_jan012024, feb012024_inventory_feb012024, mar012024_inventory_mar012024 | jan012024/inventory_jan012024.csv, feb012024/inventory_feb012024.csv, mar012024/inventory_mar012024.csv |
+

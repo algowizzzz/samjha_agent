@@ -145,12 +145,8 @@
                 <span class="category-icon">🌐</span>
                 <span>External Data Agents (Web-based)</span>
             </div>
-            <div class="agents-grid">
-                <div class="agent-box coming-soon">
-                    <div class="agent-name">Coming Soon</div>
-                    <div class="agent-description">Web-based data analysis agents will be available here.</div>
-                    <div class="coming-soon-badge">Coming Soon</div>
-                </div>
+            <div class="agents-grid" id="external-agents">
+                <!-- Agents loaded here -->
             </div>
         </div>
     </div>
@@ -183,12 +179,31 @@ async function loadAgents() {
                 box.innerHTML = `
                     <div class="agent-name">${agent.name}</div>
                     <div class="agent-description">${agent.description || 'No description'}</div>
-                    <div class="agent-meta">${agent.data_folder} • ${agent.agent_type}</div>
+                    <div class="agent-meta">${agent.data_folder || 'N/A'} • ${agent.agent_type}</div>
                 `;
                 structuredGrid.appendChild(box);
             });
         } else {
             structuredGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #6c757d;">No structured agents available. Create one in Admin Panel.</div>';
+        }
+        
+        // Render external agents
+        const externalGrid = document.getElementById('external-agents');
+        externalGrid.innerHTML = '';
+        if (external.length > 0) {
+            external.forEach(agent => {
+                const box = document.createElement('a');
+                box.href = `/agent/chat/${agent.id}`;
+                box.className = 'agent-box';
+                box.innerHTML = `
+                    <div class="agent-name">${agent.name}</div>
+                    <div class="agent-description">${agent.description || 'No description'}</div>
+                    <div class="agent-meta">Web Research • ${agent.agent_type}</div>
+                `;
+                externalGrid.appendChild(box);
+            });
+        } else {
+            externalGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #6c757d;">No web-based agents available. Create one in Admin Panel.</div>';
         }
     } catch (error) {
         document.getElementById('agents-loading').innerHTML = `<div style="color: #dc3545;">Error loading agents: ${error.message}</div>`;

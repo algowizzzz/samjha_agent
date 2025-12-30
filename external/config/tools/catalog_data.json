@@ -1,0 +1,44 @@
+{
+  "name": "catalog_data",
+  "implementation": "external.tools.parquet_agent.catalog_data.CatalogDataTool",
+  "description": "Catalog available data files and corresponding DuckDB view names for an agent folder",
+  "version": "1.0.0",
+  "enabled": true,
+  "data_directory": "external/datawarehouse",
+  "inputSchema": {
+    "type": "object",
+    "required": ["agent_data_folder"],
+    "properties": {
+      "agent_data_folder": {
+        "type": "string",
+        "description": "Agent data folder under data_directory (e.g., 'ECommerce' or 'ecommerce_advanced')"
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["entries"],
+    "properties": {
+      "entries": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["file_path", "view_name", "ext"],
+          "properties": {
+            "file_path": { "type": "string" },
+            "view_name": { "type": "string" },
+            "ext": { "enum": ["csv", "parquet"] }
+          }
+        }
+      },
+      "error": { "type": ["string", "null"] }
+    }
+  },
+  "metadata": {
+    "author": "Parquet Agent Team",
+    "category": "Data Discovery",
+    "tags": ["parquet_agent", "catalog", "views", "files"]
+  }
+}
+
+

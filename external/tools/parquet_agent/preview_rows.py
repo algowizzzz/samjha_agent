@@ -26,7 +26,11 @@ class PreviewRowsTool(BaseMCPTool):
             "required": ["path", "limit"],
             "properties": {
                 "path": {"type": "string"},
-                "limit": {"type": "integer", "minimum": 1, "maximum": 100}
+                "limit": {"type": "integer", "minimum": 1, "maximum": 100},
+                "agent_data_folder": {
+                    "type": ["string", "null"],
+                    "description": "Optional agent folder for scoping (path is interpreted relative to this folder)",
+                },
             }
         }
 
@@ -42,7 +46,11 @@ class PreviewRowsTool(BaseMCPTool):
     def execute(self, arguments):
         path = arguments["path"]
         limit = min(arguments.get("limit", 10), 100)
-        full_path = self.base_path / path
+        agent_data_folder = (arguments.get("agent_data_folder") or "").strip()
+        if agent_data_folder:
+            full_path = self.base_path / agent_data_folder / path
+        else:
+            full_path = self.base_path / path
         
         if not full_path.exists():
             raise ValueError(f"File not found: {path}")

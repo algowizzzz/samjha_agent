@@ -1,0 +1,385 @@
+{
+  "test_run_time": "2025-12-30T10:50:54.291065",
+  "queries": [
+    {
+      "query_id": 1,
+      "query": "top products by revenue",
+      "timestamp": "2025-12-30T10:50:54.358891",
+      "status": "SUCCESS",
+      "error": null,
+      "sql": "SELECT \n  product,\n  SUM(quantity * price) AS revenue\nFROM sales_feb012024\nWHERE report_date >= CURRENT_DATE - INTERVAL '30' DAY\nGROUP BY product\nORDER BY revenue DESC\nLIMIT 10;",
+      "aggregation_plan": "",
+      "response_preview": "I apologize, but it looks like there are no product sales data available for the past 30 days based on the query you provided. The query searched for the top 10 products by revenue over the last 30 days, but it returned 0 rows. This could mean that there were no sales recorded during that time perio",
+      "query_spec": {
+        "business_question": "Show top products by revenue",
+        "start_table": {
+          "name": "feb012024_sales_feb012024",
+          "path": "feb012024/sales_feb012024.csv"
+        },
+        "dimensions": [
+          "product"
+        ],
+        "metrics": [
+          {
+            "name": "revenue",
+            "definition": "Sum of (quantity * price)"
+          }
+        ],
+        "aggregation_plan": "",
+        "time": {
+          "column": "report_date",
+          "rule": "last_n_days",
+          "n_days": 30
+        }
+      },
+      "issues": []
+    },
+    {
+      "query_id": 2,
+      "query": "revenue by region and category for January",
+      "timestamp": "2025-12-30T10:51:06.063217",
+      "status": "SUCCESS",
+      "error": null,
+      "sql": "SELECT\n  region,\n  category,\n  SUM(quantity * price) AS revenue\nFROM\n  sales_jan012024\nWHERE\n  report_date BETWEEN '2024-01-01' AND '2024-01-31'\nGROUP BY\n  region,\n  category\nORDER BY\n  revenue DESC;",
+      "aggregation_plan": "",
+      "response_preview": "Here are the key insights from the January revenue data by region and category:\n\nThe top-performing region and category was South Electronics, generating $4,952 in revenue. The North region also saw strong performance in both Electronics ($2,705) and Furniture ($1,250). Overall, Electronics was the ",
+      "query_spec": {
+        "business_question": "Show total revenue by region and category for January",
+        "start_table": {
+          "name": "jan012024_sales_jan012024",
+          "path": "jan012024/sales_jan012024.csv"
+        },
+        "dimensions": [
+          "region",
+          "category"
+        ],
+        "metrics": [
+          {
+            "name": "revenue",
+            "definition": "Sum of (quantity * price)"
+          }
+        ],
+        "aggregation_plan": "",
+        "time": {
+          "column": "report_date",
+          "rule": "date_range",
+          "start": "2024-01-01",
+          "end": "2024-01-31"
+        }
+      },
+      "issues": []
+    },
+    {
+      "query_id": 3,
+      "query": "inventory stock value month over month",
+      "timestamp": "2025-12-30T10:51:16.314409",
+      "status": "SUCCESS",
+      "error": null,
+      "sql": "SELECT report_date, SUM(stock_quantity * unit_cost) AS stock_value\nFROM (\n  SELECT * FROM feb012024_inventory_feb012024\n  UNION ALL\n  SELECT * FROM jan012024_inventory_jan012024\n  UNION ALL\n  SELECT * FROM mar012024_inventory_mar012024\n)\nWHERE report_date BETWEEN '2024-01-01' AND '2024-12-31'\nGROUP BY report_date\nORDER BY report_date ASC",
+      "aggregation_plan": {
+        "aggregation_type": "union_all_then_group",
+        "union_strategy": {
+          "pattern": "*_inventory_*"
+        },
+        "group_by": [
+          "report_date"
+        ],
+        "description": "UNION ALL all views matching pattern *_inventory_*, then GROUP BY report_date"
+      },
+      "response_preview": "Based on the SQL results, the inventory stock value month over month shows the following:\n\nOn January 1st, 2024, the total inventory stock value was $164,825. This decreased to $129,995 by February 1st, and further decreased to $95,165 by March 1st, 2024. This indicates a steady decline in the overa",
+      "query_spec": {
+        "business_question": "Show inventory stock value month over month",
+        "start_table": {
+          "name": "*_inventory_*",
+          "path": "feb012024/inventory_feb012024.csv"
+        },
+        "dimensions": [
+          "report_date"
+        ],
+        "metrics": [
+          {
+            "name": "stock_value",
+            "definition": "SUM(stock_quantity * unit_cost)"
+          }
+        ],
+        "aggregation_plan": {
+          "aggregation_type": "union_all_then_group",
+          "union_strategy": {
+            "pattern": "*_inventory_*"
+          },
+          "group_by": [
+            "report_date"
+          ],
+          "description": "UNION ALL all views matching pattern *_inventory_*, then GROUP BY report_date"
+        },
+        "time": {
+          "column": "report_date",
+          "rule": "date_range",
+          "start": "2024-01-01",
+          "end": "2024-12-31"
+        }
+      },
+      "issues": []
+    },
+    {
+      "query_id": 4,
+      "query": "top 5 customers by total purchases",
+      "timestamp": "2025-12-30T10:51:25.723500",
+      "status": "SUCCESS",
+      "error": null,
+      "sql": "SELECT\n  customer_id,\n  SUM(total_purchases) AS total_purchases\nFROM customer_feb012024\nGROUP BY customer_id\nORDER BY total_purchases DESC\nLIMIT 5;",
+      "aggregation_plan": "",
+      "response_preview": "Okay, based on the SQL query results, here are the top 5 customers by total purchases:\n\nThe customer who spent the most is C007, with total purchases of $3,000. Following closely behind are C001 with $2,450 and C005 with $2,350 in total purchases. Rounding out the top 5 are C004 with $1,280 and C003",
+      "query_spec": {
+        "business_question": "Show top 5 customers by total purchases",
+        "start_table": {
+          "name": "feb012024_customer_feb012024",
+          "path": "feb012024/customer_feb012024.csv"
+        },
+        "dimensions": [
+          "customer_id"
+        ],
+        "metrics": [
+          {
+            "name": "total_purchases",
+            "definition": "Sum of total_purchases from customers table"
+          }
+        ],
+        "aggregation_plan": "",
+        "time": {
+          "column": "",
+          "rule": "no_time",
+          "n_days": null
+        }
+      },
+      "issues": []
+    },
+    {
+      "query_id": 5,
+      "query": "sales revenue by category for Electronics in North region",
+      "timestamp": "2025-12-30T10:51:36.129413",
+      "status": "SUCCESS",
+      "error": null,
+      "sql": "SELECT\n  category,\n  region,\n  SUM(quantity * price) AS revenue\nFROM\n  sales_feb012024\nWHERE\n  category = 'Electronics'\n  AND region = 'North'\nGROUP BY\n  category,\n  region\nORDER BY\n  revenue DESC;",
+      "aggregation_plan": "",
+      "response_preview": "Based on the SQL query results, the total sales revenue for the Electronics category in the North region is $3,124.275. This represents the aggregated revenue across all Electronics products sold in the North region. The query provides a breakdown of the sales revenue by category and region, which c",
+      "query_spec": {
+        "business_question": "Show sales revenue by category for Electronics in North region",
+        "start_table": {
+          "name": "feb012024_sales_feb012024",
+          "path": "feb012024/sales_feb012024.csv"
+        },
+        "dimensions": [
+          "category",
+          "region"
+        ],
+        "metrics": [
+          {
+            "name": "revenue",
+            "definition": "Sum of (quantity * price)"
+          }
+        ],
+        "aggregation_plan": "",
+        "time": {
+          "column": "report_date",
+          "rule": "no_time",
+          "n_days": null
+        }
+      },
+      "issues": []
+    },
+    {
+      "query_id": 6,
+      "query": "average order value by customer tier",
+      "timestamp": "2025-12-30T10:51:47.648325",
+      "status": "ASK_USER",
+      "error": null,
+      "sql": "",
+      "aggregation_plan": "",
+      "response_preview": null,
+      "query_spec": {
+        "business_question": "Show average order value by customer tier",
+        "start_table": {
+          "name": "*_sales_*",
+          "path": "feb012024/sales_feb012024.csv"
+        },
+        "dimensions": [
+          "customer_tier"
+        ],
+        "metrics": [
+          {
+            "name": "avg_order_value",
+            "definition": "revenue / order_count"
+          }
+        ],
+        "aggregation_plan": "",
+        "time": {
+          "column": "report_date",
+          "rule": "no_time",
+          "n_days": null
+        }
+      },
+      "issues": []
+    },
+    {
+      "query_id": 7,
+      "query": "products with low stock (below reorder level) in March",
+      "timestamp": "2025-12-30T10:52:03.981764",
+      "status": "SUCCESS",
+      "error": null,
+      "sql": "SELECT \n  product_name,\n  SUM(stock_quantity) AS stock_quantity,\n  SUM(reorder_level) AS reorder_level\nFROM inventory_mar012024\nWHERE stock_quantity < reorder_level\n  AND report_date = '2024-03-01'\nGROUP BY product_name\nORDER BY stock_quantity ASC",
+      "aggregation_plan": "",
+      "response_preview": "Based on the SQL results, it looks like the product \"Standing Desk\" had a stock quantity of 5 units, which was below the reorder level of 8 units as of March 1, 2024. This indicates that the Standing Desk is currently experiencing low stock and may need to be reordered soon to avoid stockouts. Let m",
+      "query_spec": {
+        "business_question": "Show products with low stock (below reorder level) in March",
+        "start_table": {
+          "name": "mar012024_inventory_mar012024",
+          "path": "mar012024/inventory_mar012024.csv"
+        },
+        "dimensions": [
+          "product_name"
+        ],
+        "metrics": [
+          {
+            "name": "stock_quantity",
+            "definition": "SUM(stock_quantity)"
+          },
+          {
+            "name": "reorder_level",
+            "definition": "SUM(reorder_level)"
+          }
+        ],
+        "aggregation_plan": "",
+        "time": {
+          "column": "report_date",
+          "rule": "date_range",
+          "start": "2024-03-01",
+          "end": "2024-03-01"
+        }
+      },
+      "issues": []
+    },
+    {
+      "query_id": 8,
+      "query": "revenue by region month over month",
+      "timestamp": "2025-12-30T10:52:17.443727",
+      "status": "SUCCESS",
+      "error": null,
+      "sql": "SELECT report_date, SUM(quantity * price) AS revenue\nFROM (\n  SELECT * FROM feb012024_sales_feb012024\n  UNION ALL\n  SELECT * FROM jan012024_sales_jan012024\n  UNION ALL\n  SELECT * FROM mar012024_sales_mar012024\n)\nWHERE report_date >= CURRENT_DATE - INTERVAL '90' DAY\nGROUP BY report_date\nORDER BY report_date DESC",
+      "aggregation_plan": {
+        "aggregation_type": "union_all_then_group",
+        "union_strategy": {
+          "pattern": "*_sales_*"
+        },
+        "group_by": [
+          "report_date"
+        ],
+        "description": "UNION ALL all views matching pattern *_sales_*, then GROUP BY report_date"
+      },
+      "response_preview": "Unfortunately, the query you provided did not return any results for the revenue by region month over month. This could be due to the filters or time window specified in the query - it looks like it's only pulling data from the past 90 days. \n\nTo get a better understanding of the revenue trends by r",
+      "query_spec": {
+        "business_question": "Show revenue by region month over month",
+        "start_table": {
+          "name": "*_sales_*",
+          "path": "feb012024/sales_feb012024.csv"
+        },
+        "dimensions": [
+          "region",
+          "report_date"
+        ],
+        "metrics": [
+          {
+            "name": "revenue",
+            "definition": "Sum of (quantity * price)"
+          }
+        ],
+        "aggregation_plan": {
+          "aggregation_type": "union_all_then_group",
+          "union_strategy": {
+            "pattern": "*_sales_*"
+          },
+          "group_by": [
+            "report_date"
+          ],
+          "description": "UNION ALL all views matching pattern *_sales_*, then GROUP BY report_date"
+        },
+        "time": {
+          "column": "report_date",
+          "rule": "last_n_days",
+          "n_days": 90
+        }
+      },
+      "issues": []
+    },
+    {
+      "query_id": 9,
+      "query": "sales revenue and order count by category",
+      "timestamp": "2025-12-30T10:52:30.097764",
+      "status": "SUCCESS",
+      "error": null,
+      "sql": "SELECT\n  category,\n  SUM(quantity * price) AS revenue,\n  COUNT(DISTINCT order_id) AS order_count\nFROM\n  sales_feb012024\nGROUP BY\n  category\nORDER BY\n  revenue DESC;",
+      "aggregation_plan": "",
+      "response_preview": "Based on the SQL query results, the sales revenue and order count by category are as follows:\n\nThe Electronics category has the highest sales revenue at $10,385.22 and the most orders at 14. The Furniture category has a sales revenue of $3,493.88 and 6 orders. These insights can help the business un",
+      "query_spec": {
+        "business_question": "Show sales revenue and order count by category",
+        "start_table": {
+          "name": "feb012024_sales_feb012024",
+          "path": "feb012024/sales_feb012024.csv"
+        },
+        "dimensions": [
+          "category"
+        ],
+        "metrics": [
+          {
+            "name": "revenue",
+            "definition": "Sum of (quantity * price)"
+          },
+          {
+            "name": "order_count",
+            "definition": "COUNT(DISTINCT order_id)"
+          }
+        ],
+        "aggregation_plan": "",
+        "time": {
+          "column": "report_date",
+          "rule": "no_time",
+          "n_days": null
+        }
+      },
+      "issues": []
+    },
+    {
+      "query_id": 10,
+      "query": "total stock value by supplier",
+      "timestamp": "2025-12-30T10:52:39.247296",
+      "status": "SUCCESS",
+      "error": null,
+      "sql": "SELECT\n  supplier,\n  SUM(stock_quantity * unit_cost) AS stock_value\nFROM\n  inventory_feb012024\nGROUP BY\n  supplier",
+      "aggregation_plan": "",
+      "response_preview": "Here are the key insights from the SQL query on total stock value by supplier:\n\nThe results show that the supplier with the highest total stock value is TechSupply Inc, with a total stock value of $59,500. The next highest are DisplayPro at $31,375 and OfficeFurnish at $11,650. The other suppliers -",
+      "query_spec": {
+        "business_question": "Show total stock value by supplier",
+        "start_table": {
+          "name": "feb012024_inventory_feb012024",
+          "path": "feb012024/inventory_feb012024.csv"
+        },
+        "dimensions": [
+          "supplier"
+        ],
+        "metrics": [
+          {
+            "name": "stock_value",
+            "definition": "SUM(stock_quantity * unit_cost)"
+          }
+        ],
+        "aggregation_plan": "",
+        "time": {
+          "column": "report_date",
+          "rule": "no_time",
+          "n_days": null
+        }
+      },
+      "issues": []
+    }
+  ]
+}

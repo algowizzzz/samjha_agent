@@ -8,6 +8,7 @@
     "step": { "type": "integer", "minimum": 1 },
     "tool": {
       "enum": [
+        "catalog_data",
         "list_dir",
         "inspect_table",
         "preview_rows",

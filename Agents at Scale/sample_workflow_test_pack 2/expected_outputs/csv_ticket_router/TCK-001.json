@@ -1,0 +1,6 @@
+{
+  "ticket_id": "TCK-001",
+  "recommended_ingestion_mode": "vision",
+  "recommended_output": "md",
+  "notes": "Ticket mentions scanned pages where programmatic text extraction may fail; vision ingestion is recommended to recover content."
+}

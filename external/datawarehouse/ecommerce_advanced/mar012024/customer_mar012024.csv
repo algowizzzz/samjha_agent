@@ -1,0 +1,11 @@
+report_date,customer_id,customer_name,email,country,total_purchases,customer_tier
+2024-03-01,C001,John Smith,john.smith@email.com,USA,2450.0,Gold
+2024-03-01,C002,Emma Johnson,emma.j@email.com,Canada,651.0,Silver
+2024-03-01,C003,Michael Brown,m.brown@email.com,USA,1226.5,Gold
+2024-03-01,C004,Sarah Davis,sarah.d@email.com,UK,1280.0,Gold
+2024-03-01,C005,David Wilson,d.wilson@email.com,Australia,2350.0,Platinum
+2024-03-01,C006,Lisa Anderson,lisa.a@email.com,USA,931.0,Silver
+2024-03-01,C007,James Martinez,james.m@email.com,Canada,3000.0,Platinum
+2024-03-01,C008,Jennifer Taylor,jen.t@email.com,UK,525.0,Bronze
+2024-03-01,C009,Robert Thomas,rob.t@email.com,USA,610.0,Silver
+2024-03-01,C010,Emily White,emily.w@email.com,Australia,1101.0,Gold

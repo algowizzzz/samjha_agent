@@ -24,6 +24,7 @@ def execute_step_job(job_data: Dict[str, Any], storage_base: Path):
             "run_id": str,
             "doc_id": str,
             "step_index": int,
+            "task_id": str,  # NEW: Optional, for CSV task-based execution
             "chain_version_id": str,
             "required_inputs": List[str],  # ['R0', 'R1', ...]
             "prompt": str,
@@ -39,24 +40,17 @@ def execute_step_job(job_data: Dict[str, Any], storage_base: Path):
     run_id = job_data["run_id"]
     doc_id = job_data["doc_id"]
     step_index = job_data["step_index"]
+    task_id = job_data.get("task_id")  # NEW: For CSV workflows
     
-    logger.info(f"Starting step {step_index} execution for run {run_id}, doc {doc_id}")
+    logger.info(f"Starting step {step_index} execution for run {run_id}, doc {doc_id}" + (f", task {task_id}" if task_id else ""))
     
     try:
-        # TODO: Check idempotency - if StepResult already SUCCESS, skip
-        # existing = db.get_step_result(run_id, doc_id, step_index)
-        # if existing and existing.status == "SUCCESS":
-        #     logger.info(f"Step already completed, skipping")
-        #     return {"status": "SKIPPED", "reason": "already_complete"}
-        
-        # TODO: Update StepResult status to RUNNING in DB
-        # db.update_step_result_status(run_id, doc_id, step_index, "RUNNING")
-        
         # Load required R inputs
         r_inputs = _load_r_inputs(
             storage_base=storage_base,
             run_id=run_id,
             doc_id=doc_id,
+            task_id=task_id,  # NEW
             required_inputs=job_data["required_inputs"]
         )
         
@@ -100,15 +94,24 @@ The output should be well-formatted and ready for use in subsequent steps."""
         
         # Extract text from response
         output_text = ""
-        for block in getattr(response, "content", []) or []:
-            block_type = getattr(block, "type", None)
-            if block_type == "text":
-                block_text = getattr(block, "text", None)
-                if isinstance(block_text, str):
-                    output_text += block_text
+        # Handle different response formats
+        if hasattr(response, "content"):
+            # Standard format with content blocks
+            for block in response.content or []:
+                block_type = getattr(block, "type", None)
+                if block_type == "text":
+                    block_text = getattr(block, "text", None)
+                    if isinstance(block_text, str):
+                        output_text += block_text
+        elif hasattr(response, "text"):
+            # Direct text attribute
+            output_text = response.text
+        elif isinstance(response, str):
+            # Already a string
+            output_text = response
         
-        output_text = response.text
-        usage = response.usage
+        # Get usage info
+        usage = getattr(response, "usage", None)
         
         # Extract token usage
         usage = getattr(response, "usage", None)
@@ -117,24 +120,61 @@ The output should be well-formatted and ready for use in subsequent steps."""
         
         # Save R(n) output
         r_key = f"R{step_index}"
-        run_dir = storage_base / "runs" / run_id / "docs" / doc_id
+        if task_id:
+            # CSV: save to task-specific directory
+            run_dir = storage_base / "runs" / run_id / "docs" / doc_id / "tasks" / task_id
+        else:
+            run_dir = storage_base / "runs" / run_id / "docs" / doc_id
         run_dir.mkdir(parents=True, exist_ok=True)
         r_path = run_dir / f"{r_key}.md"
         r_path.write_text(output_text, encoding='utf-8')
         
-        # TODO: Update StepResult in DB
-        # db.update_step_result(
-        #     run_id=run_id,
-        #     doc_id=doc_id,
-        #     step_index=step_index,
-        #     status="SUCCESS",
-        #     input_tokens=input_tokens,
-        #     output_tokens=output_tokens,
-        #     model=model,
-        #     max_tokens=model_config.get("max_tokens"),
-        #     temperature=model_config.get("temperature"),
-        #     output_object_key=str(r_path)
-        # )
+        # Update StepResult in DB
+        from external.ai_bulk_doc_analysis.db_service import get_db_session
+        from external.ai_bulk_doc_analysis.models import StepResult as DBStepResult
+        
+        with get_db_session() as db:
+            # Find the step result record
+            query = db.query(DBStepResult).filter(
+                DBStepResult.run_id == run_id,
+                DBStepResult.doc_id == doc_id,
+                DBStepResult.step_index == step_index
+            )
+            
+            if task_id:
+                # For CSV workflows, also filter by task_id
+                query = query.filter(DBStepResult.task_id == task_id)
+            
+            step_result = query.first()
+            
+            if step_result:
+                # Update with results
+                step_result.status = "SUCCESS"
+                step_result.output_object_key = str(r_path.relative_to(storage_base))
+                
+                # Add usage info if available
+                if usage:
+                    step_result.input_tokens = getattr(usage, "input_tokens", None)
+                    step_result.output_tokens = getattr(usage, "output_tokens", None)
+                
+                # Add model info
+                if model_config:
+                    step_result.model = model_config.get("model")
+                    step_result.max_tokens = model_config.get("max_tokens")
+                    step_result.temperature = model_config.get("temperature")
+                
+                # Add latency
+                if latency_ms:
+                    step_result.latency_ms = latency_ms
+                
+                # Add request ID if available
+                if hasattr(response, "id"):
+                    step_result.claude_request_id = response.id
+                
+                db.commit()
+                logger.info(f"Updated StepResult in DB for step {step_index}")
+            else:
+                logger.warning(f"StepResult not found for run_id={run_id}, doc_id={doc_id}, step_index={step_index}, task_id={task_id}")
         
         logger.info(f"Step {step_index} execution complete for doc {doc_id}")
         return {
@@ -152,26 +192,47 @@ The output should be well-formatted and ready for use in subsequent steps."""
         raise
 
 
-def _load_r_inputs(storage_base: Path, run_id: str, doc_id: str, required_inputs: list) -> Dict[str, str]:
+def _load_r_inputs(storage_base: Path, run_id: str, doc_id: str, required_inputs: list, task_id: Optional[str] = None) -> Dict[str, str]:
     """Load R0, R1, ... inputs from storage."""
     r_inputs = {}
     
     for r_key in required_inputs:
-        # R0 comes from session docs, R1+ from run outputs
+        # R0 comes from session docs (or task row_data for CSV)
         if r_key == "R0":
-            # Find R0 in session docs
-            # TODO: Get session_id from run, then load R0
-            # For now, assume path structure
-            r0_path = storage_base / "sessions" / "docs" / doc_id / "R0.md"
+            if task_id:
+                # CSV workflow: R0 comes from task row_data
+                from external.ai_bulk_doc_analysis.db_service import get_db_session
+                from external.ai_bulk_doc_analysis.models import ExecutionTask
+                
+                with get_db_session() as db:
+                    task = db.query(ExecutionTask).filter(ExecutionTask.task_id == task_id).first()
+                    if not task:
+                        raise ValueError(f"Task {task_id} not found")
+                    
+                    # Format row_data as markdown or JSON based on workflow config
+                    # For now, use JSON format
+                    import json
+                    row_data_str = json.dumps(task.row_data, indent=2)
+                    r_inputs[r_key] = f"# CSV Row Data (Row {task.row_index})\n\n```json\n{row_data_str}\n```"
+            else:
+                # Non-CSV: Find R0 in session docs
+                r0_path = storage_base / "sessions" / "docs" / doc_id / "R0.md"
+                if r0_path.exists():
+                    r_inputs[r_key] = r0_path.read_text(encoding='utf-8')
+                else:
+                    raise FileNotFoundError(f"Required input {r_key} not found: {r0_path}")
         else:
             # R1, R2, ... from previous steps
-            step_num = int(r_key[1:])  # Extract number from "R1"
-            r_path = storage_base / "runs" / run_id / "docs" / doc_id / f"{r_key}.md"
-        
-        if r_path.exists():
-            r_inputs[r_key] = r_path.read_text(encoding='utf-8')
-        else:
-            raise FileNotFoundError(f"Required input {r_key} not found: {r_path}")
+            # For CSV: use task-specific path
+            if task_id:
+                r_path = storage_base / "runs" / run_id / "docs" / doc_id / "tasks" / task_id / f"{r_key}.md"
+            else:
+                r_path = storage_base / "runs" / run_id / "docs" / doc_id / f"{r_key}.md"
+            
+            if r_path.exists():
+                r_inputs[r_key] = r_path.read_text(encoding='utf-8')
+            else:
+                raise FileNotFoundError(f"Required input {r_key} not found: {r_path}")
     
     return r_inputs
 

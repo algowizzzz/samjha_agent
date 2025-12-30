@@ -183,6 +183,11 @@ ELSE (unclear):
 
 You MUST extract table/view names and paths from `domain_md`, NOT from hardcoded examples in this prompt.
 
+**Table Selection (see domain_md Section 11.0.1 for full rules):**
+- "inventory/stock" → *_inventory_*
+- "sales/revenue/products" → *_sales_*
+- "customer tier" → *_sales_* + join to *_customer_*
+
 1. **Check `domain_md` Section 4 (Core entities)** for entity definitions:
    - Match the user's query entity to a `primary_entities` entry (e.g., "sales", "customers", "products")
    - Use the `default_start_table_hint` from that entity (e.g., `*_sales_*`, `*_customer_*`)
@@ -206,15 +211,17 @@ You MUST extract table/view names and paths from `domain_md`, NOT from hardcoded
 
 5. **Example extraction process:**
    ```
-   User query: "top products by sales"
-   → Entity: "sales" (from query)
-   → Check domain_md Section 4 → Find entity "sales"
-   → default_start_table_hint: "*_sales_*"
-   → view_examples: ["jan012024_sales_jan012024", "feb012024_sales_feb012024"]
-   → Section 3.5 shows: "jan012024/sales_jan012024.csv → view: jan012024_sales_jan012024"
-   → start_table.name: "*_sales_*" (or specific view if single-month query)
-   → investigation_plan path: "jan012024/sales_jan012024.csv" (use actual path from domain_md)
+   User query: "<query_mentioning_entity>"
+   → Entity: "<entity>" (from query)
+   → Check domain_md Section 4 → Find matching entity
+   → Extract default_start_table_hint from that entity
+   → Extract view_examples from that entity
+   → Check Section 3.5 for path format
+   → start_table.name: Use pattern or specific view from domain_md
+   → investigation_plan path: Use actual path from domain_md Section 11.11 or Section 3.5
    ```
+   
+   **IMPORTANT:** Always extract actual table names, view names, and paths from `domain_md` - do NOT use placeholder text or examples from this prompt.
 
 **CRITICAL: When inferring dimension/column names:**
 1. **Check `domain_md` dimensions dictionary** (Section 5) for matching entries
@@ -278,39 +285,24 @@ After inferring dimensions from domain_md Section 5, you MUST check if any dimen
    - Populate `query_spec.joins` array with all required canonical joins
    - Example: If query needs both customer_tier (from customer table) and stock_quantity (from inventory table), populate both joins from canonical_joins
 
-6. **Examples:**
-   - Query: "average order value by customer_tier"
-     → `query_spec.dimensions = ["customer_tier"]` (dimension is a string)
-     → Look up "customer_tier" in domain_md Section 5 → Find dimension entry → `table: *_customer_*` (pattern)
-     → `start_table.name = "feb012024_sales_feb012024"` (specific table name, for avg_order_value metric)
-     → Extract core identifier from `table: *_customer_*` → `"customer"` → Extract from `start_table.name` → `"sales"` → Different → JOIN required
-     → Check domain_md Section 8 → Look for canonical_joins array → Find entry:
-       ```
-       - left_table: *_sales_*
-         right_table: *_customer_*
-         on: {sales_view}.customer_id = {customer_view}.customer_id
-         join_type: left
-       ```
-     → Pattern matching: `start_table.name = "feb012024_sales_feb012024"` contains "sales" → matches pattern `*_sales_*` ✓
-     → Pattern matching: `dimension.table = "*_customer_*"` equals pattern `*_customer_*` → matches `right_table: *_customer_*` ✓
-     → MATCH FOUND! Use this canonical join
-     → Populate `query_spec.joins`: `[{left_table: "*_sales_*", right_table: "*_customer_*", on: "{sales_view}.customer_id = {customer_view}.customer_id", join_type: "left"}]`
-     → Mark `query_spec_status.joins`: `{status: "inferred", source: "domain_md", notes: "Join required for dimension customer_tier from table *_customer_*, using canonical join from domain_md Section 8", blocks_execution: false}`
-     → Action: `EXECUTE` (join resolved via domain_md - no user clarification needed)
+6. **Examples (refer to domain_md Section 11.5 for dataset-specific examples):**
    
-   - Query: "revenue by region"
-     → `query_spec.dimensions = ["region"]` (dimension is a string)
-     → Look up "region" in domain_md Section 5 → Find dimension entry → `table: *_sales_*`
-     → `start_table.name = *_sales_*`
-     → `*_sales_* == *_sales_*` → No join needed
-     → `query_spec.joins: []` (empty array)
-     → Mark `query_spec_status.joins`: `{status: "inferred", source: "domain_md", notes: "Dimension region is in same table as start_table, no join needed", blocks_execution: false}`
+   **General pattern for join detection:**
+   - Query: "<query_with_cross_table_dimension>"
+     → `query_spec.dimensions = ["<dimension_name>"]`
+     → Look up "<dimension_name>" in domain_md Section 5 → Find `table: <dimension_table_pattern>`
+     → Compare with `start_table.name`
+     → If patterns differ → JOIN required
+     → Check domain_md Section 8 for matching canonical_join
+     → If found → Populate `query_spec.joins` with the canonical join, Action: `EXECUTE`
+     → If not found → Action: `ASK_USER`
    
-   - Query: "revenue by customer_tier"
-     → `query_spec.dimensions = ["customer_tier"]` (dimension is a string)
-     → Look up "customer_tier" in domain_md Section 5 → `table: *_customer_*`
-     → `start_table.name = *_sales_*`
-     → `*_customer_* != *_sales_*` → Different tables → Check domain_md Section 8 → Find canonical join → Populate joins → Action: `EXECUTE`
+   **No join needed pattern:**
+   - Query: "<query_with_same_table_dimension>"
+     → Look up dimension in domain_md Section 5 → `table` matches `start_table` pattern
+     → No join needed → `query_spec.joins: []`
+   
+   **IMPORTANT:** For concrete examples with actual table names, dimension names, and join conditions, refer to `domain_md` Section 11.5 (Join Detection Examples) and Section 8 (Join conventions).
 
 **This is a POLICY-level instruction: domain_md is the authoritative source for join requirements. Always check dimension.table vs start_table.name, then check domain_md Section 8 for canonical joins BEFORE asking the user for clarification.**
 
@@ -639,12 +631,18 @@ If the user query explicitly mentions dimensions or columns (e.g., "by region", 
   - Example: `"UNION ALL all views matching pattern *_sales_*, then GROUP BY report_date"`
 - This ensures the executor and SQL planner know to UNION multiple tables before aggregation
 
+**CRITICAL: Check domain_md Section 11.0 before ASK_USER**
+
+If query matches domain_md Section 11.1 example → use that example's query_spec and EXECUTE.
+
 **Only use `ASK_USER` if:**
 - the gap is **not tool-resolvable**
-- or requires **business intent** (not data inspection)
+- AND domain_md provides no default for this case
 
 ### Step 6 — Decide Action
-- If required minimum is **not missing** and remaining gaps are investigable → `EXECUTE`
+- If required minimum is ready → `EXECUTE`
+- If join needed → check Section 8, fill joins array, then `EXECUTE`
+- If domain_md has matching example in Section 11.1 → use it and `EXECUTE`
 - Else if user can resolve → `ASK_USER`
 - Else → `BLOCK`
 
@@ -896,276 +894,237 @@ The example below contains placeholder text like `<path_from_domain_md_examples>
 
 ## EXAMPLES
 
-**⚠️ CRITICAL WARNING: Examples Below Contain Placeholder Text**
+**⚠️ CRITICAL: Use domain_md for All Concrete Values**
 
-The examples below use **placeholder text** like:
-- `<table_name_from_domain_md>` 
-- `<agent_data_folder_from_domain_md>`
-- `<path_from_domain_md_examples>`
-- `{table_name}.csv`
-- `"ECommerce"`
-
-**THESE ARE EXAMPLES ONLY - DO NOT COPY THEM LITERALLY**
-
-**YOU MUST:**
-1. **Extract actual values from `domain_md`** - The `domain_md` provided to you contains real examples in specific sections:
-   - **Section 1 (Domain identity):** Contains `domain_key` (actual agent data folder name)
-   - **Section 3.5 (Data Structure and Path Extraction):** Contains actual file paths and extraction instructions
-   - **Section 4 (Core entities):** Contains actual table/view names, patterns, and `view_examples`
-   - **Section 5 (Dimensions):** Contains actual column names
-
-2. **Replace ALL placeholders** - When you see `<path_from_domain_md_examples>`, look in `domain_md` Section 3.5 or Section 4 and extract the actual path shown there (e.g., `sample_sales_data.csv` or `jan012024/sales_jan012024.csv`)
-
-3. **Never output placeholder syntax** - If you output `{table_name}.csv` or `<path_from_domain_md_examples>` in your JSON, the executor will fail because these files don't exist
+The examples below show the **structure and pattern** of outputs. You MUST replace all placeholder values with actual values from `domain_md`.
 
 **Where to find actual values in domain_md:**
-- **Agent data folder:** Check `domain_md` Section 1 → `domain_key` field (e.g., `"ecomm"` or `"ecommerce_advanced"`)
-- **File paths:** Check `domain_md` Section 3.5 (Path Extraction Instructions) or Section 4 (`view_examples` field)
-- **Table/view names:** Check `domain_md` Section 4 (`default_start_table_hint` and `view_examples`)
+
+| Value Needed | domain_md Section |
+|--------------|-------------------|
+| Agent data folder | Section 1 → `domain_key` |
+| File paths | Section 3.5 (Path Extraction) or Section 11.11 |
+| Table/view names | Section 4 (`view_examples`) or Section 11.11 |
+| View patterns | Section 4 (`default_start_table_hint`) |
+| Column names | Section 5 (Dimensions dictionary) |
+| Metric definitions | Section 7 (Metric dictionary) |
+| Join conditions | Section 8 (Join conventions) |
+| Query examples | Section 11.1-11.10 (Example Patterns) |
+
+**NEVER output placeholder syntax like `{table_name}.csv` or `<path_from_domain_md>` - these are not real files and will cause execution failures.**
 
 ### Example 1: NEW_QUERY — First query, no prior context
 
-**User Query:** "Show me total revenue by region"
+**Pattern:** User asks a self-contained question with entity + metric + dimension.
 
-**Your Output (using paths from domain_md):**
+**Structure (replace placeholders with values from domain_md):**
 ```json
 {
   "action": "EXECUTE",
   "query_type": "NEW_QUERY",
   "query_type_signals": ["self-contained query with entity, metric, and dimension"],
   "query_spec": {
-    "business_question": "Show total revenue by region",
-    "start_table": {"name": "<table_name_from_domain_md>", "path": ""},
-    "dimensions": ["region"],
-    "metrics": [{"name": "revenue", "definition": "Sum of (quantity * price)"}],
+    "business_question": "<user's question>",
+    "start_table": {"name": "<from domain_md Section 4: default_start_table_hint>", "path": ""},
+    "dimensions": ["<from domain_md Section 5: column name>"],
+    "metrics": [{"name": "<from domain_md Section 7>", "definition": "<from domain_md Section 7>"}],
     "time": {"column": "", "rule": "no_time", "n_days": null}
   },
   "query_spec_status": {
     "start_table_grain": {"status": "missing", "source": "rule", "notes": "Path needs discovery", "blocks_execution": true},
-    "dimensions": {"status": "inferred", "source": "user", "notes": "User explicitly requested 'by region'", "blocks_execution": false},
-    "metrics": {"status": "inferred", "source": "user", "notes": "User requested 'revenue'", "blocks_execution": false},
+    "dimensions": {"status": "inferred", "source": "user", "notes": "User explicitly requested dimension", "blocks_execution": false},
+    "metrics": {"status": "inferred", "source": "domain_md", "notes": "Metric from domain_md Section 7", "blocks_execution": false},
     "time": {"status": "defaulted", "source": "rule", "notes": "No time mentioned; no_time applied", "blocks_execution": false}
   },
   "investigation_plan": [
-    {"step": 1, "tool": "list_dir", "args": {"path": "<agent_data_folder_from_domain_md>"}, "fills_gap": "start_table.path", "success_condition": "Table file found matching domain_md patterns"},
-    {"step": 2, "tool": "inspect_table", "args": {"path": "<path_from_domain_md_examples>"}, "fills_gap": "dimensions.region", "success_condition": "region column verified"}
+    {"step": 1, "tool": "catalog_data", "args": {"agent_data_folder": "<from domain_md Section 1: domain_key>"}, "fills_gap": "start_table.path", "success_condition": "Files discovered"},
+    {"step": 2, "tool": "inspect_table", "args": {"path": "<from catalog_data result or domain_md Section 11.11>"}, "fills_gap": "start_table_grain", "success_condition": "Schema verified"}
   ]
 }
 ```
 
-**⚠️ IMPORTANT:** The paths shown above like `<table_name_from_domain_md>`, `<agent_data_folder_from_domain_md>`, and `<path_from_domain_md_examples>` are **PLACEHOLDERS ONLY**. 
-
-**You MUST replace them with actual values extracted from `domain_md`:**
-- `<table_name_from_domain_md>` → Extract from `domain_md` Section 4 (`default_start_table_hint` or `view_examples`)
-- `<agent_data_folder_from_domain_md>` → Extract from `domain_md` Section 1 (`domain_key`)
-- `<path_from_domain_md_examples>` → Extract from `domain_md` Section 3.5 (path examples) or Section 4 (`view_examples`)
-
-**If you output placeholder text literally (e.g., `{table_name}.csv` or `<path_from_domain_md_examples>`), the executor will fail because these are not real file paths.**
+**Key points:**
+- Extract `start_table.name` from domain_md Section 4 (`default_start_table_hint`)
+- Extract `dimensions` column names from domain_md Section 5
+- Extract `metrics` definitions from domain_md Section 7
+- Use `catalog_data` tool with `domain_key` from domain_md Section 1
+- See domain_md Section 11.1 for query→spec mapping examples
 
 ---
 
 ### Example 2: FOLLOW_UP — Adding a dimension
 
-**Prior Query Spec:**
-```json
-{
-  "start_table": {"name": "<table_name>", "path": "<prior_verified_path>"},
-  "dimensions": ["region"],
-  "metrics": [{"name": "revenue", "definition": "Sum of (quantity * price)"}],
-  "time": {"rule": "no_time", "column": ""}
-}
-```
+**Pattern:** User wants to add another dimension to prior query results.
 
-**User Query:** "What about products too?"
+**Signals:** "what about", "too", "also", "and"
 
-**Your Output:**
+**Action:** Append to dimensions array, preserve other fields from prior_query_spec.
+
+**Structure:**
 ```json
 {
   "action": "EXECUTE",
   "query_type": "FOLLOW_UP",
-  "query_type_signals": ["'what about' = continuation word", "'too' = addition signal", "incomplete query (no metric specified)"],
+  "query_type_signals": ["'what about' = continuation word", "'too' = addition signal"],
   "query_spec": {
-    "start_table": {"name": "<table_name>", "path": "<prior_verified_path>"},
-    "dimensions": ["region", "product"],
-    "metrics": [{"name": "revenue", "definition": "Sum of (quantity * price)"}],
+    "start_table": {"name": "<preserved from prior>", "path": "<preserved from prior>"},
+    "dimensions": ["<prior_dimension>", "<new_dimension_from_domain_md_Section_5>"],
+    "metrics": [{"name": "<preserved>", "definition": "<preserved>"}],
     "time": {"rule": "no_time", "column": ""}
   },
   "query_spec_status": {
     "start_table_grain": {"status": "verified", "source": "tool_result", "notes": "Preserved from prior query", "blocks_execution": false},
-    "dimensions": {"status": "inferred", "source": "user", "notes": "Added 'product' to prior ['region']", "blocks_execution": false},
-    "metrics": {"status": "verified", "source": "user", "notes": "Preserved from prior query", "blocks_execution": false},
-    "time": {"status": "verified", "source": "rule", "notes": "Preserved from prior query", "blocks_execution": false}
+    "dimensions": {"status": "inferred", "source": "user", "notes": "Added new dimension to prior", "blocks_execution": false}
   },
   "investigation_plan": [
-    {"step": 1, "tool": "inspect_table", "args": {"path": "<prior_verified_path>"}, "fills_gap": "dimensions.product", "success_condition": "product column verified"}
+    {"step": 1, "tool": "inspect_table", "args": {"path": "<prior_verified_path>"}, "fills_gap": "dimensions.<new_dim>", "success_condition": "column verified"}
   ]
 }
 ```
 
-**Note:** No `list_dir` needed because `start_table.path` was already verified. Use the actual path from `prior_query_spec.start_table.path`.
+**Key points:**
+- Preserve `start_table.path` from prior (no catalog_data needed)
+- Map user's natural language to column from domain_md Section 5
+- See domain_md Section 11.9 for follow-up examples
 
 ---
 
 ### Example 3: FOLLOW_UP — Filtering to single value + changing metric
 
-**Prior Query Spec:**
-```json
-{
-  "start_table": {"path": "<prior_verified_path>"},
-  "dimensions": ["region"],
-  "metrics": [{"name": "revenue", "definition": "Sum of (quantity * price)"}],
-  "time": {"column": "<time_column_from_domain_md>", "rule": "date_range", "start": "2024-01-01", "end": "2024-01-31"}
-}
-```
+**Pattern:** User wants to filter prior results and change the metric.
 
-**User Query:** "now what was the order count for the ones from east region only"
+**Signals:** "only", "just", "for X only", metric name change
 
-**Your Output:**
+**Action:** Add filter, replace metric, optionally clear dimensions.
+
+**Structure:**
 ```json
 {
   "action": "EXECUTE",
   "query_type": "FOLLOW_UP",
-  "query_type_signals": ["'now' = continuation", "'the ones' = pronoun reference", "'only' = filter signal", "'order count' = metric change"],
+  "query_type_signals": ["'only' = filter signal", "<metric_name> = metric change"],
   "query_spec": {
-    "start_table": {"path": "<prior_verified_path>"},
+    "start_table": {"path": "<preserved from prior>"},
     "dimensions": [],
-    "metrics": [{"name": "order_count", "definition": "COUNT(DISTINCT order_id)"}],
-    "filters": [{"field": "region", "operator": "=", "value": "East"}],
-    "time": {"column": "<time_column_from_domain_md>", "rule": "date_range", "start": "2024-01-01", "end": "2024-01-31"}
+    "metrics": [{"name": "<from domain_md Section 7>", "definition": "<from domain_md Section 7>"}],
+    "filters": [{"field": "<column_from_domain_md_Section_5>", "operator": "=", "value": "<user_specified_value>"}],
+    "time": {"column": "<preserved>", "rule": "<preserved>", "start": "<preserved>", "end": "<preserved>"}
   },
   "query_spec_status": {
-    "start_table_grain": {"status": "verified", "source": "tool_result", "notes": "Preserved from prior", "blocks_execution": false},
-    "dimensions": {"status": "inferred", "source": "user", "notes": "Removed region from dimensions (filtering to single value)", "blocks_execution": false},
-    "metrics": {"status": "inferred", "source": "user", "notes": "Changed from revenue to order_count per user request", "blocks_execution": false},
-    "filters": {"status": "inferred", "source": "user", "notes": "Added region='East' filter", "blocks_execution": false},
-    "time": {"status": "verified", "source": "user", "notes": "Preserved January 2024 filter from prior", "blocks_execution": false}
+    "dimensions": {"status": "inferred", "source": "user", "notes": "Cleared - filtering to single value", "blocks_execution": false},
+    "metrics": {"status": "inferred", "source": "user", "notes": "Changed per user request", "blocks_execution": false},
+    "filters": {"status": "inferred", "source": "user", "notes": "Added filter", "blocks_execution": false}
   },
   "investigation_plan": []
 }
 ```
 
-**Key changes:**
-- `metrics` replaced (not appended) — "order count" replaces "revenue"
-- `filters` added — "only east region" = filter
-- `dimensions` cleared — filtering to single value makes grouping meaningless
-- `time` preserved — user said "the ones" referring to prior results
+**Key points:**
+- When filtering to single value ("only East"), remove that dimension from grouping
+- Get metric definition from domain_md Section 7
+- Get filter column from domain_md Section 5
+- See domain_md Section 11.4 for filter examples
 
 ---
 
 ### Example 4: FOLLOW_UP — Changing time filter only
 
-**Prior Query Spec:**
-```json
-{
-  "start_table": {"path": "<prior_verified_path>"},
-  "dimensions": ["region"],
-  "metrics": [{"name": "revenue", "definition": "Sum of (quantity * price)"}],
-  "time": {"column": "<time_column_from_domain_md>", "rule": "date_range", "start": "2024-01-01", "end": "2024-01-31"}
-}
-```
+**Pattern:** User wants to change the time period for the same analysis.
 
-**User Query:** "what about last month instead"
+**Signals:** "instead", "last month", "for February", "what about [time]"
 
-**Your Output:**
+**Action:** Update time object only, preserve everything else.
+
+**Structure:**
 ```json
 {
   "action": "EXECUTE",
   "query_type": "FOLLOW_UP",
-  "query_type_signals": ["'what about' = continuation", "'instead' = modification signal", "'last month' = time change"],
+  "query_type_signals": ["'instead' = modification signal", "time change detected"],
   "query_spec": {
-    "start_table": {"path": "<prior_verified_path>"},
-    "dimensions": ["region"],
-    "metrics": [{"name": "revenue", "definition": "Sum of (quantity * price)"}],
-    "time": {"column": "<time_column_from_domain_md>", "rule": "last_n_days", "n_days": 30}
+    "start_table": {"path": "<preserved>"},
+    "dimensions": ["<preserved>"],
+    "metrics": [{"name": "<preserved>", "definition": "<preserved>"}],
+    "time": {"column": "<from domain_md Section 2>", "rule": "last_n_days", "n_days": 30}
   },
   "query_spec_status": {
-    "start_table_grain": {"status": "verified", "source": "tool_result", "notes": "Preserved from prior", "blocks_execution": false},
-    "dimensions": {"status": "verified", "source": "user", "notes": "Preserved from prior query", "blocks_execution": false},
-    "metrics": {"status": "verified", "source": "user", "notes": "Preserved from prior query", "blocks_execution": false},
-    "time": {"status": "inferred", "source": "user", "notes": "Changed from January 2024 to last 30 days per user request", "blocks_execution": false}
+    "time": {"status": "inferred", "source": "user", "notes": "Changed per user request", "blocks_execution": false}
   },
   "investigation_plan": []
 }
 ```
 
-**Key changes:**
-- `time` updated — "last month" replaces January 2024 date range
-- All other fields preserved — dimensions, metrics, start_table unchanged
-- No investigation needed — time column already verified in prior query
+**Key points:**
+- Get time column from domain_md Section 2 (`time_columns_by_entity`)
+- Preserve all other fields from prior_query_spec
+- No investigation needed if time column was already verified
 
 ---
 
 ### Example 5: USER_ANSWER — Responding to ASK_USER
 
-**Conversation History:**
-```json
-[{"role": "assistant", "action": "ASK_USER", "question": "Which metric: revenue or total_purchases?"}]
-```
+**Pattern:** User provides a short answer to a prior clarification question.
 
-**Prior Query Spec:**
-```json
-{
-  "start_table": {"path": "<prior_verified_path>"},
-  "metrics": [],
-  "query_spec_status": {"metrics": {"status": "missing", "blocks_execution": true}}
-}
-```
+**Signals:** Short answer matching prior ASK_USER options.
 
-**User Query:** "revenue"
+**Action:** Fill the missing field with user's answer, mark as verified.
 
-**Your Output:**
+**Structure:**
 ```json
 {
   "action": "EXECUTE",
   "query_type": "USER_ANSWER",
-  "query_type_signals": ["short answer matching ASK_USER options", "prior ASK_USER about metrics exists"],
+  "query_type_signals": ["short answer matching ASK_USER options", "prior ASK_USER exists"],
   "query_spec": {
-    "start_table": {"path": "<prior_verified_path>"},
-    "metrics": [{"name": "revenue", "definition": "Sum of (quantity * price)"}]
+    "start_table": {"path": "<preserved>"},
+    "<missing_field>": "<user's answer mapped to domain_md value>"
   },
   "query_spec_status": {
-    "start_table_grain": {"status": "verified", "source": "tool_result", "notes": "Preserved from prior", "blocks_execution": false},
-    "metrics": {"status": "verified", "source": "user", "notes": "User answered ASK_USER: 'revenue'", "blocks_execution": false}
+    "<missing_field>": {"status": "verified", "source": "user", "notes": "User answered ASK_USER", "blocks_execution": false}
   },
   "investigation_plan": []
 }
 ```
 
+**Key points:**
+- Map user's answer to correct value from domain_md (Section 5 for dimensions, Section 7 for metrics)
+- Mark the previously missing field as `verified` with source `user`
+- Preserve all other fields from prior_query_spec
+
 ---
 
 ### Example 6: NEW_QUERY — Different entity (ignores prior)
 
-**Prior Query Spec:** (about sales)
-```json
-{
-  "start_table": {"path": "<prior_path>"},
-  "dimensions": ["region"],
-  "metrics": [{"name": "revenue"}]
-}
-```
+**Pattern:** User asks about a completely different entity than prior queries.
 
-**User Query:** "Show me customer signups by month for 2024"
+**Signals:** Self-contained query, different entity, no follow-up language.
 
-**Your Output:**
+**Action:** Ignore prior_query_spec, start fresh using domain_md.
+
+**Structure:**
 ```json
 {
   "action": "EXECUTE",
   "query_type": "NEW_QUERY",
-  "query_type_signals": ["self-contained query", "different entity (customers vs sales)", "no follow-up signals"],
+  "query_type_signals": ["self-contained query", "different entity", "no follow-up signals"],
   "query_spec": {
-    "business_question": "Show customer signups by month for 2024",
-    "start_table": {"name": "<customer_table_name_from_domain_md>", "path": ""},
-    "dimensions": ["month"],
-    "metrics": [{"name": "signup_count", "definition": "COUNT(DISTINCT customer_id)"}],
-    "time": {"column": "<time_column_from_domain_md>", "rule": "date_range", "start": "2024-01-01", "end": "2024-12-31"}
+    "business_question": "<user's question>",
+    "start_table": {"name": "<from domain_md Section 4 for new entity>", "path": ""},
+    "dimensions": ["<from domain_md Section 5>"],
+    "metrics": [{"name": "<from domain_md Section 7>", "definition": "<from domain_md Section 7>"}],
+    "time": {"column": "<from domain_md Section 2 for new entity>", "rule": "date_range", "start": "<user_date>", "end": "<user_date>"}
   },
   "investigation_plan": [
-    {"step": 1, "tool": "list_dir", "args": {"path": "<agent_data_folder_from_domain_md>"}, "fills_gap": "start_table.path", "success_condition": "customer table found matching domain_md patterns"}
+    {"step": 1, "tool": "catalog_data", "args": {"agent_data_folder": "<from domain_md Section 1>"}, "fills_gap": "start_table.path", "success_condition": "Files for new entity discovered"}
   ]
 }
 ```
 
-**Note:** Prior query spec is **ignored** because this is a completely different question. Use actual table names, paths, and time columns from `domain_md`.
+**Key points:**
+- **Ignore prior_query_spec** completely for NEW_QUERY with different entity
+- Find the new entity in domain_md Section 4 (Core entities)
+- Get time column for new entity from domain_md Section 2 (`time_columns_by_entity`)
+- Use catalog_data to discover files for the new entity
 
 ---
 

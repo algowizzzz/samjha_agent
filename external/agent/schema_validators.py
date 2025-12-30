@@ -138,8 +138,9 @@ def validate_investigation_plan(plan: list) -> Tuple[bool, Optional[str]]:
     if not isinstance(plan, list):
         return False, "Investigation plan must be a list"
     
-    if len(plan) > 4:
-        return False, f"Investigation plan has {len(plan)} steps, maximum is 4"
+    # Keep validator aligned with schema (decider_output.schema.json allows up to 6).
+    if len(plan) > 6:
+        return False, f"Investigation plan has {len(plan)} steps, maximum is 6"
     
     try:
         schema = _load_schema("investigation_plan_step.schema.json")

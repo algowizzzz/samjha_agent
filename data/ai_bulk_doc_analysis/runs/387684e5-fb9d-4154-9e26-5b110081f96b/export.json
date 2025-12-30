@@ -1,0 +1,10 @@
+[
+  {
+    "doc_id": "4bf78fa1-de44-4b15-8bf0-b28dee991194",
+    "task_id": null,
+    "step_index": 1,
+    "output": "{\n  \"obligations\": [\n    {\n      \"type\": \"MUST\",\n      \"statement\": \"Enforce MFA for all privileged accounts.\",\n      \"section\": \"Requirements\",\n      \"evidence_quote\": \"MUST: Enforce MFA for all privileged accounts.\"\n    },\n    {\n      \"type\": \"MUST\",\n      \"statement\": \"Review access for admin groups monthly.\",\n      \"section\": \"Requirements\",\n      \"evidence_quote\": \"MUST: Review access for admin groups monthly.\"\n    },\n    {\n      \"type\": \"SHOULD\",\n      \"statement\": \"Implement just-in-time access for production systems where feasible.\",\n      \"section\": \"Requirements\",\n      \"evidence_quote\": \"SHOULD: Implement just-in-time access for production systems where feasible.\"\n    }\n  ]\n}",
+    "input_tokens": 467,
+    "output_tokens": 199
+  }
+]

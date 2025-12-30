@@ -117,7 +117,7 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
 
     @bp.route("/api/bulk-doc-analysis/documents/upload", methods=["POST"])
     def api_upload_documents():
-        """Upload PDF documents."""
+        """Upload documents (multiple file types supported)."""
         user_session = _current_user_session()
         if not user_session:
             return jsonify({"error": "Unauthorized"}), 401
@@ -132,21 +132,66 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
         if not files or all(f.filename == "" for f in files):
             return jsonify({"error": "No files selected"}), 400
 
-        # Validate PDFs only (per spec)
-        pdfs = []
+        # Get workflow_version_id to validate file types
+        workflow_version_id = request.form.get("workflow_version_id")
+        ingestion_profile_id = None
+        
+        if workflow_version_id:
+            # Get workflow version to check accepted input types
+            try:
+                from .workflow_service import WorkflowService
+                workflow_service = WorkflowService()
+                workflow_version = workflow_service.get_workflow_version(workflow_version_id)
+                
+                if not workflow_version:
+                    return jsonify({"error": "Workflow version not found"}), 404
+                
+                ingestion_profile_id = workflow_version.ingestion_profile_id
+                
+                # Get ingestion profile
+                from .ingestion_service import IngestionService
+                ingestion_service = IngestionService()
+                ingestion_profile = ingestion_service.get_ingestion_profile(ingestion_profile_id)
+                
+                if not ingestion_profile:
+                    return jsonify({"error": "Ingestion profile not found"}), 404
+                
+                accepted_types = ingestion_profile.accepted_input_types
+            except Exception as e:
+                logger.error(f"Error getting workflow version: {e}", exc_info=True)
+                return jsonify({"error": "Invalid workflow_version_id"}), 400
+        else:
+            # Fallback: accept PDF only (backward compatibility)
+            accepted_types = ["PDF"]
+
+        # Validate file types
+        valid_extensions = {
+            "PDF": [".pdf"],
+            "DOCX": [".docx"],
+            "TXT": [".txt"],
+            "MD": [".md"],
+            "CSV": [".csv"]
+        }
+        
+        accepted_extensions = []
+        for file_type in accepted_types:
+            accepted_extensions.extend(valid_extensions.get(file_type, []))
+        
+        valid_files = []
         for f in files:
             if not f.filename:
                 continue
-            if not f.filename.lower().endswith(".pdf"):
-                return jsonify({"error": f"Only PDF files allowed: {f.filename}"}), 400
-            pdfs.append(f)
+            ext = Path(f.filename).suffix.lower()
+            if ext not in accepted_extensions:
+                return jsonify({"error": f"File type not accepted: {f.filename}. Accepted types: {accepted_types}"}), 400
+            valid_files.append(f)
 
-        if not pdfs:
-            return jsonify({"error": "No valid PDF files"}), 400
+        if not valid_files:
+            return jsonify({"error": "No valid files"}), 400
 
         try:
             svc = get_service()
-            docs = svc.create_documents(bulk_session_id, pdfs, user_id)
+            docs = svc.create_documents(bulk_session_id, valid_files, user_id)
             
             # Enqueue conversion jobs if queues are enabled
             if USE_QUEUES:
@@ -155,22 +200,26 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
                     for doc in docs:
                         # Get file path - check if we have it stored
                         doc_dir = svc.storage_base / "docs" / doc.doc_id
-                        pdf_file = None
-                        for f in doc_dir.glob("*.pdf"):
-                            pdf_file = f
-                            break
+                        file_path = None
+                        for ext in accepted_extensions:
+                            for f in doc_dir.glob(f"*{ext}"):
+                                file_path = f
+                                break
+                            if file_path:
+                                break
                         
-                        if not pdf_file:
-                            logger.warning(f"PDF file not found for doc {doc.doc_id}, skipping queue")
+                        if not file_path:
+                            logger.warning(f"File not found for doc {doc.doc_id}, skipping queue")
                             continue
                         
                         # Use relative path from storage_base
-                        object_storage_key = str(pdf_file.relative_to(svc.storage_base))
+                        object_storage_key = str(file_path.relative_to(svc.storage_base))
                         
                         job_data = {
                             "doc_id": doc.doc_id,
                             "session_id": bulk_session_id,
                             "object_storage_key": object_storage_key,
+                            "ingestion_profile_id": ingestion_profile_id,  # NEW
                             "idempotency_key": f"convert:{doc.doc_id}",
                         }
                         from external.ai_bulk_doc_analysis.workers.rq_worker import convert_doc_job
@@ -302,26 +351,128 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
             logger.error(f"Delete doc error: {e}", exc_info=True)
             return jsonify({"error": str(e)}), 500
 
-    @bp.route("/api/bulk-doc-analysis/chains", methods=["GET"])
-    def api_list_chains():
-        """List available prompt chains."""
+    # ==================== Workflow APIs (New) ====================
+    
+    @bp.route("/api/bulk-doc-analysis/workflows", methods=["GET"])
+    def api_list_workflows():
+        """List workflows (domain-filtered)."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+
+        user_id = user_session.get("user_id") or "anonymous"
+        
+        # Get user domains from session
+        user_domains = user_session.get("domains", [])
+        is_super_admin = auth_manager.is_super_admin(user_session)
+        
+        try:
+            from .workflow_service import WorkflowService
+            workflow_service = WorkflowService()
+            workflows = workflow_service.list_workflows(user_id, user_domains, is_super_admin)
+            return jsonify({"workflows": workflows})
+        except Exception as e:
+            logger.error(f"List workflows error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
+    @bp.route("/api/bulk-doc-analysis/workflows", methods=["POST"])
+    def api_create_workflow():
+        """Create a new workflow."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        user_id = user_session.get("user_id") or "anonymous"
+        data = request.get_json() or {}
+        
+        name = data.get("name", "").strip()
+        description = data.get("description", "").strip()
+        domains = data.get("domains", [])
+        ingestion_profile_id = data.get("ingestion_profile_id")
+        chain_version_id = data.get("chain_version_id")
+        export_profile_id = data.get("export_profile_id")
+        
+        # Validation
+        if not name:
+            return jsonify({"error": "Name is required"}), 400
+        if not description:
+            return jsonify({"error": "Description is required"}), 400
+        if len(description) < 20 or len(description) > 240:
+            return jsonify({"error": "Description must be 20-240 characters"}), 400
+        if not domains or len(domains) == 0:
+            return jsonify({"error": "At least one domain is required"}), 400
+        if not ingestion_profile_id:
+            return jsonify({"error": "ingestion_profile_id is required"}), 400
+        if not chain_version_id:
+            return jsonify({"error": "chain_version_id is required"}), 400
+        if not export_profile_id:
+            return jsonify({"error": "export_profile_id is required"}), 400
+        
+        try:
+            from .workflow_service import WorkflowService
+            workflow_service = WorkflowService()
+            workflow = workflow_service.create_workflow(
+                user_id=user_id,
+                name=name,
+                description=description,
+                domains=domains,
+                ingestion_profile_id=ingestion_profile_id,
+                chain_version_id=chain_version_id,
+                export_profile_id=export_profile_id
+            )
+            return jsonify({
+                "success": True,
+                "workflow": {
+                    "workflow_id": workflow.workflow_id,
+                    "name": workflow.name,
+                    "description": workflow.description,
+                }
+            })
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+        except Exception as e:
+            logger.error(f"Create workflow error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
+    @bp.route("/api/bulk-doc-analysis/workflows/<workflow_id>", methods=["GET"])
+    def api_get_workflow(workflow_id: str):
+        """Get workflow by ID."""
         user_session = _current_user_session()
         if not user_session:
             return jsonify({"error": "Unauthorized"}), 401
 
         try:
-            svc = get_service()
-            chains = svc.list_chains()
+            from .workflow_service import WorkflowService
+            from .db_service import get_db_session
+            from .models import WorkflowDomain
+            
+            workflow_service = WorkflowService()
+            workflow = workflow_service.get_workflow(workflow_id)
+            
+            if not workflow:
+                return jsonify({"error": "Workflow not found"}), 404
+            
+            # Get domains
+            with get_db_session() as db:
+                domains = [wd.domain for wd in db.query(WorkflowDomain).filter(
+                    WorkflowDomain.workflow_id == workflow_id
+                ).all()]
+            
             return jsonify({
-                "chains": [c.to_dict() for c in chains],
+                "workflow_id": workflow.workflow_id,
+                "name": workflow.name,
+                "description": workflow.description,
+                "domains": domains,
+                "created_at": workflow.created_at.isoformat() if workflow.created_at else None,
+                "updated_at": workflow.updated_at.isoformat() if workflow.updated_at else None,
             })
         except Exception as e:
-            logger.error(f"List chains error: {e}", exc_info=True)
+            logger.error(f"Get workflow error: {e}", exc_info=True)
             return jsonify({"error": str(e)}), 500
 
-    @bp.route("/api/bulk-doc-analysis/chains", methods=["POST"])
-    def api_create_chain():
-        """Create a new prompt chain."""
+    @bp.route("/api/bulk-doc-analysis/workflows/<workflow_id>", methods=["PUT"])
+    def api_update_workflow(workflow_id: str):
+        """Update workflow (creates new version)."""
         user_session = _current_user_session()
         if not user_session:
             return jsonify({"error": "Unauthorized"}), 401
@@ -331,30 +482,125 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
 
         name = data.get("name", "").strip()
         description = data.get("description", "").strip()
-        steps = data.get("steps", [])
+        domains = data.get("domains", [])
+        ingestion_profile_id = data.get("ingestion_profile_id")
+        chain_version_id = data.get("chain_version_id")
+        export_profile_id = data.get("export_profile_id")
 
+        # Validation
         if not name:
-            return jsonify({"error": "Chain name is required"}), 400
-
-        if not steps or len(steps) == 0:
-            return jsonify({"error": "At least one step is required"}), 400
-
+            return jsonify({"error": "Name is required"}), 400
+        if not description:
+            return jsonify({"error": "Description is required"}), 400
+        if len(description) < 20 or len(description) > 240:
+            return jsonify({"error": "Description must be 20-240 characters"}), 400
+        if not domains or len(domains) == 0:
+            return jsonify({"error": "At least one domain is required"}), 400
+        if not ingestion_profile_id:
+            return jsonify({"error": "ingestion_profile_id is required"}), 400
+        if not chain_version_id:
+            return jsonify({"error": "chain_version_id is required"}), 400
+        if not export_profile_id:
+            return jsonify({"error": "export_profile_id is required"}), 400
+        
         try:
-            svc = get_service()
-            chain = svc.create_chain(user_id, name, description, steps)
+            from .workflow_service import WorkflowService
+            from .domain_service import DomainService
+            
+            workflow_service = WorkflowService()
+            workflow = workflow_service.get_workflow(workflow_id)
+            
+            if not workflow:
+                return jsonify({"error": "Workflow not found"}), 404
+            
+            # Check domain access
+            if not DomainService.can_edit_workflow(user_session, workflow):
+                return jsonify({"error": "Access denied"}), 403
+            
+            workflow_version = workflow_service.update_workflow(
+                workflow_id=workflow_id,
+                name=name,
+                description=description,
+                domains=domains,
+                ingestion_profile_id=ingestion_profile_id,
+                chain_version_id=chain_version_id,
+                export_profile_id=export_profile_id
+            )
             return jsonify({
                 "success": True,
-                "chain": chain.to_dict(),
+                "workflow_version": {
+                    "workflow_version_id": workflow_version.workflow_version_id,
+                    "workflow_id": workflow_version.workflow_id,
+                    "version_number": workflow_version.version_number,
+                }
             })
         except ValueError as e:
             return jsonify({"error": str(e)}), 400
         except Exception as e:
-            logger.error(f"Create chain error: {e}", exc_info=True)
+            logger.error(f"Update workflow error: {e}", exc_info=True)
             return jsonify({"error": str(e)}), 500
 
-    @bp.route("/api/bulk-doc-analysis/chains/<chain_id>", methods=["PUT"])
-    def api_update_chain(chain_id: str):
-        """Update an existing prompt chain."""
+    @bp.route("/api/bulk-doc-analysis/workflows/<workflow_id>", methods=["DELETE"])
+    def api_delete_workflow(workflow_id: str):
+        """Delete workflow."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        try:
+            from .workflow_service import WorkflowService
+            from .domain_service import DomainService
+            
+            workflow_service = WorkflowService()
+            workflow = workflow_service.get_workflow(workflow_id)
+            
+            if not workflow:
+                return jsonify({"error": "Workflow not found"}), 404
+            
+            # Check domain access
+            if not DomainService.can_edit_workflow(user_session, workflow):
+                return jsonify({"error": "Access denied"}), 403
+            
+            success = workflow_service.delete_workflow(workflow_id)
+            
+            if not success:
+                return jsonify({"error": "Workflow not found"}), 404
+            
+            return jsonify({"success": True})
+        except Exception as e:
+            logger.error(f"Delete workflow error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
+    # ==================== Ingestion Profile APIs ====================
+    
+    @bp.route("/api/bulk-doc-analysis/ingestion-profiles", methods=["GET"])
+    def api_list_ingestion_profiles():
+        """List all ingestion profiles."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        try:
+            from .ingestion_service import IngestionService
+            ingestion_service = IngestionService()
+            profiles = ingestion_service.list_ingestion_profiles()
+            return jsonify({
+                "profiles": [{
+                    "ingestion_profile_id": p.ingestion_profile_id,
+                    "name": p.name,
+                    "accepted_input_types": p.accepted_input_types,
+                    "mode": p.mode,
+                    "has_vision_prompt": p.vision_prompt is not None,
+                    "created_at": p.created_at.isoformat() if p.created_at else None,
+                } for p in profiles]
+            })
+        except Exception as e:
+            logger.error(f"List ingestion profiles error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
+    @bp.route("/api/bulk-doc-analysis/ingestion-profiles", methods=["POST"])
+    def api_create_ingestion_profile():
+        """Create a new ingestion profile."""
         user_session = _current_user_session()
         if not user_session:
             return jsonify({"error": "Unauthorized"}), 401
@@ -362,27 +608,319 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
         data = request.get_json() or {}
 
         name = data.get("name", "").strip()
-        description = data.get("description", "").strip()
-        steps = data.get("steps", [])
+        accepted_input_types = data.get("accepted_input_types", [])
+        mode = data.get("mode", "programmatic")
+        vision_prompt = data.get("vision_prompt")
 
+        # Validation
         if not name:
-            return jsonify({"error": "Chain name is required"}), 400
-
-        if not steps or len(steps) == 0:
-            return jsonify({"error": "At least one step is required"}), 400
-
+            return jsonify({"error": "Name is required"}), 400
+        if not accepted_input_types or len(accepted_input_types) == 0:
+            return jsonify({"error": "At least one accepted_input_type is required"}), 400
+        if mode == 'vision' and not vision_prompt:
+            return jsonify({"error": "vision_prompt is required when mode='vision'"}), 400
+        
         try:
-            svc = get_service()
-            chain = svc.update_chain(chain_id, name, description, steps)
+            from .ingestion_service import IngestionService
+            ingestion_service = IngestionService()
+            profile = ingestion_service.create_ingestion_profile(
+                name=name,
+                accepted_input_types=accepted_input_types,
+                mode=mode,
+                vision_prompt=vision_prompt
+            )
             return jsonify({
                 "success": True,
-                "chain": chain.to_dict(),
+                "profile": {
+                    "ingestion_profile_id": profile.ingestion_profile_id,
+                    "name": profile.name,
+                    "accepted_input_types": profile.accepted_input_types,
+                    "mode": profile.mode,
+                }
             })
         except ValueError as e:
             return jsonify({"error": str(e)}), 400
         except Exception as e:
-            logger.error(f"Update chain error: {e}", exc_info=True)
+            logger.error(f"Create ingestion profile error: {e}", exc_info=True)
             return jsonify({"error": str(e)}), 500
+
+    @bp.route("/api/bulk-doc-analysis/ingestion-profiles/<profile_id>", methods=["GET"])
+    def api_get_ingestion_profile(profile_id: str):
+        """Get ingestion profile by ID."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        try:
+            from .ingestion_service import IngestionService
+            ingestion_service = IngestionService()
+            profile = ingestion_service.get_ingestion_profile(profile_id)
+            
+            if not profile:
+                return jsonify({"error": "Ingestion profile not found"}), 404
+            
+            return jsonify({
+                "ingestion_profile_id": profile.ingestion_profile_id,
+                "name": profile.name,
+                "accepted_input_types": profile.accepted_input_types,
+                "mode": profile.mode,
+                "vision_prompt": profile.vision_prompt,  # Include prompt in response
+                "created_at": profile.created_at.isoformat() if profile.created_at else None,
+            })
+        except Exception as e:
+            logger.error(f"Get ingestion profile error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
+    @bp.route("/api/bulk-doc-analysis/ingestion-profiles/<profile_id>", methods=["PUT"])
+    def api_update_ingestion_profile(profile_id: str):
+        """Update ingestion profile."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        data = request.get_json() or {}
+        
+        name = data.get("name", "").strip()
+        accepted_input_types = data.get("accepted_input_types", [])
+        mode = data.get("mode")
+        vision_prompt = data.get("vision_prompt")
+        
+        try:
+            from .ingestion_service import IngestionService
+            from .db_service import get_db_session
+            from .models import IngestionProfile
+            
+            ingestion_service = IngestionService()
+            profile = ingestion_service.get_ingestion_profile(profile_id)
+            
+            if not profile:
+                return jsonify({"error": "Ingestion profile not found"}), 404
+            
+            # Update fields
+            with get_db_session() as db:
+                db_profile = db.query(IngestionProfile).filter(
+                    IngestionProfile.ingestion_profile_id == profile_id
+                ).first()
+                
+                if name:
+                    db_profile.name = name
+                if accepted_input_types:
+                    db_profile.accepted_input_types = accepted_input_types
+                if mode:
+                    if mode == 'vision' and not vision_prompt and not db_profile.vision_prompt:
+                        return jsonify({"error": "vision_prompt is required when mode='vision'"}), 400
+                    db_profile.mode = mode
+                if vision_prompt is not None:
+                    db_profile.vision_prompt = vision_prompt
+                
+                db.commit()
+            
+            return jsonify({"success": True})
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+        except Exception as e:
+            logger.error(f"Update ingestion profile error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
+    @bp.route("/api/bulk-doc-analysis/ingestion-profiles/<profile_id>", methods=["DELETE"])
+    def api_delete_ingestion_profile(profile_id: str):
+        """Delete ingestion profile."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        try:
+            from .db_service import get_db_session
+            from .models import IngestionProfile
+            
+            with get_db_session() as db:
+                profile = db.query(IngestionProfile).filter(
+                    IngestionProfile.ingestion_profile_id == profile_id
+                ).first()
+                
+                if not profile:
+                    return jsonify({"error": "Ingestion profile not found"}), 404
+                
+                db.delete(profile)
+                db.commit()
+            
+            return jsonify({"success": True})
+        except Exception as e:
+            logger.error(f"Delete ingestion profile error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
+    # ==================== Export Profile APIs ====================
+    
+    @bp.route("/api/bulk-doc-analysis/export-profiles", methods=["GET"])
+    def api_list_export_profiles():
+        """List all export profiles."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        try:
+            from .export_service import ExportService
+            export_service = ExportService()
+            profiles = export_service.list_export_profiles()
+            return jsonify({
+                "profiles": [{
+                    "export_profile_id": p.export_profile_id,
+                    "name": p.name,
+                    "format": p.format,
+                    "created_at": p.created_at.isoformat() if p.created_at else None,
+                } for p in profiles]
+            })
+        except Exception as e:
+            logger.error(f"List export profiles error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
+    @bp.route("/api/bulk-doc-analysis/export-profiles", methods=["POST"])
+    def api_create_export_profile():
+        """Create a new export profile."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        data = request.get_json() or {}
+        
+        name = data.get("name", "").strip()
+        format = data.get("format", "MD")
+        config_json = data.get("config_json", {})
+        
+        # Validation
+        if not name:
+            return jsonify({"error": "Name is required"}), 400
+        valid_formats = ['CSV', 'JSON', 'MD', 'DOCX', 'PDF']
+        if format not in valid_formats:
+            return jsonify({"error": f"Format must be one of: {valid_formats}"}), 400
+        
+        try:
+            from .export_service import ExportService
+            export_service = ExportService()
+            profile = export_service.create_export_profile(
+                name=name,
+                format=format,
+                config_json=config_json
+            )
+            return jsonify({
+                "success": True,
+                "profile": {
+                    "export_profile_id": profile.export_profile_id,
+                    "name": profile.name,
+                    "format": profile.format,
+                }
+            })
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+        except Exception as e:
+            logger.error(f"Create export profile error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
+    @bp.route("/api/bulk-doc-analysis/export-profiles/<profile_id>", methods=["GET"])
+    def api_get_export_profile(profile_id: str):
+        """Get export profile by ID."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        try:
+            from .export_service import ExportService
+            export_service = ExportService()
+            profile = export_service.get_export_profile(profile_id)
+            
+            if not profile:
+                return jsonify({"error": "Export profile not found"}), 404
+            
+            return jsonify({
+                "export_profile_id": profile.export_profile_id,
+                "name": profile.name,
+                "format": profile.format,
+                "config_json": profile.config_json,
+                "created_at": profile.created_at.isoformat() if profile.created_at else None,
+            })
+        except Exception as e:
+            logger.error(f"Get export profile error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
+    @bp.route("/api/bulk-doc-analysis/export-profiles/<profile_id>", methods=["PUT"])
+    def api_update_export_profile(profile_id: str):
+        """Update export profile."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        data = request.get_json() or {}
+        
+        name = data.get("name", "").strip()
+        format = data.get("format")
+        config_json = data.get("config_json")
+        
+        try:
+            from .export_service import ExportService
+            from .db_service import get_db_session
+            from .models import ExportProfile
+            
+            export_service = ExportService()
+            profile = export_service.get_export_profile(profile_id)
+            
+            if not profile:
+                return jsonify({"error": "Export profile not found"}), 404
+            
+            # Update fields
+            with get_db_session() as db:
+                db_profile = db.query(ExportProfile).filter(
+                    ExportProfile.export_profile_id == profile_id
+                ).first()
+                
+                if name:
+                    db_profile.name = name
+                if format:
+                    valid_formats = ['CSV', 'JSON', 'MD', 'DOCX', 'PDF']
+                    if format not in valid_formats:
+                        return jsonify({"error": f"Format must be one of: {valid_formats}"}), 400
+                    db_profile.format = format
+                if config_json is not None:
+                    db_profile.config_json = config_json
+                
+                db.commit()
+            
+            return jsonify({"success": True})
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+        except Exception as e:
+            logger.error(f"Update export profile error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
+    @bp.route("/api/bulk-doc-analysis/export-profiles/<profile_id>", methods=["DELETE"])
+    def api_delete_export_profile(profile_id: str):
+        """Delete export profile."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        try:
+            from .db_service import get_db_session
+            from .models import ExportProfile
+            
+            with get_db_session() as db:
+                profile = db.query(ExportProfile).filter(
+                    ExportProfile.export_profile_id == profile_id
+                ).first()
+                
+                if not profile:
+                    return jsonify({"error": "Export profile not found"}), 404
+                
+                db.delete(profile)
+                db.commit()
+            
+            return jsonify({"success": True})
+        except Exception as e:
+            logger.error(f"Delete export profile error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
+    # ==================== Chain APIs (DEPRECATED - Remove in Phase 1) ====================
+    # Note: These endpoints are kept temporarily for backward compatibility but will be removed
+    # Users should migrate to workflow system
 
     @bp.route("/api/bulk-doc-analysis/runs", methods=["POST"])
     def api_create_run():
@@ -396,12 +934,28 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
 
         data = request.get_json() or {}
         chain_version_id = data.get("chain_version_id")
+        workflow_version_id = data.get("workflow_version_id")  # NEW
+        
         if not chain_version_id:
             return jsonify({"error": "chain_version_id required"}), 400
 
         try:
-            svc = get_service()
-            run = svc.create_run(bulk_session_id, chain_version_id)
+            from .db_service import BulkDocDBService
+            svc = BulkDocDBService()
+            run = svc.create_run(bulk_session_id, chain_version_id, workflow_version_id=workflow_version_id)
+            
+            # Check if CSV workflow
+            is_csv_workflow = False
+            if workflow_version_id:
+                from .workflow_service import WorkflowService
+                from .ingestion_service import IngestionService
+                workflow_service = WorkflowService()
+                workflow_version = workflow_service.get_workflow_version(workflow_version_id)
+                if workflow_version:
+                    ingestion_service = IngestionService()
+                    ingestion_profile = ingestion_service.get_ingestion_profile(workflow_version.ingestion_profile_id)
+                    if ingestion_profile and 'CSV' in ingestion_profile.accepted_input_types:
+                        is_csv_workflow = True
             
             # Enqueue execution jobs if queues are enabled
             if USE_QUEUES:
@@ -411,36 +965,73 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
                     if not chain:
                         return jsonify({"error": "Chain not found"}), 404
                     
-                    # Enqueue EXECUTE_STEP job for each doc/step
-                    for doc_id in run.document_ids:
-                        for step_idx in range(1, chain.step_count + 1):
-                            step_def = next((s for s in chain.steps if s.get("index") == step_idx), None)
-                            if not step_def:
-                                continue
+                    if is_csv_workflow:
+                        # CSV: Enqueue jobs for each task/step
+                        from .db_service import get_db_session
+                        from .models import ExecutionTask
+                        
+                        with get_db_session() as db:
+                            tasks = db.query(ExecutionTask).filter(ExecutionTask.run_id == run.run_id).all()
                             
-                            # Get model_config from step (with defaults)
-                            model_config = step_def.get("model_config", {
-                                "model": "claude-3-haiku-20240307",
-                                "max_tokens": 4096,
-                                "temperature": 0.2
-                            })
-                            
-                            job_data = {
-                                "run_id": run.run_id,
-                                "doc_id": doc_id,
-                                "step_index": step_idx,
-                                "chain_version_id": chain_version_id,
-                                "required_inputs": step_def.get("required_inputs", []),
-                                "prompt": step_def.get("prompt", ""),
-                                "model_config": model_config,
-                                "idempotency_key": f"step:{run.run_id}:{doc_id}:{step_idx}",
-                            }
-                            execution_queue.enqueue(
-                                execute_step_job,
-                                job_data,
-                                job_id=f"exec_{run.run_id}_{doc_id}_step{step_idx}"
-                            )
-                            logger.info(f"Enqueued execution job for {run.run_id}/{doc_id}/step{step_idx}")
+                            for task in tasks:
+                                for step_idx in range(1, chain.step_count + 1):
+                                    step_def = next((s for s in chain.steps if s.get("index") == step_idx), None)
+                                    if not step_def:
+                                        continue
+                                    
+                                    model_config = step_def.get("model_config", {
+                                        "model": "claude-3-haiku-20240307",
+                                        "max_tokens": 4096,
+                                        "temperature": 0.2
+                                    })
+                                    
+                                    job_data = {
+                                        "run_id": run.run_id,
+                                        "doc_id": task.doc_id,
+                                        "task_id": task.task_id,  # NEW
+                                        "step_index": step_idx,
+                                        "chain_version_id": chain_version_id,
+                                        "required_inputs": step_def.get("required_inputs", []),
+                                        "prompt": step_def.get("prompt", ""),
+                                        "model_config": model_config,
+                                        "idempotency_key": f"step:{run.run_id}:{task.doc_id}:{task.task_id}:{step_idx}",
+                                    }
+                                    execution_queue.enqueue(
+                                        execute_step_job,
+                                        job_data,
+                                        job_id=f"execute_{run.run_id}_{task.doc_id}_{task.task_id}_step{step_idx}"
+                                    )
+                    else:
+                        # Non-CSV: Enqueue EXECUTE_STEP job for each doc/step
+                        for doc_id in run.document_ids:
+                            for step_idx in range(1, chain.step_count + 1):
+                                step_def = next((s for s in chain.steps if s.get("index") == step_idx), None)
+                                if not step_def:
+                                    continue
+                                
+                                # Get model_config from step (with defaults)
+                                model_config = step_def.get("model_config", {
+                                    "model": "claude-3-haiku-20240307",
+                                    "max_tokens": 4096,
+                                    "temperature": 0.2
+                                })
+                                
+                                job_data = {
+                                    "run_id": run.run_id,
+                                    "doc_id": doc_id,
+                                    "step_index": step_idx,
+                                    "chain_version_id": chain_version_id,
+                                    "required_inputs": step_def.get("required_inputs", []),
+                                    "prompt": step_def.get("prompt", ""),
+                                    "model_config": model_config,
+                                    "idempotency_key": f"step:{run.run_id}:{doc_id}:{step_idx}",
+                                }
+                                execution_queue.enqueue(
+                                    execute_step_job,
+                                    job_data,
+                                    job_id=f"exec_{run.run_id}_{doc_id}_step{step_idx}"
+                                )
+                                logger.info(f"Enqueued execution job for {run.run_id}/{doc_id}/step{step_idx}")
                 except Exception as e:
                     logger.warning(f"Failed to enqueue execution jobs, will use synchronous execution: {e}")
             
@@ -521,7 +1112,7 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
 
     @bp.route("/api/bulk-doc-analysis/runs/<run_id>/download-all", methods=["GET"])
     def api_download_all_outputs(run_id: str):
-        """Download all document outputs for a run as a ZIP archive."""
+        """Download all document outputs for a run (format based on workflow export profile)."""
         user_session = _current_user_session()
         if not user_session:
             return jsonify({"error": "Unauthorized"}), 401

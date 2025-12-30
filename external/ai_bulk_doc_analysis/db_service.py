@@ -93,6 +93,43 @@ def init_db(database_url: Optional[str] = None):
 
     # Create tables
     Base.metadata.create_all(bind=_engine)
+    
+    # Fix step_results unique constraint for CSV workflows (PostgreSQL)
+    if database_url and database_url.startswith('postgresql'):
+        try:
+            with _engine.connect() as conn:
+                from sqlalchemy import text
+                # Drop old constraint if exists
+                conn.execute(text("""
+                    DO $$ 
+                    BEGIN
+                        IF EXISTS (
+                            SELECT 1 FROM pg_constraint 
+                            WHERE conname = 'step_results_run_id_doc_id_step_index_key'
+                        ) THEN
+                            ALTER TABLE step_results DROP CONSTRAINT step_results_run_id_doc_id_step_index_key;
+                        END IF;
+                        IF EXISTS (
+                            SELECT 1 FROM pg_constraint 
+                            WHERE conname = 'uq_step_result'
+                        ) THEN
+                            ALTER TABLE step_results DROP CONSTRAINT uq_step_result;
+                        END IF;
+                    END $$;
+                """))
+                conn.commit()
+                
+                # Create new unique index with COALESCE for NULL handling
+                conn.execute(text("""
+                    DROP INDEX IF EXISTS uq_step_result_with_task;
+                    CREATE UNIQUE INDEX IF NOT EXISTS uq_step_result_with_task 
+                    ON step_results (run_id, doc_id, step_index, COALESCE(task_id, ''));
+                """))
+                conn.commit()
+                logger.info("Updated step_results constraint for CSV workflows")
+        except Exception as e:
+            logger.warning(f"Could not update step_results constraint: {e}")
+    
     logger.info("Database initialized and tables created if needed")
 
 
@@ -451,8 +488,12 @@ class BulkDocDBService:
             return self._build_chain_from_version(db_version, db)
 
     # -------- Run Management --------
-    def create_run(self, session_id: str, chain_version_id: str) -> Run:
+    def create_run(self, session_id: str, chain_version_id: str, workflow_version_id: Optional[str] = None) -> Run:
         """Create a new run."""
+        from .models import WorkflowVersion, IngestionProfile, ExecutionTask as DBExecutionTask
+        import pandas as pd
+        import json
+        
         run_id = str(uuid.uuid4())
         now = datetime.utcnow().isoformat() + "Z"
 
@@ -463,6 +504,20 @@ class BulkDocDBService:
             ).first()
             if not chain_version:
                 raise ValueError(f"Chain version {chain_version_id} not found")
+
+            # Get workflow version if provided
+            ingestion_profile = None
+            is_csv_workflow = False
+            if workflow_version_id:
+                workflow_version = db.query(WorkflowVersion).filter(
+                    WorkflowVersion.workflow_version_id == workflow_version_id
+                ).first()
+                if workflow_version:
+                    ingestion_profile = db.query(IngestionProfile).filter(
+                        IngestionProfile.ingestion_profile_id == workflow_version.ingestion_profile_id
+                    ).first()
+                    if ingestion_profile and 'CSV' in ingestion_profile.accepted_input_types:
+                        is_csv_workflow = True
 
             # Get all documents in session
             db_docs = db.query(DBDocument).filter(DBDocument.session_id == session_id).all()
@@ -479,22 +534,69 @@ class BulkDocDBService:
                 run_id=run_id,
                 session_id=session_id,
                 chain_version_id=chain_version_id,
+                workflow_version_id=workflow_version_id,
                 status="QUEUED",
             )
             db.add(db_run)
             db.flush()
 
-            # Create step result records for each doc/step
-            for db_doc in db_docs:
-                for step_idx in range(1, chain_version.step_count + 1):
-                    db_step_result = DBStepResult(
-                        id=str(uuid.uuid4()),
-                        run_id=run_id,
-                        doc_id=db_doc.doc_id,
-                        step_index=step_idx,
-                        status="QUEUED",
-                    )
-                    db.add(db_step_result)
+            # Handle CSV workflows: create execution_tasks per row
+            if is_csv_workflow:
+                for db_doc in db_docs:
+                    if db_doc.file_type != 'CSV':
+                        continue
+                    
+                    # Load CSV file
+                    storage_base = Path("data/ai_bulk_doc_analysis")
+                    csv_path = storage_base / db_doc.object_storage_key if db_doc.object_storage_key else None
+                    if not csv_path or not csv_path.exists():
+                        logger.warning(f"CSV file not found for doc {db_doc.doc_id}")
+                        continue
+                    
+                    try:
+                        df = pd.read_csv(csv_path)
+                        
+                        # Create execution_task for each row
+                        for row_index, row in df.iterrows():
+                            task_id = f"task_{run_id}_{db_doc.doc_id}_{row_index}"
+                            row_data = row.to_dict()
+                            
+                            db_task = DBExecutionTask(
+                                task_id=task_id,
+                                run_id=run_id,
+                                doc_id=db_doc.doc_id,
+                                row_index=int(row_index),
+                                row_data=row_data,  # JSONB
+                                status="QUEUED"
+                            )
+                            db.add(db_task)
+                            
+                            # Create step result records for each task/step
+                            for step_idx in range(1, chain_version.step_count + 1):
+                                db_step_result = DBStepResult(
+                                    id=str(uuid.uuid4()),
+                                    run_id=run_id,
+                                    doc_id=db_doc.doc_id,
+                                    task_id=task_id,  # Link to task
+                                    step_index=step_idx,
+                                    status="QUEUED",
+                                )
+                                db.add(db_step_result)
+                    except Exception as e:
+                        logger.error(f"Error processing CSV {db_doc.doc_id}: {e}", exc_info=True)
+                        raise ValueError(f"CSV processing error: {str(e)}")
+            else:
+                # Non-CSV: create step result records for each doc/step
+                for db_doc in db_docs:
+                    for step_idx in range(1, chain_version.step_count + 1):
+                        db_step_result = DBStepResult(
+                            id=str(uuid.uuid4()),
+                            run_id=run_id,
+                            doc_id=db_doc.doc_id,
+                            step_index=step_idx,
+                            status="QUEUED",
+                        )
+                        db.add(db_step_result)
 
             db.commit()
 
@@ -591,7 +693,9 @@ class BulkDocDBService:
             db.commit()
 
     def get_run_progress(self, run_id: str) -> Dict:
-        """Get run progress with per-document status."""
+        """Get run progress with per-document or per-task status."""
+        from .models import ExecutionTask as DBExecutionTask
+        
         with get_db_session() as db:
             db_run = db.query(DBRun).filter(DBRun.run_id == run_id).first()
             if not db_run:
@@ -603,47 +707,94 @@ class BulkDocDBService:
             if not chain_version:
                 raise ValueError(f"Chain version {db_run.chain_version_id} not found")
 
-            # Get all documents in run
-            doc_ids = set()
-            step_results = db.query(DBStepResult).filter(DBStepResult.run_id == run_id).all()
-            for sr in step_results:
-                doc_ids.add(sr.doc_id)
+            # Check if CSV workflow (has execution_tasks)
+            tasks = db.query(DBExecutionTask).filter(DBExecutionTask.run_id == run_id).all()
+            is_csv_workflow = len(tasks) > 0
 
-            rows = []
-            for doc_id in doc_ids:
-                # Get document
-                db_doc = db.query(DBDocument).filter(DBDocument.doc_id == doc_id).first()
-                if not db_doc:
-                    continue
+            if is_csv_workflow:
+                # CSV workflow: show per-task progress
+                rows = []
+                for task in tasks:
+                    # Get step results for this task
+                    task_results = db.query(DBStepResult).filter(
+                        DBStepResult.run_id == run_id,
+                        DBStepResult.task_id == task.task_id
+                    ).all()
+                    
+                    completed_steps = sum(1 for sr in task_results if sr.status == 'SUCCESS')
+                    failed_steps = sum(1 for sr in task_results if sr.status == 'ERROR')
+                    total_steps = chain_version.step_count
+                    
+                    rows.append({
+                        "doc_id": task.doc_id,
+                        "task_id": task.task_id,
+                        "row_index": task.row_index,
+                        "status": task.status,
+                        "completed_steps": completed_steps,
+                        "failed_steps": failed_steps,
+                        "total_steps": total_steps,
+                        "progress_pct": (completed_steps / total_steps * 100) if total_steps > 0 else 0,
+                    })
+                
+                # Aggregate stats
+                total_tasks = len(tasks)
+                completed_tasks = sum(1 for t in tasks if t.status == 'SUCCESS')
+                failed_tasks = sum(1 for t in tasks if t.status == 'ERROR')
+                
+                return {
+                    "run_id": run_id,
+                    "status": db_run.status,
+                    "is_csv_workflow": True,
+                    "total_tasks": total_tasks,
+                    "completed_tasks": completed_tasks,
+                    "failed_tasks": failed_tasks,
+                    "in_progress_tasks": total_tasks - completed_tasks - failed_tasks,
+                    "tasks": rows,
+                    "total_input_tokens": db_run.total_input_tokens or 0,
+                    "total_output_tokens": db_run.total_output_tokens or 0,
+                }
+            else:
+                # Non-CSV workflow: show per-document progress
+                doc_ids = set()
+                step_results = db.query(DBStepResult).filter(DBStepResult.run_id == run_id).all()
+                for sr in step_results:
+                    doc_ids.add(sr.doc_id)
 
-                # Get step results for this doc
-                doc_step_results = [sr for sr in step_results if sr.doc_id == doc_id]
-                doc_step_results.sort(key=lambda x: x.step_index)
+                rows = []
+                for doc_id in doc_ids:
+                    # Get document
+                    db_doc = db.query(DBDocument).filter(DBDocument.doc_id == doc_id).first()
+                    if not db_doc:
+                        continue
 
-                # Determine status
-                step_statuses = [sr.status for sr in doc_step_results]
-                max_step = max([sr.step_index for sr in doc_step_results], default=0)
-                step_label = f"R{max_step}" if max_step > 0 else "R0"
+                    # Get step results for this doc
+                    doc_step_results = [sr for sr in step_results if sr.doc_id == doc_id]
+                    doc_step_results.sort(key=lambda x: x.step_index)
 
-                # Aggregate tokens
-                total_input_tokens = sum(sr.input_tokens or 0 for sr in doc_step_results)
-                total_output_tokens = sum(sr.output_tokens or 0 for sr in doc_step_results)
+                    # Determine status
+                    step_statuses = [sr.status for sr in doc_step_results]
+                    max_step = max([sr.step_index for sr in doc_step_results], default=0)
+                    step_label = f"R{max_step}" if max_step > 0 else "R0"
 
-                # Determine doc status
-                if all(s == "SUCCESS" for s in step_statuses) and len(step_statuses) == chain_version.step_count:
-                    doc_status = "SUCCESS"
-                    can_download = True
-                elif any(s == "ERROR" for s in step_statuses):
-                    doc_status = "ERROR"
-                    can_download = False
-                elif any(s == "RUNNING" for s in step_statuses):
-                    doc_status = "RUNNING"
-                    can_download = False
-                else:
-                    doc_status = step_statuses[-1] if step_statuses else "QUEUED"
-                    can_download = False
+                    # Aggregate tokens
+                    total_input_tokens = sum(sr.input_tokens or 0 for sr in doc_step_results)
+                    total_output_tokens = sum(sr.output_tokens or 0 for sr in doc_step_results)
 
-                rows.append({
+                    # Determine doc status
+                    if all(s == "SUCCESS" for s in step_statuses) and len(step_statuses) == chain_version.step_count:
+                        doc_status = "SUCCESS"
+                        can_download = True
+                    elif any(s == "ERROR" for s in step_statuses):
+                        doc_status = "ERROR"
+                        can_download = False
+                    elif any(s == "RUNNING" for s in step_statuses):
+                        doc_status = "RUNNING"
+                        can_download = False
+                    else:
+                        doc_status = step_statuses[-1] if step_statuses else "QUEUED"
+                        can_download = False
+
+                    rows.append({
                     "doc_id": doc_id,
                     "filename": db_doc.original_filename,
                     "step_label": step_label,

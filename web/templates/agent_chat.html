@@ -1091,17 +1091,63 @@
                                 inputEl.placeholder = 'Provide clarification...';
                                 break;
                                 
-                            case 'run_completed':
-                            case 'run_failed':
                             case 'run_blocked':
+                                // Display blocked reason immediately
+                                const blockedReason = payload.reason || 'Query was blocked.';
+                                if (messageEl) {
+                                    messageEl.classList.add('error-message');
+                                }
+                                if (markdownBody && typeof marked !== 'undefined') {
+                                    markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> ' + marked.parse(blockedReason);
+                                } else if (markdownBody) {
+                                    markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> ' + escapeHtml(blockedReason);
+                                }
+                                eventSource.close();
+                                currentEventSource = null;
+                                $('#sendBtn').prop('disabled', false);
+                                isQueryRunning = false;
+                                currentResponseId = null;
+                                break;
+                                
+                            case 'run_failed':
+                                // Display error message immediately
+                                const errorMsg = payload.error || 'An error occurred.';
+                                if (messageEl) {
+                                    messageEl.classList.add('error-message');
+                                }
+                                if (markdownBody && typeof marked !== 'undefined') {
+                                    markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> <strong>Error:</strong> ' + marked.parse(errorMsg);
+                                } else if (markdownBody) {
+                                    markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> <strong>Error:</strong> ' + escapeHtml(errorMsg);
+                                }
+                                eventSource.close();
+                                currentEventSource = null;
+                                $('#sendBtn').prop('disabled', false);
+                                isQueryRunning = false;
+                                currentResponseId = null;
+                                break;
+                                
+                            case 'run_completed':
                                 eventSource.close();
                                 currentEventSource = null;
                                 
-                                // Fetch final run state to get results
+                                // Fetch final run state to get results or check for errors
                                 if (currentRunId) {
                                     API.get(`/api/runs/${currentRunId}`)
                                         .done(function(runData) {
-                                            if (runData.results && messageEl) {
+                                            // Handle error cases (blocked, error, etc.)
+                                            if (runData.error_type) {
+                                                const errorText = runData.result_summary || runData.error_type;
+                                                if (messageEl) {
+                                                    messageEl.classList.add('error-message');
+                                                }
+                                                if (markdownBody && typeof marked !== 'undefined') {
+                                                    markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> ' + marked.parse(errorText);
+                                                } else if (markdownBody) {
+                                                    markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> ' + escapeHtml(errorText);
+                                                }
+                                            } else if (runData.results && messageEl) {
+                                                // Display results if available (success case)
                                                 displaySQLResults(messageEl, {
                                                     columns: Object.keys(runData.results.schema || {}),
                                                     rows: runData.results.rows || [],
@@ -1174,14 +1220,14 @@
         // Re-get elements in case they weren't ready before
         const btn = document.getElementById('sendBtn');
         const input = document.getElementById('chatInput');
-        const newChatBtn = document.getElementById('newChatBtn');
+    const newChatBtn = document.getElementById('newChatBtn');
         
         if (!btn) {
             console.error('[DEBUG] sendBtn not found! Retrying in 100ms...');
             setTimeout(setupEventListeners, 100);
             return;
-        }
-        
+                        }
+                        
         if (!input) {
             console.error('[DEBUG] inputEl not found! Retrying in 100ms...');
             setTimeout(setupEventListeners, 100);
@@ -1203,14 +1249,14 @@
             }
         });
         console.log('[DEBUG] Input keydown listener attached');
-        
-        // New Chat button
-        if (newChatBtn) {
-            newChatBtn.addEventListener('click', function() {
-                if (confirm('Start a new chat? This will clear the current conversation history.')) {
-                    startNewChat();
-                }
-            });
+    
+    // New Chat button
+    if (newChatBtn) {
+        newChatBtn.addEventListener('click', function() {
+            if (confirm('Start a new chat? This will clear the current conversation history.')) {
+                startNewChat();
+            }
+        });
         }
     }
     

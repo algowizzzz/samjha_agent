@@ -43,7 +43,8 @@ class NLToSQLPlannerTool(BaseMCPTool):
             "required": ["query_spec", "query_spec_status"],
             "properties": {
                 "query_spec": {"type": "object"},
-                "query_spec_status": {"type": "object"}
+                "query_spec_status": {"type": "object"},
+                "agent_data_folder": {"type": "string"}  # Optional: for catalog lookup in UNION ALL cases
             }
         }
 
@@ -74,9 +75,28 @@ class NLToSQLPlannerTool(BaseMCPTool):
             raise ValueError("LLM client not available for SQL generation")
         
         # Extract view name from path for SQL generation
+        # Note: If start_table.name is a pattern (contains *), aggregation_plan will handle UNION ALL
         start_table_path = query_spec.get("start_table", {}).get("path", "")
+        start_table_name = query_spec.get("start_table", {}).get("name", "")
         view_name = None
-        if start_table_path:
+        view_hint = ""
+        
+        # Check aggregation_plan structure to determine view hint
+        aggregation_plan = query_spec.get("aggregation_plan", "")
+        is_union_all = False
+        union_pattern = None
+        
+        if isinstance(aggregation_plan, dict):
+            if aggregation_plan.get("aggregation_type") == "union_all_then_group":
+                is_union_all = True
+                union_strategy = aggregation_plan.get("union_strategy", {})
+                union_pattern = union_strategy.get("pattern") or start_table_name
+        elif isinstance(aggregation_plan, str) and "UNION ALL" in aggregation_plan.upper():
+            is_union_all = True
+            union_pattern = start_table_name if "*" in start_table_name else None
+        
+        # Only provide view name hint if it's a concrete table (not a pattern)
+        if start_table_path and "*" not in start_table_name and not is_union_all:
             # Extract just the filename stem (view name)
             # Handles paths like "ECommerce/sample_sales_data.csv" -> "sample_sales_data"
             from pathlib import Path
@@ -84,6 +104,42 @@ class NLToSQLPlannerTool(BaseMCPTool):
             
             # Add explicit view name hint to prompt
             view_hint = f"\n\n=== CRITICAL INSTRUCTION ===\nThe table/view name to use in SQL FROM clause is: {view_name}\n\nDO NOT use:\n- {start_table_path}\n- ECommerce.{view_name}\n- {Path(start_table_path).name}\n\nDO use:\n- {view_name}\n\nExample: SELECT * FROM {view_name} LIMIT 5;\n===================\n"
+        elif is_union_all and union_pattern:
+            # UNION ALL case - provide pattern and list matching views if available
+            from external.tools.parquet_agent.catalog_data import CatalogDataTool
+            try:
+                # Try to get agent_data_folder from arguments (passed from executor state)
+                agent_data_folder = arguments.get("agent_data_folder")
+                # Fallback: try to extract from path if not provided (for backward compatibility)
+                if not agent_data_folder:
+                    start_table_path = query_spec.get("start_table", {}).get("path", "")
+                    # If path starts with agent folder (e.g., "ecommerce_advanced/feb012024/..."), extract it
+                    if "/" in start_table_path:
+                        # Try first part as agent folder, but validate it exists in datawarehouse
+                        potential_folder = start_table_path.split("/")[0]
+                        import os
+                        from pathlib import Path
+                        warehouse_root = Path("external/datawarehouse")
+                        if (warehouse_root / potential_folder).exists():
+                            agent_data_folder = potential_folder
+                
+                if agent_data_folder:
+                    catalog_tool = CatalogDataTool()
+                    catalog_result = catalog_tool.execute({"agent_data_folder": agent_data_folder})
+                    import fnmatch
+                    matching_views = [e.get("view_name") for e in catalog_result.get("entries", []) if fnmatch.fnmatch(e.get("view_name", ""), union_pattern)]
+                    if matching_views:
+                        views_list = ", ".join(matching_views)
+                        view_hint = f"\n\n=== CRITICAL INSTRUCTION ===\nUNION ALL required: Pattern {union_pattern}\nMatching views: {views_list}\nGenerate: SELECT * FROM {matching_views[0]} UNION ALL SELECT * FROM {matching_views[1] if len(matching_views) > 1 else matching_views[0]} UNION ALL ...\nThen wrap in subquery and GROUP BY as specified in aggregation_plan.\n===================\n"
+                    else:
+                        view_hint = f"\n\n=== CRITICAL INSTRUCTION ===\nUNION ALL required: Pattern {union_pattern}\nFind all views matching this pattern and UNION them.\n===================\n"
+                else:
+                    view_hint = f"\n\n=== CRITICAL INSTRUCTION ===\nUNION ALL required: Pattern {union_pattern}\nFind all views matching this pattern and UNION them.\n===================\n"
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.warning(f"Failed to get matching views for UNION ALL: {e}")
+                view_hint = f"\n\n=== CRITICAL INSTRUCTION ===\nUNION ALL required: Pattern {union_pattern}\nFind all views matching this pattern and UNION them.\n===================\n"
         else:
             view_hint = ""
         

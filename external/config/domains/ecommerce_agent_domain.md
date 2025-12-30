@@ -31,6 +31,18 @@
 
 ---
 
+## 3.5) Data Structure and Path Extraction
+
+Data files are organized in a flat structure.
+
+**Path Extraction Instructions:**
+- Table names from Section 4 (default_start_table_hint) correspond to CSV files
+- Path extraction: Construct paths as `{table_name}.csv`
+- Example: `sample_sales_data` → `sample_sales_data.csv`
+- No subfolders: paths are flat (filename only)
+
+---
+
 ## 4) Core entities (hints only)
 
 - primary_entities:
@@ -161,6 +173,7 @@
   - metric_name: revenue
     definition: Sum of (quantity * price)
     required_tables: ["sample_sales_data"]
+    usage_notes: "DEFAULT meaning of 'sales' when the user says 'sales' without specifying quantity vs revenue. Prefer revenue unless user explicitly requests quantity/order_count."
 
   - metric_name: order_count
     definition: Count of distinct order_id
@@ -207,3 +220,109 @@
 - Time defaults are **optional**, not mandatory.
 - If the user does not request time, use `no_time`.
 - Investigation should always precede clarification.
+- Default interpretation (PM policy): If user says "top products by sales" and doesn't specify, interpret "sales" as **revenue** (SUM(quantity * price)) and default to top 10 unless user specifies N.
+
+---
+
+## 11) Example Patterns (LLM Reference Examples)
+
+This section provides concrete examples for the LLM to understand how to process queries for this dataset. **System prompts should reference this section instead of using hardcoded examples.**
+
+### 11.1 User Query → Query Spec Examples
+
+| User Query | metrics | dimensions | filters | sorting | limit | grain |
+|------------|---------|------------|---------|---------|-------|-------|
+| "top products by sales" | [{"name": "revenue", "definition": "Sum of (quantity * price)"}] | ["product"] | - | {"order_by": ["revenue"], "direction": "DESC"} | 10 | "one row per product" |
+| "revenue by region" | [{"name": "revenue", "definition": "Sum of (quantity * price)"}] | ["region"] | - | - | - | "one row per region" |
+| "sales by category" | [{"name": "revenue", "definition": "Sum of (quantity * price)"}] | ["category"] | - | - | - | "one row per category" |
+| "revenue by region and category" | [{"name": "revenue", "definition": "Sum of (quantity * price)"}] | ["region", "category"] | - | - | - | "one row per region-category combination" |
+| "order count by region" | [{"name": "order_count", "definition": "Count of distinct order_id"}] | ["region"] | - | - | - | "one row per region" |
+
+### 11.2 Dimension Inference Examples
+
+| User Language | Dimension Found | Column Used | Table |
+|---------------|-----------------|-------------|-------|
+| "by region" | region | region | sample_sales_data |
+| "top products" | product | product | sample_sales_data |
+| "by category" | category | category | sample_sales_data |
+| "by customer" | customer_id | customer_id | sample_sales_data |
+| "over time" / "by date" | order_date | order_date | sample_sales_data |
+
+### 11.3 Metric Calculation Examples
+
+| Metric Name | Definition (Natural) | SQL Expression |
+|-------------|---------------------|----------------|
+| revenue | "Sum of (quantity * price)" | `SUM(quantity * price) AS revenue` |
+| order_count | "Count of distinct order_id" | `COUNT(DISTINCT order_id) AS order_count` |
+| avg_order_value | "revenue / order_count" | `SUM(quantity * price) / COUNT(DISTINCT order_id) AS avg_order_value` |
+| stock_value | "Sum of (stock_quantity * unit_cost)" | `SUM(stock_quantity * unit_cost) AS stock_value` |
+
+**Metric Expansion Example:**
+- Query: "average order value"
+- `avg_order_value = revenue / order_count`
+- `revenue = Sum of (quantity * price)` → `SUM(quantity * price)`
+- `order_count = Count of distinct order_id` → `COUNT(DISTINCT order_id)`
+- Final SQL: `SUM(quantity * price) / COUNT(DISTINCT order_id) AS avg_order_value`
+
+### 11.4 Filter Pattern Examples
+
+| User Language | Filter Generated |
+|---------------|------------------|
+| "only East" / "for East region" | `{"field": "region", "op": "=", "value": "East"}` |
+| "Electronics only" | `{"field": "category", "op": "=", "value": "Electronics"}` |
+| "in 2024" | `{"field": "order_date", "op": "BETWEEN", "start": "2024-01-01", "end": "2024-12-31"}` |
+| "for customer C001" | `{"field": "customer_id", "op": "=", "value": "C001"}` |
+| "Laptop only" | `{"field": "product", "op": "=", "value": "Laptop"}` |
+
+### 11.5 Join Detection Examples
+
+| Query Pattern | Start Table | Join Table | Join Required | Join Condition |
+|---------------|-------------|------------|---------------|----------------|
+| "sales with customer info" | sample_sales_data | sample_customer_data | Yes | `sample_sales_data.customer_id = sample_customer_data.customer_id` |
+| "sales with inventory cost" | sample_sales_data | sample_inventory_data | Yes | `sample_sales_data.product = sample_inventory_data.product_name` |
+| "revenue by region" | sample_sales_data | - | No | - |
+| "top products" | sample_sales_data | - | No | - |
+
+### 11.6 Sorting and Limit Examples
+
+| User Language | sorting | limit |
+|---------------|---------|-------|
+| "top 5 products" | `{"order_by": ["revenue"], "direction": "DESC"}` | 5 |
+| "top 10 by revenue" | `{"order_by": ["revenue"], "direction": "DESC"}` | 10 |
+| "lowest 3 by sales" | `{"order_by": ["revenue"], "direction": "ASC"}` | 3 |
+| "ordered by date" | `{"order_by": ["order_date"], "direction": "ASC"}` | null |
+
+### 11.7 Grain Derivation Examples
+
+| Dimensions Array | Grain |
+|------------------|-------|
+| `["region"]` | "one row per region" |
+| `["product"]` | "one row per product" |
+| `["category"]` | "one row per category" |
+| `["region", "category"]` | "one row per region-category combination" |
+| `["order_date"]` | "one row per order_date" |
+| `[]` | "one row total" |
+
+### 11.8 Follow-Up Query Examples
+
+| Prior Query | Follow-Up | Action | Result |
+|-------------|-----------|--------|--------|
+| "revenue by region" | "what about by product too?" | Append dimension | dimensions: ["region", "product"] |
+| "revenue by region" | "only for East" | Add filter, clear dimension | filters: [region=East], dimensions: [] |
+| "revenue by region" | "order count instead" | Replace metric | metrics: [order_count] |
+| "sales in 2024" | "what about just January?" | Update time | time: {order_date BETWEEN 2024-01-01 AND 2024-01-31} |
+
+### 11.9 Error Recovery Examples
+
+| Error Type | Example Message |
+|------------|-----------------|
+| column_not_found | "I can't find `promo_code` in this dataset. Did you mean `product` or `category`?" |
+| ambiguous_metric | "By 'sales', did you mean revenue (total value) or order_count (number of orders)?" |
+
+### 11.10 Table/View Reference Examples
+
+| Entity | Table Name | Path |
+|--------|------------|------|
+| sales | sample_sales_data | sample_sales_data.csv |
+| customers | sample_customer_data | sample_customer_data.csv |
+| inventory | sample_inventory_data | sample_inventory_data.csv |

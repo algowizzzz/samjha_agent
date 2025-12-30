@@ -56,10 +56,61 @@
     "dimensions": { "type": "array" },
     "filters": { "type": "array" },
     "joins": { "type": "array" },
-    "aggregation_plan": { "type": "string" },
+    "aggregation_plan": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "aggregation_type": {
+              "type": "string",
+              "enum": ["union_all_then_group", "single_table", "join_then_group"]
+            },
+            "union_strategy": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "pattern": { "type": "string" },
+                "tables": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              },
+              "required": ["pattern"]
+            },
+            "group_by": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "description": { "type": "string" }
+          },
+          "required": ["aggregation_type"]
+        }
+      ]
+    },
     "validation_checks": { "type": "array" },
     "performance_guardrails": { "type": "array" },
     "defaults_used": { "type": "array" },
-    "open_questions": { "type": "array" }
+    "open_questions": { "type": "array" },
+    "sorting": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "order_by": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["ASC", "DESC"]
+        }
+      },
+      "required": ["order_by", "direction"]
+    },
+    "limit": {
+      "type": ["integer", "null"],
+      "minimum": 1
+    }
   }
 }

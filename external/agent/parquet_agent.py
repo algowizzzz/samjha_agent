@@ -27,7 +27,7 @@ def load_domain_md(user_query: str, conversation_history: list, agent_id: Option
             
             with get_db_session() as db:
                 agent = get_agent_db(db, agent_id)
-                if agent:
+            if agent:
                     domain_content = agent.get("domain_content")
                     if domain_content:
                         return domain_content
@@ -83,7 +83,11 @@ def render_success(executor_report: dict, state: Optional[ControllerState] = Non
         "results": executor_report.get("results")  # Include results for UI table display
     }
     # Include query_spec and query_spec_status for building prior_state in next query
-    if state:
+    # Prefer executor_report's updated query_spec (includes aggregation_plan, etc.) over Controller state
+    if executor_report.get("query_spec"):
+        result["query_spec"] = executor_report.get("query_spec", {})
+        result["query_spec_status"] = executor_report.get("query_spec_status", {})
+    elif state:
         result["query_spec"] = state.get("query_spec", {})
         result["query_spec_status"] = state.get("query_spec_status", {})
         # Optional UI trace: decider thinking (only when requested)
@@ -160,14 +164,33 @@ def initialize_controller_state(
     
     # Load agent config if agent_id provided
     agent_data_folder = None
+    agent_model = None
     if agent_id:
         try:
-            from external.agent.agent_registry import get_agent
-            agent = get_agent(agent_id)
+            from core.db.session import get_db_session
+            from external.agent.persistence import get_agent_db
+            with get_db_session() as db:
+                agent = get_agent_db(db, agent_id)
             if agent:
                 agent_data_folder = agent.get("data_folder")
+                    agent_model = agent.get("model") or "claude-3-haiku-20240307"  # Default to Haiku
         except Exception as e:
             logger.warning(f"Error loading agent config for {agent_id}: {e}")
+        
+        # Fallback to file-based agent registry if not in DB
+        if not agent_data_folder and not agent_model:
+            try:
+                from external.agent.agent_registry import get_agent
+                agent_dict = get_agent(agent_id)
+                if agent_dict:
+                    agent_data_folder = agent_dict.get("data_folder")
+                    agent_model = agent_dict.get("model") or "claude-3-haiku-20240307"  # Default to Haiku
+            except Exception as e:
+                logger.warning(f"Error loading agent config from file for {agent_id}: {e}")
+    
+    # Ensure agent_model has a default value
+    if agent_model is None:
+        agent_model = "claude-3-haiku-20240307"
     
     return {
         "user_query": user_query,
@@ -217,6 +240,7 @@ def handle_query(
         tools_config_dir = Path("external/config/tools")
         for tool_config in tools_config_dir.glob("*.json"):
             if tool_config.stem in [
+                "catalog_data",
                 "list_dir", "inspect_table", "preview_rows", "search_glossary",
                 "nl_to_sql_planner", "sql_plan_updater", "query_safety_validator",
                 "execute_sql", "query_result_evaluator"
@@ -283,8 +307,8 @@ def handle_query(
             # Preserve business_question if empty
             if not new_query_spec.get("business_question") and prior_spec.get("business_question"):
                 if query_type == "FOLLOW_UP":
-                    # For follow-ups, combine prior question with new context
-                    new_query_spec["business_question"] = f"Follow-up: {state['user_query']} (based on: {prior_spec['business_question']})"
+                # For follow-ups, combine prior question with new context
+                new_query_spec["business_question"] = f"Follow-up: {state['user_query']} (based on: {prior_spec['business_question']})"
                 else:
                     # For retries, keep the same business question baseline
                     new_query_spec["business_question"] = prior_spec["business_question"]

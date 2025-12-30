@@ -25,7 +25,11 @@ class InspectTableTool(BaseMCPTool):
             "type": "object",
             "required": ["path"],
             "properties": {
-                "path": {"type": "string"}
+                "path": {"type": "string"},
+                "agent_data_folder": {
+                    "type": ["string", "null"],
+                    "description": "Optional agent folder for scoping (path is interpreted relative to this folder)",
+                },
             }
         }
 
@@ -53,7 +57,11 @@ class InspectTableTool(BaseMCPTool):
 
     def execute(self, arguments):
         path = arguments["path"]
-        full_path = self.base_path / path
+        agent_data_folder = (arguments.get("agent_data_folder") or "").strip()
+        if agent_data_folder:
+            full_path = self.base_path / agent_data_folder / path
+        else:
+            full_path = self.base_path / path
         
         if not full_path.exists():
             raise ValueError(f"File not found: {path}")

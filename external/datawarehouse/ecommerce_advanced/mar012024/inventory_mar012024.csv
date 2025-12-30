@@ -1,0 +1,11 @@
+report_date,product_id,product_name,category,stock_quantity,reorder_level,unit_cost,unit_price,supplier
+2024-03-01,P001,Laptop Pro 15,Electronics,25,20,950.0,1200.0,TechSupply Inc
+2024-03-01,P002,Wireless Mouse,Electronics,230,50,18.0,25.5,AccessoryCo
+2024-03-01,P003,Mechanical Keyboard,Electronics,100,30,55.0,75.0,KeyTech Ltd
+2024-03-01,P004,4K Monitor 27in,Electronics,55,15,275.0,350.0,DisplayPro
+2024-03-01,P005,Executive Desk,Furniture,10,10,320.0,450.0,OfficeFurnish
+2024-03-01,P006,Ergonomic Chair,Furniture,65,20,150.0,200.0,SeatComfort
+2024-03-01,P007,Laptop Ultra 13,Electronics,15,15,1050.0,1350.0,TechSupply Inc
+2024-03-01,P008,Budget Mouse,Electronics,380,100,15.0,22.0,AccessoryCo
+2024-03-01,P009,Standing Desk,Furniture,5,8,350.0,475.0,OfficeFurnish
+2024-03-01,P010,Gaming Monitor 32in,Electronics,35,12,300.0,380.0,DisplayPro

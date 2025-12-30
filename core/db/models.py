@@ -36,6 +36,12 @@ class Agent(Base):
     data_folder: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
     model: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)  # LLM model (e.g., claude-3-5-sonnet-20241022)
 
+    # Web search specific fields (for agent_type="external")
+    tavily_api_key: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # Encrypted Tavily API key
+    search_scope_allowed_domains: Mapped[Optional[list]] = mapped_column(JSON, nullable=True)  # Allowed domains override
+    search_scope_blocked_domains: Mapped[Optional[list]] = mapped_column(JSON, nullable=True)  # Blocked domains override
+    default_research_depth: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)  # quick|standard|deep
+
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow, nullable=False)
 

@@ -1,0 +1,5 @@
+ticket_id,recommended_ingestion_mode,recommended_output,notes
+TCK-001,vision,md,Ticket mentions scanned pages where programmatic text extraction may fail; vision ingestion is recommended to recover content.
+TCK-002,programmatic,json,Task is requirement extraction and summarization; programmatic ingestion plus structured JSON output supports downstream compilation.
+TCK-003,programmatic,json,Checklist conversion is best produced as structured JSON; programmatic ingestion is sufficient for SOP text.
+TCK-004,programmatic,csv,Request is explicitly for compiled CSV reporting; generate structured per-row JSON then compile to CSV deterministically.

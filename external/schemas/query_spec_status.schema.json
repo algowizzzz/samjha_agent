@@ -40,7 +40,9 @@
     "joins": { "$ref": "#/$defs/status_item" },
     "aggregation_plan": { "$ref": "#/$defs/status_item" },
     "validation_checks": { "$ref": "#/$defs/status_item" },
-    "performance_guardrails": { "$ref": "#/$defs/status_item" }
+    "performance_guardrails": { "$ref": "#/$defs/status_item" },
+    "sorting": { "$ref": "#/$defs/status_item" },
+    "limit": { "$ref": "#/$defs/status_item" }
   }
 }
 

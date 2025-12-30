@@ -1,0 +1,6 @@
+{
+  "ticket_id": "TCK-004",
+  "recommended_ingestion_mode": "programmatic",
+  "recommended_output": "csv",
+  "notes": "Request is explicitly for compiled CSV reporting; generate structured per-row JSON then compile to CSV deterministically."
+}

@@ -281,6 +281,22 @@ def _run_agent_async(
         return
     
     try:
+        # Load agent to determine agent_type
+        with get_db_session() as db:
+            agent = get_agent_db(db, agent_id)
+            if not agent:
+                # Fallback to file-based registry
+                agent_dict = get_agent(agent_id)
+                if not agent_dict:
+                    raise ValueError(f"Agent {agent_id} not found")
+                agent = {
+                    "id": agent_dict.get("id"),
+                    "name": agent_dict.get("name"),
+                    "agent_type": agent_dict.get("agent_type", "structured"),
+                    "data_folder": agent_dict.get("data_folder"),
+                }
+            agent_type = agent.get("agent_type", "structured")
+        
         # Load conversation history
         from core.db.models import Message, Run, RunResult
         from sqlalchemy import select
@@ -340,11 +356,20 @@ def _run_agent_async(
                 "candidate_columns": [],
             }
 
+            # Handle prior state based on agent_type
+            prior_research_spec = {}
+            prior_research_spec_status = {}
+            
             if last_run is not None:
                 dj = last_run.decider_output_json if isinstance(last_run.decider_output_json, dict) else None
                 if isinstance(dj, dict):
-                    prior_query_spec = dj.get("query_spec") or {}
-                    prior_query_spec_status = dj.get("query_spec_status") or {}
+                    # Check if this is a web research agent (has research_spec) or structured (has query_spec)
+                    if "research_spec" in dj:
+                        prior_research_spec = dj.get("research_spec") or {}
+                        prior_research_spec_status = dj.get("research_spec_status") or {}
+                    else:
+                        prior_query_spec = dj.get("query_spec") or {}
+                        prior_query_spec_status = dj.get("query_spec_status") or {}
                     last_run_context["last_action"] = str(dj.get("action") or "")
                     last_run_context["last_query_type"] = str(dj.get("query_type") or "")
 
@@ -401,13 +426,23 @@ def _run_agent_async(
             except Exception:
                 pass
 
-            continuity_packet = {
-                "prior_query_spec": prior_query_spec,
-                "prior_query_spec_status": prior_query_spec_status,
-                "conversation_history": conversation_history,
-                "last_run_context": last_run_context,
-                "pending_clarification": pending_clarification,
-            }
+            # Build continuity packet based on agent_type
+            if agent_type == "external":
+                continuity_packet = {
+                    "prior_research_spec": prior_research_spec,
+                    "prior_research_spec_status": prior_research_spec_status,
+                    "conversation_history": conversation_history,
+                    "last_run_context": last_run_context,
+                    "pending_clarification": pending_clarification,
+                }
+            else:
+                continuity_packet = {
+                    "prior_query_spec": prior_query_spec,
+                    "prior_query_spec_status": prior_query_spec_status,
+                    "conversation_history": conversation_history,
+                    "last_run_context": last_run_context,
+                    "pending_clarification": pending_clarification,
+                }
         
         # Call agent handler (with cancellation check wrapper)
         # Note: Full event instrumentation would require modifying handle_query itself
@@ -421,51 +456,86 @@ def _run_agent_async(
                 db.commit()
             return
         
-        # Build a minimal ControllerState-like prior_state (pre-SSE continuity used in-memory session state).
-        # This keeps structured spec/status stable across turns without forcing deterministic routing.
-        # Load agent model configuration
-        agent_model = None
-        if agent_id:
-            try:
-                agent = get_agent_db(db, agent_id)
-                if agent:
-                    agent_model = agent.get("model") or "claude-3-5-sonnet-20241022"
-            except Exception as e:
-                logger.warning(f"Error loading agent model for {agent_id}: {e}")
+        # Build prior_state based on agent_type
+        if agent_type == "external":
+            # Web research agent - different state structure
+            # Web research will initialize its own state, but we can pass continuity_packet
+            prior_state = None
+        else:
+            # Structured agent - load agent model and data folder
+            agent_model = None
+            agent_data_folder = None
+            with get_db_session() as db:
+                if agent_id:
+                    try:
+                        agent = get_agent_db(db, agent_id)
+                        if agent:
+                            agent_model = agent.get("model") or "claude-3-sonnet-20240229"
+                            agent_data_folder = agent.get("data_folder")
+                    except Exception as e:
+                        logger.warning(f"Error loading agent config for {agent_id}: {e}")
+            
+            prior_state = {
+                "user_query": user_query,  # will be overwritten by initialize_controller_state
+                "conversation_history": conversation_history,
+                "domain_md": load_domain_md(user_query, conversation_history, agent_id=agent_id),
+                "policy_limits": {
+                    "max_attempts": 3,
+                    "max_rows": 5000,
+                    "timeout_seconds": 30,
+                    "allow_cross_join": False,
+                },
+                "query_spec": prior_query_spec,
+                "query_spec_status": prior_query_spec_status,
+                "show_thinking": bool(show_thinking),
+                "thinking_trace": None,
+                "last_executor_report": None,
+                "attempt_count": 0,
+                "agent_id": agent_id,
+                "agent_data_folder": agent_data_folder,  # Load from DB, not None
+                "agent_model": agent_model,  # Store agent's configured model
+                # Keep for prompt consumption (decider.py will include this in context)
+                "continuity_packet": continuity_packet,
+            }
         
-        prior_state = {
-            "user_query": user_query,  # will be overwritten by initialize_controller_state
-            "conversation_history": conversation_history,
-            "domain_md": load_domain_md(user_query, conversation_history, agent_id=agent_id),
-            "policy_limits": {
-                "max_attempts": 3,
-                "max_rows": 5000,
-                "timeout_seconds": 30,
-                "allow_cross_join": False,
-            },
-            "query_spec": prior_query_spec,
-            "query_spec_status": prior_query_spec_status,
-            "show_thinking": bool(show_thinking),
-            "thinking_trace": None,
-            "last_executor_report": None,
-            "attempt_count": 0,
-            "agent_id": agent_id,
-            "agent_data_folder": None,
-            "agent_model": agent_model,  # Store agent's configured model
-            # Keep for prompt consumption (decider.py will include this in context)
-            "continuity_packet": continuity_packet,
-        }
-
-        result = handle_query(
-            user_query=user_query,
-            conversation_history=conversation_history,
-            prior_state=prior_state,
-            tools_registry=None,  # Will use default
-            policy_limits=None,
-            show_thinking=show_thinking,
-            agent_id=agent_id,
-            on_decider_output=lambda decider_output, _state: _persist_decider_output(run_id, decider_output),
-        )
+        # Route to appropriate handler based on agent_type
+        agent_type = agent.get("agent_type") if agent else "structured"
+        
+        if agent_type == "external":
+            # Web research agent
+            from external.agent.web_research_agent import handle_web_research_query
+            # Build continuity_packet for web research
+            web_continuity_packet = {
+                "prior_research_spec": prior_research_spec,
+                "prior_research_spec_status": prior_research_spec_status,
+                "conversation_history": conversation_history,
+                "last_run_context": last_run_context,
+                "pending_clarification": pending_clarification,
+            }
+            result = handle_web_research_query(
+                user_query=user_query,
+                conversation_history=conversation_history,
+                prior_state=None,  # Web research will initialize its own state
+                tools_registry=None,  # Will use default
+                policy_limits=None,
+                show_thinking=show_thinking,
+                agent_id=agent_id,
+                on_decider_output=lambda decider_output, _state: _persist_decider_output(run_id, decider_output),
+                continuity_packet=web_continuity_packet,
+            )
+        else:
+            # Structured agent (default)
+            from external.agent.parquet_agent import handle_query
+            result = handle_query(
+                user_query=user_query,
+                conversation_history=conversation_history,
+                prior_state=prior_state,
+                tools_registry=None,  # Will use default
+                policy_limits=None,
+                show_thinking=show_thinking,
+                agent_id=agent_id,
+                on_decider_output=lambda decider_output, _state: _persist_decider_output(run_id, decider_output),
+            )
         
         if _is_run_cancelled(run_id):
             _emit_event(run_id, "run_cancelled", {})
@@ -478,41 +548,86 @@ def _run_agent_async(
         status = result.get("status")
         
         if status == "SUCCESS":
-            final_sql = result.get("final_sql", "")
-            # Use finished_output (LLM commentary) if available, fallback to result_summary
-            finished_output = result.get("finished_output", "")
-            result_summary = result.get("result_summary", "")
-            # Prefer finished_output (LLM-generated commentary) over result_summary (basic string)
-            response_text = finished_output if finished_output else result_summary
-            results = result.get("results", {})
-            
-            # Save results to DB
-            # Transform results from executor format to DB format
-            # Executor format: {"columns": [...], "rows_preview": [...]}
-            # DB format: {"schema": {col_name: type, ...}, "rows": [...]}
-            columns = results.get("columns", [])
-            rows_preview = results.get("rows_preview", [])
-            
-            # Build schema dict: map column names to types (default to "string")
-            schema = {col: "string" for col in columns}
-            rows = rows_preview
-            
-            with get_db_session() as db:
-                save_full_results(db, run_id, schema, rows)
-                # Store finished_output (LLM commentary) in result_summary field
-                finish_run_success(db, run_id, final_sql, response_text)
-                db.commit()
-            
-            # Append agent message with LLM commentary
-            with get_db_session() as db:
-                append_message(db, conversation_id, "agent", response_text)
-                db.commit()
-            
-            _emit_event(run_id, "sql_generated", {"sql": final_sql})
-            _emit_event(run_id, "results_ready", {"row_count": len(rows)})
-            # Send finished_output (LLM commentary) to frontend
-            _emit_event(run_id, "final_response", {"response": response_text})
-            _emit_event(run_id, "run_completed", {"status": "success"})
+            if agent_type == "external":
+                # Web research agent - different response format
+                final_answer = result.get("final_answer") or result.get("result_summary", "")
+                evidence_pack = result.get("evidence_pack", {})
+                sources = evidence_pack.get("sources", [])
+                claims = evidence_pack.get("claims", [])
+                conflicts = evidence_pack.get("conflicts", [])
+                
+                # Save evidence_pack to DB (store in result_summary as JSON for now)
+                import json
+                with get_db_session() as db:
+                    # Store evidence_pack summary in result_summary
+                    evidence_summary = {
+                        "sources_count": len(sources),
+                        "claims_count": len(claims),
+                        "conflicts_count": len(conflicts),
+                        "final_answer": final_answer
+                    }
+                    finish_run_success(db, run_id, None, json.dumps(evidence_summary))  # No SQL for web research
+                    db.commit()
+                
+                # Append agent message
+                with get_db_session() as db:
+                    append_message(db, conversation_id, "agent", final_answer)
+                    db.commit()
+                
+                _emit_event(run_id, "sources_collected", {"count": len(sources)})
+                _emit_event(run_id, "claims_extracted", {"count": len(claims)})
+                if conflicts:
+                    _emit_event(run_id, "conflicts_detected", {"count": len(conflicts)})
+                _emit_event(run_id, "final_response", {"response": final_answer, "evidence_pack": evidence_pack})
+                _emit_event(run_id, "run_completed", {"status": "success"})
+            else:
+                # Structured agent - SQL results
+                final_sql = result.get("final_sql", "")
+                # Use finished_output (LLM commentary) if available, fallback to result_summary
+                finished_output = result.get("finished_output", "")
+                result_summary = result.get("result_summary", "")
+                # Prefer finished_output (LLM-generated commentary) over result_summary (basic string)
+                response_text = finished_output if finished_output else result_summary
+                results = result.get("results", {})
+                
+                # Save results to DB
+                # Transform results from executor format to DB format
+                # Executor format: {"columns": [...], "rows_preview": [...]}
+                # DB format: {"schema": {col_name: type, ...}, "rows": [...]}
+                columns = results.get("columns", [])
+                rows_preview = results.get("rows_preview", [])
+                
+                # Build schema dict: map column names to types (default to "string")
+                schema = {col: "string" for col in columns}
+                
+                # Serialize non-JSON-serializable types (Timestamp, numpy, etc.) to strings
+                def serialize_value(v):
+                    if v is None:
+                        return None
+                    if hasattr(v, 'isoformat'):  # datetime, Timestamp
+                        return v.isoformat()
+                    if hasattr(v, 'item'):  # numpy types
+                        return v.item()
+                    return v
+                
+                rows = [{k: serialize_value(v) for k, v in row.items()} for row in rows_preview]
+                
+                with get_db_session() as db:
+                    save_full_results(db, run_id, schema, rows)
+                    # Store finished_output (LLM commentary) in result_summary field
+                    finish_run_success(db, run_id, final_sql, response_text)
+                    db.commit()
+                
+                # Append agent message with LLM commentary
+                with get_db_session() as db:
+                    append_message(db, conversation_id, "agent", response_text)
+                    db.commit()
+                
+                _emit_event(run_id, "sql_generated", {"sql": final_sql})
+                _emit_event(run_id, "results_ready", {"row_count": len(rows)})
+                # Send finished_output (LLM commentary) to frontend
+                _emit_event(run_id, "final_response", {"response": response_text})
+                _emit_event(run_id, "run_completed", {"status": "success"})
             
         elif status == "ASK_USER":
             _emit_event(run_id, "ask_user", result)

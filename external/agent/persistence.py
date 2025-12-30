@@ -77,6 +77,31 @@ def list_prompts(db, category: Optional[str] = None) -> List[Dict[str, Any]]:
         "response_commentary": {
             "display_name": "Response Commentary",
             "description": "Generates natural language explanations of query results for the user. Used in the Executor's final response generation step."
+        },
+        # Web Search Prompts
+        "web_research_decider": {
+            "display_name": "Web Research Decider",
+            "description": "Main decision-making prompt for web research agents. Determines if a research query can be executed, what information is needed, and generates the research specification with Tavily tool plan. Used in the Web Research Decider component."
+        },
+        "web_research_synthesis": {
+            "display_name": "Web Research Synthesis",
+            "description": "Synthesizes final answers from EvidencePack (sources, claims, conflicts). Generates comprehensive research reports with citations. Used after evidence collection is complete."
+        },
+        "web_research_claim_extraction": {
+            "display_name": "Claim Extraction",
+            "description": "Extracts structured claims from raw source content (snippets, titles). Links claims to source URLs and categorizes them. Used in the Executor's claim extraction step."
+        },
+        "web_research_conflict_detection": {
+            "display_name": "Conflict Detection",
+            "description": "Detects conflicts (contradictory claims) between different sources. Assesses conflict severity and resolution status. Used in the Executor's conflict detection step."
+        },
+        "web_research_ask_user_clarification": {
+            "display_name": "Web Research User Clarification",
+            "description": "Generates helpful clarification questions for web research agents when more information is needed from the user. Used when the Web Research Decider sends ASK_USER actions."
+        },
+        "web_research_response_commentary": {
+            "display_name": "Web Research Response Commentary",
+            "description": "Generates natural language explanations of research findings for the user. Used in the final response generation step for web research agents."
         }
     }
     
@@ -99,9 +124,15 @@ def list_prompts(db, category: Optional[str] = None) -> List[Dict[str, Any]]:
     return result
 
 
-def get_prompt_content(db, name: str) -> Optional[str]:
+def get_prompt_content(db, name: str, category: Optional[str] = None) -> Optional[str]:
+    """Get prompt content by name, optionally filtered by category."""
     p = db.get(Prompt, name)
-    return p.current_content if p else None
+    if p:
+        # If category specified, verify it matches
+        if category and p.category != category:
+            return None
+        return p.current_content
+    return None
 
 
 def create_conversation(db, user_id: Optional[str], agent_id: Optional[str]) -> str:
@@ -265,7 +296,7 @@ def list_agents_db(db) -> List[Dict[str, Any]]:
             "domain_file": r.domain_file,
             "domain_content": r.domain_content,  # Include domain content
             "data_folder": r.data_folder,
-            "model": r.model or "claude-3-5-sonnet-20241022",  # Default to Sonnet
+            "model": r.model or "claude-3-sonnet-20240229",  # Default to Sonnet
             "created_at": r.created_at.isoformat(),
             "updated_at": r.updated_at.isoformat(),
         }
@@ -277,7 +308,7 @@ def get_agent_db(db, agent_id: str) -> Optional[Dict[str, Any]]:
     a = db.get(Agent, agent_id)
     if not a:
         return None
-    return {
+    result = {
         "id": a.id,
         "name": a.name,
         "agent_type": a.agent_type,
@@ -285,10 +316,20 @@ def get_agent_db(db, agent_id: str) -> Optional[Dict[str, Any]]:
         "domain_file": a.domain_file,
         "domain_content": a.domain_content,  # Include domain content
         "data_folder": a.data_folder,
-        "model": a.model or "claude-3-5-sonnet-20241022",  # Default to Sonnet
+        "model": a.model or "claude-3-sonnet-20240229",  # Default to Sonnet
         "created_at": a.created_at.isoformat(),
         "updated_at": a.updated_at.isoformat(),
     }
+    # Add web search specific fields if they exist (will be added via migration)
+    if hasattr(a, 'tavily_api_key'):
+        result["tavily_api_key"] = a.tavily_api_key
+    if hasattr(a, 'search_scope_allowed_domains'):
+        result["search_scope_allowed_domains"] = a.search_scope_allowed_domains
+    if hasattr(a, 'search_scope_blocked_domains'):
+        result["search_scope_blocked_domains"] = a.search_scope_blocked_domains
+    if hasattr(a, 'default_research_depth'):
+        result["default_research_depth"] = a.default_research_depth
+    return result
 
 
 def create_agent_db(
@@ -301,11 +342,16 @@ def create_agent_db(
     domain_content: Optional[str] = None,
     data_folder: Optional[str] = None,
     model: Optional[str] = None,
+    tavily_api_key: Optional[str] = None,
+    search_scope_allowed_domains: Optional[list] = None,
+    search_scope_blocked_domains: Optional[list] = None,
+    default_research_depth: Optional[str] = None,
 ) -> Agent:
     # Default to Sonnet if not specified (enables thinking/reasoning)
     if model is None:
-        model = "claude-3-5-sonnet-20241022"
+        model = "claude-3-sonnet-20240229"
     
+    import json
     a = Agent(
         id=agent_id,
         name=name,
@@ -316,6 +362,15 @@ def create_agent_db(
         data_folder=data_folder,
         model=model,
     )
+    # Add web search specific fields if they exist (will be added via migration)
+    if hasattr(a, 'tavily_api_key') and tavily_api_key:
+        a.tavily_api_key = tavily_api_key
+    if hasattr(a, 'search_scope_allowed_domains') and search_scope_allowed_domains:
+        a.search_scope_allowed_domains = json.dumps(search_scope_allowed_domains) if isinstance(search_scope_allowed_domains, list) else search_scope_allowed_domains
+    if hasattr(a, 'search_scope_blocked_domains') and search_scope_blocked_domains:
+        a.search_scope_blocked_domains = json.dumps(search_scope_blocked_domains) if isinstance(search_scope_blocked_domains, list) else search_scope_blocked_domains
+    if hasattr(a, 'default_research_depth') and default_research_depth:
+        a.default_research_depth = default_research_depth
     db.add(a)
     return a
 
@@ -370,13 +425,17 @@ def import_prompts_from_files(db) -> int:
     for prompt_file in prompts_dir.glob("*.md"):
         name = prompt_file.stem
         content = prompt_file.read_text(encoding="utf-8", errors="replace")
-        category = "structured"  # All current prompts are for structured agents
+        # Detect category based on filename prefix
+        if name.startswith("web_research_"):
+            category = "web_search"
+        else:
+            category = "structured"  # Default for structured agents
         p = db.get(Prompt, name)
         if p is None:
             p = Prompt(name=name, category=category, current_content=content)
             db.add(p)
             imported += 1
-            logger.info(f"Imported prompt: {name}")
+            logger.info(f"Imported prompt: {name} (category: {category})")
     return imported
 
 

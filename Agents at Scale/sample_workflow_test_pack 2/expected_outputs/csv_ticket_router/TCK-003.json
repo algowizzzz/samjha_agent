@@ -1,0 +1,6 @@
+{
+  "ticket_id": "TCK-003",
+  "recommended_ingestion_mode": "programmatic",
+  "recommended_output": "json",
+  "notes": "Checklist conversion is best produced as structured JSON; programmatic ingestion is sufficient for SOP text."
+}

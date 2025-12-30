@@ -112,7 +112,7 @@ class AdminRoutes(BaseRoutes):
 
         # ==================== Agent Management ====================
         @app.route('/api/admin/agents', methods=['GET'])
-        @self.admin_required
+        @self.login_required  # Changed from admin_required - users need to see agents to use them
         def api_list_agents():
             try:
                 with get_db_session() as db:
@@ -362,18 +362,22 @@ class AdminRoutes(BaseRoutes):
                 data_folder_existing = (request.form.get("data_folder_existing") or "").strip()
 
                 validate_agent_type(agent_type)
-                if agent_type != "structured":
-                    return jsonify({"error": "Coming soon: only structured agents are supported in v1"}), 400
-
-                if data_folder_mode not in ("create", "select"):
-                    return jsonify({"error": "data_folder_mode must be 'create' or 'select'"}), 400
-
-                data_folder = data_folder_name if data_folder_mode == "create" else data_folder_existing
-                # Sanitize folder name: convert spaces to underscores, remove invalid chars
-                # This allows user-friendly names like "Financial Analysis" -> "financial_analysis"
-                if data_folder_mode == "create":
-                    data_folder = slugify_name(data_folder)
-                validate_safe_name(data_folder, "data_folder")
+                
+                # Handle structured vs external agents
+                data_folder = None
+                if agent_type == "structured":
+                    if data_folder_mode not in ("create", "select"):
+                        return jsonify({"error": "data_folder_mode must be 'create' or 'select' for structured agents"}), 400
+                    data_folder = data_folder_name if data_folder_mode == "create" else data_folder_existing
+                    # Sanitize folder name: convert spaces to underscores, remove invalid chars
+                    if data_folder_mode == "create":
+                        data_folder = slugify_name(data_folder)
+                    validate_safe_name(data_folder, "data_folder")
+                elif agent_type == "external":
+                    # External agents don't need data_folder
+                    pass
+                else:
+                    return jsonify({"error": f"Agent type '{agent_type}' not yet supported"}), 400
 
                 # Domain file required
                 domain_file = request.files.get("domain_file")
@@ -387,9 +391,9 @@ class AdminRoutes(BaseRoutes):
                     return jsonify({"error": "domain_file exceeds 10MB limit"}), 400
                 domain_text = domain_bytes.decode("utf-8", errors="replace")
 
-                # If selecting existing folder, ensure it exists
-                base_folder = Path("external/datawarehouse") / data_folder
-                if data_folder_mode == "select":
+                # If selecting existing folder, ensure it exists (structured agents only)
+                if agent_type == "structured" and data_folder_mode == "select":
+                    base_folder = Path("external/datawarehouse") / data_folder
                     if not base_folder.exists() or not base_folder.is_dir():
                         return jsonify({"error": f"Selected folder does not exist: {data_folder}"}), 400
 
@@ -398,13 +402,29 @@ class AdminRoutes(BaseRoutes):
                 agent_id = slugify_name(name)
                 
                 # Get model from form (default to Sonnet for thinking support)
-                model = (request.form.get("model") or "").strip() or "claude-3-5-sonnet-20241022"
+                model = (request.form.get("model") or "").strip() or "claude-3-sonnet-20240229"
+                
+                # Get web search specific fields (for external agents)
+                tavily_api_key = (request.form.get("tavily_api_key") or "").strip()
+                allowed_domains_str = (request.form.get("allowed_domains") or "").strip()
+                blocked_domains_str = (request.form.get("blocked_domains") or "").strip()
+                default_research_depth = (request.form.get("default_research_depth") or "").strip() or "standard"
+                
+                # Parse domain lists
+                import json
+                allowed_domains = [d.strip() for d in allowed_domains_str.split(",") if d.strip()] if allowed_domains_str else None
+                blocked_domains = [d.strip() for d in blocked_domains_str.split(",") if d.strip()] if blocked_domains_str else None
                 
                 # Store domain file content in DB (not on disk)
                 # Only store filename for reference, content goes in domain_content column
                 
                 # Write to DB only (no file-based storage)
                 with get_db_session() as db:
+                    # Check if agent already exists
+                    existing = get_agent_db(db, agent_id)
+                    if existing:
+                        return jsonify({"error": f"Agent with ID '{agent_id}' already exists. Please use a different name or edit the existing agent."}), 409
+                    
                     create_agent_db(
                         db,
                         agent_id=agent_id,
@@ -415,47 +435,55 @@ class AdminRoutes(BaseRoutes):
                         domain_content=domain_text,  # Content stored in DB
                         data_folder=data_folder,
                         model=model,
+                        tavily_api_key=tavily_api_key if tavily_api_key else None,
+                        search_scope_allowed_domains=allowed_domains,
+                        search_scope_blocked_domains=blocked_domains,
+                        default_research_depth=default_research_depth if agent_type == "external" else None,
                     )
                     db.commit()
+                    # Get the created agent to return it
+                    created_agent = get_agent_db(db, agent_id)
 
-                # Upload data files
+                # Upload data files (structured agents only)
                 uploaded = []
                 rejected = []
-                files = request.files.getlist("data_files") or []
-                base_folder = Path("external/datawarehouse") / data_folder
-                base_folder.mkdir(parents=True, exist_ok=True)
+                if agent_type == "structured":
+                    files = request.files.getlist("data_files") or []
+                    base_folder = Path("external/datawarehouse") / data_folder
+                    base_folder.mkdir(parents=True, exist_ok=True)
 
-                for f in files:
-                    if not f or not getattr(f, "filename", ""):
-                        continue
-                    fname = secure_filename(f.filename)
-                    lower = fname.lower()
-                    if not (lower.endswith(".csv") or lower.endswith(".parquet")):
-                        rejected.append({"name": fname, "reason": "Only .csv and .parquet supported"})
-                        continue
-                    b = f.read()
-                    if len(b) > MAX_FILE_BYTES:
-                        rejected.append({"name": fname, "reason": "File exceeds 10MB limit"})
-                        continue
+                    for f in files:
+                        if not f or not getattr(f, "filename", ""):
+                            continue
+                        fname = secure_filename(f.filename)
+                        lower = fname.lower()
+                        if not (lower.endswith(".csv") or lower.endswith(".parquet")):
+                            rejected.append({"name": fname, "reason": "Only .csv and .parquet supported"})
+                            continue
+                        b = f.read()
+                        if len(b) > MAX_FILE_BYTES:
+                            rejected.append({"name": fname, "reason": "File exceeds 10MB limit"})
+                            continue
 
-                    target = base_folder / fname
-                    # Avoid overwrite by suffixing
-                    if target.exists():
-                        stem = target.stem
-                        suf = target.suffix
-                        i = 2
-                        while True:
-                            candidate = base_folder / f"{stem}-{i}{suf}"
-                            if not candidate.exists():
-                                target = candidate
-                                break
-                            i += 1
-                    target.write_bytes(b)
-                    uploaded.append({"name": target.name, "size_bytes": len(b)})
+                        target = base_folder / fname
+                        # Avoid overwrite by suffixing
+                        if target.exists():
+                            stem = target.stem
+                            suf = target.suffix
+                            i = 2
+                            while True:
+                                candidate = base_folder / f"{stem}-{i}{suf}"
+                                if not candidate.exists():
+                                    target = candidate
+                                    break
+                                i += 1
+                        target.write_bytes(b)
+                        uploaded.append({"name": target.name, "size_bytes": len(b)})
 
                 return jsonify({
                     "success": True,
-                    "agent": cfg,
+                    "message": f"Agent '{name}' created successfully",
+                    "agent": created_agent,
                     "uploaded_files": uploaded,
                     "rejected_files": rejected,
                 })

@@ -58,6 +58,7 @@ class AuthManager:
                             "password": "admin123",
                             "roles": ["admin"],
                             "tools": ["*"],
+                            "domains": [],
                             "enabled": True,
                             "email": "admin@example.com",
                             "created_at": datetime.now().isoformat() + "Z"
@@ -110,6 +111,7 @@ class AuthManager:
                 'user_name': user.get('user_name', user_id),
                 'roles': user.get('roles', []),
                 'tools': user.get('tools', []),
+                'domains': user.get('domains', []),  # NEW: Domain assignment
                 'created_at': datetime.now(),
                 'last_activity': datetime.now()
             }
@@ -202,6 +204,48 @@ class AuthManager:
             True if user is admin
         """
         return 'admin' in session.get('roles', [])
+    
+    def is_super_admin(self, session: Dict) -> bool:
+        """
+        Check if a session has super admin privileges.
+        Super admin sees all workflows regardless of domain.
+
+        Args:
+            session: Session data
+
+        Returns:
+            True if user is super admin (has 'admin' role)
+        """
+        return self.is_admin(session)
+    
+    def is_domain_admin(self, session: Dict) -> bool:
+        """
+        Check if a session has domain admin privileges.
+        Domain admin can create/edit workflows for their domains.
+
+        Args:
+            session: Session data
+
+        Returns:
+            True if user has 'domain_admin' role or is super admin
+        """
+        roles = session.get('roles', [])
+        return 'domain_admin' in roles or 'admin' in roles
+    
+    def get_user_domains(self, user_id: str) -> List[str]:
+        """
+        Get list of domains assigned to a user.
+
+        Args:
+            user_id: User identifier
+
+        Returns:
+            List of domain names (empty list if user not found or no domains)
+        """
+        user = self.users.get(user_id)
+        if not user:
+            return []
+        return user.get('domains', [])
 
     def get_user_accessible_tools(self, session: Dict) -> List[str]:
         """

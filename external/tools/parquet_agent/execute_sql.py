@@ -44,12 +44,51 @@ class ExecuteSQLTool(BaseMCPTool):
 
     def execute(self, arguments):
         sql = arguments["sql"]
-        max_rows = arguments.get("max_rows", 100) or 100
+        max_rows = arguments.get("max_rows", 50) or 50
+        agent_data_folder = arguments.get("agent_data_folder")  # Get agent's data folder for scoping
         
         conn = duckdb.connect(":memory:")
         
         try:
-            # Register data files as views
+            created_views = set()
+            # Register data files as views - scope to agent's folder if provided
+            if agent_data_folder:
+                # Only register views from the agent's specific folder
+                agent_dir = self.base_path / agent_data_folder
+                if agent_dir.exists() and agent_dir.is_dir():
+                    # Recursively find all CSV and parquet files and register each as a separate view
+                    # Each file gets its own view name (filename without extension)
+                    # Domain MD guides the agent on how to query/aggregate these views
+                    for file in agent_dir.glob("**/*.csv"):
+                        # Use the full relative path (without extension) as view name to ensure uniqueness
+                        # e.g., "jan012204/sales_01012024" becomes view name
+                        rel_path = file.relative_to(agent_dir)
+                        view_name = str(rel_path.with_suffix('')).replace('/', '_').replace('\\', '_')
+                        # Sanitize view name (DuckDB doesn't allow certain characters in identifiers)
+                        view_name = view_name.replace('-', '_').replace('.', '_')
+                        conn.execute(f"CREATE OR REPLACE VIEW \"{view_name}\" AS SELECT * FROM read_csv_auto('{str(file)}')")
+                        created_views.add(view_name)
+
+                        # Also register a convenient alias view using the filename stem when safe.
+                        # This helps the LLM, which often guesses `sales_jan012024` instead of `jan012024_sales_jan012024`.
+                        alias = file.stem.replace('-', '_').replace('.', '_')
+                        if alias and alias != view_name and alias not in created_views:
+                            conn.execute(f"CREATE OR REPLACE VIEW \"{alias}\" AS SELECT * FROM \"{view_name}\"")
+                            created_views.add(alias)
+                    
+                    for file in agent_dir.glob("**/*.parquet"):
+                        rel_path = file.relative_to(agent_dir)
+                        view_name = str(rel_path.with_suffix('')).replace('/', '_').replace('\\', '_')
+                        view_name = view_name.replace('-', '_').replace('.', '_')
+                        conn.execute(f"CREATE OR REPLACE VIEW \"{view_name}\" AS SELECT * FROM read_parquet('{str(file)}')")
+                        created_views.add(view_name)
+
+                        alias = file.stem.replace('-', '_').replace('.', '_')
+                        if alias and alias != view_name and alias not in created_views:
+                            conn.execute(f"CREATE OR REPLACE VIEW \"{alias}\" AS SELECT * FROM \"{view_name}\"")
+                            created_views.add(alias)
+            else:
+                # Fallback: register all folders (legacy behavior)
             for domain_dir in self.base_path.iterdir():
                 if domain_dir.is_dir():
                     for file in domain_dir.glob("*.csv"):
