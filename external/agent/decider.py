@@ -94,6 +94,14 @@ def run_decider(state: ControllerState) -> dict:
     prompt_template = load_decider_prompt()
     
     # Build prompt context from state
+    # DIAGNOSTIC: Log what state contains before building context
+    qs = state.get("query_spec", {})
+    cp = state.get("continuity_packet", {})
+    logger.info(f"[DATA_FLOW] Decider received state.query_spec.start_table: {qs.get('start_table', {})}")
+    logger.info(f"[DATA_FLOW] Decider received state.query_spec.dimensions: {qs.get('dimensions', [])}")
+    logger.info(f"[DATA_FLOW] Decider received state.query_spec keys: {list(qs.keys()) if qs else 'EMPTY'}")
+    logger.info(f"[DATA_FLOW] Decider received continuity_packet.pending_clarification: {cp.get('pending_clarification', {})}")
+    
     context = {
         "user_query": state.get("user_query", ""),
         "conversation_history": json.dumps(state.get("conversation_history", []), indent=2),
@@ -503,14 +511,18 @@ Output your decision as JSON only (no markdown, no prose):
                         found_items.append(f"Metrics: {', '.join(metric_names)}")
                     query_spec_found = "\n".join(found_items) if found_items else "None yet"
                     
-                    # Build "missing" summary from status
+                    # Build "missing" summary from status and track the primary blocking field
                     missing_items = []
+                    blocking_field = None  # Track the first/primary blocking field for USER_ANSWER
                     for field, status_obj in (qss or {}).items():
                         if isinstance(status_obj, dict):
                             st = status_obj.get("status", "")
                             be = status_obj.get("blocks_execution", False)
                             if st in ("missing", "conflict") or be:
                                 missing_items.append(f"- {field}: {status_obj.get('notes', 'missing')}")
+                                # Track the first blocking field for fills_gap
+                                if blocking_field is None:
+                                    blocking_field = field
                     query_spec_missing = "\n".join(missing_items) if missing_items else "No blocking issues detected (this may be a comprehension/clarity issue)"
                     
                     # Extract missing field and candidates if available (for retry cases)
@@ -589,6 +601,10 @@ Output your decision as JSON only (no markdown, no prose):
                                         "why_non_defaultable": str(ask_user_payload.get("why_non_defaultable", "")),
                                         "what_answer_unblocks": str(ask_user_payload.get("what_answer_unblocks", "")),
                                     }
+                                    # Track which field this ASK_USER is trying to fill
+                                    # This helps USER_ANSWER know which query_spec field to update
+                                    if blocking_field:
+                                        output["ask_user"]["fills_gap"] = blocking_field
                                     # Append candidate bindings if available and not already mentioned
                                     if candidates:
                                         q_low = qtxt.lower()
@@ -609,6 +625,10 @@ Output your decision as JSON only (no markdown, no prose):
                                 "why_non_defaultable": "The query requires additional details to execute.",
                                 "what_answer_unblocks": "Providing the missing information will allow me to proceed."
                             }
+                    
+                    # Always ensure fills_gap is set if we know the blocking field
+                    if blocking_field and "fills_gap" not in output.get("ask_user", {}):
+                        output["ask_user"]["fills_gap"] = blocking_field
                 
                 return output
             

@@ -184,11 +184,12 @@ def handle_web_research_query(
         
         # Enforce max_attempts BEFORE calling executor
         if state["attempt_count"] >= max_attempts and state["last_executor_report"] is not None:
-            logger.warning(f"Max attempts ({max_attempts}) reached")
+            logger.warning(f"Max attempts ({max_attempts}) reached - converting to ASK_USER for recovery")
             return render_error_max_attempts(
                 state["last_executor_report"],
                 state["attempt_count"],
-                max_attempts
+                max_attempts,
+                state  # Pass state for research_spec context
             )
         
         # Call Web Research Decider
@@ -407,14 +408,45 @@ def render_success_from_evidence(state: ResearchControllerState) -> dict:
 def render_error_max_attempts(
     last_executor_report: dict,
     attempt_count: int,
-    max_attempts: int
+    max_attempts: int,
+    state: dict = None
 ) -> dict:
-    """Render error response when max attempts reached."""
+    """
+    Convert max attempts to ASK_USER with helpful context for web research.
+    
+    Instead of returning a dead-end ERROR, we return ASK_USER so the user
+    can rephrase or provide more details to help the agent succeed.
+    """
+    # Build summary of what went wrong
+    attempts_summary = []
+    if last_executor_report:
+        last_error = last_executor_report.get("last_error", "") or last_executor_report.get("error", "")
+        error_type = last_executor_report.get("error_type", "")
+        
+        if error_type:
+            attempts_summary.append(f"Issue: {error_type}")
+        if last_error:
+            error_snippet = str(last_error)[:150]
+            if len(str(last_error)) > 150:
+                error_snippet += "..."
+            attempts_summary.append(f"Details: {error_snippet}")
+    
+    summary_text = " | ".join(attempts_summary) if attempts_summary else "encountered issues during research"
+    
+    question = (
+        f"I tried {attempt_count} times but couldn't complete your research query ({summary_text}). "
+        f"Could you rephrase your question or provide more specific details about what you're looking for?"
+    )
+    
     return {
-        "status": "ERROR",
-        "reason": f"Max attempts ({max_attempts}) reached",
-        "error_type": "MAX_ATTEMPTS",
+        "status": "ASK_USER",  # Changed from ERROR - give user a chance to help
+        "question": question,
+        "why_non_defaultable": f"After {attempt_count} attempts, I need your help to clarify the research query.",
+        "what_answer_unblocks": "Rephrasing the query or providing more specific search terms would help me succeed.",
+        "research_spec": state.get("research_spec", {}) if state else {},
+        "research_spec_status": state.get("research_spec_status", {}) if state else {},
         "attempt_count": attempt_count,
-        "last_executor_report": last_executor_report,
+        "max_attempts": max_attempts,
+        "is_max_attempts_recovery": True  # Flag for UI to display appropriately
     }
 

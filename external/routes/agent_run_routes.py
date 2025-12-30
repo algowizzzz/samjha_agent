@@ -417,6 +417,7 @@ def _run_agent_async(
                 "question": "",
                 "missing_field": "",
                 "candidate_columns": [],
+                "fills_gap": "",  # Track which query_spec field the ASK_USER was about
             }
 
             # Handle prior state based on agent_type
@@ -425,6 +426,9 @@ def _run_agent_async(
             
             if last_run is not None:
                 dj = last_run.decider_output_json if isinstance(last_run.decider_output_json, dict) else None
+                # DIAGNOSTIC: Log what we're loading from last run
+                logger.info(f"[DATA_FLOW] Last run found: {last_run.id[:8]}..., status: {last_run.status}")
+                logger.info(f"[DATA_FLOW] Last run decider_output_json type: {type(dj)}")
                 if isinstance(dj, dict):
                     # Check if this is a web research agent (has research_spec) or structured (has query_spec)
                     if "research_spec" in dj:
@@ -433,13 +437,22 @@ def _run_agent_async(
                     else:
                         prior_query_spec = dj.get("query_spec") or {}
                         prior_query_spec_status = dj.get("query_spec_status") or {}
+                        # DIAGNOSTIC: Log the actual prior_query_spec content
+                        start_table = prior_query_spec.get("start_table", {})
+                        logger.info(f"[DATA_FLOW] prior_query_spec.start_table: {start_table}")
+                        logger.info(f"[DATA_FLOW] prior_query_spec.dimensions: {prior_query_spec.get('dimensions', [])}")
+                        logger.info(f"[DATA_FLOW] prior_query_spec.metrics: {prior_query_spec.get('metrics', [])[:2]}...")  # First 2
                     last_run_context["last_action"] = str(dj.get("action") or "")
                     last_run_context["last_query_type"] = str(dj.get("query_type") or "")
 
                     # If the last turn ended with ASK_USER, capture the question (for USER_ANSWER decisions)
                     au = dj.get("ask_user") or {}
+                    logger.info(f"[DATA_FLOW] Last run ask_user object: {au}")
                     if isinstance(au, dict) and au.get("question"):
                         pending_clarification["question"] = str(au.get("question") or "")
+                        # Copy fills_gap directly if available - this is the most reliable way
+                        if au.get("fills_gap"):
+                            pending_clarification["fills_gap"] = str(au.get("fills_gap"))
                         # Best-effort: parse missing_field from question like: instead of 'promo_code'
                         try:
                             import re
@@ -695,10 +708,14 @@ def _run_agent_async(
         elif status == "ASK_USER":
             _emit_event(run_id, "ask_user", result)
             with get_db_session() as db:
-                finish_run_error(db, run_id, "ask_user", "Waiting for user input")
+                # Get the question for storage
+                q = result.get("question", "") or result.get("ask_user", {}).get("question", "")
+                # Store actual question (or flag) in result_summary for polling clients
+                is_max_recovery = result.get("is_max_attempts_recovery", False)
+                summary = f"MAX_ATTEMPTS_RECOVERY: {q}" if is_max_recovery else q
+                finish_run_error(db, run_id, "ask_user", summary or "Waiting for user input")
                 # Persist the clarification question into the conversation so the next user message
                 # can be classified as USER_ANSWER by the Decider.
-                q = result.get("question", "") or result.get("ask_user", {}).get("question", "")
                 if q:
                     append_message(db, conversation_id, "agent", f"ASK_USER: {q}")
                 db.commit()

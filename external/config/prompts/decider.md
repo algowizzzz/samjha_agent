@@ -92,11 +92,18 @@ Analyze `user_query` and `last_executor_report` to determine if this is a **FOLL
 
 | Signal Type | Examples | Strength |
 |-------------|----------|----------|
-| **Pronouns/References** | "those", "that", "them", "it", "the results", "what you showed" | Strong |
-| **Continuation words** | "also", "too", "additionally", "and", "now", "what about" | Strong |
+| **Pronouns/References** | "those", "that", "them", "it", "the results", "what you showed", **"the above"**, **"from above"**, **"listed above"**, **"shown above"** | Strong |
+| **Selection from prior** | **"which one"**, **"which of these"**, **"the highest"**, **"the lowest"**, **"the best"**, **"the top"** (implying selection from prior results) | Strong |
+| **Continuation words** | "also", "too", "additionally", "and", "now", "what about", **"compare"**, **"versus"** | Strong |
 | **Modification words** | "instead", "only", "just", "but", "filter to", "narrow to" | Strong |
 | **Incomplete query** | Query doesn't specify table/metric but asks for breakdown | Medium |
 | **Drill-down language** | "break down", "drill into", "more details", "expand" | Medium |
+
+**CRITICAL: "Above" and "Selection" Patterns (ALWAYS FOLLOW_UP):**
+- If user says **"above"**, **"from above"**, **"listed above"**, **"shown above"** → ALWAYS `FOLLOW_UP`
+- If user says **"which one"** or **"which of"** without specifying a dataset → ALWAYS `FOLLOW_UP` (they're selecting from prior results)
+- If user says **"the highest"**, **"the lowest"**, **"the best"**, **"the top"** without specifying what data → ALWAYS `FOLLOW_UP` (they're asking about prior results)
+- If user says **"compare"** with a prior result value (e.g., "compare that to West") → ALWAYS `FOLLOW_UP`
 
 **Check for NEW QUERY signals:**
 
@@ -143,6 +150,79 @@ ELSE (unclear):
 ```json
 "query_type": "FOLLOW_UP | USER_ANSWER | NEW_QUERY | RETRY",
 "query_type_signals": ["signal1", "signal2"]
+```
+
+---
+
+### Step 0.5 — CRITICAL: Prior Query Inheritance for FOLLOW_UP/USER_ANSWER/RETRY
+
+When `query_type` is `FOLLOW_UP`, `USER_ANSWER`, or `RETRY`:
+
+**YOU MUST copy actual values from `prior_query_spec`, NOT placeholders or references.**
+
+| Field | Inheritance Rule |
+|-------|-----------------|
+| `business_question` | **ALWAYS GENERATE FRESH** from `user_query`. This is NEVER inherited. Set `query_spec_status.business_question.status = "verified"`. |
+| `start_table.path` | If `prior_query_spec.start_table.path` exists, copy the **exact string value**. NEVER output placeholder text. |
+| `start_table.name` | If `prior_query_spec.start_table.name` exists, copy the **exact string value**. |
+| `grain` | If `prior_query_spec.grain` exists and user doesn't explicitly change it, copy exactly. |
+| `metrics` | If `prior_query_spec.metrics` exists and user doesn't change metrics, copy the entire array. |
+| `dimensions` | If user adds dimensions, merge: `prior dimensions + new dimensions`. If user doesn't mention, preserve prior. |
+| `filters` | If `prior_query_spec.filters` exists and user doesn't remove them, preserve. If user adds filters, merge. |
+| `time` | If `prior_query_spec.time` exists and user doesn't change time, preserve all time settings. |
+| `aggregation_plan` | If `prior_query_spec.aggregation_plan` exists, preserve it. |
+| `joins` | If `prior_query_spec.joins` exists and still relevant, preserve. |
+
+**CRITICAL: `business_question` and `query_spec_status.business_question` are REQUIRED for ALL query types.**
+
+**FORBIDDEN OUTPUTS (will cause execution failure):**
+These patterns in ANY field will break execution. NEVER output them:
+- `"<from prior_query_spec.start_table.path>"`
+- `"<from prior_query_spec>"`
+- `"<inherit from prior>"`
+- `"<see conversation_history>"`
+- `"<copy from above>"`
+- Any text that starts with `<` and ends with `>` as a value
+
+**CORRECT Example - FOLLOW_UP inheritance:**
+
+If `prior_query_spec` contains:
+```json
+{
+  "start_table": {"name": "sales_feb012024", "path": "feb012024/sales_feb012024.csv"},
+  "dimensions": ["region"],
+  "metrics": [{"name": "revenue", "definition": "Sum of (quantity * price)"}]
+}
+```
+
+And user says "now filter to East region", your output MUST be:
+```json
+{
+  "query_spec": {
+    "business_question": "Revenue by region, filtered to East region",
+    "start_table": {
+      "name": "sales_feb012024",
+      "path": "feb012024/sales_feb012024.csv"
+    },
+    "dimensions": ["region"],
+    "metrics": [{"name": "revenue", "definition": "Sum of (quantity * price)"}],
+    "filters": ["region = 'East'"]
+  },
+  "query_spec_status": {
+    "business_question": {"status": "verified", "source": "user", "notes": "", "blocks_execution": false}
+  }
+}
+```
+
+**REQUIRED FOR ALL EXECUTE ACTIONS: `business_question` MUST be set in `query_spec` AND `query_spec_status`.**
+
+**INCORRECT (will fail):**
+```json
+{
+  "start_table": {
+    "path": "<from prior_query_spec.start_table.path>"
+  }
+}
 ```
 
 ---
@@ -514,14 +594,33 @@ Extract sorting and limit information from the user query and populate `query_sp
 
 You are responding to a prior `ASK_USER` and should **fill the specific missing gap** with the user's answer.
 
-Rules:
-- Use `continuity_packet.pending_clarification` and the most recent `ASK_USER` in `conversation_history` to understand what gap was asked.
-- Treat `prior_query_spec` (and `continuity_packet.prior_query_spec`) as the baseline unless the user explicitly changes intent.
-- CRITICAL: Ensure `query_spec.business_question` is **NON-EMPTY**.
-  - Default: copy `business_question` from `prior_query_spec.business_question`.
-  - If it is still empty, set it to the original user intent from the most recent non-empty `business_question` you can find in the provided context.
-- Patch the minimal fields needed (often a single column substitution).
-- Mark the patched field status as `verified`, source=`user`, with notes referencing the clarification.
+**Step 1: Identify which field to fill**
+- Check `continuity_packet.pending_clarification.fills_gap` for the field that was asked about
+- Alternatively, check the most recent `ASK_USER` in `conversation_history` or the prior `ask_user.fills_gap` if available
+- Common fields to fill: `start_table.path`, `dimensions`, `metrics`, `filters`, `time.column`
+
+**Step 2: Map the user's answer to that field**
+
+| User Answer Pattern | Field to Update | Example |
+|---------------------|-----------------|---------|
+| Table/file name | `start_table.name` and `start_table.path` | "use the sales table" → `start_table.name = "sales"` |
+| Column name | The dimension/metric that was missing | "revenue column" → add to metrics |
+| Filter value | `filters` array | "only East region" → `filters = ["region = 'East'"]` |
+| Time period | `time.start`, `time.end`, `time.rule` | "last month" → `time.rule = "last_month"` |
+| Confirmation | Keep the inferred value, mark as verified | "yes", "the first one" → keep prior, status = "verified" |
+
+**Step 3: Preserve everything else from prior_query_spec**
+- Copy ALL other fields exactly from `prior_query_spec`
+- Only modify the specific field the user answered about
+
+**Step 4: Update status**
+- Set the filled field's status to `verified`, source=`user`
+- Add note: "User answered: [their answer]"
+
+**CRITICAL Rules:**
+- Ensure `query_spec.business_question` is **NON-EMPTY** - copy from `prior_query_spec.business_question` if needed
+- Do NOT change fields the user didn't answer about
+- Do NOT output placeholder text like `<from prior>`
 
 #### If `query_type = "RETRY"`:
 

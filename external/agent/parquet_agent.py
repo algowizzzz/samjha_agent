@@ -96,14 +96,49 @@ def render_success(executor_report: dict, state: Optional[ControllerState] = Non
     return result
 
 
-def render_error_max_attempts(last_report: dict, attempt_count: int, max_attempts: int) -> dict:
-    """Return error response when max attempts reached."""
+def render_error_max_attempts(last_report: dict, attempt_count: int, max_attempts: int, state: Optional[Dict] = None) -> dict:
+    """
+    Convert max attempts to ASK_USER with helpful context.
+    
+    Instead of returning a dead-end ERROR, we return ASK_USER so the user
+    can rephrase or provide more details to help the agent succeed.
+    """
+    # Build summary of what went wrong
+    attempts_summary = []
+    if last_report:
+        last_error = last_report.get("last_error", "") or last_report.get("minimal_fix_suggestion", "")
+        error_type = last_report.get("error_type", "")
+        failed_items = last_report.get("failed_checklist_items", [])
+        
+        if error_type:
+            attempts_summary.append(f"Issue: {error_type}")
+        if last_error:
+            # Truncate long errors
+            error_snippet = str(last_error)[:150]
+            if len(str(last_error)) > 150:
+                error_snippet += "..."
+            attempts_summary.append(f"Details: {error_snippet}")
+        if failed_items:
+            attempts_summary.append(f"Failed checks: {', '.join(failed_items[:3])}")
+    
+    # Build helpful question based on what went wrong
+    summary_text = " | ".join(attempts_summary) if attempts_summary else "encountered issues during execution"
+    
+    question = (
+        f"I tried {attempt_count} times but couldn't complete your query ({summary_text}). "
+        f"Could you rephrase your question or provide more specific details about what you're looking for?"
+    )
+    
     return {
-        "status": "ERROR",
-        "reason": "Max attempts reached.",
+        "status": "ASK_USER",  # Changed from ERROR - give user a chance to help
+        "question": question,
+        "why_non_defaultable": f"After {attempt_count} attempts, I need your help to clarify the query.",
+        "what_answer_unblocks": "Rephrasing the query, specifying exact table/column names, or breaking into simpler questions would help me succeed.",
+        "query_spec": state.get("query_spec", {}) if state else {},
+        "query_spec_status": state.get("query_spec_status", {}) if state else {},
         "attempt_count": attempt_count,
         "max_attempts": max_attempts,
-        "last_executor_report": last_report
+        "is_max_attempts_recovery": True  # Flag for UI to display appropriately
     }
 
 
@@ -261,11 +296,12 @@ def handle_query(
     while True:
         # Enforce max_attempts BEFORE calling executor (attempt_count counts executor runs)
         if state["attempt_count"] >= max_attempts and state["last_executor_report"] is not None:
-            logger.warning(f"Max attempts ({max_attempts}) reached")
+            logger.warning(f"Max attempts ({max_attempts}) reached - converting to ASK_USER for recovery")
             return render_error_max_attempts(
                 state["last_executor_report"],
                 state["attempt_count"],
-                max_attempts
+                max_attempts,
+                state  # Pass state for query_spec context
             )
         
         # 2A) Call Decider (one prompt call)
@@ -384,6 +420,19 @@ def handle_query(
             logger.debug(f"Executor report has results: {bool(executor_report.get('results'))}")
             if executor_report.get("results"):
                 logger.debug(f"Results keys: {list(executor_report.get('results', {}).keys())}")
+            
+            # CRITICAL: Persist the UPDATED query_spec from executor (has actual paths, not patterns)
+            # This is needed so follow-up queries can inherit the resolved paths.
+            if on_decider_output is not None and executor_report.get("query_spec"):
+                try:
+                    updated_output = dict(decider_output or {})
+                    updated_output["query_spec"] = executor_report.get("query_spec", {})
+                    updated_output["query_spec_status"] = executor_report.get("query_spec_status", {})
+                    on_decider_output(updated_output, state)
+                    logger.info(f"[DATA_FLOW] Persisted updated query_spec after SUCCESS: start_table={executor_report.get('query_spec', {}).get('start_table', {})}")
+                except Exception as e:
+                    logger.warning(f"Failed to persist updated query_spec after SUCCESS: {e}")
+            
             success_result = render_success(executor_report, state)
             logger.debug(f"render_success returned keys: {list(success_result.keys())}")
             logger.debug(f"render_success has results: {bool(success_result.get('results'))}")
