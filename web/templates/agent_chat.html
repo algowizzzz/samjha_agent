@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}MR Limits AI assisted analysis{% endblock %}
+{% block title %}{{ agent_name or 'AI Agent Chat' }}{% endblock %}
 
 {% block extra_css %}
 <!-- Cache prevention meta tags - VERSION 9 -->
@@ -426,23 +426,11 @@
 {% block content %}
 <div class="p-0 m-0" style="height: 100%; width: 100%; display: flex; flex-direction: column; margin: 0 !important; padding: 0 !important;">
     <div class="card shadow-sm h-100 d-flex flex-column m-0" style="border-radius: 0; border: none; height: 100%; margin: 0 !important; width: 100%;">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" style="flex-shrink: 0;">
-            <h5 class="mb-0"><i class="bi bi-chat-text"></i> MR Limits AI assisted analysis</h5>
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <button id="newChatBtn" class="btn btn-sm btn-light" title="Start a new chat session">
-                    <i class="bi bi-plus-circle"></i> New Chat
-                </button>
-                <div class="form-check form-check-inline ms-2" style="margin-bottom: 0;">
-                    <input class="form-check-input" type="checkbox" id="showThinkingToggle">
-                    <label class="form-check-label text-white" for="showThinkingToggle" style="font-size: 11px;">
-                        Show thinking
-                    </label>
-                </div>
-            <span class="badge bg-light text-dark">DuckDB</span>
-            </div>
+        <div class="card-header bg-primary text-white" style="flex-shrink: 0;">
+            <h5 class="mb-0"><i class="bi bi-chat-text"></i> {{ agent_name or 'AI Agent Chat' }}</h5>
         </div>
         <div class="card-body d-flex flex-column p-3" style="flex: 1; overflow: hidden; min-height: 0;">
-            <div id="chatHistory" class="mb-3 flex-grow-1" style="overflow-y: auto; border: 1px solid #eee; padding: 12px; border-radius: 6px; background: #fafafa; min-height: 0;">
+            <div id="chatHistory" class="mb-3 flex-grow-1" style="overflow-y: auto; border: 1px solid #eee; padding: 12px; border-radius: 6px; background: #fafafa; min-height: 0; max-height: calc(100vh - 180px);">
                 <!-- Messages will be appended here -->
             </div>
             <div class="input-group" style="flex-shrink: 0;">
@@ -450,8 +438,16 @@
                 <button id="sendBtn" class="btn btn-primary">
                     <i class="bi bi-send"></i> Send
                 </button>
+                <button id="newChatBtn" class="btn btn-primary" title="Start a new chat session">
+                    <i class="bi bi-plus-circle"></i> New
+                </button>
             </div>
-            <div class="form-text mt-2" style="flex-shrink: 0;">Responses include an Answer, SQL Prompt & Results, and Prompt Monitor summary.</div>
+            <div class="form-check mt-2" style="flex-shrink: 0;">
+                <input class="form-check-input" type="checkbox" id="showThinkingToggle">
+                <label class="form-check-label text-muted" for="showThinkingToggle" style="font-size: 12px;">
+                    Show reasoning
+                </label>
+            </div>
         </div>
     </div>
 </div>

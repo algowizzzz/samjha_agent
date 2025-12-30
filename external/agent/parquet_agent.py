@@ -173,7 +173,7 @@ def initialize_controller_state(
                 agent = get_agent_db(db, agent_id)
             if agent:
                 agent_data_folder = agent.get("data_folder")
-                    agent_model = agent.get("model") or "claude-3-haiku-20240307"  # Default to Haiku
+                agent_model = agent.get("model") or "claude-3-haiku-20240307"  # Default to Haiku
         except Exception as e:
             logger.warning(f"Error loading agent config for {agent_id}: {e}")
         
@@ -307,8 +307,8 @@ def handle_query(
             # Preserve business_question if empty
             if not new_query_spec.get("business_question") and prior_spec.get("business_question"):
                 if query_type == "FOLLOW_UP":
-                # For follow-ups, combine prior question with new context
-                new_query_spec["business_question"] = f"Follow-up: {state['user_query']} (based on: {prior_spec['business_question']})"
+                    # For follow-ups, combine prior question with new context
+                    new_query_spec["business_question"] = f"Follow-up: {state['user_query']} (based on: {prior_spec['business_question']})"
                 else:
                     # For retries, keep the same business question baseline
                     new_query_spec["business_question"] = prior_spec["business_question"]
