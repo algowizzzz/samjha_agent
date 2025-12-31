@@ -208,7 +208,7 @@ def initialize_controller_state(
                 agent = get_agent_db(db, agent_id)
             if agent:
                 agent_data_folder = agent.get("data_folder")
-                agent_model = agent.get("model") or "claude-3-haiku-20240307"  # Default to Haiku
+                agent_model = agent.get("model") or "claude-sonnet-4-20250514"  # Default to Sonnet
         except Exception as e:
             logger.warning(f"Error loading agent config for {agent_id}: {e}")
         
@@ -219,13 +219,13 @@ def initialize_controller_state(
                 agent_dict = get_agent(agent_id)
                 if agent_dict:
                     agent_data_folder = agent_dict.get("data_folder")
-                    agent_model = agent_dict.get("model") or "claude-3-haiku-20240307"  # Default to Haiku
+                    agent_model = agent_dict.get("model") or "claude-sonnet-4-20250514"  # Default to Sonnet
             except Exception as e:
                 logger.warning(f"Error loading agent config from file for {agent_id}: {e}")
     
     # Ensure agent_model has a default value
     if agent_model is None:
-        agent_model = "claude-3-haiku-20240307"
+        agent_model = "claude-sonnet-4-20250514"
     
     return {
         "user_query": user_query,

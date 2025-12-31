@@ -162,16 +162,18 @@ When `query_type` is `FOLLOW_UP`, `USER_ANSWER`, or `RETRY`:
 
 | Field | Inheritance Rule |
 |-------|-----------------|
-| `business_question` | **ALWAYS GENERATE FRESH** from `user_query`. This is NEVER inherited. Set `query_spec_status.business_question.status = "verified"`. |
+| `business_question` | **DEPENDS ON QUERY TYPE:** |
+|                     | - `FOLLOW_UP/RETRY`: Generate fresh from `user_query` (it's a new/modified question). |
+|                     | - `USER_ANSWER`: **INHERIT from `prior_query_spec.business_question`** because the user's answer is metadata about data structure, NOT a new business question. If prior is empty, reconstruct from `conversation_history`. |
 | `start_table.path` | If `prior_query_spec.start_table.path` exists, copy the **exact string value**. NEVER output placeholder text. |
-| `start_table.name` | If `prior_query_spec.start_table.name` exists, copy the **exact string value**. |
+| `start_table.name` | If `prior_query_spec.start_table.name` exists, copy the **exact string value**. **For USER_ANSWER: Do NOT change start_table just because user mentions another table - that's likely a JOIN target, not a replacement.** |
 | `grain` | If `prior_query_spec.grain` exists and user doesn't explicitly change it, copy exactly. |
 | `metrics` | If `prior_query_spec.metrics` exists and user doesn't change metrics, copy the entire array. |
 | `dimensions` | If user adds dimensions, merge: `prior dimensions + new dimensions`. If user doesn't mention, preserve prior. |
 | `filters` | If `prior_query_spec.filters` exists and user doesn't remove them, preserve. If user adds filters, merge. |
 | `time` | If `prior_query_spec.time` exists and user doesn't change time, preserve all time settings. |
 | `aggregation_plan` | If `prior_query_spec.aggregation_plan` exists, preserve it. |
-| `joins` | If `prior_query_spec.joins` exists and still relevant, preserve. |
+| `joins` | If `prior_query_spec.joins` exists, preserve. **For USER_ANSWER: If user mentions "join using X" or "X is in Y table", ADD a new join entry - don't just preserve.** |
 
 **CRITICAL: `business_question` and `query_spec_status.business_question` are REQUIRED for ALL query types.**
 
@@ -592,35 +594,135 @@ Extract sorting and limit information from the user query and populate `query_sp
 
 #### If `query_type = "USER_ANSWER"`:
 
-You are responding to a prior `ASK_USER` and should **fill the specific missing gap** with the user's answer.
+You are responding to a prior `ASK_USER`. The user's answer is **metadata about data structure**, NOT a new business question.
 
-**Step 1: Identify which field to fill**
-- Check `continuity_packet.pending_clarification.fills_gap` for the field that was asked about
-- Alternatively, check the most recent `ASK_USER` in `conversation_history` or the prior `ask_user.fills_gap` if available
-- Common fields to fill: `start_table.path`, `dimensions`, `metrics`, `filters`, `time.column`
+**⚠️ STOP! BEFORE GENERATING OUTPUT, LOOK AT `prior_query_spec` in continuity_packet:**
 
-**Step 2: Map the user's answer to that field**
+If `prior_query_spec` contains:
+```json
+{
+  "business_question": "Average order value by customer tier",
+  "metrics": [{"name": "avg_order_value", "definition": "revenue / order_count"}],
+  "dimensions": ["customer_tier"],
+  "start_table": {"name": "feb012024_sales_feb012024", "path": "feb012024/sales_feb012024.csv"}
+}
+```
 
-| User Answer Pattern | Field to Update | Example |
-|---------------------|-----------------|---------|
-| Table/file name | `start_table.name` and `start_table.path` | "use the sales table" → `start_table.name = "sales"` |
-| Column name | The dimension/metric that was missing | "revenue column" → add to metrics |
-| Filter value | `filters` array | "only East region" → `filters = ["region = 'East'"]` |
-| Time period | `time.start`, `time.end`, `time.rule` | "last month" → `time.rule = "last_month"` |
-| Confirmation | Keep the inferred value, mark as verified | "yes", "the first one" → keep prior, status = "verified" |
+Then your output `query_spec` MUST ALSO contain these EXACT same values (plus any additions from the user's answer):
+```json
+{
+  "business_question": "Average order value by customer tier",  // COPIED from prior!
+  "metrics": [{"name": "avg_order_value", "definition": "revenue / order_count"}],  // COPIED from prior!
+  "dimensions": ["customer_tier"],  // COPIED from prior!
+  "start_table": {"name": "feb012024_sales_feb012024", "path": "feb012024/sales_feb012024.csv"},  // COPIED from prior!
+  "joins": [...]  // NEW from user's answer
+}
+```
 
-**Step 3: Preserve everything else from prior_query_spec**
-- Copy ALL other fields exactly from `prior_query_spec`
-- Only modify the specific field the user answered about
+**❌ WRONG OUTPUT (will fail):**
+```json
+{
+  "business_question": "",  // EMPTY - WRONG!
+  "metrics": [],  // EMPTY - WRONG!
+  "dimensions": []  // EMPTY - WRONG!
+}
+```
 
-**Step 4: Update status**
+---
+
+**Step 1: Copy ALL values from prior_query_spec first**
+- `business_question`: COPY the actual string from `prior_query_spec.business_question`
+- `metrics`: COPY the entire array from `prior_query_spec.metrics`
+- `dimensions`: COPY the entire array from `prior_query_spec.dimensions`
+- `start_table`: COPY both `name` and `path` from `prior_query_spec.start_table`
+- `grain`, `filters`, `time`: COPY from prior if present
+
+**Step 2: Add/modify based on user's answer**
+
+**Step 3: Parse user's answer for structured data**
+
+| User Answer Contains | What to Extract | Action |
+|---------------------|-----------------|--------|
+| "X is in Y table" | Dimension X lives in table Y | **ADD JOIN** from start_table to Y (do NOT replace start_table!) |
+| "join using X" / "join on X" | Join column is X | Add `joins` entry with `on: "X"` |
+| "link/connect A to B" | Tables A and B need joining | Add `joins` entry |
+| Column name answer | The column/dimension asked about | Update that specific field |
+| "yes" / confirmation | Prior inference was correct | Mark as verified |
+
+**Step 3.5: CRITICAL - Table mentions = JOIN additions, NOT start_table replacement**
+
+When user says "X is in Y table" (e.g., "customer_tier is in customer table"):
+- This tells you WHERE dimension X lives
+- You should ADD a join from current start_table to Y
+- **DO NOT replace start_table with Y** - that loses the base query context!
+
+Example:
+- Prior: `start_table: sales`, asking about `customer_tier`
+- User says: "customer_tier is in customer table, join using customer_id"
+- **CORRECT**: Keep `start_table: sales`, ADD `joins: [{left_table: "*_sales_*", right_table: "*_customer_*", on: "customer_id"}]`
+- **WRONG**: Change `start_table` to customer (loses sales context!)
+
+**Step 4: Preserve everything else from prior_query_spec**
+- Copy `start_table.name` and `start_table.path` from prior (unless user explicitly says to change base table)
+- Copy `metrics` array from prior
+- Copy `dimensions` array from prior
+- Copy `filters` from prior
+- Copy `grain` from prior
+- Copy `aggregation_plan` from prior
+
+**Step 5: Check metric definitions in domain_md**
+- If user mentions metrics like "revenue", "order_count" - these are CALCULATED metrics, not columns!
+- Look up definitions in `domain_md` Section 6 (Metrics dictionary)
+- Example: `revenue = SUM(quantity * price)` - computed from quantity and price columns
+- Do NOT ask "where is the revenue column?" for defined metrics
+
+**Step 6: Update status**
 - Set the filled field's status to `verified`, source=`user`
 - Add note: "User answered: [their answer]"
 
-**CRITICAL Rules:**
-- Ensure `query_spec.business_question` is **NON-EMPTY** - copy from `prior_query_spec.business_question` if needed
-- Do NOT change fields the user didn't answer about
-- Do NOT output placeholder text like `<from prior>`
+**Complete USER_ANSWER Example:**
+
+Prior state:
+- `business_question`: "Average order value by customer tier"
+- `start_table`: `{name: "feb012024_sales_feb012024", path: "feb012024/sales_feb012024.csv"}`
+- `metrics`: `[{name: "avg_order_value", definition: "revenue / order_count"}]`
+- `dimensions`: `["customer_tier"]`
+- Prior ASK_USER: "Where is customer_tier located?"
+
+User answers: "The customer tier is in the customer table, join using customer_id"
+
+Your output MUST be:
+```json
+{
+  "query_spec": {
+    "business_question": "Average order value by customer tier",
+    "start_table": {
+      "name": "feb012024_sales_feb012024",
+      "path": "feb012024/sales_feb012024.csv"
+    },
+    "metrics": [{"name": "avg_order_value", "definition": "revenue / order_count"}],
+    "dimensions": ["customer_tier"],
+    "joins": [
+      {
+        "left_table": "*_sales_*",
+        "right_table": "*_customer_*",
+        "on": "customer_id",
+        "join_type": "LEFT"
+      }
+    ]
+  },
+  "query_spec_status": {
+    "business_question": {"status": "verified", "source": "user", "notes": "Inherited from prior query", "blocks_execution": false},
+    "joins": {"status": "verified", "source": "user", "notes": "User specified: join customer table using customer_id", "blocks_execution": false}
+  }
+}
+```
+
+**FORBIDDEN in USER_ANSWER:**
+- Empty `business_question` (must inherit from prior!)
+- Replacing `start_table` when user only mentioned where a dimension lives
+- Asking "where is revenue column?" when revenue is a defined metric in domain_md
+- Output placeholder text like `<from prior>`
 
 #### If `query_type = "RETRY"`:
 
