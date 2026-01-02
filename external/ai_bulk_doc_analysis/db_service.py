@@ -8,10 +8,30 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
+
+# CRITICAL: Load DATABASE_URL BEFORE importing models
+# This ensures _is_postgresql is correctly set in models.py
+database_url = os.getenv("DATABASE_URL")
+if not database_url:
+    try:
+        from dotenv import load_dotenv
+        project_root = Path(__file__).parent.parent.parent
+        env_file = project_root / ".env.local"
+        if env_file.exists():
+            load_dotenv(env_file)
+            database_url = os.getenv("DATABASE_URL")
+    except (ImportError, Exception):
+        pass
+
+# Set DATABASE_URL in environment so models.py can detect PostgreSQL
+if database_url:
+    os.environ["DATABASE_URL"] = database_url
+
 from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker, Session as SQLASession
 from sqlalchemy.exc import IntegrityError
 
+# Import all models to ensure they're registered before FK resolution
 from .models import (
     Base,
     Session as DBSession,
@@ -21,7 +41,20 @@ from .models import (
     ChainVersion as DBChainVersion,
     Run as DBRun,
     StepResult as DBStepResult,
+    Workflow,
+    WorkflowVersion,
+    WorkflowDomain,
+    IngestionProfile,
+    ExportProfile,
+    ExecutionTask,
+    JobQueueLog,
 )
+# Force mapper configuration after all imports
+try:
+    from sqlalchemy.orm import configure_mappers
+    configure_mappers()
+except Exception:
+    pass  # Ignore mapper config errors - they might resolve at runtime
 from .services import Document, Chain, StepResult, Run
 
 logger = logging.getLogger(__name__)
@@ -87,12 +120,29 @@ def init_db(database_url: Optional[str] = None):
                     dbapi_conn.commit()
             except Exception as e:
                 logger.warning(f"Failed to set search_path: {e}")
+        
+        # Also set search_path on checkout from pool (for reused connections)
+        @event.listens_for(_engine, "checkout")
+        def set_search_path_checkout(dbapi_conn, connection_record, connection_proxy):
+            """Set search_path on connection checkout from pool."""
+            try:
+                with dbapi_conn.cursor() as cur:
+                    cur.execute("SET search_path TO public")
+                    dbapi_conn.commit()
+            except Exception:
+                pass  # Ignore errors
 
     # Create session factory
     _SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=_engine)
 
-    # Create tables
-    Base.metadata.create_all(bind=_engine)
+    # Create tables - ensure they exist
+    # Use checkfirst=True to avoid errors if tables already exist
+    try:
+        Base.metadata.create_all(bind=_engine, checkfirst=True)
+        logger.info("Database tables created/verified successfully")
+    except Exception as e:
+        logger.error(f"Error creating tables: {e}", exc_info=True)
+        # Don't fail completely - tables might already exist
     
     # Fix step_results unique constraint for CSV workflows (PostgreSQL)
     if database_url and database_url.startswith('postgresql'):
@@ -387,6 +437,7 @@ class BulkDocDBService:
                 db_step = DBChainStep(
                     chain_id=chain_id,
                     step_index=step_data["index"],
+                    title=step_data.get("title", ""),
                     prompt=step_data["prompt"],
                     description=step_data.get("description", ""),
                     required_inputs=step_data["required_inputs"],
@@ -450,6 +501,7 @@ class BulkDocDBService:
                 db_step = DBChainStep(
                     chain_id=chain_id,
                     step_index=step_data["index"],
+                    title=step_data.get("title", ""),
                     prompt=step_data["prompt"],
                     description=step_data.get("description", ""),
                     required_inputs=step_data["required_inputs"],
@@ -870,6 +922,7 @@ class BulkDocDBService:
         for db_step in db_steps:
             step_dict = {
                 "index": db_step.step_index,
+                "title": db_step.title or "",
                 "required_inputs": db_step.required_inputs,
                 "prompt": db_step.prompt,
                 "description": db_step.description or "",
