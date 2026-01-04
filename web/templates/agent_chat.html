@@ -1508,10 +1508,17 @@
                                 const response = payload.response || '';
                                 const evidencePack = payload.evidence_pack; // Web research agent data
                                 
-                                if (markdownBody && typeof marked !== 'undefined') {
-                                    markdownBody.innerHTML = marked.parse(response);
-                                } else if (markdownBody) {
-                                    markdownBody.innerHTML = '<div>' + escapeHtml(response) + '</div>';
+                                if (markdownBody) {
+                                    if (response && response.trim()) {
+                                        if (typeof marked !== 'undefined') {
+                                            markdownBody.innerHTML = marked.parse(response);
+                                        } else {
+                                            markdownBody.innerHTML = '<div>' + escapeHtml(response) + '</div>';
+                                        }
+                                    } else {
+                                        // Empty response - show helpful message
+                                        markdownBody.innerHTML = '<div class="text-muted"><i class="bi bi-info-circle"></i> Response received but content is empty. Check evidence pack below or try rephrasing your query.</div>';
+                                    }
                                 }
                                 
                                 // Display evidence pack for web research agents
@@ -1593,6 +1600,23 @@
                                                     rows: runData.results.rows || [],
                                                     row_count: (runData.results.rows || []).length
                                                 });
+                                            } else if (runData.status === 'success' && runData.result_summary) {
+                                                // Web research agent - check result_summary for final_answer
+                                                try {
+                                                    const summary = JSON.parse(runData.result_summary);
+                                                    if (summary.final_answer && markdownBody && !markdownBody.innerHTML.trim()) {
+                                                        if (typeof marked !== 'undefined') {
+                                                            markdownBody.innerHTML = marked.parse(summary.final_answer);
+                                                        } else {
+                                                            markdownBody.innerHTML = '<div>' + escapeHtml(summary.final_answer) + '</div>';
+                                                        }
+                                                    }
+                                                } catch (e) {
+                                                    // Not JSON, use as-is if markdownBody is empty
+                                                    if (markdownBody && !markdownBody.innerHTML.trim()) {
+                                                        markdownBody.innerHTML = '<div>' + escapeHtml(runData.result_summary) + '</div>';
+                                                    }
+                                                }
                                             }
                                         })
                                         .always(function() {
@@ -1626,8 +1650,33 @@
                         $('#sendBtn').prop('disabled', false);
                         isQueryRunning = false;
                         if (markdownBody) {
-                            markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Connection closed.';
+                            // Check if we have a run to fetch results from
+                            if (currentRunId) {
+                                API.get(`/api/runs/${currentRunId}`)
+                                    .done(function(runData) {
+                                        if (runData.status === 'success' && runData.result_summary) {
+                                            try {
+                                                const summary = JSON.parse(runData.result_summary);
+                                                if (summary.final_answer) {
+                                                    if (typeof marked !== 'undefined') {
+                                                        markdownBody.innerHTML = marked.parse(summary.final_answer);
+                                                    } else {
+                                                        markdownBody.innerHTML = '<div>' + escapeHtml(summary.final_answer) + '</div>';
+                                                    }
+                                                    return;
+                                                }
+                                            } catch (e) {}
+                                        }
+                                        markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Connection closed. Query may have completed - check run status.';
+                                    })
+                                    .fail(function() {
+                                        markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Connection closed. Unable to fetch results.';
+                                    });
+                            } else {
+                                markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Connection closed.';
+                            }
                         }
+                        currentResponseId = null;
                     }
                 };
             })

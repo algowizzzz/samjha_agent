@@ -602,16 +602,16 @@ def _run_agent_async(
         else:
             # Structured agent (default)
             from external.agent.parquet_agent import handle_query
-        result = handle_query(
-            user_query=user_query,
-            conversation_history=conversation_history,
+            result = handle_query(
+                user_query=user_query,
+                conversation_history=conversation_history,
                 prior_state=prior_state,
-            tools_registry=None,  # Will use default
-            policy_limits=None,
-            show_thinking=show_thinking,
-            agent_id=agent_id,
+                tools_registry=None,  # Will use default
+                policy_limits=None,
+                show_thinking=show_thinking,
+                agent_id=agent_id,
                 on_decider_output=lambda decider_output, _state: _persist_decider_output(run_id, decider_output),
-        )
+            )
         
         if _is_run_cancelled(run_id):
             _emit_event(run_id, "run_cancelled", {})

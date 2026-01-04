@@ -397,7 +397,8 @@ def render_success_from_evidence(state: ResearchControllerState) -> dict:
     
     return {
         "status": "SUCCESS",
-        "final_answer": final_answer,
+        "response": final_answer,  # Primary response field
+        "final_answer": final_answer,  # Also include for compatibility
         "evidence_pack": evidence_pack,
         "sources": evidence_pack.get("sources", []),
         "claims": evidence_pack.get("claims", []),

@@ -790,6 +790,7 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
         accepted_input_types = data.get("accepted_input_types", [])
         mode = data.get("mode", "programmatic")
         vision_prompt = data.get("vision_prompt")
+        vision_config = data.get("vision_config")
 
         # Validation
         if not name:
@@ -806,7 +807,8 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
                 name=name,
                 accepted_input_types=accepted_input_types,
                 mode=mode,
-                vision_prompt=vision_prompt
+                vision_prompt=vision_prompt,
+                vision_config=vision_config
             )
             return jsonify({
                 "success": True,
@@ -838,12 +840,18 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
             if not profile:
                 return jsonify({"error": "Ingestion profile not found"}), 404
             
+            # Extract vision_config from metadata_json
+            vision_config = {}
+            if profile.metadata_json and isinstance(profile.metadata_json, dict):
+                vision_config = profile.metadata_json.get("vision_config", {})
+            
             return jsonify({
                 "ingestion_profile_id": profile.ingestion_profile_id,
                 "name": profile.name,
                 "accepted_input_types": profile.accepted_input_types,
                 "mode": profile.mode,
                 "vision_prompt": profile.vision_prompt,  # Include prompt in response
+                "vision_config": vision_config,  # Include vision config in response
                 "created_at": profile.created_at.isoformat() if profile.created_at else None,
             })
         except Exception as e:
@@ -863,6 +871,7 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
         accepted_input_types = data.get("accepted_input_types", [])
         mode = data.get("mode")
         vision_prompt = data.get("vision_prompt")
+        vision_config = data.get("vision_config")
         
         try:
             from .ingestion_service import IngestionService
@@ -891,6 +900,12 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
                     db_profile.mode = mode
                 if vision_prompt is not None:
                     db_profile.vision_prompt = vision_prompt
+                
+                # Update vision_config in metadata_json
+                if vision_config is not None:
+                    if not isinstance(db_profile.metadata_json, dict):
+                        db_profile.metadata_json = {}
+                    db_profile.metadata_json["vision_config"] = vision_config
                 
                 db.commit()
             

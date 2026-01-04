@@ -274,6 +274,52 @@ class LLMClient:
             # Fallback to previous behavior
             return response.content[0].text
         except Exception as e:
+            # Check for Anthropic API exceptions with error details
+            error_str = str(e)
+            error_msg = None
+            
+            # Try to extract error details from Anthropic exception object
+            try:
+                if hasattr(e, 'response') and hasattr(e.response, 'json'):
+                    error_data = e.response.json()
+                    if isinstance(error_data, dict) and 'error' in error_data:
+                        error_info = error_data['error']
+                        error_msg = error_info.get('message', error_str)
+                        error_type = error_info.get('type', '')
+                        
+                        # Check for credit balance issues
+                        if "credit" in error_msg.lower() or "balance" in error_msg.lower() or "too low" in error_msg.lower():
+                            raise RuntimeError(f"⚠️ Anthropic API Credit Issue: {error_msg}\n\nPlease add credits to your Anthropic account:\nhttps://console.anthropic.com/settings/billing")
+                        
+                        # For other 400 errors, provide the actual message
+                        if error_type == "invalid_request_error":
+                            raise RuntimeError(f"Anthropic API error: {error_msg}")
+            except RuntimeError:
+                raise  # Re-raise our custom RuntimeError
+            except:
+                pass  # Fall through to parse error string
+            
+            # Parse error string if it contains JSON (Anthropic sometimes formats errors this way)
+            try:
+                import re
+                # Look for JSON-like structure in error string: {'type': 'error', 'error': {...}}
+                json_match = re.search(r"\{'type':\s*'error',\s*'error':\s*\{([^}]+)\}", error_str)
+                if json_match:
+                    # Try to extract message from the error dict
+                    message_match = re.search(r"'message':\s*'([^']+)'", error_str)
+                    if message_match:
+                        error_msg = message_match.group(1)
+                        if "credit" in error_msg.lower() or "balance" in error_msg.lower() or "too low" in error_msg.lower():
+                            raise RuntimeError(f"⚠️ Anthropic API Credit Issue: {error_msg}\n\nPlease add credits to your Anthropic account:\nhttps://console.anthropic.com/settings/billing")
+            except RuntimeError:
+                raise
+            except:
+                pass
+            
+            # Generic error handling
+            if "credit balance" in error_str.lower() or "too low" in error_str.lower() or "credit" in error_str.lower():
+                raise RuntimeError(f"⚠️ Anthropic API credit balance is too low. Please add credits:\nhttps://console.anthropic.com/settings/billing")
+            
             raise RuntimeError(f"Anthropic API error: {e}")
 
     def _invoke_anthropic_detailed(
@@ -327,6 +373,52 @@ class LLMClient:
 
             return {"text": "".join(text_chunks), "thinking": "".join(thinking_chunks)}
         except Exception as e:
+            # Check for Anthropic API exceptions with error details
+            error_str = str(e)
+            error_msg = None
+            
+            # Try to extract error details from Anthropic exception object
+            try:
+                if hasattr(e, 'response') and hasattr(e.response, 'json'):
+                    error_data = e.response.json()
+                    if isinstance(error_data, dict) and 'error' in error_data:
+                        error_info = error_data['error']
+                        error_msg = error_info.get('message', error_str)
+                        error_type = error_info.get('type', '')
+                        
+                        # Check for credit balance issues
+                        if "credit" in error_msg.lower() or "balance" in error_msg.lower() or "too low" in error_msg.lower():
+                            raise RuntimeError(f"⚠️ Anthropic API Credit Issue: {error_msg}\n\nPlease add credits to your Anthropic account:\nhttps://console.anthropic.com/settings/billing")
+                        
+                        # For other 400 errors, provide the actual message
+                        if error_type == "invalid_request_error":
+                            raise RuntimeError(f"Anthropic API error: {error_msg}")
+            except RuntimeError:
+                raise  # Re-raise our custom RuntimeError
+            except:
+                pass  # Fall through to parse error string
+            
+            # Parse error string if it contains JSON (Anthropic sometimes formats errors this way)
+            try:
+                import re
+                # Look for JSON-like structure in error string: {'type': 'error', 'error': {...}}
+                json_match = re.search(r"\{'type':\s*'error',\s*'error':\s*\{([^}]+)\}", error_str)
+                if json_match:
+                    # Try to extract message from the error dict
+                    message_match = re.search(r"'message':\s*'([^']+)'", error_str)
+                    if message_match:
+                        error_msg = message_match.group(1)
+                        if "credit" in error_msg.lower() or "balance" in error_msg.lower() or "too low" in error_msg.lower():
+                            raise RuntimeError(f"⚠️ Anthropic API Credit Issue: {error_msg}\n\nPlease add credits to your Anthropic account:\nhttps://console.anthropic.com/settings/billing")
+            except RuntimeError:
+                raise
+            except:
+                pass
+            
+            # Generic error handling
+            if "credit balance" in error_str.lower() or "too low" in error_str.lower() or "credit" in error_str.lower():
+                raise RuntimeError(f"⚠️ Anthropic API credit balance is too low. Please add credits:\nhttps://console.anthropic.com/settings/billing")
+            
             raise RuntimeError(f"Anthropic API error: {e}")
 
     

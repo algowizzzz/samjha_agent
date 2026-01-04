@@ -21,8 +21,8 @@ Copyright All rights Reserved 2025-2030, Ashutosh Sinha, Email: ajsinha@gmail.co
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <button id="backBtn" class="btn btn-outline-light btn-sm me-2" onclick="window.history.back()" title="Go back" style="display: none; padding: 4px 10px; font-size: 14px;">
-                <i class="bi bi-arrow-left"></i>
+            <button id="backBtn" class="btn btn-outline-light btn-sm me-2" onclick="window.history.back()" title="Go back" style="padding: 4px 10px; font-size: 14px;">
+                ←
             </button>
             <a class="navbar-brand" href="{% if session.token %}{{ url_for('index') }}{% else %}{{ url_for('login') }}{% endif %}">
                 <i class="bi bi-robot"></i> Agentic AI Platform
@@ -101,15 +101,13 @@ Copyright All rights Reserved 2025-2030, Ashutosh Sinha, Email: ajsinha@gmail.co
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}?v=20251113"></script>
-    
-    <!-- Back button visibility -->
     <script>
+    // Hide back button on home/login pages
     (function() {
         var path = window.location.pathname;
-        var isHome = path === '/' || path === '/home' || path === '/login';
-        var backBtn = document.getElementById('backBtn');
-        if (backBtn && !isHome && window.history.length > 1) {
-            backBtn.style.display = 'inline-block';
+        if (path === '/' || path === '/home' || path === '/login') {
+            var btn = document.getElementById('backBtn');
+            if (btn) btn.style.display = 'none';
         }
     })();
     </script>

@@ -47,6 +47,9 @@ from .db_service import get_db_session
 
 logger = logging.getLogger(__name__)
 
+# Default vision prompt for document extraction
+DEFAULT_VISION_PROMPT = """Extract all text from these document pages. Preserve the structure, formatting, and layout as much as possible. Include all tables, lists, and paragraphs. Convert the content to markdown format with appropriate headings, tables, and formatting."""
+
 
 class IngestionService:
     """Service for file ingestion (programmatic and vision)."""
@@ -56,7 +59,8 @@ class IngestionService:
         name: str,
         accepted_input_types: List[str],
         mode: str,
-        vision_prompt: Optional[str] = None
+        vision_prompt: Optional[str] = None,
+        vision_config: Optional[Dict] = None
     ) -> IngestionProfile:
         """
         Create an ingestion profile.
@@ -66,6 +70,7 @@ class IngestionService:
             accepted_input_types: List of accepted file types ['PDF', 'DOCX', 'TXT', 'MD', 'CSV']
             mode: 'programmatic' or 'vision'
             vision_prompt: Vision prompt text (required if mode='vision')
+            vision_config: Vision configuration dict with dpi, image_format, jpeg_quality, model, max_tokens, temperature
             
         Returns:
             Created IngestionProfile object
@@ -87,6 +92,22 @@ class IngestionService:
             if file_type not in valid_types:
                 raise ValueError(f"Invalid file type: {file_type}. Valid types: {valid_types}")
         
+        # Set default vision_config if mode is vision and config not provided
+        if mode == 'vision' and vision_config is None:
+            vision_config = {
+                "dpi": 200,
+                "image_format": "PNG",
+                "jpeg_quality": 85,
+                "model": "claude-3-opus-20240229",
+                "max_tokens": 4096,
+                "temperature": 0.0
+            }
+        
+        # Prepare metadata_json
+        metadata = {}
+        if vision_config:
+            metadata["vision_config"] = vision_config
+        
         with get_db_session() as db:
             ingestion_profile_id = f"ing_{uuid.uuid4().hex[:12]}"
             profile = IngestionProfile(
@@ -94,7 +115,8 @@ class IngestionService:
                 name=name,
                 accepted_input_types=accepted_input_types,
                 mode=mode,
-                vision_prompt=vision_prompt
+                vision_prompt=vision_prompt,
+                metadata_json=metadata if metadata else {}
             )
             db.add(profile)
             db.commit()
@@ -154,7 +176,7 @@ class IngestionService:
         elif ingestion_profile.mode == 'vision':
             if file_type != 'PDF':
                 raise ValueError("Vision ingestion only supports PDF files")
-            return self._ingest_vision(file_path, ingestion_profile.vision_prompt)
+            return self._ingest_vision(file_path, ingestion_profile)
         else:
             raise ValueError(f"Unknown ingestion mode: {ingestion_profile.mode}")
     
@@ -316,13 +338,13 @@ class IngestionService:
         else:
             raise ValueError(f"Unsupported file type for programmatic ingestion: {file_type}")
     
-    def _ingest_vision(self, file_path: Path, vision_prompt: str) -> Tuple[str, Dict]:
+    def _ingest_vision(self, file_path: Path, ingestion_profile: IngestionProfile) -> Tuple[str, Dict]:
         """
-        Vision ingestion - convert PDF to images and call Claude Vision API.
+        Vision ingestion - convert PDF to images and call Claude Vision API per page.
         
         Args:
             file_path: Path to PDF file
-            vision_prompt: Vision prompt text
+            ingestion_profile: IngestionProfile object with vision config
             
         Returns:
             Tuple of (r0_content, metadata)
@@ -336,68 +358,124 @@ class IngestionService:
         if not LLM_AVAILABLE:
             raise RuntimeError("LLM client not available")
         
-        metadata = {"method": "vision", "file_type": "PDF"}
+        # Extract vision configuration from metadata_json
+        vision_config = {}
+        if ingestion_profile.metadata_json and isinstance(ingestion_profile.metadata_json, dict):
+            vision_config = ingestion_profile.metadata_json.get("vision_config", {})
+        
+        # Get config values with defaults
+        dpi = vision_config.get("dpi", 200)
+        image_format = vision_config.get("image_format", "PNG").upper()
+        jpeg_quality = vision_config.get("jpeg_quality", 85)
+        model = vision_config.get("model", "claude-3-opus-20240229")
+        max_tokens = vision_config.get("max_tokens", 4096)
+        temperature = vision_config.get("temperature", 0.0)
+        vision_prompt = ingestion_profile.vision_prompt or DEFAULT_VISION_PROMPT
+        
+        metadata = {
+            "method": "vision",
+            "file_type": "PDF",
+            "dpi": dpi,
+            "image_format": image_format,
+            "model": model
+        }
         
         try:
-            # Convert PDF pages to images
-            images = convert_from_path(str(file_path))
+            import io
+            
+            # Convert PDF pages to images with configurable DPI
+            images = convert_from_path(str(file_path), dpi=dpi, fmt=image_format.lower())
             metadata["page_count"] = len(images)
             
-            # Prepare messages for Claude Vision API
-            messages = []
-            
-            # Add images (base64 encoded)
-            for img in images:
-                # Convert PIL Image to base64
-                import io
-                img_buffer = io.BytesIO()
-                img.save(img_buffer, format='PNG')
-                img_bytes = img_buffer.getvalue()
-                img_base64 = base64.b64encode(img_bytes).decode('utf-8')
-                
-                messages.append({
-                    "type": "image",
-                    "source": {
-                        "type": "base64",
-                        "media_type": "image/png",
-                        "data": img_base64
-                    }
-                })
-            
-            # Add text prompt
-            messages.append({
-                "type": "text",
-                "text": vision_prompt
-            })
-            
-            # Call Claude Vision API
+            # Initialize LLM client
             llm_client = get_llm_client()
             if not llm_client.is_available():
                 raise RuntimeError("LLM client not initialized. Check ANTHROPIC_API_KEY.")
             
-            # Use vision-capable model
+            # Process one page at a time
+            r0_parts = []
+            r0_parts.append(f"# Document: {file_path.name}\n\n")
+            total_input_tokens = 0
+            total_output_tokens = 0
+            failed_pages = []
+            
+            for page_num, img in enumerate(images, start=1):
+                try:
+                    # Encode single image with configurable format
+                    img_buffer = io.BytesIO()
+                    if image_format == "JPEG":
+                        img.save(img_buffer, format='JPEG', quality=jpeg_quality, optimize=True)
+                        media_type = "image/jpeg"
+                    else:
+                        img.save(img_buffer, format='PNG', optimize=True)
+                        media_type = "image/png"
+                    
+                    img_bytes = img_buffer.getvalue()
+                    img_base64 = base64.b64encode(img_bytes).decode('utf-8')
+                    
+                    # Create messages for single page
+                    messages = [{
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": media_type,
+                            "data": img_base64
+                        }
+                    }, {
+                        "type": "text",
+                        "text": vision_prompt
+                    }]
+                    
+                    # Make API call for this page
             response = llm_client.client.messages.create(
-                model="claude-3-opus-20240229",  # Vision-capable model
+                        model=model,
                 messages=[{"role": "user", "content": messages}],
-                max_tokens=4096
+                        max_tokens=max_tokens,
+                        temperature=temperature
             )
             
             # Extract text from response
-            r0_content = ""
+                    page_content = ""
             for block in getattr(response, "content", []) or []:
                 block_type = getattr(block, "type", None)
                 if block_type == "text":
                     block_text = getattr(block, "text", None)
                     if isinstance(block_text, str):
-                        r0_content += block_text
+                                page_content += block_text
             
-            # Get token usage
+                    # Add page marker and content
+                    r0_parts.append(f"## Page {page_num}\n\n")
+                    r0_parts.append(page_content)
+                    r0_parts.append("\n\n")
+                    
+                    # Track tokens
             usage = getattr(response, "usage", None)
             if usage:
-                metadata["input_tokens"] = getattr(usage, "input_tokens", 0) or 0
-                metadata["output_tokens"] = getattr(usage, "output_tokens", 0) or 0
+                        page_input_tokens = getattr(usage, "input_tokens", 0) or 0
+                        page_output_tokens = getattr(usage, "output_tokens", 0) or 0
+                        total_input_tokens += page_input_tokens
+                        total_output_tokens += page_output_tokens
+                    
+                    logger.info(f"Processed page {page_num}/{len(images)} of {file_path.name}")
+                    
+                except Exception as e:
+                    logger.error(f"Error processing page {page_num} of {file_path.name}: {e}", exc_info=True)
+                    failed_pages.append(page_num)
+                    # Add error marker but continue processing
+                    r0_parts.append(f"## Page {page_num}\n\n")
+                    r0_parts.append(f"*Error processing this page: {str(e)}*\n\n")
             
-            logger.info(f"Vision ingestion completed for {file_path.name}, {metadata.get('page_count', 0)} pages")
+            # Combine all pages
+            r0_content = ''.join(r0_parts)
+            
+            # Add metadata
+            metadata["input_tokens"] = total_input_tokens
+            metadata["output_tokens"] = total_output_tokens
+            if failed_pages:
+                metadata["failed_pages"] = failed_pages
+                metadata["warning"] = f"Failed to process {len(failed_pages)} page(s): {failed_pages}"
+            
+            logger.info(f"Vision ingestion completed for {file_path.name}, {metadata.get('page_count', 0)} pages, {total_input_tokens} input tokens, {total_output_tokens} output tokens")
             return r0_content, metadata
             
         except Exception as e:
@@ -427,21 +505,39 @@ class IngestionService:
             return estimated_chars // 4
         
         elif ingestion_profile.mode == 'vision':
-            # For vision: prompt tokens + image payload estimate
-            # Rough estimate: ~1000 tokens per image (adjust based on size)
+            # For vision: prompt tokens + image payload estimate per page
+            # Higher DPI = more tokens per image
             try:
+                # Extract vision_config to get DPI
+                vision_config = {}
+                if ingestion_profile.metadata_json and isinstance(ingestion_profile.metadata_json, dict):
+                    vision_config = ingestion_profile.metadata_json.get("vision_config", {})
+                dpi = vision_config.get("dpi", 200)
+                
+                # Higher DPI = more tokens per image
+                # Rough estimate: 200 DPI ≈ 1000 tokens, 300 DPI ≈ 1500 tokens
+                tokens_per_image = int(1000 * (dpi / 200))
+                
                 if PDF2IMAGE_AVAILABLE:
-                    images = convert_from_path(str(file_path), first_page=1, last_page=1)
-                    image_count = len(images) if images else 1
+                    # Get actual page count
+                    images = convert_from_path(str(file_path), first_page=1, last_page=1, dpi=dpi)
+                    sample_image_count = len(images) if images else 1
+                    # Estimate total pages (rough: assume similar to sample)
+                    # For better accuracy, could count all pages, but this is just estimation
+                    total_pages = sample_image_count  # Conservative: use sample count
                 else:
                     # Fallback: estimate 1 page
-                    image_count = 1
+                    total_pages = 1
                 
                 # Estimate prompt tokens (rough: 1 token ≈ 4 chars)
                 prompt_tokens = len(ingestion_profile.vision_prompt or "") // 4
-                # Estimate image tokens (~1000 per image, adjust based on size)
-                image_tokens = image_count * 1000
-                return prompt_tokens + image_tokens
+                # Estimate image tokens per page, multiplied by page count (since we process per-page)
+                image_tokens_per_page = tokens_per_image
+                total_image_tokens = image_tokens_per_page * total_pages
+                
+                # Total: prompt tokens (repeated per page) + image tokens per page * page count
+                # Actually, prompt is sent once per page, so multiply prompt tokens by page count too
+                return (prompt_tokens * total_pages) + total_image_tokens
             except Exception:
                 # Fallback estimate
                 return 5000

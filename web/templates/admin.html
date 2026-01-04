@@ -924,12 +924,116 @@
                                     <input type="checkbox" name="doc_types" value="CSV">
                                     <span>CSV</span>
                                 </label>
-                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                                    <input type="checkbox" name="doc_types" value="Images">
-                                    <span>Images</span>
-                                </label>
                             </div>
-                            <small>Select the file formats this agentic workflow can process. PDF is recommended for documents with complex formatting, while DOCX and TXT work well for simpler documents. CSV and Images may require specialized processing.</small>
+                            <small>Select the file formats this agentic workflow can process. PDF is recommended for documents with complex formatting, while DOCX and TXT work well for simpler documents. CSV may require specialized processing.</small>
+                        </div>
+                        
+                        <!-- Advanced Options -->
+                        <div class="form-group" id="advanced-options-section">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <label>Advanced Options</label>
+                            </div>
+                            
+                            <!-- Vision Ingestion Toggle -->
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" id="vision-ingestion-enabled" name="vision_enabled">
+                                    <span><strong>Enable Vision Ingestion</strong></span>
+                                </label>
+                                <small style="display: block; margin-top: 4px; margin-left: 24px; color: #6c757d;">
+                                    Use AI vision model to transcribe documents by converting PDF pages to images. Useful for scanned documents or complex layouts.
+                                </small>
+                            </div>
+                            
+                            <!-- Vision Configuration (shown when enabled) -->
+                            <div id="vision-config-container" style="display: none; margin-left: 24px; padding: 16px; background: #f8f9fa; border-radius: 4px; border: 1px solid #dee2e6;">
+                                
+                                <!-- Vision Prompt -->
+                                <div class="form-group" style="margin-bottom: 16px;">
+                                    <label>Vision Prompt *</label>
+                                    <textarea id="vision-prompt" name="vision_prompt" rows="4" style="width: 100%; font-family: monospace; font-size: 13px;" placeholder="Enter instructions for the vision model..."></textarea>
+                                    <small style="display: block; margin-top: 4px; color: #6c757d;">
+                                        Instructions for extracting text from document images. Default prompt will be used if empty.
+                                    </small>
+                                </div>
+                                
+                                <!-- Vision Configuration Grid -->
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                                    
+                                    <!-- DPI -->
+                                    <div class="form-group">
+                                        <label>DPI (Resolution)</label>
+                                        <select id="vision-dpi" name="vision_dpi" style="width: 100%;">
+                                            <option value="150">150 DPI (Faster, smaller files)</option>
+                                            <option value="200" selected>200 DPI (Recommended - balanced)</option>
+                                            <option value="300">300 DPI (Higher quality, larger files)</option>
+                                        </select>
+                                        <small style="display: block; margin-top: 4px; color: #6c757d;">
+                                            Higher DPI = better quality but more tokens/cost
+                                        </small>
+                                    </div>
+                                    
+                                    <!-- Image Format -->
+                                    <div class="form-group">
+                                        <label>Image Format</label>
+                                        <select id="vision-image-format" name="vision_image_format" style="width: 100%;">
+                                            <option value="PNG" selected>PNG (Lossless, recommended)</option>
+                                            <option value="JPEG">JPEG (Smaller files, lossy)</option>
+                                        </select>
+                                        <small style="display: block; margin-top: 4px; color: #6c757d;">
+                                            PNG preserves quality, JPEG reduces file size
+                                        </small>
+                                    </div>
+                                    
+                                    <!-- JPEG Quality (shown only if JPEG selected) -->
+                                    <div class="form-group" id="jpeg-quality-container" style="display: none;">
+                                        <label>JPEG Quality</label>
+                                        <input type="range" id="vision-jpeg-quality" name="vision_jpeg_quality" min="50" max="100" value="85" style="width: 100%;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #6c757d; margin-top: 4px;">
+                                            <span>50 (Smaller)</span>
+                                            <span id="jpeg-quality-value">85</span>
+                                            <span>100 (Better)</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Model Selection -->
+                                    <div class="form-group">
+                                        <label>Vision Model</label>
+                                        <select id="vision-model" name="vision_model" style="width: 100%;">
+                                            <option value="claude-3-opus-20240229" selected>Claude 3 Opus (Best quality)</option>
+                                            <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (Balanced)</option>
+                                            <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (Fastest)</option>
+                                        </select>
+                                        <small style="display: block; margin-top: 4px; color: #6c757d;">
+                                            Opus = best quality, Haiku = fastest/cheapest
+                                        </small>
+                                    </div>
+                                    
+                                    <!-- Max Tokens -->
+                                    <div class="form-group">
+                                        <label>Max Tokens (per page)</label>
+                                        <input type="number" id="vision-max-tokens" name="vision_max_tokens" value="4096" min="1024" max="16384" step="1024" style="width: 100%;">
+                                        <small style="display: block; margin-top: 4px; color: #6c757d;">
+                                            Maximum tokens per page response (1024-16384)
+                                        </small>
+                                    </div>
+                                    
+                                    <!-- Temperature -->
+                                    <div class="form-group">
+                                        <label>Temperature</label>
+                                        <input type="range" id="vision-temperature" name="vision_temperature" min="0" max="100" value="0" step="10" style="width: 100%;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #6c757d; margin-top: 4px;">
+                                            <span>0.0 (Deterministic)</span>
+                                            <span id="temperature-value">0.0</span>
+                                            <span>1.0 (Creative)</span>
+                                        </div>
+                                        <small style="display: block; margin-top: 4px; color: #6c757d;">
+                                            Lower = more consistent extraction (recommended: 0.0)
+                                        </small>
+                                    </div>
+                                    
+                                </div>
+                            </div>
                         </div>
                         
                         <!-- Processing Steps -->
@@ -1281,7 +1385,7 @@ async function loadAgents(category) {
                     <div class="prompt-item-info">
                         <div class="prompt-item-name">${escapeHtml(agent.name)}</div>
                         <div class="prompt-item-description">${escapeHtml(agent.description || 'No description')}</div>
-                        <div class="prompt-item-filename">${escapeHtml(agent.data_folder || 'N/A')} • Created: ${new Date(agent.created_at).toLocaleDateString()}</div>
+                        <div class="prompt-item-filename">${category === 'external' ? (escapeHtml(agent.domain_file || 'Web Research') + ' • ' + (agent.model || 'N/A')) : escapeHtml(agent.data_folder || 'N/A')} • Created: ${new Date(agent.created_at).toLocaleDateString()}</div>
                     </div>
                     <div class="prompt-item-actions">
                         <button class="btn btn-primary btn-sm" onclick="editAgent('${escapeHtml(agent.id)}', '${category}')">Edit</button>
@@ -1531,13 +1635,22 @@ async function editAgent(agentId, agentType) {
                 form.querySelector('[name="tavily_api_key"]').value = agent.tavily_api_key;
             }
             if (agent.allowed_domains) {
-                form.querySelector('[name="allowed_domains"]').value = agent.allowed_domains;
+                const allowedDomains = Array.isArray(agent.allowed_domains) ? agent.allowed_domains.join(', ') : agent.allowed_domains;
+                form.querySelector('[name="allowed_domains"]').value = allowedDomains;
             }
             if (agent.blocked_domains) {
-                form.querySelector('[name="blocked_domains"]').value = agent.blocked_domains;
+                const blockedDomains = Array.isArray(agent.blocked_domains) ? agent.blocked_domains.join(', ') : agent.blocked_domains;
+                form.querySelector('[name="blocked_domains"]').value = blockedDomains;
             }
             if (agent.default_research_depth) {
                 form.querySelector('[name="default_research_depth"]').value = agent.default_research_depth;
+            }
+            // Show current domain file name if exists
+            if (agent.domain_file) {
+                const domainFileInfo = document.getElementById('domain-file-info-external');
+                if (domainFileInfo) {
+                    domainFileInfo.innerHTML = `Current: <strong>${escapeHtml(agent.domain_file)}</strong>. Upload new file to replace (optional).`;
+                }
             }
         }
         
@@ -1752,6 +1865,73 @@ function handleFileSelect(event) {
 // Workflow Template Management
 let workflowStepCounter = 0;
 
+// Default vision prompt
+const DEFAULT_VISION_PROMPT = `Extract all text from these document pages. Preserve the structure, formatting, and layout as much as possible. Include all tables, lists, and paragraphs. Convert the content to markdown format with appropriate headings, tables, and formatting.`;
+
+// Vision Ingestion Event Handlers
+(function() {
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initVisionHandlers);
+    } else {
+        initVisionHandlers();
+    }
+    
+    function initVisionHandlers() {
+        // Toggle vision config visibility
+        const visionCheckbox = document.getElementById('vision-ingestion-enabled');
+        if (visionCheckbox) {
+            visionCheckbox.addEventListener('change', function(e) {
+                const container = document.getElementById('vision-config-container');
+                const promptField = document.getElementById('vision-prompt');
+                if (container) {
+                    container.style.display = e.target.checked ? 'block' : 'none';
+                }
+                if (promptField) {
+                    promptField.required = e.target.checked;
+                    // Pre-fill default prompt if empty and enabled
+                    if (e.target.checked && !promptField.value.trim()) {
+                        promptField.value = DEFAULT_VISION_PROMPT;
+                    }
+                }
+            });
+        }
+        
+        // Update JPEG quality display
+        const jpegQualitySlider = document.getElementById('vision-jpeg-quality');
+        if (jpegQualitySlider) {
+            jpegQualitySlider.addEventListener('input', function(e) {
+                const display = document.getElementById('jpeg-quality-value');
+                if (display) {
+                    display.textContent = e.target.value;
+                }
+            });
+        }
+        
+        // Show/hide JPEG quality based on format
+        const imageFormatSelect = document.getElementById('vision-image-format');
+        if (imageFormatSelect) {
+            imageFormatSelect.addEventListener('change', function(e) {
+                const jpegContainer = document.getElementById('jpeg-quality-container');
+                if (jpegContainer) {
+                    jpegContainer.style.display = e.target.value === 'JPEG' ? 'block' : 'none';
+                }
+            });
+        }
+        
+        // Update temperature display
+        const temperatureSlider = document.getElementById('vision-temperature');
+        if (temperatureSlider) {
+            temperatureSlider.addEventListener('input', function(e) {
+                const display = document.getElementById('temperature-value');
+                if (display) {
+                    display.textContent = (parseInt(e.target.value) / 100).toFixed(1);
+                }
+            });
+        }
+    }
+})();
+
 // Load workflow templates
 async function loadWorkflowTemplates() {
     const loadingEl = document.getElementById('workflows-loading');
@@ -1813,6 +1993,35 @@ function showCreateWorkflowTemplate() {
     document.getElementById('workflow-template-export-profile-id').value = '';
     workflowStepCounter = 0;
     document.getElementById('workflow-steps-container').innerHTML = '';
+    
+    // Reset vision ingestion
+    const visionCheckbox = document.getElementById('vision-ingestion-enabled');
+    if (visionCheckbox) {
+        visionCheckbox.checked = false;
+        visionCheckbox.dispatchEvent(new Event('change')); // Hide config
+    }
+    
+    // Reset vision fields
+    const promptField = document.getElementById('vision-prompt');
+    if (promptField) promptField.value = '';
+    const dpiField = document.getElementById('vision-dpi');
+    if (dpiField) dpiField.value = '200';
+    const formatField = document.getElementById('vision-image-format');
+    if (formatField) {
+        formatField.value = 'PNG';
+        formatField.dispatchEvent(new Event('change')); // Hide JPEG quality
+    }
+    const jpegQualityField = document.getElementById('vision-jpeg-quality');
+    if (jpegQualityField) jpegQualityField.value = '85';
+    const modelField = document.getElementById('vision-model');
+    if (modelField) modelField.value = 'claude-3-opus-20240229';
+    const maxTokensField = document.getElementById('vision-max-tokens');
+    if (maxTokensField) maxTokensField.value = '4096';
+    const tempField = document.getElementById('vision-temperature');
+    if (tempField) {
+        tempField.value = '0';
+        tempField.dispatchEvent(new Event('input')); // Update display
+    }
     
     // Set default: add one step
     addWorkflowStep();
@@ -2114,6 +2323,19 @@ async function saveWorkflowTemplate() {
         const chainData = await chainResponse.json();
         const chainVersionId = chainData.chain.chain_version_id;
         
+        // Get vision ingestion settings
+        const visionEnabled = document.getElementById('vision-ingestion-enabled')?.checked || false;
+        const visionPromptField = document.getElementById('vision-prompt');
+        const visionPrompt = visionEnabled ? (visionPromptField?.value.trim() || DEFAULT_VISION_PROMPT) : null;
+        const visionConfig = visionEnabled ? {
+            dpi: parseInt(document.getElementById('vision-dpi')?.value || '200'),
+            image_format: document.getElementById('vision-image-format')?.value || 'PNG',
+            jpeg_quality: parseInt(document.getElementById('vision-jpeg-quality')?.value || '85'),
+            model: document.getElementById('vision-model')?.value || 'claude-3-opus-20240229',
+            max_tokens: parseInt(document.getElementById('vision-max-tokens')?.value || '4096'),
+            temperature: parseFloat(document.getElementById('vision-temperature')?.value || '0') / 100
+        } : null;
+        
         // Get or create ingestion profile
         let ingestionProfileId = document.getElementById('workflow-template-ingestion-profile-id').value;
         if (workflowId && ingestionProfileId) {
@@ -2123,7 +2345,9 @@ async function saveWorkflowTemplate() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     accepted_input_types: docTypes,
-                    mode: 'programmatic'
+                    mode: visionEnabled ? 'vision' : 'programmatic',
+                    vision_prompt: visionPrompt,
+                    vision_config: visionConfig
                 }),
                 credentials: 'same-origin'
             });
@@ -2140,7 +2364,9 @@ async function saveWorkflowTemplate() {
                 body: JSON.stringify({
                     name: name + ' Ingestion',
                     accepted_input_types: docTypes,
-                    mode: 'programmatic'
+                    mode: visionEnabled ? 'vision' : 'programmatic',
+                    vision_prompt: visionPrompt,
+                    vision_config: visionConfig
                 }),
                 credentials: 'same-origin'
             });
@@ -2292,8 +2518,74 @@ async function editWorkflowTemplate(workflowId) {
         });
         
         // Store existing profile IDs for update
-        if (fullWorkflow.ingestion_profile_id) {
-            document.getElementById('workflow-template-ingestion-profile-id').value = fullWorkflow.ingestion_profile_id;
+        const ingestionProfileId = fullWorkflow.ingestion_profile_id;
+        if (ingestionProfileId) {
+            document.getElementById('workflow-template-ingestion-profile-id').value = ingestionProfileId;
+            
+            // Load ingestion profile details for vision config
+            try {
+                const profileResponse = await fetch(`/api/bulk-doc-analysis/ingestion-profiles/${ingestionProfileId}`, {
+                    credentials: 'same-origin'
+                });
+                
+                if (profileResponse.ok) {
+                    const profileData = await profileResponse.json();
+                    
+                    // Set vision ingestion enabled if mode is vision
+                    const visionEnabled = profileData.mode === 'vision';
+                    const visionCheckbox = document.getElementById('vision-ingestion-enabled');
+                    if (visionCheckbox) {
+                        visionCheckbox.checked = visionEnabled;
+                        // Trigger change to show/hide config
+                        visionCheckbox.dispatchEvent(new Event('change'));
+                    }
+                    
+                    // Populate vision prompt
+                    if (visionEnabled && profileData.vision_prompt) {
+                        const promptField = document.getElementById('vision-prompt');
+                        if (promptField) {
+                            promptField.value = profileData.vision_prompt;
+                        }
+                    }
+                    
+                    // Populate vision config
+                    if (visionEnabled && profileData.vision_config) {
+                        const config = profileData.vision_config;
+                        
+                        // Set DPI
+                        const dpiField = document.getElementById('vision-dpi');
+                        if (dpiField) dpiField.value = config.dpi || 200;
+                        
+                        // Set image format
+                        const formatField = document.getElementById('vision-image-format');
+                        if (formatField) {
+                            formatField.value = config.image_format || 'PNG';
+                            formatField.dispatchEvent(new Event('change')); // Show/hide JPEG quality
+                        }
+                        
+                        // Set JPEG quality
+                        const jpegQualityField = document.getElementById('vision-jpeg-quality');
+                        if (jpegQualityField) jpegQualityField.value = config.jpeg_quality || 85;
+                        
+                        // Set model
+                        const modelField = document.getElementById('vision-model');
+                        if (modelField) modelField.value = config.model || 'claude-3-opus-20240229';
+                        
+                        // Set max tokens
+                        const maxTokensField = document.getElementById('vision-max-tokens');
+                        if (maxTokensField) maxTokensField.value = config.max_tokens || 4096;
+                        
+                        // Set temperature
+                        const tempField = document.getElementById('vision-temperature');
+                        if (tempField) {
+                            tempField.value = Math.round((config.temperature || 0.0) * 100);
+                            tempField.dispatchEvent(new Event('input')); // Update display
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Error loading ingestion profile:', e);
+            }
         }
         if (fullWorkflow.export_profile_id) {
             document.getElementById('workflow-template-export-profile-id').value = fullWorkflow.export_profile_id;

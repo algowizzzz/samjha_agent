@@ -1979,7 +1979,6 @@
           case 'TXT': extensions.push('.txt'); break;
           case 'MD': extensions.push('.md'); break;
           case 'CSV': extensions.push('.csv'); break;
-          case 'Images': extensions.push('.png', '.jpg', '.jpeg'); break;
         }
       });
       refs.uploadInput.setAttribute('accept', extensions.join(','));
@@ -2384,10 +2383,7 @@
         '.docx': 'DOCX',
         '.txt': 'TXT',
         '.md': 'MD',
-        '.csv': 'CSV',
-        '.png': 'Images',
-        '.jpg': 'Images',
-        '.jpeg': 'Images'
+        '.csv': 'CSV'
       };
       const fileType = typeMap[ext];
       if (fileType && acceptedTypes.includes(fileType)) {
