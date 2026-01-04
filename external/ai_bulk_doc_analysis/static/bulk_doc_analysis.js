@@ -40,9 +40,15 @@
     sessionId: appEl.dataset.sessionId || null,
     sessions: /** @type {Array<{session_id:string, name?:string, created_at:string, document_count:number}>} */ ([]),
     currentSessionId: appEl.dataset.sessionId || null,
-    docs: /** @type {Array<{localId:string, filename:string, status:string, errorMessage?:string}>} */ ([]),
-    chains: /** @type {Array<{chain_version_id:string, name:string, description?:string, step_count:number, valid:boolean, steps?:Array<any>}>} */ ([]),
-    selectedChainVersionId: null,
+    workflows: /** @type {Array<{workflow_id:string, name:string, description:string, latest_version_id:string, accepted_input_types:Array<string>, export_type:string, step_count:number}>} */ ([]),
+    selectedWorkflow: null,
+    selectedWorkflowVersionId: null,
+    docs: /** @type {Array<{localId:string, filename:string, status:string, errorMessage?:string, doc_id?:string}>} */ ([]),
+    selectedExportFormat: null,
+    currentRun: null,
+    recentRuns: /** @type {Array<{run_id:string, workflow_name:string, created_at:string, status:string, document_count:number}>} */ ([]),
+    wizardStep: 1, // 1=upload, 2=format, 3=execute (selection happens on initial page)
+    workflowWizardVisible: false, // Whether the wizard is visible (hidden initially)
     run: {
       runId: null,
       rows: /** @type {Array<{localId:string, filename:string, stepLabel:string, status:string, inputTokens?:number, outputTokens?:number, canDownload:boolean}>} */ ([]),
@@ -56,41 +62,42 @@
     ui: {
       deleteTargetLocalId: null,
     },
-    chainEditor: {
-      mode: null, // 'create' | 'edit'
-      chainId: null,
-      name: '',
-      description: '',
-      steps: [], // [{index: 1, required_inputs: ['R0'], prompt: '', description: ''}]
-    },
   };
 
   // -------- DOM refs --------
   const refs = {
-    sessionSelect: document.getElementById('bulkDocSessionSelect'),
+    // Session elements (automation-friendly buttons instead of dropdown)
+    sessionButtons: document.getElementById('bulkDocSessionButtons'),
     newSessionBtn: document.getElementById('bulkDocNewSessionBtn'),
     currentSessionName: document.getElementById('bulkDocCurrentSessionName'),
-    uploadBtnLabel: document.getElementById('bulkDocUploadBtnLabel'),
+    
+    // Workflow elements (automation-friendly cards instead of dropdown)
+    workflowCards: document.getElementById('workflowCards'),
+    workflowPreview: document.getElementById('workflowPreview'),
+    
+    // Upload elements
     uploadInput: document.getElementById('bulkDocUploadInput'),
-    docsEmpty: document.getElementById('bulkDocDocsEmpty'),
-    docsSkeleton: document.getElementById('bulkDocDocsSkeleton'),
+    uploadArea: document.getElementById('uploadArea'),
+    acceptedTypesHint: document.getElementById('acceptedTypesHint'),
+    uploadedFilesList: document.getElementById('uploadedFilesList'),
+    testFilesGrid: document.getElementById('testFilesGrid'),
+    
+    // Output format (automation-friendly cards)
+    outputFormatCards: document.getElementById('outputFormatCards'),
+    
+    // Processing elements
+    startProcessingBtn: document.getElementById('startProcessingBtn'),
+    pauseProcessingBtn: document.getElementById('pauseProcessingBtn'),
+    pauseProcessingBtn: document.getElementById('pauseProcessingBtn'),
     docsWrap: document.getElementById('bulkDocDocsTableWrap'),
     docsTbody: document.getElementById('bulkDocDocsTbody'),
-
-    chainSelectHint: document.getElementById('bulkDocChainSelectHint'),
-    chainsWrap: document.getElementById('bulkDocChainsWrap'),
-    chainsSkeleton: document.getElementById('bulkDocChainsSkeleton'),
-    chainsList: document.getElementById('bulkDocChainsList'),
-    chainDetail: document.getElementById('bulkDocChainDetail'),
-
-    runBtn: document.getElementById('bulkDocRunBtn'),
-    runEmpty: document.getElementById('bulkDocRunEmpty'),
-    runSkeleton: document.getElementById('bulkDocRunSkeleton'),
     runWrap: document.getElementById('bulkDocRunTableWrap'),
     runTbody: document.getElementById('bulkDocRunTbody'),
+    runProgressSection: document.getElementById('runProgressSection'),
     runSummary: document.getElementById('bulkDocRunSummary'),
     summaryCounts: document.getElementById('bulkDocSummaryCounts'),
     downloadAllBtn: document.getElementById('bulkDocDownloadAllBtn'),
+    recentRunsList: document.getElementById('recentRunsList'),
 
     drawerEl: document.getElementById('bulkDocDocDrawer'),
     drawerFilename: document.getElementById('bulkDocDrawerFilename'),
@@ -100,19 +107,6 @@
     deleteModalEl: document.getElementById('bulkDocDeleteModal'),
     deleteTargetEl: document.getElementById('bulkDocDeleteTarget'),
     confirmDeleteBtn: document.getElementById('bulkDocConfirmDeleteBtn'),
-
-    createChainBtn: document.getElementById('bulkDocCreateChainBtn'),
-    chainEditorDrawer: document.getElementById('bulkDocChainEditorDrawer'),
-    chainEditorDrawerLabel: document.getElementById('bulkDocChainEditorDrawerLabel'),
-    chainEditorForm: document.getElementById('bulkDocChainEditorForm'),
-    chainEditorName: document.getElementById('bulkDocChainName'),
-    chainEditorNameError: document.getElementById('bulkDocChainNameError'),
-    chainEditorDescription: document.getElementById('bulkDocChainDescription'),
-    chainEditorStepsContainer: document.getElementById('bulkDocChainStepsContainer'),
-    chainEditorStepsError: document.getElementById('bulkDocChainStepsError'),
-    chainEditorAddStepBtn: document.getElementById('bulkDocAddStepBtn'),
-    chainEditorCancelBtn: document.getElementById('bulkDocChainEditorCancelBtn'),
-    chainEditorSaveBtn: document.getElementById('bulkDocChainEditorSaveBtn'),
   };
 
   // -------- helpers --------
@@ -124,46 +118,91 @@
 
   function statusBadge(status) {
     const map = {
-      [Status.QUEUED]: 'secondary',
+      [Status.QUEUED]: 'badge-queued',
       [Status.PROCESSING]: 'info',
       [Status.CONVERTED]: 'success',
       [Status.ERROR]: 'danger',
       SUCCESS: 'success',
+      COMPLETE: 'badge-complete',
       RUNNING: 'info',
+      PAUSED: 'warning',
     };
     const cls = map[status] || 'secondary';
+    // Use custom classes for COMPLETE and QUEUED, Bootstrap classes for others
+    if (cls === 'badge-complete' || cls === 'badge-queued') {
+      return `<span class="badge ${cls}">${status}</span>`;
+    }
     return `<span class="badge bg-${cls}">${status}</span>`;
   }
 
-  function canRun() {
-    const hasDocs = state.docs.length > 0;
-    const allConverted = hasDocs && state.docs.every((d) => d.status === Status.CONVERTED);
-    const hasValidChain = !!state.selectedChainVersionId && state.chains.some((c) => c.chain_version_id === state.selectedChainVersionId && c.valid);
-    return { ok: allConverted && hasValidChain, allConverted, hasValidChain, hasDocs };
+  // Wizard navigation
+  // Step numbers: 1=upload, 2=format, 3=execute
+  function goToStep(stepNumber, skipValidation = false) {
+    // Validate current step before allowing next step (skip if explicitly requested)
+    if (!skipValidation && stepNumber > state.wizardStep) {
+      if (state.wizardStep === 1 && state.docs.length === 0) {
+        toast('error', 'Validation', 'Please upload at least one document');
+        return;
+      }
+      if (state.wizardStep === 2 && !state.selectedExportFormat) {
+        toast('error', 'Validation', 'Please select an output format');
+        return;
+      }
+    }
+    
+    state.wizardStep = stepNumber;
+    
+    // Update active step styling (all steps visible, just mark active one)
+    const wizard = document.getElementById('workflowWizard');
+    if (wizard) {
+      wizard.querySelectorAll('.wizard-step').forEach((step) => {
+        const stepNum = parseInt(step.getAttribute('data-step') || '0');
+        if (stepNum === stepNumber) {
+          step.classList.add('active');
+        } else {
+          step.classList.remove('active');
+        }
+        // Always show all steps (no display: none)
+      });
+    }
+    
+    // Scroll to step
+    const stepEl = wizard ? wizard.querySelector(`[data-step="${stepNumber}"]`) : null;
+    if (stepEl) {
+      stepEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   }
 
-  function updateRunButton() {
-    const gate = canRun();
-    refs.runBtn.disabled = !gate.ok;
-
-    let reason = 'Ready';
-    if (!gate.hasDocs) reason = 'Upload and convert documents, then select a valid chain';
-    else if (!gate.allConverted) reason = 'Wait for all documents to reach CONVERTED';
-    else if (!gate.hasValidChain) reason = 'Select a valid chain to run';
-
-    refs.runBtn.setAttribute('title', reason);
-    initTooltips();
+  function updateStartButton() {
+    const hasWorkflow = !!state.selectedWorkflow;
+    const hasDocs = state.docs.length > 0;
+    const allConverted = hasDocs && state.docs.every((d) => d.status === Status.CONVERTED);
+    const hasFormat = !!state.selectedExportFormat;
+    
+    const canStart = hasWorkflow && allConverted && hasFormat;
+    if (refs.startProcessingBtn) {
+      refs.startProcessingBtn.disabled = !canStart;
+      
+      let reason = 'Ready to process';
+      if (!hasWorkflow) reason = 'Select an agentic workflow template';
+      else if (!hasDocs) reason = 'Upload documents';
+      else if (!allConverted) reason = 'Wait for all documents to be converted';
+      else if (!hasFormat) reason = 'Select an output format';
+      
+      refs.startProcessingBtn.setAttribute('title', reason);
+    }
   }
 
   // -------- rendering --------
   function renderDocs() {
     const hasDocs = state.docs.length > 0;
-    refs.docsEmpty.classList.toggle('d-none', hasDocs);
-    refs.docsWrap.classList.toggle('d-none', !hasDocs);
+    if (refs.docsWrap) {
+      refs.docsWrap.classList.toggle('d-none', !hasDocs);
+    }
 
     if (!hasDocs) {
-      refs.docsTbody.innerHTML = '';
-      updateRunButton();
+      if (refs.docsTbody) refs.docsTbody.innerHTML = '';
+      updateStartButton();
       return;
     }
 
@@ -210,7 +249,7 @@
       `;
     }).join('');
 
-    updateRunButton();
+    updateStartButton();
   }
 
   function renderChains() {
@@ -223,7 +262,7 @@
     if (!hasChains) {
       refs.chainsList.innerHTML = '';
       refs.chainDetail.innerHTML = '<div class="bulk-doc-hint">—</div>';
-      updateRunButton();
+      updateStartButton();
       return;
     }
 
@@ -266,7 +305,7 @@
       refs.chainDetail.innerHTML = '<div class="bulk-doc-hint">Select a chain to view steps.</div>';
     }
 
-    updateRunButton();
+    updateStartButton();
   }
 
   function renderChainDetail(chain) {
@@ -291,17 +330,44 @@
 
   function renderRun() {
     const hasRows = state.run.rows.length > 0;
-    refs.runEmpty.classList.toggle('d-none', hasRows);
-    refs.runWrap.classList.toggle('d-none', !hasRows);
-    refs.runSummary.classList.toggle('d-none', !hasRows);
+    
+    // Show/hide run progress section
+    if (refs.runProgressSection) {
+      refs.runProgressSection.style.display = hasRows ? 'block' : 'none';
+    }
+    
+    if (refs.runWrap) {
+      refs.runWrap.classList.toggle('d-none', !hasRows);
+    }
+    if (refs.runSummary) {
+      refs.runSummary.classList.toggle('d-none', !hasRows);
+    }
+
+    // Check if run is complete to hide pause button
+    const allComplete = hasRows && state.run.rows.every(r => r.status === 'SUCCESS' || r.status === 'ERROR' || r.status === 'COMPLETE');
+    if (refs.pauseProcessingBtn) {
+      refs.pauseProcessingBtn.style.display = (hasRows && !allComplete) ? 'inline-block' : 'none';
+    }
 
     if (!hasRows) {
-      refs.runTbody.innerHTML = '';
-      refs.downloadAllBtn.disabled = true;
-      refs.summaryCounts.textContent = '0 processed';
+      if (refs.runTbody) refs.runTbody.innerHTML = '';
+      if (refs.downloadAllBtn) refs.downloadAllBtn.disabled = true;
+      if (refs.summaryCounts) refs.summaryCounts.textContent = '0 processed';
       return;
     }
 
+    // Get output format for display
+    const outputFormat = state.selectedWorkflow?.export_format || state.selectedExportFormat;
+    const formatLabelMap = {
+      'MD': 'Markdown',
+      'JSON': 'JSON',
+      'CSV': 'CSV',
+      'XLSX': 'Excel',
+      'DOCX': 'Word Doc',
+      'PDF': 'PDF'
+    };
+    const outputFormatLabel = outputFormat ? (formatLabelMap[outputFormat] || outputFormat) : '';
+    
     refs.runTbody.innerHTML = state.run.rows.map((r) => {
       const tokensText = (typeof r.inputTokens === 'number' && typeof r.outputTokens === 'number')
         ? `${r.inputTokens} / ${r.outputTokens}`
@@ -309,9 +375,15 @@
       const downloadBtn = r.canDownload
         ? `<button class="btn btn-sm btn-outline-primary" data-action="download-one" data-id="${r.localId}"><i class="bi bi-download"></i></button>`
         : `<button class="btn btn-sm btn-outline-secondary" disabled title="Available on SUCCESS"><i class="bi bi-download"></i></button>`;
+      
+      // Show filename with output format indicator
+      const filenameDisplay = outputFormatLabel 
+        ? `${escapeHtml(r.filename)} <span class="text-muted small">→ ${escapeHtml(outputFormatLabel)}</span>`
+        : escapeHtml(r.filename);
+      
       return `
         <tr>
-          <td class="text-truncate" style="max-width: 260px;">${escapeHtml(r.filename)}</td>
+          <td class="text-truncate" style="max-width: 260px;">${filenameDisplay}</td>
           <td>${escapeHtml(r.stepLabel || '—')}</td>
           <td>${statusBadge(r.status)}</td>
           <td class="bulk-doc-mono">${escapeHtml(tokensText)}</td>
@@ -353,17 +425,41 @@
       .replace(/'/g, '&#039;');
   }
 
+  function formatRunDate(isoString) {
+    if (!isoString) return '—';
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return '—';
+    
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const runDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    
+    // Format time in 12-hour format
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    const displayMinutes = minutes.toString().padStart(2, '0');
+    const timeStr = `${displayHours}:${displayMinutes} ${ampm}`;
+    
+    if (runDate.getTime() === today.getTime()) {
+      return `Today ${timeStr}`;
+    } else if (runDate.getTime() === yesterday.getTime()) {
+      return `Yesterday ${timeStr}`;
+    } else {
+      // Format full date: "Jan 2, 2026 1:51 PM"
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const month = months[date.getMonth()];
+      const day = date.getDate();
+      const year = date.getFullYear();
+      return `${month} ${day}, ${year} ${timeStr}`;
+    }
+  }
+
   // -------- API layer (intentionally minimal; backend will define exact endpoints) --------
   const api = {
-    async uploadPdfs(files) {
-      // Placeholder endpoint; will be implemented server-side later.
-      // Keep a stable interface so UI stays deterministic.
-      const form = new FormData();
-      files.forEach((f) => form.append('files', f));
-      const res = await fetch('/api/bulk-doc-analysis/documents/upload', { method: 'POST', body: form, credentials: 'same-origin' });
-      if (!res.ok) throw new Error(`upload failed: ${res.status}`);
-      return await res.json();
-    },
     async listChains() {
       const res = await fetch('/api/bulk-doc-analysis/chains', { credentials: 'same-origin' });
       if (!res.ok) throw new Error(`chains failed: ${res.status}`);
@@ -402,14 +498,19 @@
       if (!res.ok) throw new Error(`delete failed: ${res.status}`);
       return await res.json();
     },
-    async createRun(sessionId, chainVersionId) {
+    async createRun(requestBody) {
+      // Accepts: { workflow_version_id?, chain_version_id?, session_id? }
+      // Backend resolves chain_version_id from workflow_version_id if needed
       const res = await fetch('/api/bulk-doc-analysis/runs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: sessionId, chain_version_id: chainVersionId }),
+        body: JSON.stringify(requestBody),
         credentials: 'same-origin',
       });
-      if (!res.ok) throw new Error(`create run failed: ${res.status}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: `Failed: ${res.status}` }));
+        throw new Error(err.error || `create run failed: ${res.status}`);
+      }
       return await res.json();
     },
     async getRunProgress(runId) {
@@ -426,6 +527,19 @@
       const res = await fetch(`/api/bulk-doc-analysis/runs/${encodeURIComponent(runId)}/download-all`, { credentials: 'same-origin' });
       if (!res.ok) throw new Error(`bulk download failed: ${res.status}`);
       return res.blob();
+    },
+    async listRuns() {
+      const res = await fetch('/api/bulk-doc-analysis/runs', { credentials: 'same-origin' });
+      if (!res.ok) throw new Error(`list runs failed: ${res.status}`);
+      return await res.json();
+    },
+    async deleteRun(runId) {
+      const res = await fetch(`/api/bulk-doc-analysis/runs/${encodeURIComponent(runId)}`, {
+        method: 'DELETE',
+        credentials: 'same-origin'
+      });
+      if (!res.ok) throw new Error(`delete run failed: ${res.status}`);
+      return await res.json();
     },
     async createChain(name, description, steps) {
       const res = await fetch('/api/bulk-doc-analysis/chains', {
@@ -903,26 +1017,25 @@
     });
   }
 
-  // -------- session management event handlers --------
-  if (refs.sessionSelect) {
-    refs.sessionSelect.addEventListener('change', async (e) => {
-      const sessionId = e.target.value;
-      if (!sessionId || sessionId === state.currentSessionId) return;
-
-      try {
-        await api.selectSession(sessionId);
-        state.currentSessionId = sessionId;
-        updateCurrentSessionDisplay();
-        // Refresh documents for new session
-        await refreshDocs();
-        toast('success', 'Session switched', 'Switched to selected session.');
-      } catch (err) {
-        console.error('Switch session error:', err);
-        toast('error', 'Switch failed', err.message || 'Failed to switch session.');
-        // Reset selector
-        renderSessionSelector();
-      }
-    });
+  // -------- session management --------
+  // Note: Session buttons have click handlers set in renderSessionSelector()
+  
+  async function switchSession(sessionId) {
+    if (!sessionId || sessionId === state.currentSessionId) return;
+    
+    try {
+      await api.selectSession(sessionId);
+      state.currentSessionId = sessionId;
+      updateCurrentSessionDisplay();
+      renderSessionSelector(); // Update button states
+      // Refresh documents for new session
+      await refreshDocs();
+      toast('success', 'Session switched', 'Switched to selected session.');
+    } catch (err) {
+      console.error('Switch session error:', err);
+      toast('error', 'Switch failed', err.message || 'Failed to switch session.');
+      renderSessionSelector();
+    }
   }
 
   if (refs.newSessionBtn) {
@@ -949,75 +1062,17 @@
   }
 
   // -------- events --------
+  // File input change event - use unified upload handler
   if (refs.uploadInput) {
     refs.uploadInput.addEventListener('change', async (e) => {
       const files = Array.from(e.target.files || []);
       if (files.length === 0) return;
-
-      if (refs.uploadBtnLabel) {
-        refs.uploadBtnLabel.innerHTML = `<i class="bi bi-upload"></i> Upload PDFs (${files.length})`;
-      }
-      if (refs.docsSkeleton) {
-        refs.docsSkeleton.classList.remove('d-none');
-      }
-
-      // Optimistically add to table immediately (acceptance criteria)
-      files.forEach((f) => {
-        state.docs.push({ localId: makeLocalId('doc'), filename: f.name, status: Status.QUEUED });
-      });
-      renderDocs();
-
-      // Show queued -> processing immediately
-      state.docs.forEach((d) => {
-        if (d.status === Status.QUEUED) d.status = Status.PROCESSING;
-      });
-      renderDocs();
-
-      try {
-        const result = await api.uploadPdfs(files);
-        // Update local doc entries with backend doc_ids from response
-        if (result && result.documents) {
-          const filenameToDoc = new Map(state.docs.map(d => [d.filename, d]));
-          result.documents.forEach(backendDoc => {
-            const localDoc = filenameToDoc.get(backendDoc.original_filename);
-            if (localDoc) {
-              localDoc.doc_id = backendDoc.doc_id;
-            }
-          });
-        }
-        toast('info', 'Upload started', `${files.length} file(s) uploaded. Conversion in progress.`);
-        startPolling();
-      } catch (err) {
-        console.warn(err);
-        if (mockMode) {
-          toast('info', 'Mock mode', 'Backend missing; simulating conversion success locally.');
-          window.setTimeout(() => {
-            state.docs.forEach((d) => {
-              if (d.status === Status.PROCESSING) d.status = Status.CONVERTED;
-            });
-            renderDocs();
-            toast('success', 'Converted', 'All documents marked CONVERTED (mock).');
-          }, 1200);
-        } else {
-          // Make failures actionable per spec: show ERROR and allow delete
-          state.docs.forEach((d) => {
-            if (d.status === Status.PROCESSING) {
-              d.status = Status.ERROR;
-              d.errorMessage = 'Conversion service unavailable (API not wired)';
-            }
-          });
-          renderDocs();
-          toast('error', 'Backend unavailable', 'Conversion API not available yet; documents marked ERROR so you can delete and proceed once backend is ready.');
-        }
-      } finally {
-        refs.uploadInput.value = '';
-        if (refs.uploadBtnLabel) {
-          refs.uploadBtnLabel.innerHTML = `<i class="bi bi-upload"></i> Upload PDFs`;
-        }
-        if (refs.docsSkeleton) {
-          window.setTimeout(() => refs.docsSkeleton.classList.add('d-none'), 400);
-        }
-      }
+      
+      // Use the unified upload handler (handles workflow validation, file type validation, etc.)
+      await handleDocumentUpload(files);
+      
+      // Clear input
+      refs.uploadInput.value = '';
     });
   }
 
@@ -1207,18 +1262,55 @@
       if (!row || !row.canDownload || !state.run.runId) return;
 
       try {
-        const blob = await api.downloadDocOutput(state.run.runId, row.docId || row.localId);
+        // For CSV workflows, include task_id as query parameter
+        let downloadUrl = `/api/bulk-doc-analysis/runs/${encodeURIComponent(state.run.runId)}/download/${encodeURIComponent(row.docId || row.localId)}`;
+        if (row.taskId) {
+          downloadUrl += `?task_id=${encodeURIComponent(row.taskId)}`;
+        }
+        const res = await fetch(downloadUrl, { credentials: 'same-origin' });
+        if (!res.ok) throw new Error(`download failed: ${res.status}`);
+        
+        const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${row.filename}.md`;
+        
+        // Get filename from Content-Disposition header, fallback to default
+        const contentDisposition = res.headers.get('Content-Disposition');
+        let downloadFilename = `${row.filename}_output.md`; // Default fallback
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+          if (filenameMatch && filenameMatch[1]) {
+            downloadFilename = filenameMatch[1].replace(/['"]/g, '');
+          }
+        }
+        
+        a.download = downloadFilename;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
-        toast('success', 'Downloaded', `Downloaded ${row.filename}`);
+        toast('success', 'Downloaded', `Downloaded ${downloadFilename}`);
       } catch (err) {
         toast('error', 'Download failed', err.message || 'Failed to download output.');
+      }
+    });
+  }
+
+  // Event handler for recent runs table
+  if (refs.recentRunsList) {
+    refs.recentRunsList.addEventListener('click', async (e) => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      const action = btn.getAttribute('data-action');
+      const runId = btn.getAttribute('data-run-id');
+      
+      if (action === 'view-run' && runId) {
+        await openRunDetails(runId);
+      } else if (action === 'delete-run' && runId) {
+        if (confirm(`Are you sure you want to delete this run? This action cannot be undone.`)) {
+          await deleteRun(runId);
+        }
       }
     });
   }
@@ -1259,10 +1351,16 @@
       const progress = await api.getRunProgress(state.run.runId);
       if (!progress || !progress.rows) return;
 
+      // Set export format from run if available (for display purposes)
+      if (progress.export_format) {
+        state.selectedExportFormat = progress.export_format;
+      }
+
       // Map backend progress rows to UI state
       state.run.rows = progress.rows.map((r) => ({
         localId: makeLocalId('runrow'), // Could preserve mapping if needed
         docId: r.doc_id,
+        taskId: r.task_id || null,  // Include task_id for CSV workflows
         filename: r.filename,
         stepLabel: r.step_label || 'R0',
         status: r.status || 'QUEUED',
@@ -1284,6 +1382,157 @@
       if (String(err).includes('404')) {
         stopRunPolling();
       }
+    }
+  }
+
+  function renderRecentRuns() {
+    if (!refs.recentRunsList) return;
+    
+    if (!state.recentRuns || state.recentRuns.length === 0) {
+      refs.recentRunsList.innerHTML = '<tr><td colspan="6" class="text-muted text-center">No previous runs</td></tr>';
+      return;
+    }
+    
+    const rows = state.recentRuns.map((run) => {
+      const workflowName = escapeHtml(run.workflow_name || 'Unknown Workflow');
+      const dateTime = formatRunDate(run.created_at);
+      const statusBadgeHtml = statusBadge(run.status);
+      
+      // Documents/Tasks count
+      let countText = '';
+      if (run.is_csv_workflow) {
+        countText = `${run.task_count || 0} task${run.task_count !== 1 ? 's' : ''}`;
+      } else {
+        countText = `${run.document_count || 1} document${run.document_count !== 1 ? 's' : ''}`;
+      }
+      
+      return `
+        <tr>
+          <td>${workflowName}</td>
+          <td>${dateTime}</td>
+          <td>${statusBadgeHtml}</td>
+          <td>${escapeHtml(countText)}</td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-outline-primary" data-action="view-run" data-run-id="${escapeHtml(run.run_id)}">
+              View
+            </button>
+          </td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-outline-danger" data-action="delete-run" data-run-id="${escapeHtml(run.run_id)}">
+              <i class="bi bi-trash"></i> Delete
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+    
+    refs.recentRunsList.innerHTML = rows;
+  }
+
+  async function openRunDetails(runId) {
+    if (!runId) return;
+    
+    try {
+      // Ensure workflows are loaded first
+      if (!state.workflows || state.workflows.length === 0) {
+        await loadWorkflows();
+      }
+      
+      // Get run details to find workflow_version_id
+      const runs = await api.listRuns();
+      const run = runs.runs?.find(r => r.run_id === runId);
+      
+      if (!run) {
+        toast('error', 'Run not found', 'Could not find the selected run');
+        return;
+      }
+      
+      // Find and select the workflow associated with this run
+      if (run.workflow_version_id) {
+        let workflow = state.workflows.find(w => 
+          w.workflow_version_id === run.workflow_version_id || 
+          w.latest_version_id === run.workflow_version_id
+        );
+        
+        // If workflow not found, try reloading workflows
+        if (!workflow && state.workflows.length > 0) {
+          await loadWorkflows();
+          workflow = state.workflows.find(w => 
+            w.workflow_version_id === run.workflow_version_id || 
+            w.latest_version_id === run.workflow_version_id
+          );
+        }
+        
+        if (workflow) {
+          // Select the workflow first
+          await onWorkflowSelect(workflow.workflow_id);
+          
+          // Wait a bit for workflow selection to complete
+          await new Promise(resolve => setTimeout(resolve, 300));
+        } else {
+          toast('warning', 'Workflow not found', 'The workflow for this run may have been deleted. Showing run details anyway.');
+        }
+      } else {
+        toast('warning', 'No workflow version', 'This run does not have an associated workflow version.');
+      }
+      
+      // Set the run ID
+      state.run.runId = runId;
+      
+      // Navigate to step 3 (run progress) - skip validation since we're opening an existing run
+      goToStep(3, true);
+      
+      // Show the run progress section
+      if (refs.runProgressSection) {
+        refs.runProgressSection.style.display = 'block';
+      }
+      
+      // Load run progress (this will populate the table)
+      await refreshRunProgress();
+      
+      // Check status and start polling if needed
+      const progress = await api.getRunProgress(runId);
+      if (progress) {
+        const status = progress.status;
+        if (status === 'QUEUED' || status === 'RUNNING') {
+          startRunPolling();
+          toast('info', 'Resuming run', 'Polling for updates...');
+        } else {
+          toast('success', 'Run loaded', 'Run details displayed');
+        }
+      } else {
+        toast('success', 'Run loaded', 'Run details displayed');
+      }
+    } catch (err) {
+      console.error('Failed to open run details:', err);
+      toast('error', 'Failed to load run', err.message || 'Could not load run details');
+    }
+  }
+
+  async function loadRecentRuns() {
+    if (!refs.recentRunsList) return;
+    
+    try {
+      const data = await api.listRuns();
+      state.recentRuns = data.runs || [];
+      renderRecentRuns();
+    } catch (err) {
+      console.error('Failed to load recent runs:', err);
+      if (refs.recentRunsList) {
+        refs.recentRunsList.innerHTML = '<tr><td colspan="6" class="text-muted text-danger text-center">Failed to load recent runs</td></tr>';
+      }
+    }
+  }
+
+  async function deleteRun(runId) {
+    try {
+      await api.deleteRun(runId);
+      toast('success', 'Run Deleted', 'The run has been deleted successfully.');
+      // Reload recent runs
+      await loadRecentRuns();
+    } catch (err) {
+      console.error('Failed to delete run:', err);
+      toast('error', 'Delete Failed', err.message || 'Failed to delete run');
     }
   }
 
@@ -1335,30 +1584,49 @@
       }
     } catch (err) {
       console.warn('Sessions refresh failed:', err);
-      // Show error in dropdown
-      if (refs.sessionSelect) {
-        refs.sessionSelect.innerHTML = '<option value="">Error loading sessions</option>';
+      // Show error in buttons area
+      if (refs.sessionButtons) {
+        refs.sessionButtons.innerHTML = '<span class="text-danger">Error loading sessions</span>';
       }
     }
   }
 
   function renderSessionSelector() {
-    if (!refs.sessionSelect) return;
+    // Render as clickable buttons (automation-friendly)
+    if (!refs.sessionButtons) return;
     
     if (state.sessions.length === 0) {
-      refs.sessionSelect.innerHTML = '<option value="">No sessions</option>';
+      refs.sessionButtons.innerHTML = '<span class="text-muted">No sessions</span>';
       return;
     }
     
-    const options = state.sessions.map((s) => {
-      const name = s.name || `Session ${s.session_id.split('_').pop()?.slice(0, 8) || 'new'}`;
-      const date = s.created_at ? new Date(s.created_at).toLocaleDateString() : '';
-      const label = `${name} (${s.document_count} docs) - ${date}`;
-      const selected = s.session_id === state.currentSessionId ? 'selected' : '';
-      return `<option value="${escapeHtml(s.session_id)}" ${selected}>${escapeHtml(label)}</option>`;
+    // Show up to 5 recent sessions as buttons
+    const recentSessions = state.sessions.slice(0, 5);
+    const buttons = recentSessions.map((s) => {
+      const shortId = s.session_id.split('_').pop()?.slice(0, 8) || 'new';
+      const docCount = s.document_count || 0;
+      const isActive = s.session_id === state.currentSessionId ? 'active' : '';
+      return `
+        <button type="button" 
+                class="session-btn ${isActive}" 
+                data-session-id="${escapeHtml(s.session_id)}"
+                title="Session ${shortId} - ${docCount} document(s)">
+          ${escapeHtml(shortId)} <span class="doc-count">(${docCount})</span>
+        </button>
+      `;
     }).join('');
     
-    refs.sessionSelect.innerHTML = options;
+    refs.sessionButtons.innerHTML = buttons;
+    
+    // Add click handlers to session buttons
+    refs.sessionButtons.querySelectorAll('.session-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sessionId = btn.dataset.sessionId;
+        if (sessionId && sessionId !== state.currentSessionId) {
+          switchSession(sessionId);
+        }
+      });
+    });
   }
 
   function updateCurrentSessionDisplay() {
@@ -1488,14 +1756,855 @@
     state.polling.intervalId = null;
   }
 
+  // -------- Workflow Functions --------
+  async function loadWorkflows() {
+    try {
+      const response = await fetch('/api/bulk-doc-analysis/workflows', {
+        credentials: 'same-origin'
+      });
+      if (!response.ok) throw new Error('Failed to load workflows');
+      
+      const data = await response.json();
+      state.workflows = data.workflows || [];
+      
+      // Render workflow cards (automation-friendly - no dropdown)
+      renderWorkflowCards();
+    } catch (error) {
+      console.error('Failed to load workflows:', error);
+      toast('error', 'Error', 'Failed to load workflows: ' + error.message);
+      if (refs.workflowCards) {
+        refs.workflowCards.innerHTML = '<span class="text-danger">Error loading workflows</span>';
+      }
+    }
+  }
+  
+  function renderWorkflowCards() {
+    if (!refs.workflowCards) return;
+    
+    if (state.workflows.length === 0) {
+      refs.workflowCards.innerHTML = '<span class="text-muted">No workflows available. Create one in the Admin panel.</span>';
+      return;
+    }
+    
+    // Format labels for export formats (consistent with renderOutputFormatOptions)
+    const formatLabelMap = {
+      'MD': 'Markdown',
+      'JSON': 'JSON',
+      'CSV': 'CSV',
+      'XLSX': 'Excel',
+      'DOCX': 'Word Doc',
+      'PDF': 'PDF'
+    };
+    
+    const cards = state.workflows.map(workflow => {
+      const isSelected = state.selectedWorkflow?.workflow_id === workflow.workflow_id;
+      const inputTypes = (workflow.accepted_input_types || []);
+      const outputFormatRaw = workflow.export_format || workflow.export_type;
+      const stepCount = workflow.step_count || 0;
+      const stepTitles = workflow.step_titles || [];
+      
+      // Build input types badges
+      const inputTypesHtml = inputTypes.map(t => 
+        `<span class="workflow-card__tag input-type">${escapeHtml(t)}</span>`
+      ).join('');
+      
+      // Build output type badge
+      const outputTypeHtml = outputFormatRaw ? 
+        `<span class="workflow-card__tag output-type">${escapeHtml(formatLabelMap[outputFormatRaw] || outputFormatRaw)}</span>` : '';
+      
+      // Build step titles list
+      const stepTitlesHtml = stepTitles.length > 0 
+        ? `<div class="workflow-card__steps">
+             <div class="workflow-card__steps-label">
+               <i class="bi bi-list-ol"></i> ${stepCount} step${stepCount !== 1 ? 's' : ''}:
+             </div>
+             <div class="workflow-card__steps-list">
+               ${stepTitles.map((title, idx) => 
+                 `<span class="workflow-card__step-title">${idx + 1}. ${escapeHtml(title)}</span>`
+               ).join('')}
+             </div>
+           </div>`
+        : stepCount > 0
+        ? `<div class="workflow-card__steps">
+             <div class="workflow-card__steps-label">
+               <i class="bi bi-list-ol"></i> ${stepCount} step${stepCount !== 1 ? 's' : ''}
+             </div>
+           </div>`
+        : '';
+      
+      return `
+        <div class="workflow-card ${isSelected ? 'selected' : ''}" 
+             data-workflow-id="${escapeHtml(workflow.workflow_id)}"
+             role="button"
+             tabindex="0">
+          <div class="workflow-card__header">
+            <div class="workflow-card__name">${escapeHtml(workflow.name)}</div>
+          </div>
+          <div class="workflow-card__body">
+            <div class="workflow-card__desc">${escapeHtml(workflow.description || 'No description available')}</div>
+            ${stepTitlesHtml}
+            <div class="workflow-card__meta">
+              <div class="workflow-card__meta-row">
+                <span class="workflow-card__meta-label"><i class="bi bi-file-earmark-arrow-up"></i> Input:</span>
+                <div class="workflow-card__tags">${inputTypesHtml || '<span class="text-muted">Any</span>'}</div>
+              </div>
+              <div class="workflow-card__meta-row">
+                <span class="workflow-card__meta-label"><i class="bi bi-file-earmark-arrow-down"></i> Output:</span>
+                <div class="workflow-card__tags">${outputTypeHtml || '<span class="text-muted">Markdown</span>'}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    refs.workflowCards.innerHTML = cards;
+    
+    // Add click handlers
+    refs.workflowCards.querySelectorAll('.workflow-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const workflowId = card.dataset.workflowId;
+        onWorkflowSelect(workflowId);
+      });
+      // Also handle keyboard
+      card.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          const workflowId = card.dataset.workflowId;
+          onWorkflowSelect(workflowId);
+        }
+      });
+    });
+  }
+
+  // Show/hide wizard and initial sections
+  function showWorkflowWizard() {
+    const wizard = document.getElementById('workflowWizard');
+    const startSection = document.getElementById('startNewWorkflowSection');
+    const recentRuns = document.querySelector('.recent-runs-section');
+    
+    if (wizard) wizard.style.display = 'block';
+    if (startSection) startSection.style.display = 'none';
+    if (recentRuns) recentRuns.style.display = 'none';
+    
+    state.workflowWizardVisible = true;
+  }
+
+  function hideWorkflowWizard() {
+    const wizard = document.getElementById('workflowWizard');
+    const startSection = document.getElementById('startNewWorkflowSection');
+    const recentRuns = document.querySelector('.recent-runs-section');
+    
+    if (wizard) wizard.style.display = 'none';
+    if (startSection) startSection.style.display = 'block';
+    if (recentRuns) recentRuns.style.display = 'block';
+    
+    state.workflowWizardVisible = false;
+    state.selectedWorkflow = null;
+    state.selectedWorkflowVersionId = null;
+    state.wizardStep = 1;
+    
+    // Clear card selection
+    if (refs.workflowCards) {
+      refs.workflowCards.querySelectorAll('.workflow-card').forEach(c => c.classList.remove('selected'));
+    }
+  }
+
+  async function onWorkflowSelect(workflowId) {
+    if (!workflowId) {
+      hideWorkflowWizard();
+      return;
+    }
+    
+    const workflow = state.workflows.find(w => w.workflow_id === workflowId);
+    if (!workflow) {
+      toast('error', 'Error', 'Workflow not found');
+      return;
+    }
+    
+    state.selectedWorkflow = workflow;
+    state.selectedWorkflowVersionId = workflow.workflow_version_id || workflow.latest_version_id;
+    
+    // Auto-create new session when starting workflow
+    try {
+      const result = await api.createSession(`Workflow: ${workflow.name}`);
+      if (result && result.session_id) {
+        state.currentSessionId = result.session_id;
+        state.sessionId = result.session_id;
+        await refreshSessions();
+      }
+    } catch (err) {
+      console.warn('Failed to create session, using existing:', err);
+    }
+    
+    // Update card selection state (automation-friendly visual feedback)
+    if (refs.workflowCards) {
+      refs.workflowCards.querySelectorAll('.workflow-card').forEach(card => {
+        if (card.dataset.workflowId === workflowId) {
+          card.classList.add('selected');
+        } else {
+          card.classList.remove('selected');
+        }
+      });
+    }
+    
+    // Store chain_version_id if available (for efficient run creation)
+    if (workflow.chain_version_id) {
+      state.selectedWorkflow.chain_version_id = workflow.chain_version_id;
+    }
+    
+    // Update workflow preview
+    if (refs.workflowPreview) {
+      const inputTypes = (workflow.accepted_input_types || []).join(', ');
+      const outputType = workflow.export_type || 'N/A';
+      const stepCount = workflow.step_count || 0;
+      refs.workflowPreview.innerHTML = `
+        <strong>Preview:</strong> Accepts ${inputTypes} → ${stepCount} step(s) → Outputs ${outputType}
+      `;
+      refs.workflowPreview.style.display = 'block';
+    }
+    
+    // Update accepted types hint
+    if (refs.acceptedTypesHint) {
+      const inputTypes = (workflow.accepted_input_types || []).join(', ');
+      refs.acceptedTypesHint.textContent = `Accepted file types: ${inputTypes}`;
+    }
+    
+    // Update upload input accept attribute
+    if (refs.uploadInput) {
+      const extensions = [];
+      workflow.accepted_input_types.forEach(type => {
+        switch(type) {
+          case 'PDF': extensions.push('.pdf'); break;
+          case 'DOCX': extensions.push('.docx'); break;
+          case 'TXT': extensions.push('.txt'); break;
+          case 'MD': extensions.push('.md'); break;
+          case 'CSV': extensions.push('.csv'); break;
+          case 'Images': extensions.push('.png', '.jpg', '.jpeg'); break;
+        }
+      });
+      refs.uploadInput.setAttribute('accept', extensions.join(','));
+    }
+    
+    // Render output format options
+    renderOutputFormatOptions();
+    
+    // Reload test files filtered by accepted types
+    await loadTestFiles();
+    
+    // Show wizard and hide initial sections
+    showWorkflowWizard();
+    
+    // Go to step 1 (upload documents)
+    goToStep(1);
+  }
+
+  function renderOutputFormatOptions() {
+    // Render as clickable cards (automation-friendly - no radio buttons)
+    if (!refs.outputFormatCards || !state.selectedWorkflow) return;
+    
+    const outputFormat = state.selectedWorkflow.export_format || state.selectedWorkflow.export_type;
+    if (!outputFormat) {
+      refs.outputFormatCards.innerHTML = '<span class="text-muted">No output formats available</span>';
+      return;
+    }
+    
+    // Format labels and icons
+    const formatConfig = {
+      'MD': { label: 'Markdown', icon: '📝' },
+      'JSON': { label: 'JSON', icon: '{ }' },
+      'CSV': { label: 'CSV', icon: '📊' },
+      'XLSX': { label: 'Excel', icon: '📊' },
+      'DOCX': { label: 'Word Doc', icon: '📄' },
+      'PDF': { label: 'PDF', icon: '📕' }
+    };
+    
+    // For now, single format from workflow (can be enhanced for multiple)
+    const formats = [outputFormat];
+    
+    const cards = formats.map(fmt => {
+      const config = formatConfig[fmt] || { label: fmt, icon: '📁' };
+      const isSelected = state.selectedExportFormat === fmt;
+      return `
+        <div class="output-format-card ${isSelected ? 'selected' : ''}" 
+             data-format="${escapeHtml(fmt)}"
+             role="button"
+             tabindex="0">
+          <span class="format-icon">${config.icon}</span>
+          <span class="format-name">${escapeHtml(config.label)}</span>
+        </div>
+      `;
+    }).join('');
+    
+    refs.outputFormatCards.innerHTML = cards;
+    
+    // Add click handlers
+    refs.outputFormatCards.querySelectorAll('.output-format-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const format = card.dataset.format;
+        selectOutputFormat(format);
+      });
+      card.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          selectOutputFormat(card.dataset.format);
+        }
+      });
+    });
+    
+    // Auto-select the first format
+    selectOutputFormat(outputFormat);
+  }
+  
+  function selectOutputFormat(format) {
+    state.selectedExportFormat = format;
+    
+    // Update card selection state
+    if (refs.outputFormatCards) {
+      refs.outputFormatCards.querySelectorAll('.output-format-card').forEach(card => {
+        if (card.dataset.format === format) {
+          card.classList.add('selected');
+        } else {
+          card.classList.remove('selected');
+        }
+      });
+    }
+    
+    // Enable step 3 (processing)
+    updateStartButton();
+    goToStep(3);
+  }
+
+  // -------- Test Files Functions (Automation-Friendly) --------
+  async function loadTestFiles() {
+    if (!refs.testFilesGrid) return;
+    
+    try {
+      const response = await fetch('/api/bulk-doc-analysis/test-files', {
+        credentials: 'same-origin'
+      });
+      if (!response.ok) throw new Error('Failed to load test files');
+      
+      const data = await response.json();
+      const testFiles = data.test_files || [];
+      
+      renderTestFiles(testFiles);
+    } catch (error) {
+      console.error('Failed to load test files:', error);
+      refs.testFilesGrid.innerHTML = '<span class="text-muted">No test files available</span>';
+    }
+  }
+  
+  function renderTestFiles(files) {
+    if (!refs.testFilesGrid) return;
+    
+    if (files.length === 0) {
+      refs.testFilesGrid.innerHTML = '<span class="text-muted">No test files available. Add files to the project root or test_files/ folder.</span>';
+      return;
+    }
+    
+    // Filter based on selected workflow accepted types
+    let filteredFiles = files;
+    if (state.selectedWorkflow && state.selectedWorkflow.accepted_input_types) {
+      const acceptedTypes = state.selectedWorkflow.accepted_input_types;
+      filteredFiles = files.filter(f => acceptedTypes.includes(f.type));
+    }
+    
+    // Deduplicate: keep only one file per type (first occurrence)
+    const seenTypes = new Set();
+    const uniqueFiles = filteredFiles.filter(file => {
+      if (seenTypes.has(file.type)) {
+        return false;
+      }
+      seenTypes.add(file.type);
+      return true;
+    });
+    
+    if (uniqueFiles.length === 0) {
+      refs.testFilesGrid.innerHTML = '<span class="text-muted">No compatible test files for this workflow.</span>';
+      return;
+    }
+    
+    const fileIcons = {
+      'PDF': '📕',
+      'MD': '📝',
+      'TXT': '📄',
+      'DOCX': '📃',
+      'CSV': '📊'
+    };
+    
+    const formatSize = (bytes) => {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    };
+    
+    const buttons = uniqueFiles.map(file => {
+      const icon = fileIcons[file.type] || '📁';
+      return `
+        <button type="button" 
+                class="test-file-btn" 
+                data-file-path="${escapeHtml(file.path)}"
+                data-filename="${escapeHtml(file.filename)}">
+          <span class="file-icon">${icon}</span>
+          <span class="file-name">${escapeHtml(file.filename)}</span>
+          <span class="file-size">(${formatSize(file.size)})</span>
+        </button>
+      `;
+    }).join('');
+    
+    refs.testFilesGrid.innerHTML = buttons;
+    
+    // Add click handlers
+    refs.testFilesGrid.querySelectorAll('.test-file-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filePath = btn.dataset.filePath;
+        const filename = btn.dataset.filename;
+        uploadTestFile(filePath, filename);
+      });
+    });
+  }
+  
+  async function uploadTestFile(filePath, filename) {
+    try {
+      toast('info', 'Uploading', `Adding ${filename} to session...`);
+      
+      const requestBody = {
+        file_path: filePath
+      };
+      
+      // Include workflow_version_id if selected
+      if (state.selectedWorkflowVersionId) {
+        requestBody.workflow_version_id = state.selectedWorkflowVersionId;
+      }
+      
+      const response = await fetch('/api/bulk-doc-analysis/test-files/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+        credentials: 'same-origin'
+      });
+      
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Upload failed' }));
+        throw new Error(error.error || 'Failed to upload test file');
+      }
+      
+      const data = await response.json();
+      toast('success', 'Uploaded', data.message || `${filename} added to session`);
+      
+      // Refresh documents list
+      await refreshDocs();
+      
+      // Start polling for conversion status
+      startPollingDocs();
+      
+    } catch (error) {
+      console.error('Upload test file error:', error);
+      toast('error', 'Error', error.message || 'Failed to upload test file');
+    }
+  }
+
+  async function startProcessing() {
+    if (!state.selectedWorkflow || !state.selectedWorkflowVersionId) {
+      toast('error', 'Validation', 'Please select a workflow');
+      return;
+    }
+    
+    if (state.docs.length === 0) {
+      toast('error', 'Validation', 'Please upload at least one document');
+      return;
+    }
+    
+    const allConverted = state.docs.every(d => d.status === Status.CONVERTED);
+    if (!allConverted) {
+      toast('error', 'Validation', 'Please wait for all documents to be converted');
+      return;
+    }
+    
+    if (!state.selectedExportFormat) {
+      toast('error', 'Validation', 'Please select an output format');
+      return;
+    }
+    
+    try {
+      // Scalable solution: Backend automatically resolves chain_version_id from workflow_version_id
+      // We can also pass chain_version_id if available for efficiency, but it's optional
+      const requestBody = {
+        workflow_version_id: state.selectedWorkflowVersionId
+      };
+      
+      // If chain_version_id is available in workflow object, include it for efficiency
+      if (state.selectedWorkflow.chain_version_id) {
+        requestBody.chain_version_id = state.selectedWorkflow.chain_version_id;
+      }
+      
+      // Check if we have an existing paused run to resume
+      let runResponse;
+      let runData;
+      
+      if (state.run.runId) {
+        // Try to resume existing run
+        runResponse = await fetch(`/api/bulk-doc-analysis/runs/${state.run.runId}/resume`, {
+          method: 'POST',
+          credentials: 'same-origin'
+        });
+        
+        if (runResponse.ok) {
+          runData = await runResponse.json();
+          toast('info', 'Resumed', 'Resuming from where you left off...');
+        } else {
+          // If resume fails, create new run
+          runResponse = await fetch('/api/bulk-doc-analysis/runs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody),
+            credentials: 'same-origin'
+          });
+          
+          if (!runResponse.ok) {
+            const error = await runResponse.json().catch(() => ({ error: 'Failed to create run' }));
+            throw new Error(error.error || 'Failed to start processing');
+          }
+          
+          runData = await runResponse.json();
+        }
+      } else {
+        // No existing run, create new one
+        // Backend will check for paused runs and resume automatically
+        runResponse = await fetch('/api/bulk-doc-analysis/runs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody),
+          credentials: 'same-origin'
+        });
+        
+        if (!runResponse.ok) {
+          const error = await runResponse.json().catch(() => ({ error: 'Failed to create run' }));
+          throw new Error(error.error || 'Failed to start processing');
+        }
+        
+        runData = await runResponse.json();
+      }
+      state.currentRun = runData.run;
+      state.run.runId = runData.run.run_id;
+      
+      // Initialize run rows from documents
+      state.run.rows = state.docs.map(doc => ({
+        localId: makeLocalId('runrow'),
+        docId: doc.doc_id,
+        filename: doc.filename,
+        stepLabel: 'R0',
+        status: 'QUEUED',
+        inputTokens: null,
+        outputTokens: null,
+        canDownload: false,
+      }));
+      
+      renderRun();
+      
+      // Show progress section
+      if (refs.runProgressSection) {
+        refs.runProgressSection.style.display = 'block';
+      }
+      
+      goToStep(3);
+      
+      // Start polling for progress
+      startPollingRunProgress();
+      
+      // Show pause button, hide start button
+      if (refs.pauseProcessingBtn) {
+        refs.pauseProcessingBtn.style.display = 'inline-block';
+      }
+      if (refs.startProcessingBtn) {
+        refs.startProcessingBtn.style.display = 'none';
+      }
+      
+      toast('success', 'Processing Started', 'Workflow execution has started');
+      
+    } catch (error) {
+      console.error('Failed to start processing:', error);
+      toast('error', 'Error', 'Failed to start processing: ' + error.message);
+    }
+  }
+
+  async function pauseProcessing() {
+    if (!state.run.runId) {
+      toast('error', 'No Run', 'No active run to pause');
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/bulk-doc-analysis/runs/${state.run.runId}/pause`, {
+        method: 'POST',
+        credentials: 'same-origin'
+      });
+      
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Failed to pause' }));
+        throw new Error(error.error || 'Failed to pause processing');
+      }
+      
+      // Stop polling
+      stopPollingRunProgress();
+      
+      // Show pause button as hidden, show start button
+      if (refs.pauseProcessingBtn) {
+        refs.pauseProcessingBtn.style.display = 'none';
+      }
+      if (refs.startProcessingBtn) {
+        refs.startProcessingBtn.style.display = 'inline-block';
+        refs.startProcessingBtn.disabled = false;
+      }
+      
+      toast('info', 'Paused', 'Run processing paused. Click "Start Processing" to resume.');
+    } catch (error) {
+      console.error('Failed to pause processing:', error);
+      toast('error', 'Error', 'Failed to pause processing: ' + error.message);
+    }
+  }
+
+  async function handleDocumentUpload(files) {
+    if (!files || files.length === 0) return;
+    
+    if (!state.selectedWorkflow) {
+      toast('error', 'Validation', 'Please select an agentic workflow template first');
+      goToStep(1);
+      return;
+    }
+    
+    // Validate file types against workflow's accepted types
+    const acceptedTypes = state.selectedWorkflow.accepted_input_types || [];
+    const validFiles = [];
+    const invalidFiles = [];
+    
+    files.forEach(file => {
+      const ext = '.' + file.name.split('.').pop().toLowerCase();
+      const typeMap = {
+        '.pdf': 'PDF',
+        '.docx': 'DOCX',
+        '.txt': 'TXT',
+        '.md': 'MD',
+        '.csv': 'CSV',
+        '.png': 'Images',
+        '.jpg': 'Images',
+        '.jpeg': 'Images'
+      };
+      const fileType = typeMap[ext];
+      if (fileType && acceptedTypes.includes(fileType)) {
+        validFiles.push(file);
+      } else {
+        invalidFiles.push(file.name);
+      }
+    });
+    
+    if (invalidFiles.length > 0) {
+      toast('error', 'Invalid Files', `The following files are not accepted: ${invalidFiles.join(', ')}`);
+    }
+    
+    if (validFiles.length === 0) {
+      return;
+    }
+    
+    // Optimistically add to state
+    validFiles.forEach((f) => {
+      state.docs.push({ localId: makeLocalId('doc'), filename: f.name, status: Status.QUEUED });
+    });
+    renderDocs();
+    
+    // Update status to processing
+    state.docs.forEach((d) => {
+      if (d.status === Status.QUEUED) d.status = Status.PROCESSING;
+    });
+    renderDocs();
+    
+    try {
+      // Upload with workflow_version_id
+      const form = new FormData();
+      validFiles.forEach((f) => form.append('files', f));
+      form.append('workflow_version_id', state.selectedWorkflowVersionId);
+      
+      const response = await fetch('/api/bulk-doc-analysis/documents/upload', {
+        method: 'POST',
+        body: form,
+        credentials: 'same-origin'
+      });
+      
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Upload failed' }));
+        throw new Error(error.error || 'Upload failed');
+      }
+      
+      const result = await response.json();
+      
+      // Update local doc entries with backend doc_ids
+      if (result && result.documents) {
+        const filenameToDoc = new Map(state.docs.map(d => [d.filename, d]));
+        result.documents.forEach(backendDoc => {
+          const localDoc = filenameToDoc.get(backendDoc.original_filename);
+          if (localDoc) {
+            localDoc.doc_id = backendDoc.doc_id;
+            localDoc.status = backendDoc.status || Status.QUEUED;
+          }
+        });
+      }
+      
+      renderDocs();
+      updateStartButton();
+      
+      // Start polling for document conversion status
+      startPollingDocs();
+      
+      toast('success', 'Upload Successful', `${validFiles.length} file(s) uploaded successfully`);
+      
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast('error', 'Upload Failed', error.message);
+      
+      // Remove failed uploads from state
+      state.docs = state.docs.filter(d => !validFiles.find(f => f.name === d.filename));
+      renderDocs();
+    }
+  }
+
+  function startPollingDocs() {
+    if (state.polling.docsActive) return;
+    state.polling.docsActive = true;
+    if (state.polling.intervalId) {
+      window.clearInterval(state.polling.intervalId);
+    }
+    state.polling.intervalId = window.setInterval(async () => {
+      await refreshDocs();
+      // Check if all docs are converted, then enable step 3
+      const allConverted = state.docs.length > 0 && state.docs.every((d) => d.status === Status.CONVERTED);
+      if (allConverted) {
+        updateStartButton();
+        // Auto-advance to step 2 (format selection) if we're on step 1
+        if (state.wizardStep === 1) {
+          goToStep(2);
+        }
+        // Stop polling docs once all converted
+        stopPollingDocs();
+      }
+    }, 2000);
+  }
+
+  function stopPollingDocs() {
+    if (state.polling.intervalId) {
+      window.clearInterval(state.polling.intervalId);
+      state.polling.intervalId = null;
+      state.polling.docsActive = false;
+    }
+  }
+
+  function startPollingRunProgress() {
+    if (state.polling.runActive) return;
+    state.polling.runActive = true;
+    if (state.polling.runIntervalId) {
+      window.clearInterval(state.polling.runIntervalId);
+    }
+    state.polling.runIntervalId = window.setInterval(async () => {
+      if (!state.run.runId) return;
+      try {
+        const progress = await api.getRunProgress(state.run.runId);
+        if (!progress || !progress.rows) return;
+        
+        state.run.rows = progress.rows.map((r) => ({
+          localId: makeLocalId('runrow'),
+          docId: r.doc_id,
+          taskId: r.task_id || null,  // Include task_id for CSV workflows
+          filename: r.filename,
+          stepLabel: r.step_label || 'R0',
+          status: r.status || 'QUEUED',
+          inputTokens: r.input_tokens,
+          outputTokens: r.output_tokens,
+          canDownload: r.can_download || false,
+        }));
+        
+        renderRun();
+        
+        // Stop polling if run is complete
+        const isComplete = state.run.rows.every((r) => r.status === 'SUCCESS' || r.status === 'ERROR');
+        if (isComplete) {
+          stopPollingRunProgress();
+          toast('success', 'Processing Complete', 'All documents have been processed');
+        }
+      } catch (error) {
+        console.error('Error polling run progress:', error);
+      }
+    }, 2000);
+  }
+
+  function stopPollingRunProgress() {
+    if (state.polling.runIntervalId) {
+      window.clearInterval(state.polling.runIntervalId);
+      state.polling.runIntervalId = null;
+      state.polling.runActive = false;
+    }
+  }
+
+
   // -------- init --------
   (async function() {
     initTooltips();
-    renderDocs();
-    renderChains();
-    renderRun();
+    
+    // Start with initial page (wizard hidden)
+    hideWorkflowWizard();
+    
+    // Load workflows (renders as clickable cards)
+    await loadWorkflows();
+    
+    // Load test files (automation-friendly)
+    await loadTestFiles();
+    
+    // Load sessions
     await refreshSessions();
-    updateRunButton();
+    
+    // Setup event listeners
+    // Note: Workflow cards have click handlers set in renderWorkflowCards()
+    // Note: Session buttons have click handlers set in renderSessionSelector()
+    
+    if (refs.startProcessingBtn) {
+      refs.startProcessingBtn.addEventListener('click', startProcessing);
+    }
+    
+    if (refs.pauseProcessingBtn) {
+      refs.pauseProcessingBtn.addEventListener('click', pauseProcessing);
+    }
+    
+    // Setup upload area drag & drop
+    if (refs.uploadArea && refs.uploadInput) {
+      refs.uploadArea.addEventListener('click', (e) => {
+        // Don't trigger if click is on the label/button inside upload area
+        // The label already handles the click and opens the file picker
+        if (e.target.tagName === 'LABEL' || e.target.closest('label') || 
+            e.target.tagName === 'INPUT' || e.target.closest('button')) {
+          return;
+        }
+        refs.uploadInput.click();
+      });
+      
+      refs.uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        refs.uploadArea.classList.add('dragover');
+      });
+      
+      refs.uploadArea.addEventListener('dragleave', () => {
+        refs.uploadArea.classList.remove('dragover');
+      });
+      
+      refs.uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        refs.uploadArea.classList.remove('dragover');
+        const files = Array.from(e.dataTransfer.files);
+        handleDocumentUpload(files);
+      });
+      
+      // NOTE: Don't add 'change' handler here - it already exists earlier in the code (line ~988)
+      // Adding it again would cause duplicate uploads
+    }
+    
+    // Load recent runs
+    await loadRecentRuns();
   })();
 })();
 

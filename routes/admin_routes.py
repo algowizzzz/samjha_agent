@@ -24,6 +24,10 @@ from external.agent.persistence import (
     create_agent_db,
     update_agent_db,
     delete_agent_db,
+    list_agent_prompts,
+    get_agent_prompt,
+    upsert_agent_prompt,
+    delete_agent_prompt,
 )
 
 logger = logging.getLogger(__name__)
@@ -42,9 +46,10 @@ class AdminRoutes(BaseRoutes):
         @app.route('/admin')
         @self.admin_required
         def admin_panel():
-            """Admin panel main page"""
+            """Admin panel main page - supports section parameter"""
             user_session = self.get_user_session()
-            return render_template('admin.html', user=user_session)
+            section = request.args.get('section', 'chat-agents')  # Default to chat-agents
+            return render_template('admin.html', user=user_session, section=section)
 
         @app.route('/api/admin/prompts')
         @self.admin_required
@@ -279,6 +284,83 @@ class AdminRoutes(BaseRoutes):
                         })
             except Exception as e:
                 logger.error(f"Error updating agent {agent_id}: {e}")
+                return jsonify({"error": str(e)}), 500
+
+        # ==================== Agent Prompt Management ====================
+        @app.route('/api/admin/agents/<agent_id>/prompts', methods=['GET'])
+        @self.admin_required
+        def api_list_agent_prompts(agent_id):
+            """List all prompts for an agent, showing which are overridden."""
+            try:
+                with get_db_session() as db:
+                    prompts = list_agent_prompts(db, agent_id)
+                    return jsonify({"prompts": prompts})
+            except Exception as e:
+                logger.error(f"Error listing agent prompts: {e}")
+                return jsonify({"error": str(e)}), 500
+
+        @app.route('/api/admin/agents/<agent_id>/prompts/<prompt_name>', methods=['GET'])
+        @self.admin_required
+        def api_get_agent_prompt(agent_id, prompt_name):
+            """Get agent-specific prompt override."""
+            try:
+                with get_db_session() as db:
+                    agent_prompt = get_agent_prompt(db, agent_id, prompt_name)
+                    if agent_prompt:
+                        return jsonify({
+                            "name": agent_prompt.prompt_name,
+                            "content": agent_prompt.content,
+                            "is_active": agent_prompt.is_active
+                        })
+                    else:
+                        # Return default prompt
+                        agent = get_agent_db(db, agent_id)
+                        category = "web_search" if agent and agent.get("agent_type") == "external" else "structured"
+                        default_content = get_prompt_content(db, prompt_name, category=category)
+                        return jsonify({
+                            "name": prompt_name,
+                            "content": default_content or "",
+                            "is_active": False,
+                            "is_default": True
+                        })
+            except Exception as e:
+                logger.error(f"Error getting agent prompt: {e}")
+                return jsonify({"error": str(e)}), 500
+
+        @app.route('/api/admin/agents/<agent_id>/prompts/<prompt_name>', methods=['POST'])
+        @self.admin_required
+        def api_save_agent_prompt(agent_id, prompt_name):
+            """Save agent-specific prompt override."""
+            try:
+                data = request.get_json()
+                if not data or 'content' not in data:
+                    return jsonify({"error": "Missing 'content' in request body"}), 400
+                
+                with get_db_session() as db:
+                    upsert_agent_prompt(db, agent_id, prompt_name, data['content'], is_active=data.get('is_active', True))
+                    db.commit()
+                    return jsonify({
+                        "success": True,
+                        "message": f"Agent prompt '{prompt_name}' saved successfully"
+                    })
+            except Exception as e:
+                logger.error(f"Error saving agent prompt: {e}")
+                return jsonify({"error": str(e)}), 500
+
+        @app.route('/api/admin/agents/<agent_id>/prompts/<prompt_name>', methods=['DELETE'])
+        @self.admin_required
+        def api_delete_agent_prompt(agent_id, prompt_name):
+            """Delete agent-specific prompt override (revert to default)."""
+            try:
+                with get_db_session() as db:
+                    delete_agent_prompt(db, agent_id, prompt_name)
+                    db.commit()
+                    return jsonify({
+                        "success": True,
+                        "message": f"Agent prompt override deleted, using default"
+                    })
+            except Exception as e:
+                logger.error(f"Error deleting agent prompt: {e}")
                 return jsonify({"error": str(e)}), 500
 
         @app.route('/api/admin/agents/<agent_id>', methods=['DELETE'])

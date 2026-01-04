@@ -15,6 +15,7 @@ sys.path.insert(0, str(project_root))
 from external.ai_bulk_doc_analysis.db_service import BulkDocDBService
 from external.ai_bulk_doc_analysis.workers.conversion_worker import convert_doc_job as convert_impl
 from external.ai_bulk_doc_analysis.workers.execution_worker import execute_step_job as execute_impl
+from external.ai_bulk_doc_analysis.workers.output_conversion_worker import convert_output_format_job as convert_output_impl
 
 logger = logging.getLogger(__name__)
 
@@ -128,10 +129,38 @@ def execute_step_job(job_data: Dict[str, Any]):
                 doc_id=job_data["doc_id"],
                 step_index=job_data["step_index"],
                 status="ERROR",
-                error_code="EXECUTION_FAILED",
-                error_message=str(e),
+            error_code="EXECUTION_FAILED",
+            error_message=str(e),
             )
         except:
             pass
+        raise
+
+
+def convert_output_format_job(job_data: Dict[str, Any]):
+    """
+    RQ job handler for converting markdown output to PDF/DOCX/CSV format.
+    
+    Args:
+        job_data: {
+            "run_id": str,
+            "doc_id": str,
+            "export_format": str,  # 'PDF', 'DOCX', 'CSV'
+            "markdown_path": str,  # Relative path to the markdown file
+            "idempotency_key": str
+        }
+    """
+    try:
+        # Get storage base path
+        storage_base = Path(os.getenv("STORAGE_BASE", "data/ai_bulk_doc_analysis"))
+        
+        # Run conversion
+        result = convert_output_impl(job_data, storage_base)
+        
+        logger.info(f"Output conversion job completed for run {job_data['run_id']}, doc {job_data['doc_id']} to {job_data['export_format']}")
+        return result
+        
+    except Exception as e:
+        logger.error(f"Output conversion job failed: {e}", exc_info=True)
         raise
 

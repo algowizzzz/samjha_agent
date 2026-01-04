@@ -100,7 +100,16 @@ class IngestionService:
             db.commit()
             
             logger.info(f"Created ingestion profile {ingestion_profile_id}")
-            return profile
+            # Return a simple object with the data (avoiding session binding issues)
+            class ProfileResult:
+                pass
+            result = ProfileResult()
+            result.ingestion_profile_id = ingestion_profile_id
+            result.name = name
+            result.accepted_input_types = accepted_input_types
+            result.mode = mode
+            result.vision_prompt = vision_prompt
+            return result
     
     def get_ingestion_profile(self, ingestion_profile_id: str) -> Optional[IngestionProfile]:
         """Get ingestion profile by ID."""
@@ -177,6 +186,18 @@ class IngestionService:
             markdown_parts = []
             markdown_parts.append(f"# Document: {file_path.name}\n\n")
             
+            # Validate file is actually a PDF by checking magic bytes
+            try:
+                with open(file_path, 'rb') as f:
+                    header = f.read(4)
+                    if header != b'%PDF':
+                        raise RuntimeError(f"File '{file_path.name}' does not appear to be a valid PDF file. PDF files must start with '%PDF' magic bytes. This file appears to be a different format.")
+            except Exception as e:
+                if "magic bytes" in str(e) or "does not appear" in str(e):
+                    raise
+                # If it's a different error, let pdfplumber handle it
+                pass
+            
             try:
                 with pdfplumber.open(file_path) as pdf:
                     for page_num, page in enumerate(pdf.pages, start=1):
@@ -212,9 +233,16 @@ class IngestionService:
                 metadata["page_count"] = len(pdf.pages) if 'pdf' in locals() else 0
                 return r0_content, metadata
                 
+            except RuntimeError:
+                # Re-raise validation errors as-is
+                raise
             except Exception as e:
                 logger.error(f"Error converting PDF {file_path}: {e}", exc_info=True)
-                raise RuntimeError(f"PDF conversion error: {str(e)}")
+                # Provide more helpful error message
+                error_msg = str(e)
+                if "No /Root object" in error_msg or "really a PDF" in error_msg:
+                    raise RuntimeError(f"PDF conversion error: File '{file_path.name}' is not a valid PDF file. Please ensure the file is a properly formatted PDF document.")
+                raise RuntimeError(f"PDF conversion error: {error_msg}")
         
         elif file_type == 'DOCX':
             if not DOCX_AVAILABLE:

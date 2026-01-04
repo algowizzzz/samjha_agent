@@ -112,7 +112,7 @@ def register_all_routes(app, socketio):
     auth_routes = AuthRoutes(auth_manager)
     api_routes = ApiRoutes(auth_manager, tools_registry, mcp_handler)
     
-    # Home page with 3 boxes
+    # Home page route
     @app.route("/")
     def index():
         # Check if user is logged in
@@ -122,7 +122,31 @@ def register_all_routes(app, socketio):
         if not session_data:
             session.pop('token', None)
             return redirect(url_for('login'))
+        return redirect(url_for('home'))
+    
+    # Home page with 3 boxes
+    @app.route("/home")
+    def home():
+        # Check if user is logged in
+        if 'token' not in session:
+            return redirect(url_for('login'))
+        session_data = auth_manager.validate_session(session.get('token'))
+        if not session_data:
+            session.pop('token', None)
+            return redirect(url_for('login'))
         return render_template('home.html', user=session_data, bulk_doc_available=BULK_DOC_AVAILABLE)
+
+    # Agent Management page with 3 blocks
+    @app.route("/agent-management")
+    def agent_management():
+        # Check if user is logged in
+        if 'token' not in session:
+            return redirect(url_for('login'))
+        session_data = auth_manager.validate_session(session.get('token'))
+        if not session_data:
+            session.pop('token', None)
+            return redirect(url_for('login'))
+        return render_template('agent_management.html', user=session_data)
 
     # Register AI Bulk Doc Analysis UI (isolated feature)
     if BULK_DOC_AVAILABLE and create_bulk_doc_blueprint is not None:

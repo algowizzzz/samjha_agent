@@ -8,6 +8,7 @@ from core.db.session import get_engine, get_session_factory
 from core.db.models import (
     Base,
     Agent,
+    AgentPrompt,
     Prompt,
     PromptRevision,
     Conversation,
@@ -124,8 +125,18 @@ def list_prompts(db, category: Optional[str] = None) -> List[Dict[str, Any]]:
     return result
 
 
-def get_prompt_content(db, name: str, category: Optional[str] = None) -> Optional[str]:
-    """Get prompt content by name, optionally filtered by category."""
+def get_prompt_content(db, name: str, category: Optional[str] = None, agent_id: Optional[str] = None) -> Optional[str]:
+    """
+    Get prompt content by name, optionally filtered by category and agent_id.
+    Priority: agent override > global prompt > None
+    """
+    # 1. Try agent-specific override first
+    if agent_id:
+        agent_prompt = db.get(AgentPrompt, (agent_id, name))
+        if agent_prompt and agent_prompt.is_active:
+            return agent_prompt.content
+    
+    # 2. Try global prompt
     p = db.get(Prompt, name)
     if p:
         # If category specified, verify it matches
@@ -133,6 +144,65 @@ def get_prompt_content(db, name: str, category: Optional[str] = None) -> Optiona
             return None
         return p.current_content
     return None
+
+
+def get_agent_prompt(db, agent_id: str, prompt_name: str) -> Optional[AgentPrompt]:
+    """Get agent-specific prompt override."""
+    return db.get(AgentPrompt, (agent_id, prompt_name))
+
+
+def list_agent_prompts(db, agent_id: str) -> List[Dict[str, Any]]:
+    """List all prompts for an agent, showing which are overridden."""
+    stmt = select(AgentPrompt).where(AgentPrompt.agent_id == agent_id)
+    agent_prompts = {ap.prompt_name: ap for ap in db.execute(stmt).scalars().all()}
+    
+    # Get all prompts for the agent's category
+    agent = db.get(Agent, agent_id)
+    if not agent:
+        return []
+    
+    category = "web_search" if agent.agent_type == "external" else "structured"
+    all_prompts = list_prompts(db, category=category)
+    
+    result = []
+    for prompt in all_prompts:
+        agent_prompt = agent_prompts.get(prompt["name"])
+        result.append({
+            "name": prompt["name"],
+            "display_name": prompt["display_name"],
+            "description": prompt["description"],
+            "category": prompt["category"],
+            "is_overridden": agent_prompt is not None and agent_prompt.is_active,
+            "override_content": agent_prompt.content if agent_prompt else None,
+            "default_content": get_prompt_content(db, prompt["name"], category=category)
+        })
+    
+    return result
+
+
+def upsert_agent_prompt(
+    db,
+    agent_id: str,
+    prompt_name: str,
+    content: str,
+    is_active: bool = True
+) -> None:
+    """Create or update agent-specific prompt override."""
+    ap = db.get(AgentPrompt, (agent_id, prompt_name))
+    if ap is None:
+        ap = AgentPrompt(agent_id=agent_id, prompt_name=prompt_name, content=content, is_active=is_active)
+        db.add(ap)
+    else:
+        ap.content = content
+        ap.is_active = is_active
+        ap.updated_at = datetime.utcnow()
+
+
+def delete_agent_prompt(db, agent_id: str, prompt_name: str) -> None:
+    """Delete agent-specific prompt override (revert to default)."""
+    ap = db.get(AgentPrompt, (agent_id, prompt_name))
+    if ap:
+        db.delete(ap)
 
 
 def create_conversation(db, user_id: Optional[str], agent_id: Optional[str]) -> str:

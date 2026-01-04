@@ -108,7 +108,17 @@ class WorkflowService:
             db.commit()
             
             logger.info(f"Created workflow {workflow_id} with version {workflow_version_id}")
-            return workflow
+            # Return a simple object with the data (avoiding session binding issues)
+            class WorkflowResult:
+                pass
+            result = WorkflowResult()
+            result.workflow_id = workflow_id
+            result.name = name
+            result.description = description
+            result.workflow_version_id = workflow_version_id
+            result.version_number = version_number
+            result.domains = domains
+            return result
     
     def update_workflow(
         self,
@@ -119,7 +129,7 @@ class WorkflowService:
         ingestion_profile_id: str,
         chain_version_id: str,
         export_profile_id: str
-    ) -> WorkflowVersion:
+    ) -> Dict:
         """
         Update workflow - creates new version (immutable).
         
@@ -200,7 +210,16 @@ class WorkflowService:
             db.commit()
             
             logger.info(f"Updated workflow {workflow_id}, created version {workflow_version_id}")
-            return workflow_version
+            
+            # Return dictionary representation (avoid session binding issues)
+            return {
+                "workflow_version_id": workflow_version_id,
+                "workflow_id": workflow_id,
+                "version_number": version_number,
+                "ingestion_profile_id": ingestion_profile_id,
+                "chain_version_id": chain_version_id,
+                "export_profile_id": export_profile_id,
+            }
     
     def list_workflows(
         self,
@@ -268,18 +287,35 @@ class WorkflowService:
                         ChainVersion.chain_version_id == latest_version.chain_version_id
                     ).first()
                 
+                # Extract step titles from chain snapshot
+                step_titles = []
+                if chain and chain.snapshot and isinstance(chain.snapshot, dict):
+                    steps = chain.snapshot.get("steps", [])
+                    if isinstance(steps, list):
+                        step_titles = [
+                            step.get("title", f"Step {step.get('index', i+1)}") 
+                            for i, step in enumerate(steps) 
+                            if isinstance(step, dict)
+                        ]
+                
                 result.append({
                     "workflow_id": wf.workflow_id,
                     "name": wf.name,
                     "description": wf.description,
                     "domains": domains,
+                    "workflow_version_id": latest_version.workflow_version_id if latest_version else None,
                     "latest_version_id": latest_version.workflow_version_id if latest_version else None,
+                    "chain_version_id": latest_version.chain_version_id if latest_version else None,
+                    "ingestion_profile_id": latest_version.ingestion_profile_id if latest_version else None,
+                    "export_profile_id": latest_version.export_profile_id if latest_version else None,
                     "created_at": wf.created_at.isoformat() if wf.created_at else None,
                     "updated_at": wf.updated_at.isoformat() if wf.updated_at else None,
                     "accepted_input_types": ingestion_profile.accepted_input_types if ingestion_profile else [],
                     "ingestion_mode": ingestion_profile.mode if ingestion_profile else None,
-                    "export_type": export_profile.format if export_profile else None,
+                    "export_format": export_profile.format if export_profile else None,
+                    "export_type": export_profile.format if export_profile else None,  # Alias for compatibility
                     "step_count": chain.step_count if chain else 0,
+                    "step_titles": step_titles,  # NEW: List of step titles
                 })
             
             return result

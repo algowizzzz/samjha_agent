@@ -7,7 +7,6 @@ from typing import Optional
 
 from flask import Blueprint, jsonify, redirect, render_template, request, send_file, session, url_for
 
-from .services import BulkDocService
 from .queue_config import get_conversion_queue, get_execution_queue, init_queues
 from .workers.rq_worker import convert_doc_job, execute_step_job
 
@@ -30,32 +29,56 @@ _service = None
 
 
 def get_service():
-    """Get or create the service instance (DB-backed if DATABASE_URL available, else in-memory)."""
+    """Get or create the DB-backed service instance (DATABASE_URL required)."""
     global _service
     if _service is None:
         # Get project root (go up from web/ to project root)
         project_root = Path(__file__).parent.parent.parent
         storage_base = project_root / "data" / "ai_bulk_doc_analysis"
         
-        # Try to use DB service if DATABASE_URL is available
+        # Require DATABASE_URL - fail fast if not set
         database_url = os.getenv("DATABASE_URL")
-        if database_url:
-            try:
-                from .db_service import BulkDocDBService, init_db
-                # Force initialization and table creation
-                init_db()
-                _service = BulkDocDBService(storage_base=storage_base)
-                logger.info("Using DB-backed service (PostgreSQL)")
-            except Exception as e:
-                logger.warning(f"DB service unavailable, falling back to in-memory: {e}", exc_info=True)
-                _service = BulkDocService(storage_base=storage_base)
-        else:
-            _service = BulkDocService(storage_base=storage_base)
-            logger.info("Using in-memory service (DATABASE_URL not set)")
+        if not database_url:
+            raise RuntimeError(
+                "DATABASE_URL environment variable is required. "
+                "Please set DATABASE_URL to use the bulk document analysis feature."
+            )
+        
+        try:
+            from .db_service import BulkDocDBService, init_db
+            # Force initialization and table creation
+            init_db()
+            _service = BulkDocDBService(storage_base=storage_base)
+            logger.info("Using DB-backed service (PostgreSQL)")
+        except Exception as e:
+            logger.error(f"Failed to initialize DB service: {e}", exc_info=True)
+            raise RuntimeError(
+                f"Database service unavailable: {e}. "
+                "Please ensure DATABASE_URL is correct and database is accessible."
+            ) from e
     return _service
 
 
 def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
+    # CRITICAL: Initialize database before blueprint routes
+    # This ensures DATABASE_URL is loaded and tables exist
+    try:
+        from .db_service import init_db, get_db_session
+        from .models import Base
+        from sqlalchemy import inspect
+        
+        init_db()
+        
+        # Verify tables exist, create if missing
+        with get_db_session() as db:
+            inspector = inspect(db.bind)
+            existing_tables = inspector.get_table_names()
+            if 'chains' not in existing_tables:
+                logger.warning("Tables missing, creating them...")
+                Base.metadata.create_all(bind=db.bind, checkfirst=True)
+            logger.info(f"Database initialized with {len(existing_tables)} tables")
+    except Exception as e:
+        logger.error(f"Database initialization error: {e}", exc_info=True)
     """
     Feature-isolated blueprint for the AI Bulk Doc Analysis UI.
 
@@ -256,6 +279,165 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
             logger.error(f"List docs error: {e}", exc_info=True)
             return jsonify({"error": str(e)}), 500
 
+    # ==================== Test Files API (Automation-Friendly) ====================
+    
+    @bp.route("/api/bulk-doc-analysis/test-files", methods=["GET"])
+    def api_list_test_files():
+        """List available test files for quick upload (automation-friendly)."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        try:
+            # Define project root
+            project_root = Path(__file__).parent.parent.parent
+            
+            # Look for test files in a designated test_files directory
+            test_files_dir = project_root / "test_files"
+            if not test_files_dir.exists():
+                test_files_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Also include car.pdf from project root if it exists
+            root_test_files = []
+            for ext in ['.pdf', '.md', '.txt', '.docx', '.csv']:
+                for f in project_root.glob(f'*{ext}'):
+                    if f.is_file() and not f.name.startswith('.'):
+                        root_test_files.append({
+                            'filename': f.name,
+                            'path': str(f.relative_to(project_root)),
+                            'size': f.stat().st_size,
+                            'type': ext.upper().replace('.', '')
+                        })
+            
+            # Get files from test_files directory
+            test_files = []
+            for f in test_files_dir.glob('*'):
+                if f.is_file() and not f.name.startswith('.'):
+                    ext = f.suffix.upper().replace('.', '')
+                    test_files.append({
+                        'filename': f.name,
+                        'path': str(f.relative_to(project_root)),
+                        'size': f.stat().st_size,
+                        'type': ext
+                    })
+            
+            # Combine and sort by name
+            all_files = root_test_files + test_files
+            all_files.sort(key=lambda x: x['filename'])
+            
+            return jsonify({"test_files": all_files})
+        except Exception as e:
+            logger.error(f"List test files error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+    
+    @bp.route("/api/bulk-doc-analysis/test-files/upload", methods=["POST"])
+    def api_upload_test_file():
+        """Upload a test file from the server to the current session (automation-friendly)."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        # Define project root
+        project_root = Path(__file__).parent.parent.parent
+        
+        user_id = user_session.get("user_id") or "anonymous"
+        bulk_session_id = _ensure_session(user_id)
+        
+        data = request.get_json() or {}
+        file_path = data.get("file_path")
+        workflow_version_id = data.get("workflow_version_id")
+        
+        if not file_path:
+            return jsonify({"error": "file_path is required"}), 400
+        
+        try:
+            # Resolve the file path
+            full_path = project_root / file_path
+            if not full_path.exists():
+                return jsonify({"error": f"File not found: {file_path}"}), 404
+            
+            if not full_path.is_file():
+                return jsonify({"error": f"Not a file: {file_path}"}), 400
+            
+            # Get accepted types and ingestion profile from workflow if provided
+            accepted_types = ["PDF", "DOCX", "TXT", "MD", "CSV"]  # Default
+            ingestion_profile_id = None
+            if workflow_version_id:
+                try:
+                    from .workflow_service import WorkflowService
+                    workflow_service = WorkflowService()
+                    workflow_version = workflow_service.get_workflow_version(workflow_version_id)
+                    if workflow_version:
+                        ingestion_profile_id = workflow_version.ingestion_profile_id
+                        from .ingestion_service import IngestionService
+                        ingestion_service = IngestionService()
+                        ingestion_profile = ingestion_service.get_ingestion_profile(workflow_version.ingestion_profile_id)
+                        if ingestion_profile:
+                            accepted_types = ingestion_profile.accepted_input_types
+                except Exception as e:
+                    logger.warning(f"Could not get workflow accepted types: {e}")
+            
+            # Check file type
+            file_ext = full_path.suffix.upper().replace('.', '')
+            if file_ext not in accepted_types:
+                return jsonify({
+                    "error": f"File type {file_ext} not accepted. Allowed: {accepted_types}"
+                }), 400
+            
+            # Create a file-like object for the create_documents API
+            from io import BytesIO
+            from werkzeug.datastructures import FileStorage
+            
+            with open(full_path, 'rb') as f:
+                file_content = f.read()
+            
+            # Create FileStorage object (mimics uploaded file)
+            file_obj = FileStorage(
+                stream=BytesIO(file_content),
+                filename=full_path.name,
+                content_type='application/octet-stream'
+            )
+            
+            # Create document entry
+            svc = get_service()
+            docs = svc.create_documents(bulk_session_id, [file_obj], user_id)
+            doc = docs[0]
+            
+            # Queue conversion job (if Redis available)
+            try:
+                import redis
+                redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+                redis_client = redis.from_url(redis_url)
+                from rq import Queue
+                conversion_queue = Queue("conversion", connection=redis_client)
+                
+                # Get the file path relative to storage base for the worker
+                doc_dir = svc.storage_base / "docs" / doc.doc_id
+                file_path = doc_dir / full_path.name
+                object_storage_key = str(file_path.relative_to(svc.storage_base))
+                
+                job_data = {
+                    "doc_id": doc.doc_id,
+                    "session_id": bulk_session_id,
+                    "object_storage_key": object_storage_key,
+                    "ingestion_profile_id": ingestion_profile_id,
+                    "idempotency_key": f"convert:{doc.doc_id}",
+                }
+                from external.ai_bulk_doc_analysis.workers.rq_worker import convert_doc_job
+                conversion_queue.enqueue(convert_doc_job, job_data, job_id=f"convert_{doc.doc_id}")
+                logger.info(f"Enqueued conversion job for test file {doc.doc_id}")
+            except Exception as e:
+                logger.warning(f"Could not queue conversion job: {e}")
+            
+            return jsonify({
+                "document": doc.to_dict(),
+                "message": f"Test file '{full_path.name}' added to session"
+            })
+            
+        except Exception as e:
+            logger.error(f"Upload test file error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
     @bp.route("/api/bulk-doc-analysis/sessions", methods=["GET"])
     def api_list_sessions():
         """List all sessions for the current user."""
@@ -426,6 +608,7 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
                     "workflow_id": workflow.workflow_id,
                     "name": workflow.name,
                     "description": workflow.description,
+                    "workflow_version_id": workflow.workflow_version_id,
                 }
             })
         except ValueError as e:
@@ -528,11 +711,7 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
             )
             return jsonify({
                 "success": True,
-                "workflow_version": {
-                    "workflow_version_id": workflow_version.workflow_version_id,
-                    "workflow_id": workflow_version.workflow_id,
-                    "version_number": workflow_version.version_number,
-                }
+                "workflow_version": workflow_version
             })
         except ValueError as e:
             return jsonify({"error": str(e)}), 400
@@ -790,7 +969,7 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
         # Validation
         if not name:
             return jsonify({"error": "Name is required"}), 400
-        valid_formats = ['CSV', 'JSON', 'MD', 'DOCX', 'PDF']
+        valid_formats = ['CSV', 'JSON', 'MD', 'DOCX', 'PDF', 'XLSX']
         if format not in valid_formats:
             return jsonify({"error": f"Format must be one of: {valid_formats}"}), 400
         
@@ -875,7 +1054,7 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
                 if name:
                     db_profile.name = name
                 if format:
-                    valid_formats = ['CSV', 'JSON', 'MD', 'DOCX', 'PDF']
+                    valid_formats = ['CSV', 'JSON', 'MD', 'DOCX', 'PDF', 'XLSX']
                     if format not in valid_formats:
                         return jsonify({"error": f"Format must be one of: {valid_formats}"}), 400
                     db_profile.format = format
@@ -918,6 +1097,155 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
             logger.error(f"Delete export profile error: {e}", exc_info=True)
             return jsonify({"error": str(e)}), 500
 
+    # ==================== Chain APIs ====================
+    
+    @bp.route("/api/bulk-doc-analysis/chains", methods=["GET"])
+    def api_list_chains():
+        """List all chains."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        try:
+            from .db_service import BulkDocDBService
+            svc = BulkDocDBService()
+            chains = svc.list_chains()
+            return jsonify({
+                "chains": [chain.to_dict() for chain in chains]
+            })
+        except Exception as e:
+            logger.error(f"List chains error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+    
+    @bp.route("/api/bulk-doc-analysis/chains", methods=["POST"])
+    def api_create_chain():
+        """Create a new chain."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        user_id = user_session.get("user_id") or "anonymous"
+        data = request.get_json() or {}
+        
+        name = data.get("name", "").strip()
+        description = data.get("description", "").strip()
+        steps = data.get("steps", [])
+        
+        # Validation
+        if not name:
+            return jsonify({"error": "Name is required"}), 400
+        if not steps or len(steps) == 0:
+            return jsonify({"error": "At least one step is required"}), 400
+        
+        try:
+            from .db_service import BulkDocDBService
+            svc = BulkDocDBService()
+            chain = svc.create_chain(user_id, name, description, steps)
+            return jsonify({
+                "success": True,
+                "chain": chain.to_dict()
+            })
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+        except Exception as e:
+            logger.error(f"Create chain error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+    
+    @bp.route("/api/bulk-doc-analysis/chains/<chain_id>", methods=["GET"])
+    def api_get_chain(chain_id: str):
+        """Get chain by ID (returns latest version)."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        try:
+            from .db_service import BulkDocDBService
+            svc = BulkDocDBService()
+            chain = svc.get_chain_by_id(chain_id)
+            
+            if not chain:
+                return jsonify({"error": "Chain not found"}), 404
+            
+            return jsonify(chain.to_dict())
+        except Exception as e:
+            logger.error(f"Get chain error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+    
+    @bp.route("/api/bulk-doc-analysis/chains/<chain_id>", methods=["PUT"])
+    def api_update_chain(chain_id: str):
+        """Update chain (creates new version)."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        data = request.get_json() or {}
+        
+        name = data.get("name", "").strip()
+        description = data.get("description", "").strip()
+        steps = data.get("steps", [])
+        
+        # Validation
+        if not name:
+            return jsonify({"error": "Name is required"}), 400
+        if not steps or len(steps) == 0:
+            return jsonify({"error": "At least one step is required"}), 400
+        
+        try:
+            from .db_service import BulkDocDBService
+            svc = BulkDocDBService()
+            chain = svc.update_chain(chain_id, name, description, steps)
+            return jsonify({
+                "success": True,
+                "chain": chain.to_dict()
+            })
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+        except Exception as e:
+            logger.error(f"Update chain error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+    
+    @bp.route("/api/bulk-doc-analysis/chains/<chain_id>", methods=["DELETE"])
+    def api_delete_chain(chain_id: str):
+        """Delete chain (validates no workflows reference it)."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        try:
+            from .db_service import get_db_session
+            from .models import Chain, ChainVersion, WorkflowVersion
+            
+            with get_db_session() as db:
+                # Check if any workflow versions reference this chain
+                chain_versions = db.query(ChainVersion).filter(
+                    ChainVersion.chain_id == chain_id
+                ).all()
+                
+                chain_version_ids = [cv.chain_version_id for cv in chain_versions]
+                
+                if chain_version_ids:
+                    workflow_refs = db.query(WorkflowVersion).filter(
+                        WorkflowVersion.chain_version_id.in_(chain_version_ids)
+                    ).count()
+                    
+                    if workflow_refs > 0:
+                        return jsonify({
+                            "error": f"Cannot delete chain: {workflow_refs} workflow version(s) reference this chain"
+                        }), 400
+                
+                # Delete chain (cascades to versions and steps)
+                chain = db.query(Chain).filter(Chain.chain_id == chain_id).first()
+                if not chain:
+                    return jsonify({"error": "Chain not found"}), 404
+                
+                db.delete(chain)
+                db.commit()
+            
+            return jsonify({"success": True})
+        except Exception as e:
+            logger.error(f"Delete chain error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
     # ==================== Chain APIs (DEPRECATED - Remove in Phase 1) ====================
     # Note: These endpoints are kept temporarily for backward compatibility but will be removed
     # Users should migrate to workflow system
@@ -934,14 +1262,164 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
 
         data = request.get_json() or {}
         chain_version_id = data.get("chain_version_id")
-        workflow_version_id = data.get("workflow_version_id")  # NEW
+        workflow_version_id = data.get("workflow_version_id")
+        
+        # Scalable solution: Accept either chain_version_id OR workflow_version_id
+        # If only workflow_version_id is provided, resolve chain_version_id from it
+        if not chain_version_id and workflow_version_id:
+            try:
+                from .workflow_service import WorkflowService
+                workflow_service = WorkflowService()
+                workflow_version = workflow_service.get_workflow_version(workflow_version_id)
+                if not workflow_version:
+                    return jsonify({"error": f"Workflow version {workflow_version_id} not found"}), 404
+                chain_version_id = workflow_version.chain_version_id
+            except Exception as e:
+                logger.error(f"Error resolving chain_version_id from workflow_version_id: {e}", exc_info=True)
+                return jsonify({"error": f"Failed to resolve chain_version_id: {str(e)}"}), 400
         
         if not chain_version_id:
-            return jsonify({"error": "chain_version_id required"}), 400
+            return jsonify({"error": "Either chain_version_id or workflow_version_id is required"}), 400
 
         try:
-            from .db_service import BulkDocDBService
+            from .db_service import BulkDocDBService, get_db_session
+            from .models import Run as DBRun
+            from sqlalchemy import desc
+            
             svc = BulkDocDBService()
+            
+            # Check if there's an existing PAUSED run for this session/workflow that we can resume
+            existing_run = None
+            with get_db_session() as db:
+                db_run = db.query(DBRun).filter(
+                    DBRun.session_id == bulk_session_id,
+                    DBRun.workflow_version_id == workflow_version_id,
+                    DBRun.status == 'PAUSED'
+                ).order_by(desc(DBRun.created_at)).first()
+                
+                if db_run:
+                    existing_run = svc.get_run(db_run.run_id)
+            
+            # If we have a paused run, resume it instead of creating new
+            if existing_run:
+                # Call the resume endpoint (defined below)
+                # Import here to avoid forward reference issues
+                from .blueprint import api_resume_run
+                return api_resume_run(existing_run.run_id)
+                # Fall through to create resume logic inline here
+                # OR redirect to resume endpoint
+                # For now, we'll handle it inline to avoid circular imports
+                from .models import StepResult, ExecutionTask
+                
+                with get_db_session() as db:
+                    db_run = db.query(DBRun).filter(DBRun.run_id == run_id_to_resume).first()
+                    if db_run:
+                        chain = svc.get_chain(db_run.chain_version_id)
+                        if chain:
+                            # Check if CSV workflow
+                            is_csv_workflow = False
+                            if db_run.workflow_version_id:
+                                from .workflow_service import WorkflowService
+                                from .ingestion_service import IngestionService
+                                workflow_service = WorkflowService()
+                                workflow_version = workflow_service.get_workflow_version(db_run.workflow_version_id)
+                                if workflow_version:
+                                    ingestion_service = IngestionService()
+                                    ingestion_profile = ingestion_service.get_ingestion_profile(workflow_version.ingestion_profile_id)
+                                    if ingestion_profile and 'CSV' in ingestion_profile.accepted_input_types:
+                                        is_csv_workflow = True
+                            
+                            db_run.status = 'RUNNING'
+                            db.commit()
+                            
+                            # Enqueue only incomplete steps
+                            if USE_QUEUES:
+                                try:
+                                    execution_queue = get_execution_queue()
+                                    
+                                    if is_csv_workflow:
+                                        tasks = db.query(ExecutionTask).filter(ExecutionTask.run_id == run_id_to_resume).all()
+                                        for task in tasks:
+                                            for step_idx in range(1, chain.step_count + 1):
+                                                step_result = db.query(StepResult).filter(
+                                                    StepResult.run_id == run_id_to_resume,
+                                                    StepResult.doc_id == task.doc_id,
+                                                    StepResult.task_id == task.task_id,
+                                                    StepResult.step_index == step_idx
+                                                ).first()
+                                                if step_result and step_result.status == 'SUCCESS':
+                                                    continue
+                                                step_def = next((s for s in chain.steps if s.get("index") == step_idx), None)
+                                                if not step_def:
+                                                    continue
+                                                model_config = step_def.get("model_config", {
+                                                    "model": "claude-3-haiku-20240307",
+                                                    "max_tokens": 4096,
+                                                    "temperature": 0.2
+                                                })
+                                                job_data = {
+                                                    "run_id": run_id_to_resume,
+                                                    "doc_id": task.doc_id,
+                                                    "session_id": db_run.session_id,
+                                                    "task_id": task.task_id,
+                                                    "step_index": step_idx,
+                                                    "chain_version_id": db_run.chain_version_id,
+                                                    "required_inputs": step_def.get("required_inputs", []),
+                                                    "prompt": step_def.get("prompt", ""),
+                                                    "model_config": model_config,
+                                                    "idempotency_key": f"step:{run_id_to_resume}:{task.doc_id}:{task.task_id}:{step_idx}",
+                                                }
+                                                execution_queue.enqueue(
+                                                    execute_step_job,
+                                                    job_data,
+                                                    job_id=f"execute_{run_id_to_resume}_{task.doc_id}_{task.task_id}_step{step_idx}"
+                                                )
+                                    else:
+                                        step_results = db.query(StepResult).filter(StepResult.run_id == run_id_to_resume).all()
+                                        doc_ids = list(set(sr.doc_id for sr in step_results))
+                                        for doc_id in doc_ids:
+                                            for step_idx in range(1, chain.step_count + 1):
+                                                step_result = db.query(StepResult).filter(
+                                                    StepResult.run_id == run_id_to_resume,
+                                                    StepResult.doc_id == doc_id,
+                                                    StepResult.step_index == step_idx
+                                                ).first()
+                                                if step_result and step_result.status == 'SUCCESS':
+                                                    continue
+                                                step_def = next((s for s in chain.steps if s.get("index") == step_idx), None)
+                                                if not step_def:
+                                                    continue
+                                                model_config = step_def.get("model_config", {
+                                                    "model": "claude-3-haiku-20240307",
+                                                    "max_tokens": 4096,
+                                                    "temperature": 0.2
+                                                })
+                                                job_data = {
+                                                    "run_id": run_id_to_resume,
+                                                    "doc_id": doc_id,
+                                                    "session_id": db_run.session_id,
+                                                    "step_index": step_idx,
+                                                    "chain_version_id": db_run.chain_version_id,
+                                                    "required_inputs": step_def.get("required_inputs", []),
+                                                    "prompt": step_def.get("prompt", ""),
+                                                    "model_config": model_config,
+                                                    "idempotency_key": f"step:{run_id_to_resume}:{doc_id}:{step_idx}",
+                                                }
+                                                execution_queue.enqueue(
+                                                    execute_step_job,
+                                                    job_data,
+                                                    job_id=f"exec_{run_id_to_resume}_{doc_id}_step{step_idx}"
+                                                )
+                                except Exception as e:
+                                    logger.error(f"Failed to enqueue resume jobs: {e}", exc_info=True)
+                
+                run = svc.get_run(run_id_to_resume)
+                return jsonify({
+                    "success": True,
+                    "run": run.to_dict() if run else None,
+                })
+            
+            # Otherwise create a new run
             run = svc.create_run(bulk_session_id, chain_version_id, workflow_version_id=workflow_version_id)
             
             # Check if CSV workflow
@@ -988,6 +1466,7 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
                                     job_data = {
                                         "run_id": run.run_id,
                                         "doc_id": task.doc_id,
+                                        "session_id": run.session_id,  # Needed to find R0.md
                                         "task_id": task.task_id,  # NEW
                                         "step_index": step_idx,
                                         "chain_version_id": chain_version_id,
@@ -1019,6 +1498,7 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
                                 job_data = {
                                     "run_id": run.run_id,
                                     "doc_id": doc_id,
+                                    "session_id": run.session_id,  # Needed to find R0.md
                                     "step_index": step_idx,
                                     "chain_version_id": chain_version_id,
                                     "required_inputs": step_def.get("required_inputs", []),
@@ -1045,6 +1525,287 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
             logger.error(f"Create run error: {e}", exc_info=True)
             return jsonify({"error": str(e)}), 500
 
+    @bp.route("/api/bulk-doc-analysis/runs", methods=["GET"])
+    def api_list_runs():
+        """List all runs for the current user."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+
+        try:
+            from .db_service import get_db_session
+            from .models import (
+                Run as DBRun, Session as DBSession,
+                WorkflowVersion, Workflow, ExecutionTask, StepResult
+            )
+            from sqlalchemy import func, distinct
+
+            user_id = user_session.get("user_id") or "anonymous"
+            
+            with get_db_session() as db:
+                # Get all sessions for the user
+                sessions = db.query(DBSession).filter(
+                    DBSession.user_id == user_id
+                ).all()
+                session_ids = [s.session_id for s in sessions]
+                
+                if not session_ids:
+                    return jsonify({"runs": []})
+                
+                # Get runs for those sessions, ordered by created_at DESC
+                runs = db.query(DBRun).filter(
+                    DBRun.session_id.in_(session_ids)
+                ).order_by(DBRun.created_at.desc()).limit(50).all()
+                
+                results = []
+                for run in runs:
+                    # Get workflow name
+                    workflow_name = "Unknown Workflow"
+                    if run.workflow_version_id:
+                        workflow_version = db.query(WorkflowVersion).filter(
+                            WorkflowVersion.workflow_version_id == run.workflow_version_id
+                        ).first()
+                        if workflow_version:
+                            workflow = db.query(Workflow).filter(
+                                Workflow.workflow_id == workflow_version.workflow_id
+                            ).first()
+                            if workflow:
+                                workflow_name = workflow.name
+                    
+                    # Count tasks to determine if CSV workflow
+                    task_count = db.query(ExecutionTask).filter(
+                        ExecutionTask.run_id == run.run_id
+                    ).count()
+                    is_csv_workflow = task_count > 0
+                    
+                    # Count documents for non-CSV workflows
+                    document_count = 1  # Default
+                    if not is_csv_workflow:
+                        # Count unique doc_ids from step_results
+                        unique_docs = db.query(distinct(StepResult.doc_id)).filter(
+                            StepResult.run_id == run.run_id
+                        ).count()
+                        document_count = unique_docs if unique_docs > 0 else 1
+                    else:
+                        document_count = task_count
+                    
+                    results.append({
+                        "run_id": run.run_id,
+                        "workflow_name": workflow_name,
+                        "workflow_version_id": run.workflow_version_id,
+                        "status": run.status,
+                        "created_at": run.created_at.isoformat() if run.created_at else None,
+                        "completed_at": run.completed_at.isoformat() if run.completed_at else None,
+                        "total_input_tokens": run.total_input_tokens or 0,
+                        "total_output_tokens": run.total_output_tokens or 0,
+                        "document_count": document_count,
+                        "task_count": task_count if is_csv_workflow else 0,
+                        "is_csv_workflow": is_csv_workflow,
+                    })
+                
+                return jsonify({"runs": results})
+        except Exception as e:
+            logger.error(f"List runs error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
+    @bp.route("/api/bulk-doc-analysis/runs/<run_id>/pause", methods=["POST"])
+    def api_pause_run(run_id: str):
+        """Pause a running run."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        try:
+            from .db_service import get_db_session
+            from .models import Run as DBRun
+            
+            with get_db_session() as db:
+                db_run = db.query(DBRun).filter(DBRun.run_id == run_id).first()
+                if not db_run:
+                    return jsonify({"error": "Run not found"}), 404
+                
+                # Only allow pausing QUEUED or RUNNING runs
+                if db_run.status not in ['QUEUED', 'RUNNING']:
+                    return jsonify({"error": f"Cannot pause run with status: {db_run.status}"}), 400
+                
+                db_run.status = 'PAUSED'
+                db.commit()
+        
+            return jsonify({"success": True, "run_id": run_id, "status": "PAUSED"})
+        except Exception as e:
+            logger.error(f"Pause run error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
+    @bp.route("/api/bulk-doc-analysis/runs/<run_id>/resume", methods=["POST"])
+    def api_resume_run(run_id: str):
+        """Resume a paused run - only enqueues incomplete steps."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        try:
+            from .db_service import BulkDocDBService, get_db_session
+            from .models import Run as DBRun, StepResult, ExecutionTask
+            
+            svc = BulkDocDBService()
+            
+            with get_db_session() as db:
+                db_run = db.query(DBRun).filter(DBRun.run_id == run_id).first()
+                if not db_run:
+                    return jsonify({"error": "Run not found"}), 404
+                
+                # Only allow resuming PAUSED runs
+                if db_run.status != 'PAUSED':
+                    return jsonify({"error": f"Cannot resume run with status: {db_run.status}"}), 400
+                
+                # Get chain to determine steps
+                chain = svc.get_chain(db_run.chain_version_id)
+                if not chain:
+                    return jsonify({"error": "Chain not found"}), 404
+                
+                # Check if CSV workflow
+                is_csv_workflow = False
+                if db_run.workflow_version_id:
+                    from .workflow_service import WorkflowService
+                    from .ingestion_service import IngestionService
+                    workflow_service = WorkflowService()
+                    workflow_version = workflow_service.get_workflow_version(db_run.workflow_version_id)
+                    if workflow_version:
+                        ingestion_service = IngestionService()
+                        ingestion_profile = ingestion_service.get_ingestion_profile(workflow_version.ingestion_profile_id)
+                        if ingestion_profile and 'CSV' in ingestion_profile.accepted_input_types:
+                            is_csv_workflow = True
+                
+                # Update run status to RUNNING
+                db_run.status = 'RUNNING'
+                db.commit()
+                
+                # Enqueue only incomplete steps
+                if USE_QUEUES:
+                    try:
+                        execution_queue = get_execution_queue()
+                        
+                        if is_csv_workflow:
+                            # CSV: Resume incomplete task/step combinations
+                            tasks = db.query(ExecutionTask).filter(ExecutionTask.run_id == run_id).all()
+                            
+                            for task in tasks:
+                                for step_idx in range(1, chain.step_count + 1):
+                                    # Check if this step is already complete
+                                    step_result = db.query(StepResult).filter(
+                                        StepResult.run_id == run_id,
+                                        StepResult.doc_id == task.doc_id,
+                                        StepResult.task_id == task.task_id,
+                                        StepResult.step_index == step_idx
+                                    ).first()
+                                    
+                                    # Skip if already complete
+                                    if step_result and step_result.status == 'SUCCESS':
+                                        continue
+                                    
+                                    step_def = next((s for s in chain.steps if s.get("index") == step_idx), None)
+                                    if not step_def:
+                                        continue
+                                    
+                                    model_config = step_def.get("model_config", {
+                                        "model": "claude-3-haiku-20240307",
+                                        "max_tokens": 4096,
+                                        "temperature": 0.2
+                                    })
+                                    
+                                    job_data = {
+                                        "run_id": run_id,
+                                        "doc_id": task.doc_id,
+                                        "session_id": db_run.session_id,
+                                        "task_id": task.task_id,
+                                        "step_index": step_idx,
+                                        "chain_version_id": db_run.chain_version_id,
+                                        "required_inputs": step_def.get("required_inputs", []),
+                                        "prompt": step_def.get("prompt", ""),
+                                        "model_config": model_config,
+                                        "idempotency_key": f"step:{run_id}:{task.doc_id}:{task.task_id}:{step_idx}",
+                                    }
+                                    execution_queue.enqueue(
+                                        execute_step_job,
+                                        job_data,
+                                        job_id=f"execute_{run_id}_{task.doc_id}_{task.task_id}_step{step_idx}"
+                                    )
+                                    logger.info(f"Resumed execution job for {run_id}/{task.doc_id}/{task.task_id}/step{step_idx}")
+                        else:
+                            # Non-CSV: Resume incomplete doc/step combinations
+                            step_results = db.query(StepResult).filter(StepResult.run_id == run_id).all()
+                            doc_ids = list(set(sr.doc_id for sr in step_results))
+                            
+                            for doc_id in doc_ids:
+                                for step_idx in range(1, chain.step_count + 1):
+                                    # Check if this step is already complete
+                                    step_result = db.query(StepResult).filter(
+                                        StepResult.run_id == run_id,
+                                        StepResult.doc_id == doc_id,
+                                        StepResult.step_index == step_idx
+                                    ).first()
+                                    
+                                    # Skip if already complete
+                                    if step_result and step_result.status == 'SUCCESS':
+                                        continue
+                                    
+                                    step_def = next((s for s in chain.steps if s.get("index") == step_idx), None)
+                                    if not step_def:
+                                        continue
+                                    
+                                    model_config = step_def.get("model_config", {
+                                        "model": "claude-3-haiku-20240307",
+                                        "max_tokens": 4096,
+                                        "temperature": 0.2
+                                    })
+                                    
+                                    job_data = {
+                                        "run_id": run_id,
+                                        "doc_id": doc_id,
+                                        "session_id": db_run.session_id,
+                                        "step_index": step_idx,
+                                        "chain_version_id": db_run.chain_version_id,
+                                        "required_inputs": step_def.get("required_inputs", []),
+                                        "prompt": step_def.get("prompt", ""),
+                                        "model_config": model_config,
+                                        "idempotency_key": f"step:{run_id}:{doc_id}:{step_idx}",
+                                    }
+                                    execution_queue.enqueue(
+                                        execute_step_job,
+                                        job_data,
+                                        job_id=f"exec_{run_id}_{doc_id}_step{step_idx}"
+                                    )
+                                    logger.info(f"Resumed execution job for {run_id}/{doc_id}/step{step_idx}")
+                    except Exception as e:
+                        logger.error(f"Failed to enqueue resume jobs: {e}", exc_info=True)
+                        return jsonify({"error": f"Failed to resume: {str(e)}"}), 500
+            
+            run = svc.get_run(run_id)
+            return jsonify({
+                "success": True,
+                "run": run.to_dict() if run else None,
+            })
+        except Exception as e:
+            logger.error(f"Resume run error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
+    @bp.route("/api/bulk-doc-analysis/runs/<run_id>", methods=["DELETE"])
+    def api_delete_run(run_id):
+        """Delete a run and all associated data."""
+        user_session = _current_user_session()
+        if not user_session:
+            return jsonify({"error": "Unauthorized"}), 401
+
+        try:
+            svc = get_service()
+            svc.delete_run(run_id)
+            return jsonify({"message": "Run deleted successfully"})
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 404
+        except Exception as e:
+            logger.error(f"Delete run error: {e}", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
     @bp.route("/api/bulk-doc-analysis/runs/<run_id>/progress", methods=["GET"])
     def api_get_run_progress(run_id: str):
         """Get run progress."""
@@ -1064,14 +1825,20 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
 
     @bp.route("/api/bulk-doc-analysis/runs/<run_id>/download/<doc_id>", methods=["GET"])
     def api_download_document_output(run_id: str, doc_id: str):
-        """Download final output (R(N)) for a document."""
+        """Download final output (R(N)) for a document or task."""
         user_session = _current_user_session()
         if not user_session:
             return jsonify({"error": "Unauthorized"}), 401
 
         try:
+            from .db_service import get_db_session
+            from .models import Run as DBRun, WorkflowVersion, ExportProfile, ExecutionTask
+            
+            # Check if this is a CSV workflow (task_id in query params)
+            task_id = request.args.get('task_id')
+            
             svc = get_service()
-            run = svc.runs.get(run_id)
+            run = svc.get_run(run_id)
             if not run:
                 return jsonify({"error": "Run not found"}), 404
 
@@ -1083,26 +1850,71 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
             if not chain:
                 return jsonify({"error": "Chain not found"}), 404
 
-            # Get final step output (R(N))
-            output_path = svc.get_final_output_path(run_id, doc_id, chain)
+            # Get export profile format from workflow first (needed for get_final_output_path)
+            export_format = "MD"  # Default
+            with get_db_session() as db:
+                db_run = db.query(DBRun).filter(DBRun.run_id == run_id).first()
+                if db_run and db_run.workflow_version_id:
+                    workflow_version = db.query(WorkflowVersion).filter(
+                        WorkflowVersion.workflow_version_id == db_run.workflow_version_id
+                    ).first()
+                    if workflow_version:
+                        export_profile = db.query(ExportProfile).filter(
+                            ExportProfile.export_profile_id == workflow_version.export_profile_id
+                        ).first()
+                        if export_profile:
+                            export_format = export_profile.format
+            
+            # Get final step output (R(N)) - this will check for converted files if export_format requires it
+            output_path = svc.get_final_output_path(run_id, doc_id, chain, export_format=export_format, task_id=task_id)
             if not output_path or not output_path.exists():
                 # Fallback to converted markdown if no step output exists
                 if doc.converted_md_path:
                     md_path = Path(doc.converted_md_path)
+                    # Handle relative paths - resolve from project root
+                    if not md_path.is_absolute():
+                        project_root = Path(__file__).parent.parent.parent
+                        md_path = project_root / md_path
                     if md_path.exists():
                         output_path = md_path
                     else:
-                        return jsonify({"error": "Output file not found"}), 404
+                        return jsonify({"error": f"Output file not found: {md_path}"}), 404
                 else:
                     return jsonify({"error": "Output not found"}), 404
 
-            # Determine filename
-            base_name = Path(doc.original_filename).stem
-            download_name = f"{base_name}_output.md"
+            # Determine file extension and mimetype based on actual file (may be converted or markdown)
+            file_ext = output_path.suffix
+            format_map = {
+                ".json": ("application/json", "JSON"),
+                ".md": ("text/markdown", "MD"),
+                ".csv": ("text/csv", "CSV"),
+                ".xlsx": ("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "XLSX"),
+                ".docx": ("application/vnd.openxmlformats-officedocument.wordprocessingml.document", "DOCX"),
+                ".pdf": ("application/pdf", "PDF"),
+            }
+            mimetype, detected_format = format_map.get(file_ext, ("text/markdown", "MD"))
 
+            # Determine filename - use export format extension if file is converted, otherwise use detected
+            base_name = Path(doc.original_filename).stem
+            if task_id:
+                # For CSV workflows, include row number in filename
+                with get_db_session() as db:
+                    from .models import ExecutionTask
+                    task = db.query(ExecutionTask).filter(ExecutionTask.task_id == task_id).first()
+                    if task:
+                        download_name = f"{base_name}_row{task.row_index + 1}_output{file_ext}"
+                    else:
+                        download_name = f"{base_name}_output{file_ext}"
+            else:
+                download_name = f"{base_name}_output{file_ext}"
+            
+            logger.info(f"Download: run_id={run_id}, doc_id={doc_id}, task_id={task_id}, export_format={export_format}, file={output_path.name}, download_name={download_name}, mimetype={mimetype}")
+            
+            # Use send_file with download_name (Flask 2.0+)
+            # The download_name parameter sets Content-Disposition header correctly
             return send_file(
                 str(output_path),
-                mimetype="text/markdown",
+                mimetype=mimetype,
                 as_attachment=True,
                 download_name=download_name,
             )
@@ -1120,6 +1932,8 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
         try:
             import zipfile
             import io
+            from .db_service import get_db_session
+            from .models import Run as DBRun, WorkflowVersion, ExportProfile
             
             svc = get_service()
             # Get run - handle both DB and in-memory services
@@ -1137,7 +1951,7 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
             
             # Fallback to in-memory service
             if not run and hasattr(svc, 'runs'):
-                run = svc.runs.get(run_id)
+                run = svc.get_run(run_id)
                 if run:
                     doc_ids = getattr(run, 'document_ids', [])
             
@@ -1152,36 +1966,88 @@ def create_bulk_doc_blueprint(auth_manager) -> Blueprint:
             chain = svc.get_chain(chain_version_id)
             if not chain:
                 return jsonify({"error": "Chain not found"}), 404
-            
-            if not doc_ids:
-                return jsonify({"error": "No documents found for this run"}), 404
+
+            # Get export profile format from workflow and check if CSV
+            export_format = "MD"  # Default
+            is_csv_workflow = False
+            with get_db_session() as db:
+                db_run = db.query(DBRun).filter(DBRun.run_id == run_id).first()
+                if db_run and db_run.workflow_version_id:
+                    workflow_version = db.query(WorkflowVersion).filter(
+                        WorkflowVersion.workflow_version_id == db_run.workflow_version_id
+                    ).first()
+                    if workflow_version:
+                        export_profile = db.query(ExportProfile).filter(
+                            ExportProfile.export_profile_id == workflow_version.export_profile_id
+                        ).first()
+                        if export_profile:
+                            export_format = export_profile.format
+                        
+                        # Check if CSV workflow
+                        from .models import IngestionProfile, ExecutionTask
+                        ingestion_profile = db.query(IngestionProfile).filter(
+                            IngestionProfile.ingestion_profile_id == workflow_version.ingestion_profile_id
+                        ).first()
+                        if ingestion_profile and 'CSV' in ingestion_profile.accepted_input_types:
+                            is_csv_workflow = True
+                            
+                            logger.info(f"Bulk download: run_id={run_id}, export_format={export_format}, CSV workflow detected")
 
             # Create ZIP in memory
             zip_buffer = io.BytesIO()
             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-                for doc_id in doc_ids:
-                    doc = svc.get_document(doc_id)
-                    if not doc:
-                        continue
+                if is_csv_workflow:
+                    # CSV workflow: iterate over tasks
+                    with get_db_session() as db:
+                        from .models import ExecutionTask
+                        tasks = db.query(ExecutionTask).filter(ExecutionTask.run_id == run_id).order_by(ExecutionTask.row_index).all()
+                        for task in tasks:
+                            doc = svc.get_document(task.doc_id)
+                            if not doc:
+                                continue
+                            
+                            # Get final output path for this task
+                            output_path = svc.get_final_output_path(run_id, task.doc_id, chain, export_format=export_format, task_id=task.task_id)
+                            
+                            if output_path and output_path.exists():
+                                file_ext = output_path.suffix
+                                base_name = Path(doc.original_filename).stem
+                                zip_filename = f"{base_name}_row{task.row_index + 1}_output{file_ext}"
+                                zip_file.write(str(output_path), zip_filename)
+                else:
+                    # Non-CSV workflow: iterate over documents
+                    if not doc_ids:
+                        return jsonify({"error": "No documents found for this run"}), 404
                     
-                    # Get final output path
-                    output_path = svc.get_final_output_path(run_id, doc_id, chain)
-                    
-                    if output_path and output_path.exists():
-                        # Add to ZIP with readable filename
-                        base_name = Path(doc.original_filename).stem
-                        zip_filename = f"{base_name}_output.md"
-                        zip_file.write(str(output_path), zip_filename)
+                    for doc_id in doc_ids:
+                        doc = svc.get_document(doc_id)
+                        if not doc:
+                            continue
+                        
+                        # Get final output path (checks for converted files if export_format requires it)
+                        output_path = svc.get_final_output_path(run_id, doc_id, chain, export_format=export_format)
+                        
+                        if output_path and output_path.exists():
+                            # Use actual file extension from the file (may be converted or markdown)
+                            file_ext = output_path.suffix
+                            base_name = Path(doc.original_filename).stem
+                            zip_filename = f"{base_name}_output{file_ext}"
+                            zip_file.write(str(output_path), zip_filename)
 
             zip_buffer.seek(0)
 
             # Return ZIP file
-            return send_file(
-                zip_buffer,
+            # Note: send_file with BytesIO requires attachment_filename in older Flask versions
+            # Using Response for better compatibility
+            from flask import Response
+            response = Response(
+                zip_buffer.getvalue(),
                 mimetype="application/zip",
-                as_attachment=True,
-                download_name=f"run_{run_id}_outputs.zip"
+                headers={
+                    "Content-Disposition": f'attachment; filename="run_{run_id}_outputs.zip"'
+                }
             )
+            return response
 
         except Exception as e:
             logger.error(f"Bulk download error: {e}", exc_info=True)

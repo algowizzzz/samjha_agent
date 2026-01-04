@@ -1,5 +1,7 @@
 # Domain MD Template and Examples Inventory
 
+> **📖 Complete Guide Available:** See `docs/userguides/Domain_Configuration_Complete_Guide.md` for the comprehensive, up-to-date guide covering all 11 sections including the critical LLM Example Patterns (Section 11).
+
 This document serves as a reference for:
 1. All examples currently used in system prompts (for migration to domain_md)
 2. A template for creating new domain_md files

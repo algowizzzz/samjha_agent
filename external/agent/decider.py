@@ -29,8 +29,32 @@ DECIDER_MAX_TOKENS: int = int(os.getenv("DECIDER_MAX_TOKENS", "16000"))
 THINKING_TRACE_MAX_CHARS: int = int(os.getenv("THINKING_TRACE_MAX_CHARS", "20000"))
 
 
-def load_decider_prompt() -> str:
-    """Load Decider prompt from file."""
+def load_decider_prompt(agent_id: Optional[str] = None) -> str:
+    """Load Decider prompt from DB (with agent override) or file."""
+    # Try to load from DB first (with agent override if provided)
+    if agent_id:
+        try:
+            from core.db.session import get_db_session
+            from external.agent.persistence import get_prompt_content
+            with get_db_session() as db:
+                prompt_content = get_prompt_content(db, "decider", category="structured", agent_id=agent_id)
+                if prompt_content:
+                    return prompt_content
+        except Exception as e:
+            logger.warning(f"Failed to load prompt from DB for agent {agent_id}: {e}")
+    
+    # Try global DB prompt
+    try:
+        from core.db.session import get_db_session
+        from external.agent.persistence import get_prompt_content
+        with get_db_session() as db:
+            prompt_content = get_prompt_content(db, "decider", category="structured")
+            if prompt_content:
+                return prompt_content
+    except Exception as e:
+        logger.warning(f"Failed to load prompt from DB: {e}")
+    
+    # Fallback to file
     prompt_path = Path("external/config/prompts/decider.md")
     if prompt_path.exists():
         return prompt_path.read_text()
@@ -91,7 +115,8 @@ def run_decider(state: ControllerState) -> dict:
     if not llm_client.is_available():
         raise ValueError("LLM client is not available")
     
-    prompt_template = load_decider_prompt()
+    agent_id = state.get("agent_id")
+    prompt_template = load_decider_prompt(agent_id=agent_id)
     
     # Build prompt context from state
     # DIAGNOSTIC: Log what state contains before building context

@@ -262,6 +262,21 @@ class BulkDocDBService:
             return sessions
 
     # -------- Document Management --------
+    def _detect_file_type(self, filename: str) -> str:
+        """Detect file type from file extension."""
+        from pathlib import Path
+        ext = Path(filename).suffix.lower()
+        
+        file_type_map = {
+            '.pdf': 'PDF',
+            '.docx': 'DOCX',
+            '.txt': 'TXT',
+            '.md': 'MD',
+            '.csv': 'CSV',
+        }
+        
+        return file_type_map.get(ext, 'PDF')  # Default to PDF for unknown extensions
+
     def create_documents(self, session_id: str, files: List, user_id: str) -> List[Document]:
         """Create document records from uploaded files."""
         docs = []
@@ -285,12 +300,15 @@ class BulkDocDBService:
                     with open(file_path, "wb") as f:
                         f.write(file.read())
 
+                # Detect file type from extension
+                file_type = self._detect_file_type(filename)
+
                 # Create DB record
                 db_doc = DBDocument(
                     doc_id=doc_id,
                     session_id=session_id,
                     original_filename=filename,
-                    file_type="PDF",
+                    file_type=file_type,
                     size_bytes=size,
                     status="QUEUED",
                     object_storage_key=str(file_path.relative_to(self.storage_base)),
@@ -406,10 +424,8 @@ class BulkDocDBService:
 
     def create_chain(self, user_id: str, name: str, description: str, steps: List[Dict]) -> Chain:
         """Create a new chain."""
-        from .services import BulkDocService
-        # Use in-memory service for validation (temporary)
-        temp_service = BulkDocService()
-        is_valid, error_msg = temp_service._validate_chain_structure(steps)
+        from .chain_validator import validate_chain_structure
+        is_valid, error_msg = validate_chain_structure(steps)
         if not is_valid:
             raise ValueError(f"Invalid chain structure: {error_msg}")
 
@@ -471,9 +487,8 @@ class BulkDocDBService:
 
     def update_chain(self, chain_id: str, name: str, description: str, steps: List[Dict]) -> Chain:
         """Update an existing chain (creates new version)."""
-        from .services import BulkDocService
-        temp_service = BulkDocService()
-        is_valid, error_msg = temp_service._validate_chain_structure(steps)
+        from .chain_validator import validate_chain_structure
+        is_valid, error_msg = validate_chain_structure(steps)
         if not is_valid:
             raise ValueError(f"Invalid chain structure: {error_msg}")
 
@@ -777,21 +792,76 @@ class BulkDocDBService:
                     failed_steps = sum(1 for sr in task_results if sr.status == 'ERROR')
                     total_steps = chain_version.step_count
                     
+                    # Derive status from step results, not task.status
+                    if completed_steps == total_steps and total_steps > 0:
+                        task_status = "SUCCESS"
+                    elif failed_steps > 0:
+                        task_status = "ERROR"
+                    elif any(sr.status == 'RUNNING' for sr in task_results):
+                        task_status = "RUNNING"
+                    else:
+                        task_status = task.status  # Fallback to task.status
+                    
                     rows.append({
                         "doc_id": task.doc_id,
                         "task_id": task.task_id,
                         "row_index": task.row_index,
-                        "status": task.status,
+                        "status": task_status,
                         "completed_steps": completed_steps,
                         "failed_steps": failed_steps,
                         "total_steps": total_steps,
                         "progress_pct": (completed_steps / total_steps * 100) if total_steps > 0 else 0,
                     })
                 
-                # Aggregate stats
+                # Aggregate stats (use derived status from rows)
                 total_tasks = len(tasks)
-                completed_tasks = sum(1 for t in tasks if t.status == 'SUCCESS')
-                failed_tasks = sum(1 for t in tasks if t.status == 'ERROR')
+                completed_tasks = sum(1 for r in rows if r.get('status') == 'SUCCESS')
+                failed_tasks = sum(1 for r in rows if r.get('status') == 'ERROR')
+                
+                # Transform tasks to rows format for UI compatibility
+                # Get document for filename (DBDocument already imported at module level)
+                db_doc = db.query(DBDocument).filter(DBDocument.doc_id == tasks[0].doc_id if tasks else None).first()
+                doc_filename = db_doc.original_filename if db_doc else "CSV Tasks"
+                
+                # Create rows in UI-expected format
+                ui_rows = []
+                for row in rows:
+                    # Get step results for tokens
+                    task_results = db.query(DBStepResult).filter(
+                        DBStepResult.run_id == run_id,
+                        DBStepResult.task_id == row['task_id']
+                    ).all()
+                    total_input_tokens = sum(sr.input_tokens or 0 for sr in task_results)
+                    total_output_tokens = sum(sr.output_tokens or 0 for sr in task_results)
+                    
+                    # Determine step label (final step)
+                    max_step = max([sr.step_index for sr in task_results], default=0)
+                    step_label = f"R{max_step}" if max_step > 0 else "R0"
+                    
+                    ui_rows.append({
+                        "doc_id": row['doc_id'],
+                        "task_id": row['task_id'],  # Include task_id for CSV workflows
+                        "filename": f"{doc_filename} (Row {row['row_index'] + 1})",
+                        "step_label": step_label,
+                        "status": row['status'],
+                        "input_tokens": total_input_tokens if total_input_tokens > 0 else None,
+                        "output_tokens": total_output_tokens if total_output_tokens > 0 else None,
+                        "can_download": row['status'] == 'SUCCESS',
+                    })
+                
+                # Get export format from workflow if available
+                export_format = None
+                if db_run.workflow_version_id:
+                    workflow_version = db.query(WorkflowVersion).filter(
+                        WorkflowVersion.workflow_version_id == db_run.workflow_version_id
+                    ).first()
+                    if workflow_version:
+                        from .models import ExportProfile
+                        export_profile = db.query(ExportProfile).filter(
+                            ExportProfile.export_profile_id == workflow_version.export_profile_id
+                        ).first()
+                        if export_profile:
+                            export_format = export_profile.format
                 
                 return {
                     "run_id": run_id,
@@ -801,10 +871,27 @@ class BulkDocDBService:
                     "completed_tasks": completed_tasks,
                     "failed_tasks": failed_tasks,
                     "in_progress_tasks": total_tasks - completed_tasks - failed_tasks,
-                    "tasks": rows,
+                    "tasks": rows,  # Keep for backward compatibility
+                    "rows": ui_rows,  # UI-compatible format
                     "total_input_tokens": db_run.total_input_tokens or 0,
                     "total_output_tokens": db_run.total_output_tokens or 0,
+                    "export_format": export_format,  # Include export format for UI display
                 }
+                result = {
+                    "run_id": run_id,
+                    "status": db_run.status,
+                    "is_csv_workflow": True,
+                    "total_tasks": total_tasks,
+                    "completed_tasks": completed_tasks,
+                    "failed_tasks": failed_tasks,
+                    "in_progress_tasks": total_tasks - completed_tasks - failed_tasks,
+                    "tasks": rows,  # Keep for backward compatibility
+                    "rows": ui_rows,  # UI-compatible format
+                    "total_input_tokens": db_run.total_input_tokens or 0,
+                    "total_output_tokens": db_run.total_output_tokens or 0,
+                    "export_format": export_format,  # Include export format for UI display
+                }
+                return result
             else:
                 # Non-CSV workflow: show per-document progress
                 doc_ids = set()
@@ -867,23 +954,66 @@ class BulkDocDBService:
             else:
                 run_status = db_run.status
 
+            # Get export format from workflow if available
+            export_format = None
+            if db_run.workflow_version_id:
+                workflow_version = db.query(WorkflowVersion).filter(
+                    WorkflowVersion.workflow_version_id == db_run.workflow_version_id
+                ).first()
+                if workflow_version:
+                    from .models import ExportProfile
+                    export_profile = db.query(ExportProfile).filter(
+                        ExportProfile.export_profile_id == workflow_version.export_profile_id
+                    ).first()
+                    if export_profile:
+                        export_format = export_profile.format
+
             return {
                 "run_id": run_id,
                 "status": run_status,
                 "rows": rows,
+                "export_format": export_format,  # Include export format for UI display
             }
 
-    def get_final_output_path(self, run_id: str, doc_id: str, chain: Chain) -> Optional[Path]:
-        """Get the path to the final step output."""
+    def get_final_output_path(self, run_id: str, doc_id: str, chain: Chain, export_format: Optional[str] = None, task_id: Optional[str] = None) -> Optional[Path]:
+        """
+        Get the path to the final step output.
+        
+        If export_format is provided and requires conversion (PDF/DOCX/CSV),
+        checks for a pre-converted file first before falling back to markdown.
+        
+        For CSV workflows, task_id must be provided to locate task-specific outputs.
+        """
         if chain.step_count == 0:
             return None
 
         final_r_key = f"R{chain.step_count}"
-        run_dir = self.storage_base / "runs" / run_id / "docs" / doc_id
-        r_path = run_dir / f"{final_r_key}.md"
+        
+        # CSV workflow: outputs are in task-specific directory
+        if task_id:
+            run_dir = self.storage_base / "runs" / run_id / "docs" / doc_id / "tasks" / task_id
+        else:
+            run_dir = self.storage_base / "runs" / run_id / "docs" / doc_id
+        
+        md_path = run_dir / f"{final_r_key}.md"
 
-        if r_path.exists():
-            return r_path
+        # If export format requires conversion, check for converted file first
+        if export_format and export_format in ['PDF', 'DOCX', 'CSV', 'XLSX']:
+            format_ext_map = {
+                'PDF': ['.pdf'],
+                'DOCX': ['.docx'],
+                'CSV': ['.csv'],
+                'XLSX': ['.xlsx'],
+            }
+            exts = format_ext_map.get(export_format, [])
+            for ext in exts:
+                converted_path = run_dir / f"{final_r_key}{ext}"
+                if converted_path.exists():
+                    return converted_path
+        
+        # Fall back to markdown
+        if md_path.exists():
+            return md_path
         return None
 
     # -------- Helper Methods --------
@@ -940,4 +1070,21 @@ class BulkDocDBService:
             valid=db_version.valid,
             steps=steps,
         )
+
+    def delete_run(self, run_id: str) -> None:
+        """Delete a run and all associated data"""
+        with get_db_session() as db:
+            # Delete step results first (foreign key constraint)
+            db.query(DBStepResult).filter(DBStepResult.run_id == run_id).delete()
+            
+            # Delete execution tasks (for CSV workflows)
+            db.query(ExecutionTask).filter(ExecutionTask.run_id == run_id).delete()
+            
+            # Delete the run itself
+            run = db.query(DBRun).filter(DBRun.run_id == run_id).first()
+            if run:
+                db.delete(run)
+                db.commit()
+            else:
+                raise ValueError(f"Run {run_id} not found")
 

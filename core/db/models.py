@@ -46,6 +46,18 @@ class Agent(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow, nullable=False)
 
 
+class AgentPrompt(Base):
+    """Per-agent prompt overrides"""
+    __tablename__ = "agent_prompts"
+
+    agent_id: Mapped[str] = mapped_column(String(128), ForeignKey("agents.id"), primary_key=True)
+    prompt_name: Mapped[str] = mapped_column(String(128), ForeignKey("prompts.name"), primary_key=True)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow, nullable=False)
+
+
 class Prompt(Base):
     __tablename__ = "prompts"
 

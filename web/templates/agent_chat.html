@@ -886,6 +886,153 @@
         return html;
     }
 
+    // Display evidence pack for web research agents
+    function displayEvidencePack(messageEl, evidencePack) {
+        if (!evidencePack) return;
+        
+        const sources = evidencePack.sources || [];
+        const claims = evidencePack.claims || [];
+        const conflicts = evidencePack.conflicts || [];
+        const gaps = evidencePack.gaps || [];
+        
+        // Only show if there's actual data
+        if (sources.length === 0 && claims.length === 0 && conflicts.length === 0 && gaps.length === 0) {
+            return;
+        }
+        
+        const evidenceDiv = document.createElement('details');
+        evidenceDiv.className = 'evidence-pack mt-3';
+        evidenceDiv.open = true;
+        
+        const sourcesCount = sources.length;
+        const claimsCount = claims.length;
+        const conflictsCount = conflicts.length;
+        const gapsCount = gaps.length;
+        
+        evidenceDiv.innerHTML = `
+            <summary class="small text-info" style="cursor:pointer; padding: 8px; background: #e7f3ff; border-radius: 4px;">
+                <i class="bi bi-file-earmark-text"></i> <strong>Research Evidence</strong>
+                ${sourcesCount > 0 ? `(${sourcesCount} sources` : ''}
+                ${claimsCount > 0 ? `, ${claimsCount} claims` : ''}
+                ${conflictsCount > 0 ? `, ${conflictsCount} conflicts` : ''}
+                ${gapsCount > 0 ? `, ${gapsCount} gaps` : ''}${sourcesCount > 0 ? ')' : ''}
+            </summary>
+            <div class="evidence-content p-3 bg-light border rounded mt-2">
+                ${formatSourcesList(sources)}
+                ${formatClaimsList(claims)}
+                ${formatConflictsList(conflicts)}
+                ${formatGapsList(gaps)}
+            </div>
+        `;
+        
+        messageEl.appendChild(evidenceDiv);
+    }
+
+    function formatSourcesList(sources) {
+        if (!sources || sources.length === 0) return '';
+        
+        let html = '<div class="sources-section mb-3"><h6 style="margin-bottom: 12px;"><i class="bi bi-link-45deg"></i> Sources (' + sources.length + ')</h6><ul class="list-unstyled">';
+        sources.forEach((source, idx) => {
+            const url = source.url || '';
+            const title = source.title || url || `Source ${idx + 1}`;
+            const snippet = source.snippet || '';
+            let domain = '';
+            try {
+                if (url) domain = new URL(url).hostname;
+            } catch (e) {}
+            
+            html += `
+                <li class="mb-2 p-2 border rounded" style="background: white;">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-grow-1">
+                            <a href="${escapeHtml(url)}" target="_blank" class="text-primary text-decoration-none fw-semibold" rel="noopener noreferrer">
+                                ${escapeHtml(title)} <i class="bi bi-box-arrow-up-right" style="font-size: 0.8em;"></i>
+                            </a>
+                            ${domain ? `<div class="small text-muted mt-1">${escapeHtml(domain)}</div>` : ''}
+                            ${snippet ? `<div class="small text-muted mt-2" style="line-height: 1.4;">${escapeHtml(snippet)}</div>` : ''}
+                        </div>
+                    </div>
+                </li>
+            `;
+        });
+        html += '</ul></div>';
+        return html;
+    }
+
+    function formatClaimsList(claims) {
+        if (!claims || claims.length === 0) return '';
+        
+        let html = '<div class="claims-section mb-3"><h6 style="margin-bottom: 12px;"><i class="bi bi-check-circle"></i> Extracted Claims (' + claims.length + ')</h6><ul class="list-unstyled">';
+        claims.forEach((claim, idx) => {
+            const text = claim.text || claim.claim || '';
+            const confidence = claim.confidence || 'medium';
+            const source = claim.source || claim.source_url || '';
+            const confidenceBadge = confidence === 'high' ? 'success' : confidence === 'medium' ? 'warning' : 'secondary';
+            
+            html += `
+                <li class="mb-2 p-2 border rounded" style="background: white;">
+                    <div class="d-flex align-items-start">
+                        <span class="badge bg-${confidenceBadge} me-2">${escapeHtml(confidence)}</span>
+                        <div class="flex-grow-1">
+                            <div>${escapeHtml(text)}</div>
+                            ${source ? `<div class="small text-muted mt-1"><a href="${escapeHtml(source)}" target="_blank" class="text-decoration-none">Source</a></div>` : ''}
+                        </div>
+                    </div>
+                </li>
+            `;
+        });
+        html += '</ul></div>';
+        return html;
+    }
+
+    function formatConflictsList(conflicts) {
+        if (!conflicts || conflicts.length === 0) return '';
+        
+        let html = '<div class="conflicts-section mb-3"><h6 style="margin-bottom: 12px;"><i class="bi bi-exclamation-triangle text-warning"></i> Conflicts (' + conflicts.length + ')</h6><ul class="list-unstyled">';
+        conflicts.forEach((conflict, idx) => {
+            const claim1 = conflict.claim1 || conflict.claim_a || '';
+            const claim2 = conflict.claim2 || conflict.claim_b || '';
+            const severity = conflict.severity || 'medium';
+            const severityBadge = severity === 'high' ? 'danger' : severity === 'medium' ? 'warning' : 'info';
+            
+            html += `
+                <li class="mb-2 p-2 border rounded border-warning" style="background: #fff3cd;">
+                    <div class="d-flex align-items-start">
+                        <span class="badge bg-${severityBadge} me-2">${escapeHtml(severity)}</span>
+                        <div class="flex-grow-1">
+                            <div class="mb-1"><strong>Claim 1:</strong> ${escapeHtml(claim1)}</div>
+                            <div><strong>Claim 2:</strong> ${escapeHtml(claim2)}</div>
+                        </div>
+                    </div>
+                </li>
+            `;
+        });
+        html += '</ul></div>';
+        return html;
+    }
+
+    function formatGapsList(gaps) {
+        if (!gaps || gaps.length === 0) return '';
+        
+        let html = '<div class="gaps-section mb-3"><h6 style="margin-bottom: 12px;"><i class="bi bi-question-circle text-info"></i> Information Gaps (' + gaps.length + ')</h6><ul class="list-unstyled">';
+        gaps.forEach((gap, idx) => {
+            const description = gap.description || gap.gap || '';
+            const criticality = gap.criticality || 'medium';
+            const criticalityBadge = criticality === 'high' ? 'danger' : criticality === 'medium' ? 'warning' : 'info';
+            
+            html += `
+                <li class="mb-2 p-2 border rounded border-info" style="background: #d1ecf1;">
+                    <div class="d-flex align-items-start">
+                        <span class="badge bg-${criticalityBadge} me-2">${escapeHtml(criticality)}</span>
+                        <div class="flex-grow-1">${escapeHtml(description)}</div>
+                    </div>
+                </li>
+            `;
+        });
+        html += '</ul></div>';
+        return html;
+    }
+
     let messageCounter = 0;
     
     function appendMessage(role, text, finalOutput) {
@@ -1359,10 +1506,17 @@
                                 
                             case 'final_response':
                                 const response = payload.response || '';
+                                const evidencePack = payload.evidence_pack; // Web research agent data
+                                
                                 if (markdownBody && typeof marked !== 'undefined') {
                                     markdownBody.innerHTML = marked.parse(response);
                                 } else if (markdownBody) {
                                     markdownBody.innerHTML = '<div>' + escapeHtml(response) + '</div>';
+                                }
+                                
+                                // Display evidence pack for web research agents
+                                if (evidencePack && messageEl) {
+                                    displayEvidencePack(messageEl, evidencePack);
                                 }
                                 break;
                                 

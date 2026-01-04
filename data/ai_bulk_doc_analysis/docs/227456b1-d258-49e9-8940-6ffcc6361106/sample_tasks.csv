@@ -1,0 +1,8 @@
+ticket_id,customer,issue,priority
+TCK-001,Northwind,PDF contains scanned pages; text extraction fails,High
+TCK-002,Contoso,Need MUST/SHOULD extraction and gap summary,Medium
+TCK-003,Fabrikam,Convert SOP to JSON checklist format,Low
+TCK-004,AdventureWorks,Compile outputs to CSV for reporting,Medium
+TCK-005,Woodgrove,Document analysis for compliance review,High
+TCK-006,Litware,Extract key requirements from policy doc,Low
+

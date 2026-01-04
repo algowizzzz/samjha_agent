@@ -14,6 +14,11 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
+# Load environment variables from .env and .env.local
+from dotenv import load_dotenv
+load_dotenv('.env')
+load_dotenv('.env.local', override=True)
+
 from rq import Worker, Queue
 from redis import Redis
 

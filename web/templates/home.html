@@ -6,8 +6,9 @@
     .home-container {
         min-height: 80vh;
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
         padding: 40px 20px;
     }
     .home-boxes {
@@ -62,6 +63,26 @@
         color: #6c757d;
         line-height: 1.6;
     }
+    .home-intro-section {
+        max-width: 1200px;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 50px;
+        padding: 0 20px;
+    }
+    .home-intro-title {
+        font-size: 36px;
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 20px;
+    }
+    .home-intro-description {
+        font-size: 18px;
+        color: #6c757d;
+        line-height: 1.7;
+        max-width: 800px;
+        margin: 0 auto;
+    }
     .coming-soon-badge {
         display: inline-block;
         background: #ffc107;
@@ -77,48 +98,43 @@
 
 {% block content %}
 <div class="home-container">
+    <div class="home-intro-section">
+        <h1 class="home-intro-title">Welcome to Agentic AI Platform</h1>
+        <p class="home-intro-description">
+            Transform how you work with documents and data. This platform combines AI-powered chat agents and customizable document analysis workflows to automate complex tasks, extract insights, and streamline your processes.
+        </p>
+    </div>
     <div class="home-boxes">
-        <!-- MCP Dashboard Box -->
-        <a href="{{ url_for('dashboard') }}" class="home-box">
-            <div class="home-box-icon">
-                <i class="bi bi-speedometer2"></i>
-            </div>
-            <div class="home-box-title">MCP Dashboard</div>
-            <div class="home-box-description">
-                Manage and monitor MCP tools, view metrics, and access tool configurations.
-            </div>
-        </a>
-
-        <!-- Chat Agents Box -->
+        <!-- AI Assistant Box -->
         <a href="{{ url_for('agents_selection') }}" class="home-box">
             <div class="home-box-icon">
                 <i class="bi bi-chat-dots"></i>
             </div>
             <div class="home-box-title">Chat Agents</div>
             <div class="home-box-description">
-                Interact with AI agents for data queries, analysis, and natural language interactions.
+                Get instant answers from AI-powered assistants. Ask questions in plain English about your data, documents, or processes. Perfect for quick insights, data exploration, and getting immediate answers to complex questions without writing queries.
             </div>
         </a>
 
-        <!-- AI Agents at Scale Box -->
+        <!-- Document Analysis Box -->
         <a href="/bulk-doc-analysis" class="home-box">
             <div class="home-box-icon">
                 <i class="bi bi-diagram-3"></i>
             </div>
-            <div class="home-box-title">AI Agents at Scale</div>
+            <div class="home-box-title">Agentic Workflows</div>
             <div class="home-box-description">
-                Upload PDFs, run deterministic multi-step prompt chains, and download auditable Markdown outputs.
+                Automate document analysis at scale. Upload multiple documents (policies, reports, applications) and let AI extract key information, summarize content, identify risks, and generate audit-ready outputs. Ideal for compliance reviews, risk assessments, and regulatory reporting. Each analysis creates a complete audit trail with timestamps and version control.
             </div>
         </a>
 
-        <!-- Admin Panel Box -->
-        <a href="{{ url_for('admin_panel') }}" class="home-box">
+        <!-- Agent Management Box -->
+        <a href="{{ url_for('agent_management') }}" class="home-box">
             <div class="home-box-icon">
                 <i class="bi bi-gear"></i>
             </div>
-            <div class="home-box-title">Admin Panel</div>
+            <div class="home-box-title">Agent and Tools Management</div>
             <div class="home-box-description">
-                Configure agent prompts, manage settings, and customize system behavior.
+                Manage system configuration, chat agents, and agentic workflow builders. Access system dashboard, configure chat agents, and create custom agentic workflow templates for document processing and analysis.
             </div>
         </a>
     </div>

@@ -12,10 +12,25 @@ from sqlalchemy.sql import func
 Base = declarative_base()
 
 # Detect if using PostgreSQL
+# Load DATABASE_URL from .env.local if not already set
 _is_postgresql = False
 try:
     import os
     database_url = os.getenv("DATABASE_URL", "")
+    # If not set, try loading from .env.local
+    if not database_url:
+        try:
+            from dotenv import load_dotenv
+            # Try .env.local in project root (3 levels up from this file)
+            import pathlib
+            project_root = pathlib.Path(__file__).parent.parent.parent
+            env_file = project_root / ".env.local"
+            if env_file.exists():
+                load_dotenv(env_file)
+                database_url = os.getenv("DATABASE_URL", "")
+        except (ImportError, Exception):
+            pass
+    
     if database_url and "postgresql" in database_url.lower():
         _is_postgresql = True
 except Exception:
@@ -31,7 +46,9 @@ def get_json_type():
 
 class Session(Base):
     __tablename__ = "sessions"
-    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+    # Note: Schema handled at engine level via search_path, not in __table_args__
+    # This avoids FK resolution issues during mapper initialization
+    __table_args__ = {}
 
     session_id = Column(String(255), primary_key=True)
     user_id = Column(String(255), nullable=False, index=True)
@@ -46,10 +63,15 @@ class Session(Base):
 
 class Document(Base):
     __tablename__ = "documents"
-    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+    __table_args__ = {}
 
     doc_id = Column(String(255), primary_key=True)
-    session_id = Column(String(255), ForeignKey("sessions.session_id", ondelete="CASCADE"), nullable=False, index=True)
+    # For PostgreSQL with schema, FK must reference the metadata key "public.sessions.session_id"
+    # For SQLite, just "sessions.session_id"
+    session_id = Column(String(255), 
+                       ForeignKey("sessions.session_id", 
+                                 ondelete="CASCADE"), 
+                       nullable=False, index=True)
     original_filename = Column(String(500), nullable=False)
     file_type = Column(String(50), nullable=False)  # 'PDF', 'DOCX', 'TXT', 'MD', 'CSV'
     size_bytes = Column(BigInteger, nullable=False)
@@ -69,7 +91,7 @@ class Document(Base):
 
 class Chain(Base):
     __tablename__ = "chains"
-    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+    __table_args__ = {}
 
     chain_id = Column(String(255), primary_key=True)
     name = Column(String(500), nullable=False)
@@ -86,7 +108,7 @@ class Chain(Base):
 
 class ChainStep(Base):
     __tablename__ = "chain_steps"
-    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+    __table_args__ = {}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     chain_id = Column(String(255), ForeignKey("chains.chain_id", ondelete="CASCADE"), nullable=False, index=True)
@@ -107,7 +129,7 @@ class ChainStep(Base):
 
 class ChainVersion(Base):
     __tablename__ = "chain_versions"
-    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+    __table_args__ = {}
 
     chain_version_id = Column(String(255), primary_key=True)
     chain_id = Column(String(255), ForeignKey("chains.chain_id", ondelete="CASCADE"), nullable=False, index=True)
@@ -117,23 +139,26 @@ class ChainVersion(Base):
     snapshot = Column(JSONB().with_variant(JSON(), 'sqlite'), nullable=False)  # Full chain + steps JSON snapshot
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
-    # Relationships
+    # Relationships - using viewonly=True to avoid FK resolution issues during mapper init
     chain = relationship("Chain", back_populates="versions")
-    runs = relationship("Run", back_populates="chain_version")
-    workflow_versions = relationship("WorkflowVersion", back_populates="chain_version")
+    runs = relationship("Run", back_populates="chain_version", viewonly=True,
+                        primaryjoin="ChainVersion.chain_version_id == Run.chain_version_id")
+    workflow_versions = relationship("WorkflowVersion", back_populates="chain_version", viewonly=True,
+                                     primaryjoin="ChainVersion.chain_version_id == WorkflowVersion.chain_version_id")
 
     __table_args__ = (UniqueConstraint("chain_id", "version_number", name="uq_chain_version"),)
 
 
 class Run(Base):
-    __tablename__ = "runs"
-    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+    __tablename__ = "bulk_doc_runs"
+    __table_args__ = {}
 
     run_id = Column(String(255), primary_key=True)
+    # For PostgreSQL with schema, use schema-qualified FK references
     session_id = Column(String(255), ForeignKey("sessions.session_id", ondelete="CASCADE"), nullable=False, index=True)
     chain_version_id = Column(String(255), ForeignKey("chain_versions.chain_version_id"), nullable=False, index=True)
     workflow_version_id = Column(String(255), ForeignKey("workflow_versions.workflow_version_id"), nullable=True, index=True)
-    status = Column(String(50), nullable=False, index=True)  # 'QUEUED', 'RUNNING', 'COMPLETE', 'ERROR'
+    status = Column(String(50), nullable=False, index=True)  # 'QUEUED', 'RUNNING', 'PAUSED', 'COMPLETE', 'ERROR'
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), index=True)
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
     completed_at = Column(TIMESTAMP(timezone=True), nullable=True)
@@ -152,10 +177,10 @@ class Run(Base):
 
 class StepResult(Base):
     __tablename__ = "step_results"
-    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+    __table_args__ = {}
 
     id = Column(String(255), primary_key=True)
-    run_id = Column(String(255), ForeignKey("runs.run_id", ondelete="CASCADE"), nullable=False, index=True)
+    run_id = Column(String(255), ForeignKey("bulk_doc_runs.run_id", ondelete="CASCADE"), nullable=False, index=True)
     doc_id = Column(String(255), ForeignKey("documents.doc_id", ondelete="CASCADE"), nullable=False, index=True)
     task_id = Column(String(255), ForeignKey("execution_tasks.task_id"), nullable=True, index=True)  # For CSV task-based execution
     step_index = Column(Integer, nullable=False)
@@ -189,7 +214,7 @@ class StepResult(Base):
 
 class JobQueueLog(Base):
     __tablename__ = "job_queue_log"
-    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+    __table_args__ = {}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     job_id = Column(String(255), nullable=False, unique=True)
@@ -212,7 +237,7 @@ class JobQueueLog(Base):
 
 class Workflow(Base):
     __tablename__ = "workflows"
-    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+    __table_args__ = {}
 
     workflow_id = Column(String(255), primary_key=True)
     name = Column(String(500), nullable=False)
@@ -230,7 +255,7 @@ class Workflow(Base):
 
 class WorkflowVersion(Base):
     __tablename__ = "workflow_versions"
-    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+    __table_args__ = {}
 
     workflow_version_id = Column(String(255), primary_key=True)
     workflow_id = Column(String(255), ForeignKey("workflows.workflow_id", ondelete="CASCADE"), nullable=False, index=True)
@@ -250,7 +275,7 @@ class WorkflowVersion(Base):
 
 class WorkflowDomain(Base):
     __tablename__ = "workflow_domains"
-    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+    __table_args__ = {}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     workflow_id = Column(String(255), ForeignKey("workflows.workflow_id", ondelete="CASCADE"), nullable=False, index=True)
@@ -265,7 +290,7 @@ class WorkflowDomain(Base):
 
 class IngestionProfile(Base):
     __tablename__ = "ingestion_profiles"
-    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+    __table_args__ = {}
 
     ingestion_profile_id = Column(String(255), primary_key=True)
     name = Column(String(500), nullable=False)
@@ -279,7 +304,7 @@ class IngestionProfile(Base):
 
 class ExportProfile(Base):
     __tablename__ = "export_profiles"
-    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+    __table_args__ = {}
 
     export_profile_id = Column(String(255), primary_key=True)
     name = Column(String(500), nullable=False)
@@ -291,10 +316,10 @@ class ExportProfile(Base):
 
 class ExecutionTask(Base):
     __tablename__ = "execution_tasks"
-    __table_args__ = {"schema": "public"} if _is_postgresql else {}
+    __table_args__ = {}
 
     task_id = Column(String(255), primary_key=True)
-    run_id = Column(String(255), ForeignKey("runs.run_id", ondelete="CASCADE"), nullable=False, index=True)
+    run_id = Column(String(255), ForeignKey("bulk_doc_runs.run_id", ondelete="CASCADE"), nullable=False, index=True)
     doc_id = Column(String(255), ForeignKey("documents.doc_id", ondelete="CASCADE"), nullable=False, index=True)
     row_index = Column(Integer, nullable=False)
     row_data = Column(JSONB().with_variant(JSON(), 'sqlite'), nullable=False)  # Serialized row data
@@ -309,3 +334,12 @@ class ExecutionTask(Base):
 
     __table_args__ = (UniqueConstraint("run_id", "doc_id", "row_index", name="uq_execution_task"),)
 
+
+# Ensure all tables are registered in metadata before FK resolution
+# This helps SQLAlchemy resolve FKs correctly with schemas
+try:
+    from sqlalchemy.orm import configure_mappers
+    # Force metadata to be complete by accessing all tables
+    _ = [t for t in Base.metadata.tables.values()]
+except Exception:
+    pass  # Ignore errors - may resolve at runtime

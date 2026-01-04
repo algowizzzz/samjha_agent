@@ -69,83 +69,139 @@ def import_web_search_prompts():
     return imported
 
 def create_financial_news_agent():
-    """Create a financial news web search agent."""
-    print("\nCreating financial news agent...")
+    """Create a financial news web search agent for bankers."""
+    print("\nCreating Financial News Research Agent for Bankers...")
     
-    agent_name = "Financial News Research Agent"
+    agent_name = "Financial News Research Agent for Bankers"
     agent_id = slugify_name(agent_name)
     
-    # Domain content for financial news agent
-    domain_content = """# Financial News Research Agent Domain Configuration
+    # Read domain file if it exists
+    domain_file_path = Path("financial_news_domain.md")
+    if domain_file_path.exists():
+        domain_content = domain_file_path.read_text(encoding="utf-8")
+        print(f"  Loaded domain file: {domain_file_path}")
+    else:
+        # Fallback domain content
+        domain_content = """# Financial News Research Agent - Domain Configuration
 
-## 1. Domain Identity
-- **Domain Key**: financial_news
-- **Purpose**: Research and analyze financial news, market trends, and economic indicators
+## Authority Domains
 
-## 2. Authority Domains
-Primary authoritative sources for financial information:
-- **sec.gov** - Securities and Exchange Commission (regulatory filings, company information)
-- **federalreserve.gov** - Federal Reserve (monetary policy, economic data)
-- **treasury.gov** - U.S. Treasury (fiscal policy, economic reports)
-- **bloomberg.com** - Bloomberg (financial news, market data)
-- **reuters.com** - Reuters (financial news, market analysis)
-- **wsj.com** - Wall Street Journal (financial news, market commentary)
-- **ft.com** - Financial Times (global financial news)
+Primary authoritative sources for financial and regulatory information:
 
-## 3. Research Depth Settings
-- **Default Research Depth**: Standard
-- **Max Iterations**: 2-3
-- **Min Sources**: 6
-- **Max Sources**: 20
-- **Search Depth**: Advanced (for comprehensive research)
+- **Regulatory Bodies:**
+  - sec.gov (Securities and Exchange Commission)
+  - federalreserve.gov (Federal Reserve System)
+  - fdic.gov (Federal Deposit Insurance Corporation)
+  - occ.treas.gov (Office of the Comptroller of the Currency)
+  - finra.org (Financial Industry Regulatory Authority)
+  - cftc.gov (Commodity Futures Trading Commission)
+  - treasury.gov (U.S. Department of the Treasury)
 
-## 4. Source Quality Requirements
-- **High Authority**: Government sites (.gov), major financial news outlets
-- **Medium Authority**: Industry publications, financial blogs
-- **Low Authority**: Social media, forums (excluded by default)
+- **Financial News & Analysis:**
+  - bloomberg.com
+  - reuters.com
+  - wsj.com (Wall Street Journal)
+  - ft.com (Financial Times)
+  - marketwatch.com
+  - cnbc.com
+  - financialtimes.com
 
-## 5. Search Scope
-- **Allowed Domains**: sec.gov, federalreserve.gov, treasury.gov, bloomberg.com, reuters.com, wsj.com, ft.com
-- **Blocked Domains**: reddit.com, twitter.com, facebook.com
-- **Time Range Default**: Last 12 months (for market trends)
+## Search Scope
 
-## 6. Research Focus Areas
-- Market analysis and trends
+**Allowed Domains (Priority):**
+- sec.gov
+- federalreserve.gov
+- fdic.gov
+- bloomberg.com
+- reuters.com
+- wsj.com
+- ft.com
+- marketwatch.com
+- cnbc.com
+- finra.org
+- treasury.gov
+
+**Blocked Domains:**
+- reddit.com
+- twitter.com
+- facebook.com
+- personal blogs
+- social media platforms
+- unverified financial advice sites
+
+## Research Depth Settings
+
+**Default Research Depth:** Standard (2 iterations, 6-20 sources)
+
+**Quality Bar:**
+- Minimum sources: 6
+- Maximum sources: 20
+- Minimum authority sources (regulatory/official): 2
+- Source types required: ["regulatory", "news", "official"]
+
+## Key Topics for Bankers
+
 - Company financial performance
-- Economic indicators
-- Regulatory changes
-- Industry analysis
-- Investment research
+- Regulatory compliance issues
+- SEC filings (10-K, 10-Q, 8-K)
+- Enforcement actions
+- Market analysis
+- Credit risk indicators
+- Industry trends
+- Management changes
+- M&A activity
+- Litigation and settlements
 """
+        print(f"  Using default domain content (domain file not found)")
+    
+    allowed_domains = [
+        "sec.gov", "federalreserve.gov", "fdic.gov", "bloomberg.com",
+        "reuters.com", "wsj.com", "ft.com", "marketwatch.com",
+        "cnbc.com", "finra.org", "treasury.gov", "occ.treas.gov", "cftc.gov"
+    ]
+    
+    blocked_domains = ["reddit.com", "twitter.com", "facebook.com", "x.com"]
     
     with get_db_session() as db:
         # Check if agent already exists
         existing = get_agent_db(db, agent_id)
         if existing:
-            print(f"  Agent {agent_id} already exists")
+            print(f"  ✅ Agent {agent_id} already exists")
+            print(f"     Name: {existing.get('name')}")
+            print(f"     Type: {existing.get('agent_type')}")
             return agent_id
         
         # Create agent
-        create_agent_db(
+        print(f"  Creating new agent...")
+        created_agent = create_agent_db(
             db,
             agent_id=agent_id,
             name=agent_name,
             agent_type="external",
-            description="Web research agent focused on financial news, market trends, and economic indicators",
+            description="Searches financial news, regulatory filings, and official sources to provide comprehensive company intelligence for banking professionals. Focuses on SEC filings, regulatory compliance, financial performance, and risk indicators.",
             domain_file="financial_news_domain.md",
             domain_content=domain_content,
-            data_folder=None,  # Not needed for web search
-            model="claude-3-sonnet-20240229",
+            model="claude-sonnet-4-20250514",
             tavily_api_key=None,  # Can be set later via admin panel
-            search_scope_allowed_domains=["sec.gov", "federalreserve.gov", "treasury.gov", "bloomberg.com", "reuters.com", "wsj.com", "ft.com"],
-            search_scope_blocked_domains=["reddit.com", "twitter.com", "facebook.com"],
+            search_scope_allowed_domains=allowed_domains,
+            search_scope_blocked_domains=blocked_domains,
             default_research_depth="standard"
         )
         db.commit()
-        print(f"  Created agent: {agent_id}")
-        print(f"  Name: {agent_name}")
-        print(f"  Type: external")
-        print(f"  Allowed domains: sec.gov, federalreserve.gov, treasury.gov, bloomberg.com, reuters.com, wsj.com, ft.com")
+        db.flush()  # Ensure it's written
+        
+        # Verify creation
+        verify = get_agent_db(db, agent_id)
+        if verify:
+            print(f"  ✅ Created agent: {agent_id}")
+            print(f"     Name: {agent_name}")
+            print(f"     Type: external")
+            print(f"     Model: {verify.get('model', 'claude-sonnet-4-20250514')}")
+            print(f"     Research Depth: {verify.get('default_research_depth', 'standard')}")
+            print(f"     Allowed domains: {len(allowed_domains)} domains")
+            print(f"     Blocked domains: {len(blocked_domains)} domains")
+        else:
+            print(f"  ⚠️  Agent created but verification failed")
     
     return agent_id
 
@@ -214,4 +270,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 

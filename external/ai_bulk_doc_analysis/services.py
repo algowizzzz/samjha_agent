@@ -218,11 +218,23 @@ class BulkDocService:
             size = len(file.read())
             file.seek(0)  # Reset for later processing
 
+            # Detect file type from extension
+            from pathlib import Path
+            ext = Path(filename).suffix.lower()
+            file_type_map = {
+                '.pdf': 'PDF',
+                '.docx': 'DOCX',
+                '.txt': 'TXT',
+                '.md': 'MD',
+                '.csv': 'CSV',
+            }
+            file_type = file_type_map.get(ext, 'PDF')  # Default to PDF for unknown extensions
+
             doc = Document(
                 doc_id=doc_id,
                 session_id=session_id,
                 original_filename=filename,
-                file_type="PDF",
+                file_type=file_type,
                 size_bytes=size,
                 status="QUEUED",
                 created_at=now,
@@ -251,7 +263,7 @@ class BulkDocService:
         return docs
 
     def _trigger_conversion(self, doc_id: str, file_path: Path):
-        """Trigger PDF → Markdown conversion using pdfplumber."""
+        """Trigger file conversion - supports all file types (PDF, DOCX, TXT, MD, CSV)."""
         doc = self.documents.get(doc_id)
         if not doc:
             return
@@ -260,20 +272,82 @@ class BulkDocService:
         doc.updated_at = datetime.utcnow().isoformat() + "Z"
 
         try:
-            if not PDFPLUMBER_AVAILABLE:
-                raise ImportError("pdfplumber is not installed. Install with: pip install pdfplumber")
-
-            # Real PDF → Markdown conversion
-            md_content = self._convert_pdf_to_markdown(file_path)
+            # Route based on file type - use IngestionService logic for multi-file-type support
+            file_type = doc.file_type
             
-            # Store converted markdown
-            md_path = file_path.with_suffix(".md")
-            md_path.write_text(md_content, encoding='utf-8')
+            # CSV files are handled specially - no R0.md, tasks created during run
+            if file_type == 'CSV':
+                doc.status = "CONVERTED"
+                doc.updated_at = datetime.utcnow().isoformat() + "Z"
+                logger.info(f"CSV file {doc_id} marked as CONVERTED (tasks will be created during run)")
+                return
             
-            doc.converted_md_path = str(md_path)
-            doc.status = "CONVERTED"
-            doc.updated_at = datetime.utcnow().isoformat() + "Z"
-            logger.info(f"Document {doc_id} converted successfully")
+            # Try to use IngestionService if available (handles PDF, DOCX, TXT, MD correctly)
+            try:
+                from .ingestion_service import IngestionService
+                
+                ingestion_service = IngestionService()
+                
+                # Create a simple ingestion profile using a dataclass-like object
+                # (avoid SQLAlchemy model dependency)
+                class SimpleProfile:
+                    def __init__(self):
+                        self.accepted_input_types = ["PDF", "DOCX", "TXT", "MD", "CSV"]
+                        self.mode = "programmatic"
+                        self.vision_prompt = None
+                
+                profile = SimpleProfile()
+                
+                # Ingest file based on actual file type
+                r0_content, metadata = ingestion_service._ingest_programmatic(file_path, file_type)
+                
+                # Store converted markdown
+                md_path = file_path.with_suffix(".md")
+                md_path.write_text(r0_content, encoding='utf-8')
+                
+                doc.converted_md_path = str(md_path)
+                doc.status = "CONVERTED"
+                doc.updated_at = datetime.utcnow().isoformat() + "Z"
+                logger.info(f"Document {doc_id} converted successfully")
+                
+            except (ImportError, AttributeError) as e:
+                # Fallback: if IngestionService not available, handle file types directly
+                logger.warning(f"IngestionService not fully available ({e}), using direct file type handling")
+                
+                if file_type == 'PDF':
+                    if not PDFPLUMBER_AVAILABLE:
+                        raise ImportError("pdfplumber is not installed. Install with: pip install pdfplumber")
+                    md_content = self._convert_pdf_to_markdown(file_path)
+                elif file_type in ['TXT', 'MD']:
+                    md_content = file_path.read_text(encoding='utf-8')
+                elif file_type == 'DOCX':
+                    try:
+                        from docx import Document as DocxDocument
+                    except ImportError:
+                        raise ImportError("python-docx not installed. Install with: pip install python-docx")
+                    
+                    md_parts = [f"# Document: {file_path.name}\n\n"]
+                    doc_docx = DocxDocument(file_path)
+                    for para in doc_docx.paragraphs:
+                        if para.text.strip():
+                            if para.style.name.startswith('Heading'):
+                                level = para.style.name.replace('Heading ', '')
+                                md_parts.append(f"{'#' * int(level)} {para.text}\n\n")
+                            else:
+                                md_parts.append(f"{para.text}\n\n")
+                    md_content = ''.join(md_parts)
+                else:
+                    raise RuntimeError(f"Unsupported file type: {file_type}")
+                
+                # Store converted markdown
+                md_path = file_path.with_suffix(".md")
+                md_path.write_text(md_content, encoding='utf-8')
+                
+                doc.converted_md_path = str(md_path)
+                doc.status = "CONVERTED"
+                doc.updated_at = datetime.utcnow().isoformat() + "Z"
+                logger.info(f"Document {doc_id} converted successfully")
+                
         except Exception as e:
             doc.status = "ERROR"
             doc.error_code = "CONVERSION_FAILED"
@@ -282,7 +356,7 @@ class BulkDocService:
             logger.error(f"Conversion failed for {doc_id}: {e}", exc_info=True)
 
     def _convert_pdf_to_markdown(self, pdf_path: Path) -> str:
-        """Convert PDF file to Markdown using pdfplumber."""
+        """Convert PDF file to Markdown using pdfplumber (legacy method, used as fallback only)."""
         markdown_parts = []
         markdown_parts.append(f"# Document: {pdf_path.name}\n\n")
         
@@ -324,7 +398,10 @@ class BulkDocService:
         
         except Exception as e:
             logger.error(f"Error converting PDF {pdf_path}: {e}", exc_info=True)
-            raise RuntimeError(f"PDF conversion error: {str(e)}")
+            error_msg = str(e)
+            if "No /Root object" in error_msg or "really a PDF" in error_msg:
+                raise RuntimeError(f"PDF conversion error: File '{pdf_path.name}' is not a valid PDF file. Please ensure the file is a properly formatted PDF document.")
+            raise RuntimeError(f"PDF conversion error: {error_msg}")
         
         return ''.join(markdown_parts)
 

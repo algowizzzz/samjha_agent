@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Agent and Tools Management - SAJHA MCP Server{% endblock %}
+
+{% block extra_css %}
+<style>
+    .home-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+    .home-boxes {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        max-width: 1200px;
+        width: 100%;
+    }
+    .home-box {
+        background: white;
+        border-radius: 12px;
+        padding: 40px 30px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 2px solid #e9ecef;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    .home-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        text-decoration: none;
+        color: inherit;
+    }
+    .home-box-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        color: #0d6efd;
+    }
+    .home-box-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #212529;
+    }
+    .home-box-description {
+        font-size: 16px;
+        color: #6c757d;
+        line-height: 1.6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="home-container">
+    <div class="home-boxes">
+        <!-- System Dashboard Box -->
+        <a href="{{ url_for('dashboard') }}" class="home-box">
+            <div class="home-box-icon">
+                <i class="bi bi-speedometer2"></i>
+            </div>
+            <div class="home-box-title">System Dashboard</div>
+            <div class="home-box-description">
+                Monitor system health, view tool performance metrics, and access diagnostic information. Essential for system administrators to ensure all AI-powered tools are operating correctly and efficiently.
+            </div>
+        </a>
+
+        <!-- Chat Agents Box -->
+        <a href="{{ url_for('admin_panel') }}?section=chat-agents" class="home-box">
+            <div class="home-box-icon">
+                <i class="bi bi-chat-dots"></i>
+            </div>
+            <div class="home-box-title">Manage Chat Agents</div>
+            <div class="home-box-description">
+                Create and manage chat agent instances. Configure system prompts, create structured and unstructured data agents, and manage external/web-based agents for your organization.
+            </div>
+        </a>
+
+        <!-- AI Workflow Builder Box -->
+        <a href="{{ url_for('admin_panel') }}?section=workflow-builder" class="home-box">
+            <div class="home-box-icon">
+                <i class="bi bi-diagram-3"></i>
+            </div>
+            <div class="home-box-title">Agentic Workflows Builder</div>
+            <div class="home-box-description">
+                Create and manage agentic workflow templates. Design custom analysis chains that combine multiple AI steps (summarization, data extraction, risk analysis) to match your specific needs. Configure prompts, set approval workflows, and manage access controls for your team.
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}
+

@@ -6,146 +6,112 @@
 {% endblock %}
 
 {% block content %}
+<div class="bulk-doc-container">
 <div id="bulkDocApp" class="bulk-doc-app" data-session-id="{{ bulk_doc_ui_session_id }}">
   <!-- Feature header (spec: 56px height) -->
   <div class="bulk-doc-header">
       <div class="bulk-doc-header__left">
-      <div class="bulk-doc-title">AI Bulk Doc Analysis</div>
-      <div class="bulk-doc-meta">
-        Current Session: <span id="bulkDocCurrentSessionName" class="bulk-doc-mono">Loading...</span>
-      </div>
+      <div class="bulk-doc-title">🤖 Agentic Workflows</div>
     </div>
     <div class="bulk-doc-header__right">
       <div class="bulk-doc-meta">Signed in as {{ user.user_name }}</div>
+      <!-- Session management hidden - auto-created when needed -->
+      <div id="bulkDocSessionButtons" class="session-buttons d-none"></div>
+      <button id="bulkDocNewSessionBtn" type="button" class="btn btn-outline-primary btn-sm d-none">
+        <i class="bi bi-plus-circle"></i> New Session
+      </button>
     </div>
   </div>
 
-  <!-- 3-panel layout (22/34/44, independent scroll) -->
-  <div class="bulk-doc-panels">
-    <!-- Panel 1 -->
-    <section class="bulk-doc-panel bulk-doc-panel--p1" aria-label="Documents">
-      <div class="bulk-doc-panel__header">
-        <div class="bulk-doc-panel__title">Documents</div>
-        <div class="d-flex gap-2 align-items-center">
-          <select id="bulkDocSessionSelect" class="form-select form-select-sm" style="width: auto; min-width: 200px;">
-            <option value="">Loading sessions...</option>
-          </select>
-          <button id="bulkDocNewSessionBtn" type="button" class="btn btn-outline-primary btn-sm">
-            <i class="bi bi-plus-circle"></i> New Session
+  <!-- Start New Workflow Section (shown on initial page) -->
+  <div id="startNewWorkflowSection" class="start-new-workflow-section" style="margin-bottom: 32px;">
+    <h3 class="section-heading">Start new Agentic Workflow</h3>
+    <p class="section-description">Choose a pre-configured analysis template. Each template combines multiple AI analysis steps designed for specific use cases like regulatory compliance, 5W analysis, policy review, or governance documentation.</p>
+    <!-- Workflow cards (automation-friendly - no dropdown) -->
+    <div id="workflowCards" class="workflow-cards">
+      <div class="text-muted">Loading agentic workflows...</div>
+    </div>
+    <div id="workflowPreview" class="workflow-preview" style="display: none;"></div>
+  </div>
+
+  <!-- Wizard Flow (hidden initially, shown after workflow selection) -->
+  <div class="workflow-wizard" id="workflowWizard" style="display: none;">
+
+    <!-- Step 1: Upload Documents -->
+    <div class="wizard-step" data-step="1" id="wizard-step-1">
+      <h3>STEP 1: Upload Documents</h3>
+      <div id="acceptedTypesHint" class="bulk-doc-hint" style="margin-bottom: 16px;"></div>
+      <p class="text-muted small mb-3">Upload policy documents, reports, applications, or regulatory filings. Supported formats include PDF, DOCX, TXT, and Markdown files. Each document will be converted and processed through your selected analysis workflow.</p>
+      
+      <!-- Test Files Section (automation-friendly) -->
+      <div class="test-files-section" style="margin-bottom: 20px;">
+        <h5><i class="bi bi-folder2-open"></i> Quick Test Files</h5>
+        <p class="text-muted small">Click a test file to add it to this session</p>
+        <div id="testFilesGrid" class="test-files-grid">
+          <span class="text-muted">Loading test files...</span>
+        </div>
+      </div>
+      
+      <div class="upload-divider">
+        <span>or upload your own files</span>
+      </div>
+      
+      <div class="upload-area" id="uploadArea">
+        <div style="text-align: center;">
+          <i class="bi bi-cloud-upload" style="font-size: 48px; color: #6c757d; margin-bottom: 12px;"></i>
+          <div style="font-size: 16px; color: #495057; margin-bottom: 8px;">
+            <strong>Drag & drop files here</strong>
+          </div>
+          <div style="font-size: 14px; color: #6c757d; margin-bottom: 16px;">
+            or
+          </div>
+          <label class="btn btn-primary">
+            <i class="bi bi-upload"></i> Browse Files
+            <input id="bulkDocUploadInput" type="file" multiple class="d-none" />
+          </label>
+        </div>
+      </div>
+      <div id="uploadedFilesList" style="margin-top: 20px;"></div>
+      <div id="bulkDocDocsTableWrap" class="table-responsive d-none" style="margin-top: 20px;">
+        <table class="table table-sm table-hover align-middle bulk-doc-table">
+          <thead>
+            <tr>
+              <th style="width: 60%;">Filename</th>
+              <th style="width: 30%;">Status</th>
+              <th style="width: 10%;" class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody id="bulkDocDocsTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Step 2: Choose Output Format -->
+    <div class="wizard-step" data-step="2" id="wizard-step-2">
+      <h3>STEP 2: Choose Output Format</h3>
+      <p class="text-muted mb-3">Select your preferred output format. <strong>Markdown</strong> is recommended for reports, documentation, and human review. <strong>JSON</strong> is ideal for integration with other systems or automated processing. Each format includes complete audit trails with timestamps.</p>
+      <!-- Output format cards (automation-friendly - clickable) -->
+      <div id="outputFormatCards" class="output-format-cards">
+        <span class="text-muted">Select a workflow first</span>
+      </div>
+    </div>
+
+    <!-- Step 3: Execute -->
+    <div class="wizard-step" data-step="3" id="wizard-step-3">
+      <h3>STEP 3: Start Processing</h3>
+      <div style="text-align: center; padding: 32px 0;">
+        <div style="display: flex; justify-content: center; gap: 12px; align-items: center;">
+          <button id="startProcessingBtn" class="btn btn-primary btn-lg" disabled>
+            <i class="bi bi-play-circle"></i> Start Processing
+          </button>
+          <button id="pauseProcessingBtn" class="btn btn-warning btn-lg" style="display: none;">
+            <i class="bi bi-pause-circle"></i> Pause
           </button>
         </div>
       </div>
-      <div class="bulk-doc-panel__body">
-        <div class="bulk-doc-block">
-          <div class="bulk-doc-label">Input type</div>
-          <div class="btn-group" role="group" aria-label="Input type selector">
-            <button type="button" class="btn btn-sm btn-primary" aria-pressed="true">PDF</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Coming Soon">DOCX</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Coming Soon">TXT</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Coming Soon">MD</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Coming Soon">PNG</button>
-          </div>
-        </div>
-
-        <div class="bulk-doc-block bulk-doc-block--row">
-          <div>
-            <div class="bulk-doc-label">Upload PDFs</div>
-            <div class="bulk-doc-hint">Conversion auto-starts after upload.</div>
-          </div>
-          <div class="bulk-doc-actions">
-            <label id="bulkDocUploadBtnLabel" class="btn btn-primary btn-sm mb-0">
-              <i class="bi bi-upload"></i> Upload PDFs
-              <input id="bulkDocUploadInput" type="file" accept="application/pdf" multiple class="d-none" />
-            </label>
-          </div>
-        </div>
-
-        <div id="bulkDocDocsEmpty" class="bulk-doc-empty">
-          Upload PDF documents to begin
-        </div>
-
-        <div id="bulkDocDocsSkeleton" class="bulk-doc-skeleton d-none" aria-hidden="true">
-          <div class="bulk-doc-skeleton-line w-75"></div>
-          <div class="bulk-doc-skeleton-line w-50"></div>
-          <div class="bulk-doc-skeleton-line w-100"></div>
-        </div>
-
-        <div id="bulkDocDocsTableWrap" class="table-responsive d-none">
-          <table class="table table-sm table-hover align-middle bulk-doc-table" aria-label="Document list">
-            <thead>
-              <tr>
-                <th style="width: 60%;">Filename</th>
-                <th style="width: 30%;">Status</th>
-                <th style="width: 10%;" class="text-end">Action</th>
-              </tr>
-            </thead>
-            <tbody id="bulkDocDocsTbody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- Panel 2 -->
-    <section class="bulk-doc-panel bulk-doc-panel--p2" aria-label="Prompt Chain">
-      <div class="bulk-doc-panel__header">
-        <div class="bulk-doc-panel__title">Prompt Chain</div>
-        <button id="bulkDocCreateChainBtn" type="button" class="btn btn-primary btn-sm">
-          <i class="bi bi-plus-circle"></i> Create New Chain
-        </button>
-      </div>
-      <div class="bulk-doc-panel__body">
-        <div id="bulkDocChainSelectHint" class="bulk-doc-empty">
-          Select a saved chain to continue
-        </div>
-
-        <div id="bulkDocChainsWrap" class="d-none">
-          <div id="bulkDocChainsSkeleton" class="bulk-doc-skeleton d-none" aria-hidden="true">
-            <div class="bulk-doc-skeleton-line w-75"></div>
-            <div class="bulk-doc-skeleton-line w-100"></div>
-            <div class="bulk-doc-skeleton-line w-50"></div>
-          </div>
-
-          <div class="bulk-doc-subtitle">Saved chains</div>
-          <div id="bulkDocChainsList" class="bulk-doc-chain-list"></div>
-
-          <div class="bulk-doc-divider"></div>
-
-          <div class="bulk-doc-subtitle">Chain detail (read-only)</div>
-          <div id="bulkDocChainDetail" class="bulk-doc-card bulk-doc-card--detail"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Panel 3 -->
-    <section class="bulk-doc-panel bulk-doc-panel--p3" aria-label="Run & Output">
-      <div class="bulk-doc-panel__header">
-        <div class="bulk-doc-panel__title">Run & Output</div>
-      </div>
-      <div class="bulk-doc-panel__body">
-        <div class="bulk-doc-block bulk-doc-block--row">
-          <div>
-            <div class="bulk-doc-label">Execution</div>
-            <div class="bulk-doc-hint">Run is enabled only when all docs are converted and a valid chain is selected.</div>
-          </div>
-          <div class="bulk-doc-actions">
-            <button id="bulkDocRunBtn" type="button" class="btn btn-primary btn-sm" disabled data-bs-toggle="tooltip" data-bs-placement="left" title="Upload and convert documents, then select a valid chain">
-              <i class="bi bi-play-circle"></i> Run Chain
-            </button>
-          </div>
-        </div>
-
-        <div id="bulkDocRunEmpty" class="bulk-doc-empty">
-          Ready to run
-        </div>
-
-        <div id="bulkDocRunSkeleton" class="bulk-doc-skeleton d-none" aria-hidden="true">
-          <div class="bulk-doc-skeleton-line w-75"></div>
-          <div class="bulk-doc-skeleton-line w-100"></div>
-          <div class="bulk-doc-skeleton-line w-50"></div>
-        </div>
-
-        <div id="bulkDocRunTableWrap" class="table-responsive d-none">
-          <table class="table table-sm table-hover align-middle bulk-doc-table" aria-label="Run progress">
+      <div id="runProgressSection" style="display: none; margin-top: 24px;">
+        <div id="bulkDocRunTableWrap" class="table-responsive">
+          <table class="table table-sm table-hover align-middle bulk-doc-table">
             <thead>
               <tr>
                 <th style="width: 40%;">Filename</th>
@@ -158,8 +124,7 @@
             <tbody id="bulkDocRunTbody"></tbody>
           </table>
         </div>
-
-        <div id="bulkDocRunSummary" class="bulk-doc-summary d-none">
+        <div id="bulkDocRunSummary" class="bulk-doc-summary" style="margin-top: 20px;">
           <div class="bulk-doc-summary__left">
             <div class="bulk-doc-label">Completion summary</div>
             <div class="bulk-doc-hint"><span id="bulkDocSummaryCounts">0 processed</span></div>
@@ -171,8 +136,32 @@
           </div>
         </div>
       </div>
-    </section>
+    </div>
   </div>
+
+  <!-- Recent Runs Section -->
+  <div class="recent-runs-section">
+    <h3 class="section-heading">Recent Runs</h3>
+    <p class="section-description">View and manage your previous workflow executions. Click "View" to see detailed results or "Delete" to remove old runs.</p>
+    <div style="margin-top: 16px;">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>Agentic Workflow Template</th>
+            <th>Date & Time</th>
+            <th>Status</th>
+            <th>Documents/Tasks</th>
+            <th class="text-end">Actions</th>
+            <th class="text-end">Delete</th>
+          </tr>
+        </thead>
+        <tbody id="recentRunsList">
+          <!-- Rows populated by JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 </div>
 
 <!-- Document detail drawer (right aligned, 420px) -->
@@ -211,48 +200,6 @@
   </div>
 </div>
 
-<!-- Chain editor drawer (right aligned, 420px) -->
-<div class="offcanvas offcanvas-end bulk-doc-drawer" tabindex="-1" id="bulkDocChainEditorDrawer" aria-labelledby="bulkDocChainEditorDrawerLabel">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="bulkDocChainEditorDrawerLabel">Create New Chain</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-  <div class="offcanvas-body">
-    <form id="bulkDocChainEditorForm">
-      <div class="mb-3">
-        <label for="bulkDocChainName" class="form-label bulk-doc-label">
-          Chain Name <span class="text-danger">*</span>
-        </label>
-        <input type="text" class="form-control" id="bulkDocChainName" required placeholder="e.g., 4-Step Analysis">
-        <div class="invalid-feedback" id="bulkDocChainNameError"></div>
-      </div>
-
-      <div class="mb-3">
-        <label for="bulkDocChainDescription" class="form-label bulk-doc-label">Description</label>
-        <textarea class="form-control" id="bulkDocChainDescription" rows="2" placeholder="Brief description of this chain"></textarea>
-      </div>
-
-      <div class="mb-3">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <label class="form-label bulk-doc-label mb-0">
-            Steps <span class="text-danger">*</span>
-          </label>
-          <button type="button" class="btn btn-sm btn-outline-primary" id="bulkDocAddStepBtn">
-            <i class="bi bi-plus"></i> Add Step
-          </button>
-        </div>
-        <div id="bulkDocChainStepsContainer"></div>
-        <div class="invalid-feedback d-block" id="bulkDocChainStepsError"></div>
-      </div>
-    </form>
-  </div>
-  <div class="bulk-doc-drawer-footer p-3 border-top">
-    <div class="d-flex gap-2 justify-content-end">
-      <button type="button" class="btn btn-outline-secondary btn-sm" id="bulkDocChainEditorCancelBtn">Cancel</button>
-      <button type="button" class="btn btn-primary btn-sm" id="bulkDocChainEditorSaveBtn">Create Chain</button>
-    </div>
-  </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}

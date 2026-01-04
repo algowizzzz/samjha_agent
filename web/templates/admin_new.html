@@ -1,0 +1,1405 @@
+{% extends "base.html" %}
+{% block title %}Agent Management - SAJHA MCP Server{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-container {
+        display: flex;
+        height: calc(100vh - 120px);
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    
+    /* Left Sidebar */
+    .admin-sidebar {
+        width: 280px;
+        background: #f8f9fa;
+        border-right: 1px solid #dee2e6;
+        overflow-y: auto;
+        flex-shrink: 0;
+    }
+    
+    .sidebar-section {
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .sidebar-section-header {
+        padding: 16px 20px;
+        background: #fff;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+        font-size: 15px;
+        color: #212529;
+        transition: background 0.2s;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .sidebar-section-header:hover {
+        background: #f8f9fa;
+    }
+    
+    .sidebar-section-header.expanded .expand-icon {
+        transform: rotate(180deg);
+    }
+    
+    .expand-icon {
+        font-size: 12px;
+        color: #6c757d;
+        transition: transform 0.3s;
+    }
+    
+    .sidebar-section-content {
+        display: none;
+        background: #fff;
+    }
+    
+    .sidebar-section-content.expanded {
+        display: block;
+    }
+    
+    .sidebar-item {
+        padding: 12px 20px 12px 40px;
+        cursor: pointer;
+        color: #495057;
+        font-size: 14px;
+        transition: background 0.2s, color 0.2s;
+        border-left: 3px solid transparent;
+    }
+    
+    .sidebar-item:hover {
+        background: #f8f9fa;
+        color: #212529;
+    }
+    
+    .sidebar-item.active {
+        background: #e7f1ff;
+        color: #0d6efd;
+        border-left-color: #0d6efd;
+        font-weight: 500;
+    }
+    
+    .sidebar-item.disabled {
+        color: #adb5bd;
+        cursor: not-allowed;
+    }
+    
+    /* Main Content Area */
+    .admin-main-content {
+        flex: 1;
+        overflow-y: auto;
+        background: #fff;
+        padding: 30px 40px;
+    }
+    
+    .content-section {
+        display: none;
+    }
+    
+    .content-section.active {
+        display: block;
+    }
+    
+    .content-header {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .content-header h2 {
+        font-size: 28px;
+        font-weight: 600;
+        color: #212529;
+        margin: 0 0 8px 0;
+    }
+    
+    .content-header p {
+        color: #6c757d;
+        font-size: 15px;
+        margin: 0;
+    }
+    
+    /* Prompt List Styles */
+    .prompt-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .prompt-item {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 18px 20px;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: box-shadow 0.2s;
+    }
+    
+    .prompt-item:hover {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .prompt-item-info {
+        flex: 1;
+    }
+    
+    .prompt-item-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 4px;
+    }
+    
+    .prompt-item-description {
+        color: #6c757d;
+        font-size: 14px;
+        margin-top: 4px;
+    }
+    
+    .prompt-item-filename {
+        font-size: 13px;
+        color: #adb5bd;
+        font-family: monospace;
+        margin-top: 2px;
+    }
+    
+    .prompt-item-actions {
+        display: flex;
+        gap: 8px;
+    }
+    
+    /* Inline Editor Styles */
+    .inline-editor {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+    
+    .inline-editor-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .inline-editor-header h3 {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .inline-editor-body {
+        margin-top: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #212529;
+        font-size: 14px;
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="password"],
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: border-color 0.2s;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+    }
+    
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .form-group small {
+        display: block;
+        margin-top: 6px;
+        color: #6c757d;
+        font-size: 13px;
+    }
+    
+    .prompt-editor-textarea {
+        width: 100%;
+        min-height: 500px;
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        line-height: 1.6;
+        resize: vertical;
+        background: white;
+        color: black;
+    }
+    
+    /* Button Styles */
+    .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background: #0d6efd;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #0b5ed7;
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background: #5c636a;
+    }
+    
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background: #c82333;
+    }
+    
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
+    .btn-link {
+        background: none;
+        color: #0d6efd;
+        padding: 0;
+        text-decoration: underline;
+    }
+    
+    .btn-link:hover {
+        color: #0a58ca;
+        background: none;
+    }
+    
+    /* Alert Styles */
+    .alert {
+        padding: 12px 20px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+    
+    .alert-success {
+        background: #d1e7dd;
+        color: #0f5132;
+        border: 1px solid #badbcc;
+    }
+    
+    .alert-error {
+        background: #f8d7da;
+        color: #842029;
+        border: 1px solid #f5c2c7;
+    }
+    
+    .loading {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6c757d;
+    }
+    
+    /* Action Bar */
+    .action-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+    
+    .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 4px;
+    }
+    
+    .badge-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+    }
+    
+    .empty-state h3 {
+        font-size: 18px;
+        margin-bottom: 8px;
+        color: #495057;
+    }
+    
+    .empty-state p {
+        font-size: 14px;
+    }
+    
+    /* Modal Styles (for prompt editing) */
+    .prompt-editor-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        overflow-y: auto;
+    }
+    
+    .prompt-editor-modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .prompt-editor-content {
+        background: white;
+        border-radius: 8px;
+        width: 100%;
+        max-width: 1000px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .prompt-editor-header {
+        padding: 20px 25px;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .prompt-editor-header h3 {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .prompt-editor-body {
+        padding: 25px;
+        flex: 1;
+        overflow-y: auto;
+    }
+    
+    .prompt-editor-footer {
+        padding: 20px 25px;
+        border-top: 1px solid #dee2e6;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <!-- Left Sidebar -->
+    <div class="admin-sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-section-header" onclick="toggleSidebarSection('chat-agents', event)">
+                <span>💬 Chat Agents</span>
+                <span class="expand-icon">▼</span>
+            </div>
+            <div class="sidebar-section-content" id="chat-agents-sidebar">
+                <div class="sidebar-item" data-section="system-prompts-structured" onclick="showContent('system-prompts-structured')">
+                    System Prompts → Structured
+                </div>
+                <div class="sidebar-item" data-section="system-prompts-unstructured" onclick="showContent('system-prompts-unstructured')">
+                    System Prompts → Unstructured
+                </div>
+                <div class="sidebar-item" data-section="system-prompts-external" onclick="showContent('system-prompts-external')">
+                    System Prompts → External
+                </div>
+                <div class="sidebar-item" data-section="manage-agents-structured" onclick="showContent('manage-agents-structured')">
+                    Manage Agents → Structured
+                </div>
+                <div class="sidebar-item" data-section="manage-agents-unstructured" onclick="showContent('manage-agents-unstructured')">
+                    Manage Agents → Unstructured
+                </div>
+                <div class="sidebar-item" data-section="manage-agents-external" onclick="showContent('manage-agents-external')">
+                    Manage Agents → External
+                </div>
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-section-header" onclick="toggleSidebarSection('ai-workflows', event)">
+                <span>🤖 AI Workflow Builder</span>
+                <span class="expand-icon">▼</span>
+            </div>
+            <div class="sidebar-section-content" id="ai-workflows-sidebar">
+                <div class="sidebar-item" data-section="workflows" onclick="showContent('workflows')">
+                    Workflows
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content Area -->
+    <div class="admin-main-content">
+        <div id="alert-container"></div>
+        
+        <!-- System Prompts - Structured -->
+        <div class="content-section" id="content-system-prompts-structured">
+            <div class="content-header">
+                <h2>📊 System Prompts - Structured Data Agents</h2>
+                <p>Edit system prompts for structured data agents</p>
+            </div>
+            <div class="loading" id="structured-prompts-loading">Loading prompts...</div>
+            <ul class="prompt-list" id="structured-prompts-list" style="display: none;"></ul>
+        </div>
+        
+        <!-- System Prompts - Unstructured -->
+        <div class="content-section" id="content-system-prompts-unstructured">
+            <div class="content-header">
+                <h2>📄 System Prompts - Unstructured Data Agents</h2>
+                <p>System prompts for unstructured data agents (Coming Soon)</p>
+            </div>
+            <div class="empty-state">
+                <h3>Coming Soon</h3>
+                <p>System prompts for unstructured data agents will be available here.</p>
+            </div>
+        </div>
+        
+        <!-- System Prompts - External -->
+        <div class="content-section" id="content-system-prompts-external">
+            <div class="content-header">
+                <h2>🌐 System Prompts - External Data Agents</h2>
+                <p>Edit system prompts for external/web-based data agents</p>
+            </div>
+            <div class="loading" id="web-search-prompts-loading">Loading prompts...</div>
+            <ul class="prompt-list" id="web-search-prompts-list" style="display: none;"></ul>
+        </div>
+        
+        <!-- Manage Agents - Structured -->
+        <div class="content-section" id="content-manage-agents-structured">
+            <div class="content-header">
+                <div class="action-bar">
+                    <div>
+                        <h2 style="margin: 0;">📊 Manage Agents - Structured</h2>
+                        <p style="margin: 8px 0 0 0;">Create and manage structured data agent instances</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="showCreateAgentForm('structured')">+ Create New Agent</button>
+                </div>
+            </div>
+            
+            <!-- Create/Edit Agent Form (Inline) -->
+            <div class="inline-editor" id="agent-form-container" style="display: none;">
+                <div class="inline-editor-header">
+                    <h3 id="agent-form-title">Create New Agent</h3>
+                    <button class="btn btn-secondary btn-sm" onclick="hideAgentForm()">Cancel</button>
+                </div>
+                <div class="inline-editor-body">
+                    <form id="create-agent-form">
+                        <input type="hidden" name="agent_type" value="structured">
+                        <input type="hidden" name="agent_id" id="agent-form-id">
+                        
+                        <div class="form-group">
+                            <label>Agent Name *</label>
+                            <input type="text" name="name" required placeholder="e.g., Financial Analysis Agent">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea name="description" placeholder="Brief description of what this agent analyzes"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>LLM Model *</label>
+                            <select name="model" required>
+                                <option value="claude-sonnet-4-20250514" selected>Claude Sonnet 4 (Recommended)</option>
+                                <option value="claude-3-5-sonnet-20240620">Claude 3.5 Sonnet</option>
+                                <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
+                                <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
+                            </select>
+                            <small>Default: Sonnet 4 enables advanced reasoning capabilities</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Domain File *</label>
+                            <input type="file" name="domain_file" accept=".md,.txt" id="agent-domain-file">
+                            <small>Upload .md or .txt file (optional when editing)</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Data Folder *</label>
+                            <select name="data_folder_mode" onchange="toggleDataFolderInput()">
+                                <option value="select">Select Existing Folder</option>
+                                <option value="create">Create New Folder</option>
+                            </select>
+                            <select name="data_folder_existing" id="agent-data-folder-existing" style="margin-top: 8px;">
+                                <option value="">Loading folders...</option>
+                            </select>
+                            <input type="text" name="data_folder_name" id="agent-data-folder-name" placeholder="e.g., FSA, RiskAnalysis" style="display: none; margin-top: 8px;">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Data Files (CSV/Parquet, max 10MB each)</label>
+                            <input type="file" name="data_files" multiple accept=".csv,.parquet" id="agent-data-files" onchange="handleFileSelect(event)">
+                            <ul id="agent-file-list" style="list-style: none; padding: 0; margin-top: 10px;"></ul>
+                            <small>Optional - upload additional files to the folder</small>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                            <button type="button" class="btn btn-secondary" onclick="hideAgentForm()">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="saveAgent()" id="agent-form-submit">Create Agent</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Agents List -->
+            <div class="loading" id="structured-agents-loading">Loading agents...</div>
+            <ul class="prompt-list" id="structured-agents-list" style="display: none;"></ul>
+        </div>
+        
+        <!-- Manage Agents - Unstructured -->
+        <div class="content-section" id="content-manage-agents-unstructured">
+            <div class="content-header">
+                <h2>📄 Manage Agents - Unstructured</h2>
+                <p>Unstructured data agent instances (Coming Soon)</p>
+            </div>
+            <div class="empty-state">
+                <h3>Coming Soon</h3>
+                <p>Unstructured data agent instances will be available here.</p>
+            </div>
+        </div>
+        
+        <!-- Manage Agents - External -->
+        <div class="content-section" id="content-manage-agents-external">
+            <div class="content-header">
+                <div class="action-bar">
+                    <div>
+                        <h2 style="margin: 0;">🌐 Manage Agents - External</h2>
+                        <p style="margin: 8px 0 0 0;">Create and manage external/web-based agent instances</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="showCreateAgentForm('external')">+ Create New Agent</button>
+                </div>
+            </div>
+            
+            <!-- Create/Edit Agent Form (Inline) - External -->
+            <div class="inline-editor" id="agent-form-container-external" style="display: none;">
+                <div class="inline-editor-header">
+                    <h3 id="agent-form-title-external">Create New Agent</h3>
+                    <button class="btn btn-secondary btn-sm" onclick="hideAgentForm('external')">Cancel</button>
+                </div>
+                <div class="inline-editor-body">
+                    <form id="create-agent-form-external">
+                        <input type="hidden" name="agent_type" value="external">
+                        <input type="hidden" name="agent_id" id="agent-form-id-external">
+                        
+                        <div class="form-group">
+                            <label>Agent Name *</label>
+                            <input type="text" name="name" required placeholder="e.g., SEC Research Agent">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea name="description" placeholder="Brief description of what this agent does"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>LLM Model *</label>
+                            <select name="model" required>
+                                <option value="claude-sonnet-4-20250514" selected>Claude Sonnet 4 (Recommended)</option>
+                                <option value="claude-3-5-sonnet-20240620">Claude 3.5 Sonnet</option>
+                                <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
+                                <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Domain File *</label>
+                            <input type="file" name="domain_file" accept=".md,.txt" id="agent-domain-file-external">
+                            <small>Upload .md or .txt file (optional when editing)</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Tavily API Key</label>
+                            <input type="password" name="tavily_api_key" placeholder="tvly-xxxxx (optional)">
+                            <small>Tavily API key for web search. Leave empty to use default or set later.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Allowed Domains (comma-separated)</label>
+                            <input type="text" name="allowed_domains" placeholder="e.g., sec.gov, federalreserve.gov">
+                            <small>If specified, only search these domains. Leave empty to search all domains.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Blocked Domains (comma-separated)</label>
+                            <input type="text" name="blocked_domains" placeholder="e.g., reddit.com, twitter.com">
+                            <small>Never search these domains, even if they appear in results.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Default Research Depth</label>
+                            <select name="default_research_depth">
+                                <option value="quick">Quick (1 iteration, 3-10 sources)</option>
+                                <option value="standard" selected>Standard (2 iterations, 6-20 sources)</option>
+                                <option value="deep">Deep (4 iterations, 10-50 sources)</option>
+                            </select>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                            <button type="button" class="btn btn-secondary" onclick="hideAgentForm('external')">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="saveAgent('external')" id="agent-form-submit-external">Create Agent</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Agents List -->
+            <div class="loading" id="external-agents-loading">Loading agents...</div>
+            <ul class="prompt-list" id="external-agents-list" style="display: none;"></ul>
+        </div>
+        
+        <!-- Workflows -->
+        <div class="content-section" id="content-workflows">
+            <div class="content-header">
+                <div class="action-bar">
+                    <div>
+                        <h2 style="margin: 0;">🤖 AI Workflow Builder</h2>
+                        <p style="margin: 8px 0 0 0;">Create and manage AI-assisted workflows</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openCreateWorkflowModal()">+ Create New Workflow</button>
+                </div>
+            </div>
+            <div class="loading" id="workflows-loading">Loading workflows...</div>
+            <ul class="prompt-list" id="workflows-list" style="display: none;"></ul>
+        </div>
+    </div>
+</div>
+
+<!-- Prompt Editor Modal (Still needed for prompt editing) -->
+<div class="prompt-editor-modal" id="prompt-editor-modal">
+    <div class="prompt-editor-content" style="max-width: 1000px; max-height: 90vh; display: flex; flex-direction: column;">
+        <div class="prompt-editor-header">
+            <h3 id="prompt-editor-title">Edit Prompt</h3>
+            <button class="btn btn-secondary" onclick="closePromptEditor()">✕ Close</button>
+        </div>
+        <div class="prompt-editor-body" style="flex: 1; overflow-y: auto;">
+            <textarea id="prompt-editor-textarea" class="prompt-editor-textarea" placeholder="Loading prompt content..."></textarea>
+        </div>
+        <div class="prompt-editor-footer">
+            <button class="btn btn-secondary" onclick="closePromptEditor()">Cancel</button>
+            <button class="btn btn-primary" onclick="savePrompt()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Current state
+let currentSection = null;
+let currentPromptName = null;
+let editingAgentId = null;
+
+// Initialize - expand Chat Agents by default and show first section
+document.addEventListener('DOMContentLoaded', function() {
+    toggleSidebarSection('chat-agents', true);
+    showContent('system-prompts-structured');
+});
+
+// Toggle sidebar section expand/collapse
+function toggleSidebarSection(sectionId, evt = null, forceExpand = false) {
+    let header, content;
+    
+    if (evt) {
+        header = evt.currentTarget;
+        content = document.getElementById(`${sectionId}-sidebar`);
+    } else {
+        // Find by traversing DOM
+        const sidebarSections = document.querySelectorAll('.sidebar-section');
+        for (let section of sidebarSections) {
+            const testContent = section.querySelector(`#${sectionId}-sidebar`);
+            if (testContent) {
+                header = section.querySelector('.sidebar-section-header');
+                content = testContent;
+                break;
+            }
+        }
+    }
+    
+    if (!content) return;
+    
+    const isExpanded = content.classList.contains('expanded');
+    
+    if (forceExpand || !isExpanded) {
+        content.classList.add('expanded');
+        if (header) header.classList.add('expanded');
+    } else {
+        content.classList.remove('expanded');
+        if (header) header.classList.remove('expanded');
+    }
+}
+
+// Show content section in main area
+function showContent(sectionId) {
+    // Hide all content sections
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    // Remove active class from all sidebar items
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Show selected section
+    const targetSection = document.getElementById(`content-${sectionId}`);
+    if (targetSection) {
+        targetSection.classList.add('active');
+        currentSection = sectionId;
+        
+        // Highlight sidebar item using data-section attribute
+        const sidebarItem = document.querySelector(`.sidebar-item[data-section="${sectionId}"]`);
+        if (sidebarItem) {
+            sidebarItem.classList.add('active');
+        }
+        
+        // Load data based on section
+        loadSectionData(sectionId);
+    }
+}
+
+// Load data for the selected section
+function loadSectionData(sectionId) {
+    if (sectionId === 'system-prompts-structured') {
+        loadPrompts('structured');
+    } else if (sectionId === 'system-prompts-external') {
+        loadPrompts('web_search');
+    } else if (sectionId === 'manage-agents-structured') {
+        loadAgents('structured');
+    } else if (sectionId === 'manage-agents-external') {
+        loadAgents('external');
+    } else if (sectionId === 'workflows') {
+        loadChains();
+    }
+}
+
+// Load prompts
+async function loadPrompts(category) {
+    const categoryMap = {
+        'structured': { loading: 'structured-prompts-loading', list: 'structured-prompts-list' },
+        'web_search': { loading: 'web-search-prompts-loading', list: 'web-search-prompts-list' }
+    };
+    
+    const mapping = categoryMap[category];
+    if (!mapping) return;
+    
+    const loadingEl = document.getElementById(mapping.loading);
+    const listEl = document.getElementById(mapping.list);
+    
+    if (!loadingEl || !listEl) return;
+    
+    try {
+        const response = await fetch('/api/admin/prompts?category=' + category);
+        if (!response.ok) throw new Error('Failed to load prompts');
+        
+        const data = await response.json();
+        loadingEl.style.display = 'none';
+        listEl.style.display = 'block';
+        
+        listEl.innerHTML = '';
+        if (data.prompts && data.prompts.length > 0) {
+            data.prompts.forEach(prompt => {
+                const li = document.createElement('li');
+                li.className = 'prompt-item';
+                li.innerHTML = `
+                    <div class="prompt-item-info">
+                        <div class="prompt-item-name">${escapeHtml(prompt.display_name || prompt.name)}</div>
+                        <div class="prompt-item-description">${escapeHtml(prompt.description || 'No description available.')}</div>
+                        <div class="prompt-item-filename">${escapeHtml(prompt.filename)}</div>
+                    </div>
+                    <div class="prompt-item-actions">
+                        <button class="btn btn-primary" onclick="editPrompt('${escapeHtml(prompt.name)}')">Edit</button>
+                    </div>
+                `;
+                listEl.appendChild(li);
+            });
+        } else {
+            listEl.innerHTML = '<li class="empty-state"><h3>No prompts available</h3></li>';
+        }
+    } catch (error) {
+        loadingEl.innerHTML = `<div class="alert alert-error">Error loading prompts: ${error.message}</div>`;
+    }
+}
+
+// Edit prompt (still uses modal for large text editing)
+async function editPrompt(promptName) {
+    currentPromptName = promptName;
+    const modal = document.getElementById('prompt-editor-modal');
+    const title = document.getElementById('prompt-editor-title');
+    const textarea = document.getElementById('prompt-editor-textarea');
+    
+    title.textContent = `Edit Prompt: ${escapeHtml(promptName)}`;
+    textarea.value = 'Loading...';
+    modal.classList.add('active');
+    
+    try {
+        const response = await fetch(`/api/admin/prompts/${promptName}`);
+        if (!response.ok) throw new Error('Failed to load prompt');
+        
+        const data = await response.json();
+        textarea.value = data.content;
+    } catch (error) {
+        showAlert('error', `Error loading prompt: ${error.message}`);
+        textarea.value = '';
+    }
+}
+
+// Close prompt editor
+function closePromptEditor() {
+    document.getElementById('prompt-editor-modal').classList.remove('active');
+    currentPromptName = null;
+}
+
+// Save prompt
+async function savePrompt() {
+    if (!currentPromptName) return;
+    
+    const textarea = document.getElementById('prompt-editor-textarea');
+    const content = textarea.value;
+    
+    try {
+        const response = await fetch(`/api/admin/prompts/${currentPromptName}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ content: content })
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to save prompt');
+        }
+        
+        const data = await response.json();
+        showAlert('success', data.message || 'Prompt saved successfully!');
+        closePromptEditor();
+        
+        // Reload prompts list
+        if (currentSection === 'system-prompts-structured') {
+            loadPrompts('structured');
+        } else if (currentSection === 'system-prompts-external') {
+            loadPrompts('web_search');
+        }
+    } catch (error) {
+        showAlert('error', `Error saving prompt: ${error.message}`);
+    }
+}
+
+// Load agents
+async function loadAgents(category) {
+    const categoryMap = {
+        'structured': { loading: 'structured-agents-loading', list: 'structured-agents-list' },
+        'external': { loading: 'external-agents-loading', list: 'external-agents-list' }
+    };
+    
+    const mapping = categoryMap[category];
+    if (!mapping) return;
+    
+    const loadingEl = document.getElementById(mapping.loading);
+    const listEl = document.getElementById(mapping.list);
+    
+    if (!loadingEl || !listEl) return;
+    
+    try {
+        const response = await fetch('/api/admin/agents');
+        if (!response.ok) throw new Error('Failed to load agents');
+        
+        const data = await response.json();
+        loadingEl.style.display = 'none';
+        listEl.style.display = 'block';
+        
+        const filteredAgents = data.agents ? data.agents.filter(a => a.agent_type === category) : [];
+        
+        listEl.innerHTML = '';
+        if (filteredAgents.length > 0) {
+            filteredAgents.forEach(agent => {
+                const li = document.createElement('li');
+                li.className = 'prompt-item';
+                li.innerHTML = `
+                    <div class="prompt-item-info">
+                        <div class="prompt-item-name">${escapeHtml(agent.name)}</div>
+                        <div class="prompt-item-description">${escapeHtml(agent.description || 'No description')}</div>
+                        <div class="prompt-item-filename">${escapeHtml(agent.data_folder || 'N/A')} • Created: ${new Date(agent.created_at).toLocaleDateString()}</div>
+                    </div>
+                    <div class="prompt-item-actions">
+                        <button class="btn btn-primary btn-sm" onclick="editAgent('${escapeHtml(agent.id)}', '${category}')">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteAgent('${escapeHtml(agent.id)}', '${category}')">Delete</button>
+                    </div>
+                `;
+                listEl.appendChild(li);
+            });
+        } else {
+            listEl.innerHTML = '<li class="empty-state"><h3>No agents configured yet</h3><p>Create your first agent to get started.</p></li>';
+        }
+    } catch (error) {
+        loadingEl.innerHTML = `<div class="alert alert-error">Error loading agents: ${error.message}</div>`;
+    }
+}
+
+// Show create agent form
+function showCreateAgentForm(agentType) {
+    editingAgentId = null;
+    const containerId = agentType === 'external' ? 'agent-form-container-external' : 'agent-form-container';
+    const formId = agentType === 'external' ? 'create-agent-form-external' : 'create-agent-form';
+    const titleId = agentType === 'external' ? 'agent-form-title-external' : 'agent-form-title';
+    const submitId = agentType === 'external' ? 'agent-form-submit-external' : 'agent-form-submit';
+    
+    const container = document.getElementById(containerId);
+    const form = document.getElementById(formId);
+    const title = document.getElementById(titleId);
+    const submit = document.getElementById(submitId);
+    
+    // Reset form
+    form.reset();
+    document.getElementById(agentType === 'external' ? 'agent-form-id-external' : 'agent-form-id').value = '';
+    
+    // Set agent type
+    form.querySelector('[name="agent_type"]').value = agentType;
+    
+    // Set title and submit button
+    title.textContent = 'Create New Agent';
+    submit.textContent = 'Create Agent';
+    
+    // Show form
+    container.style.display = 'block';
+    
+    // Load data folders for structured agents
+    if (agentType === 'structured') {
+        loadDataFolders();
+    }
+    
+    // Scroll to form
+    container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Hide agent form
+function hideAgentForm(agentType) {
+    const containerId = agentType === 'external' ? 'agent-form-container-external' : 'agent-form-container';
+    const container = document.getElementById(containerId);
+    container.style.display = 'none';
+    editingAgentId = null;
+}
+
+// Edit agent
+async function editAgent(agentId, agentType) {
+    try {
+        const response = await fetch(`/api/admin/agents/${agentId}`);
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to load agent');
+        }
+        
+        const data = await response.json();
+        const agent = data.agent;
+        
+        editingAgentId = agentId;
+        const containerId = agentType === 'external' ? 'agent-form-container-external' : 'agent-form-container';
+        const formId = agentType === 'external' ? 'create-agent-form-external' : 'create-agent-form';
+        const titleId = agentType === 'external' ? 'agent-form-title-external' : 'agent-form-title';
+        const submitId = agentType === 'external' ? 'agent-form-submit-external' : 'agent-form-submit';
+        
+        const container = document.getElementById(containerId);
+        const form = document.getElementById(formId);
+        const title = document.getElementById(titleId);
+        const submit = document.getElementById(submitId);
+        const idInput = document.getElementById(agentType === 'external' ? 'agent-form-id-external' : 'agent-form-id');
+        
+        // Populate form
+        idInput.value = agentId;
+        form.querySelector('[name="name"]').value = agent.name || '';
+        form.querySelector('[name="description"]').value = agent.description || '';
+        form.querySelector('[name="agent_type"]').value = agent.agent_type || agentType;
+        
+        const modelSelect = form.querySelector('[name="model"]');
+        if (modelSelect) {
+            modelSelect.value = agent.model || 'claude-sonnet-4-20250514';
+        }
+        
+        // Set title and submit button
+        title.textContent = `Edit Agent: ${escapeHtml(agent.name)}`;
+        submit.textContent = 'Update Agent';
+        
+        // For structured agents, load folders and set current folder
+        if (agentType === 'structured') {
+            await loadDataFolders();
+            setTimeout(() => {
+                const folderSelect = document.getElementById('agent-data-folder-existing');
+                if (folderSelect && agent.data_folder) {
+                    folderSelect.value = agent.data_folder;
+                    form.querySelector('[name="data_folder_mode"]').value = 'select';
+                    toggleDataFolderInput();
+                }
+            }, 500);
+        }
+        
+        // For external agents, populate external-specific fields
+        if (agentType === 'external') {
+            if (agent.tavily_api_key) {
+                form.querySelector('[name="tavily_api_key"]').value = agent.tavily_api_key;
+            }
+            if (agent.allowed_domains) {
+                form.querySelector('[name="allowed_domains"]').value = agent.allowed_domains;
+            }
+            if (agent.blocked_domains) {
+                form.querySelector('[name="blocked_domains"]').value = agent.blocked_domains;
+            }
+            if (agent.default_research_depth) {
+                form.querySelector('[name="default_research_depth"]').value = agent.default_research_depth;
+            }
+        }
+        
+        // Show form
+        container.style.display = 'block';
+        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        
+    } catch (error) {
+        showAlert('error', `Error loading agent: ${error.message}`);
+    }
+}
+
+// Save agent (create or update)
+async function saveAgent(agentType) {
+    const formId = agentType === 'external' ? 'create-agent-form-external' : 'create-agent-form';
+    const form = document.getElementById(formId);
+    const formData = new FormData(form);
+    
+    const agentId = formData.get('agent_id');
+    const name = formData.get('name');
+    const description = formData.get('description');
+    const model = formData.get('model');
+    const domainFile = formData.get('domain_file');
+    
+    if (!name) {
+        showAlert('error', 'Agent name is required');
+        return;
+    }
+    
+    try {
+        let response;
+        const url = agentId ? `/api/admin/agents/${agentId}` : '/api/admin/agents';
+        const method = agentId ? 'PUT' : 'POST';
+        
+        // Check if files are being uploaded
+        const hasDomainFile = domainFile && domainFile.size > 0;
+        const hasDataFiles = agentType === 'structured' && formData.getAll('data_files').some(f => f.size > 0);
+        const dataFolderMode = agentType === 'structured' ? formData.get('data_folder_mode') : null;
+        const dataFolderExisting = agentType === 'structured' ? formData.get('data_folder_existing') : null;
+        const dataFolderName = agentType === 'structured' ? formData.get('data_folder_name') : null;
+        const hasDataFolderChange = agentType === 'structured' && (dataFolderExisting || (dataFolderMode === 'create' && dataFolderName));
+        
+        if (hasDomainFile || hasDataFiles || hasDataFolderChange || !agentId) {
+            // Use FormData for file uploads or new agents
+            const finalFormData = new FormData();
+            finalFormData.append('name', name);
+            finalFormData.append('description', description || '');
+            finalFormData.append('agent_type', agentType);
+            finalFormData.append('model', model);
+            
+            if (hasDomainFile) {
+                finalFormData.append('domain_file', domainFile);
+            }
+            
+            if (agentType === 'structured') {
+                if (dataFolderMode === 'create' && dataFolderName) {
+                    finalFormData.append('data_folder', dataFolderName);
+                    finalFormData.append('data_folder_mode', 'create');
+                } else if (dataFolderMode === 'select' && dataFolderExisting) {
+                    finalFormData.append('data_folder', dataFolderExisting);
+                }
+                
+                const fileInput = document.getElementById('agent-data-files');
+                if (fileInput) {
+                    for (let file of fileInput.files) {
+                        finalFormData.append('data_files', file);
+                    }
+                }
+            }
+            
+            if (agentType === 'external') {
+                const tavilyApiKey = formData.get('tavily_api_key');
+                if (tavilyApiKey) finalFormData.append('tavily_api_key', tavilyApiKey);
+                
+                const allowedDomains = formData.get('allowed_domains');
+                if (allowedDomains) finalFormData.append('allowed_domains', allowedDomains);
+                
+                const blockedDomains = formData.get('blocked_domains');
+                if (blockedDomains) finalFormData.append('blocked_domains', blockedDomains);
+                
+                const researchDepth = formData.get('default_research_depth');
+                if (researchDepth) finalFormData.append('default_research_depth', researchDepth);
+            }
+            
+            response = await fetch(url, {
+                method: method,
+                body: finalFormData,
+                credentials: 'same-origin'
+            });
+        } else {
+            // Use JSON for updates without files
+            response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    description: description,
+                    model: model
+                }),
+                credentials: 'same-origin'
+            });
+        }
+        
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ error: `Failed: ${response.status}` }));
+            throw new Error(error.error || 'Failed to save agent');
+        }
+        
+        const data = await response.json();
+        showAlert('success', agentId ? 'Agent updated successfully!' : 'Agent created successfully!');
+        hideAgentForm(agentType);
+        loadAgents(agentType);
+        
+    } catch (error) {
+        showAlert('error', `Error saving agent: ${error.message}`);
+    }
+}
+
+// Delete agent
+async function deleteAgent(agentId, agentType) {
+    if (!confirm(`Are you sure you want to delete this agent?`)) return;
+    
+    try {
+        const response = await fetch(`/api/admin/agents/${agentId}`, {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to delete agent');
+        }
+        
+        showAlert('success', 'Agent deleted successfully!');
+        loadAgents(agentType);
+    } catch (error) {
+        showAlert('error', `Error deleting agent: ${error.message}`);
+    }
+}
+
+// Load data folders
+async function loadDataFolders() {
+    try {
+        const response = await fetch('/api/admin/datawarehouse/folders');
+        if (!response.ok) throw new Error('Failed to load folders');
+        const data = await response.json();
+        const select = document.getElementById('agent-data-folder-existing');
+        if (select) {
+            select.innerHTML = '<option value="">Select existing folder...</option>';
+            if (data.folders) {
+                data.folders.forEach(folder => {
+                    const option = document.createElement('option');
+                    option.value = folder;
+                    option.textContent = folder;
+                    select.appendChild(option);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading folders:', error);
+    }
+}
+
+// Toggle data folder input
+function toggleDataFolderInput() {
+    const form = document.getElementById('create-agent-form');
+    if (!form) return;
+    
+    const mode = form.querySelector('[name="data_folder_mode"]').value;
+    const existing = document.getElementById('agent-data-folder-existing');
+    const newFolder = document.getElementById('agent-data-folder-name');
+    
+    if (mode === 'select') {
+        if (existing) existing.style.display = 'block';
+        if (newFolder) newFolder.style.display = 'none';
+    } else {
+        if (existing) existing.style.display = 'none';
+        if (newFolder) newFolder.style.display = 'block';
+    }
+}
+
+// Handle file select
+function handleFileSelect(event) {
+    const files = Array.from(event.target.files);
+    const fileList = document.getElementById('agent-file-list');
+    if (!fileList) return;
+    
+    fileList.innerHTML = '';
+    
+    files.forEach(file => {
+        if (file.size > 10 * 1024 * 1024) {
+            showAlert('error', `File ${file.name} exceeds 10MB limit`);
+            return;
+        }
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (ext !== 'csv' && ext !== 'parquet') {
+            showAlert('error', `File ${file.name} must be .csv or .parquet`);
+            return;
+        }
+        
+        const li = document.createElement('li');
+        li.style.cssText = 'padding: 8px; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between;';
+        li.innerHTML = `
+            <span>${escapeHtml(file.name)} (${(file.size / 1024).toFixed(1)} KB)</span>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="this.parentElement.remove()">Remove</button>
+        `;
+        fileList.appendChild(li);
+    });
+}
+
+// Load chains (workflows)
+async function loadChains() {
+    const loadingEl = document.getElementById('workflows-loading');
+    const listEl = document.getElementById('workflows-list');
+    
+    if (!loadingEl || !listEl) return;
+    
+    try {
+        const response = await fetch('/api/bulk-doc-analysis/chains', {
+            credentials: 'same-origin'
+        });
+        if (!response.ok) throw new Error('Failed to load chains');
+        
+        const data = await response.json();
+        loadingEl.style.display = 'none';
+        listEl.style.display = 'block';
+        
+        listEl.innerHTML = '';
+        if (data.chains && data.chains.length > 0) {
+            data.chains.forEach(chain => {
+                const li = document.createElement('li');
+                li.className = 'prompt-item';
+                const stepCount = chain.steps ? chain.steps.length : 0;
+                li.innerHTML = `
+                    <div class="prompt-item-info">
+                        <div class="prompt-item-name">${escapeHtml(chain.name || 'Unnamed Chain')}</div>
+                        <div class="prompt-item-description">${escapeHtml(chain.description || '')}</div>
+                        <div class="prompt-item-filename">${stepCount} step(s) • Created: ${new Date(chain.created_at || Date.now()).toLocaleDateString()}</div>
+                    </div>
+                    <div class="prompt-item-actions">
+                        <button class="btn btn-primary btn-sm" onclick="editChain('${escapeHtml(chain.chain_id)}')">Edit</button>
+                        <button class="btn btn-secondary btn-sm" onclick="viewChainInBulkDoc('${escapeHtml(chain.chain_id)}')">View</button>
+                    </div>
+                `;
+                listEl.appendChild(li);
+            });
+        } else {
+            listEl.innerHTML = '<li class="empty-state"><h3>No workflows created yet</h3><p>Create your first workflow to get started.</p></li>';
+        }
+    } catch (error) {
+        loadingEl.innerHTML = `<div class="alert alert-error">Error loading workflows: ${error.message}</div>`;
+    }
+}
+
+// Open create workflow modal (keep existing modal for workflows for now)
+function openCreateWorkflowModal() {
+    // This function should open the workflow creation modal
+    // For now, we'll keep it as-is since workflows are more complex
+    // You may want to convert this to inline later
+    window.location.href = '/bulk-doc-analysis';
+}
+
+// Edit chain (keep existing modal for chains for now)
+function editChain(chainId) {
+    window.location.href = '/bulk-doc-analysis';
+}
+
+// View chain in bulk doc analysis
+function viewChainInBulkDoc(chainId) {
+    window.open('/bulk-doc-analysis', '_blank');
+}
+
+// Show alert
+function showAlert(type, message) {
+    const container = document.getElementById('alert-container');
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type}`;
+    alert.textContent = message;
+    container.appendChild(alert);
+    
+    setTimeout(() => {
+        alert.remove();
+    }, 5000);
+}
+
+// Escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Close modal on outside click
+document.getElementById('prompt-editor-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePromptEditor();
+    }
+});
+</script>
+
+{% endblock %}
+

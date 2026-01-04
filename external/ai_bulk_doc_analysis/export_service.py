@@ -60,7 +60,7 @@ class ExportService:
         Raises:
             ValueError: If validation fails
         """
-        valid_formats = ['CSV', 'JSON', 'MD', 'DOCX', 'PDF']
+        valid_formats = ['CSV', 'JSON', 'MD', 'DOCX', 'PDF', 'XLSX']
         if format not in valid_formats:
             raise ValueError(f"Format must be one of: {valid_formats}")
         
@@ -76,7 +76,15 @@ class ExportService:
             db.commit()
             
             logger.info(f"Created export profile {export_profile_id}")
-            return profile
+            # Return a simple object with the data (avoiding session binding issues)
+            class ProfileResult:
+                pass
+            result = ProfileResult()
+            result.export_profile_id = export_profile_id
+            result.name = name
+            result.format = format
+            result.config_json = config_json or {}
+            return result
     
     def get_export_profile(self, export_profile_id: str) -> Optional[ExportProfile]:
         """Get export profile by ID."""
