@@ -172,7 +172,10 @@ Output your decision as JSON only (no markdown, no prose):
             want_thinking = bool(state.get("show_thinking", False)) or DECIDER_THINKING_ENABLED
             
             # Get agent's configured model (defaults to Sonnet)
-            agent_model = state.get("agent_model") or "claude-3-sonnet-20240229"
+            # Get agent model from state, or use LLM client's default, or fallback to valid model
+            agent_model = state.get("agent_model")
+            if not agent_model:
+                agent_model = llm_client.model or "claude-3-5-sonnet-20241022"
             
             # Model-specific settings
             model = agent_model

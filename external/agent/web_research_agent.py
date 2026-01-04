@@ -87,6 +87,7 @@ def initialize_research_controller_state(
     
     # Load agent config if agent_id provided
     tavily_api_key = None
+    agent_model = None
     if agent_id:
         try:
             from core.db.session import get_db_session
@@ -95,6 +96,7 @@ def initialize_research_controller_state(
                 agent = get_agent_db(db, agent_id)
                 if agent:
                     tavily_api_key = agent.get("tavily_api_key")  # Encrypted, will be decrypted when needed
+                    agent_model = agent.get("model")  # Get agent's configured model
         except Exception as e:
             logger.warning(f"Error loading agent config for {agent_id}: {e}")
     
@@ -123,6 +125,7 @@ def initialize_research_controller_state(
         "last_executor_report": prior_state.get("last_executor_report") if prior_state else None,
         "attempt_count": 0,
         "agent_id": agent_id,
+        "agent_model": agent_model,  # Store agent's configured model
         "tavily_api_key": tavily_api_key,
         "continuity_packet": continuity_packet or {},  # Store continuity_packet for decider
     }
