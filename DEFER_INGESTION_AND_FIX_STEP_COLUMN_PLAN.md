@@ -258,6 +258,39 @@ else:
 
 ---
 
+## Step Column Update Mechanism (Real-time Updates)
+
+### ✅ Frontend Already Supports Instant Updates
+
+**Confirmed Implementation:**
+1. **Polling mechanism**: `startPollingRunProgress()` polls every 2 seconds (line 2501 in bulk_doc_analysis.js)
+2. **Backend fetch**: Fetches `step_label` from `/api/bulk-doc-analysis/runs/{runId}/progress` (line 2504)
+3. **State update**: Updates `state.run.rows` with new `stepLabel` from backend (line 2512)
+4. **UI re-render**: Calls `renderRun()` which re-renders table with updated `stepLabel` (line 2519, displays at line 387)
+
+**Code flow:**
+```javascript
+// Polling every 2 seconds (line 2501)
+setInterval(async () => {
+  const progress = await api.getRunProgress(runId);
+  state.run.rows = progress.rows.map((r) => ({
+    stepLabel: r.step_label || 'R0',  // Reads from backend
+    // ... other fields
+  }));
+  renderRun();  // Re-renders table with new stepLabel
+}, 2000);
+```
+
+**Conclusion:**
+- ✅ **No frontend work needed** - Update mechanism already exists
+- ✅ Step column **WILL update automatically** once backend calculation is fixed
+- ✅ Updates happen **every 2 seconds** (existing polling interval)
+- ✅ **No code changes required** in frontend
+
+**Note:** The polling starts automatically when "Start Processing" is clicked (line 2311).
+
+---
+
 ## Files to Modify
 
 1. `external/ai_bulk_doc_analysis/blueprint.py`
