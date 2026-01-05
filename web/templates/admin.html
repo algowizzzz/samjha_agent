@@ -715,7 +715,7 @@
                         
                         <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
                             <button type="button" class="btn btn-secondary" onclick="hideAgentForm()">Cancel</button>
-                            <button type="button" class="btn btn-primary" onclick="saveAgent()" id="agent-form-submit">Create Agent</button>
+                            <button type="button" class="btn btn-primary" onclick="saveAgent('structured')" id="agent-form-submit">Create Agent</button>
                         </div>
                     </form>
                     </div>
@@ -859,11 +859,11 @@
         <!-- Workflows -->
         <div class="content-section" id="content-workflows">
             <div class="content-header">
-                <div>
-                    <h2 style="margin: 0;">🤖 Agentic Workflows Builder</h2>
-                    <p style="margin: 8px 0 0 0;">Create and manage AI-powered agentic workflows. Design multi-step templates for document review, data extraction, compliance checks, and risk assessments.</p>
+                    <div>
+                        <h2 style="margin: 0;">🤖 Agentic Workflows Builder</h2>
+                        <p style="margin: 8px 0 0 0;">Create and manage AI-powered agentic workflows. Design multi-step templates for document review, data extraction, compliance checks, and risk assessments.</p>
                     <div style="margin-top: 16px;">
-                        <button class="btn btn-primary" onclick="showCreateWorkflowTemplate()">Create New Agent WF</button>
+                    <button class="btn btn-primary" onclick="showCreateWorkflowTemplate()">Create New Agent WF</button>
                     </div>
                 </div>
             </div>
@@ -1669,14 +1669,33 @@ async function saveAgent(agentType) {
     const form = document.getElementById(formId);
     const formData = new FormData(form);
     
+    // Ensure agentType is set - use parameter, fallback to form value, then default
+    if (!agentType) {
+        agentType = formData.get('agent_type') || form.querySelector('[name="agent_type"]')?.value || 'structured';
+    }
+    
     const agentId = formData.get('agent_id');
     const name = formData.get('name');
     const description = formData.get('description');
     const model = formData.get('model');
     const domainFile = formData.get('domain_file');
     
+    // Validate agentType before proceeding
+    if (!agentType || !['structured', 'external', 'unstructured'].includes(agentType)) {
+        showAlert('error', `Invalid agent type: ${agentType}. Must be 'structured', 'external', or 'unstructured'.`);
+        console.error('Invalid agentType:', agentType);
+        return;
+    }
+    
     if (!name) {
         showAlert('error', 'Agent name is required');
+        return;
+    }
+    
+    // Domain file is required for new agents
+    const hasDomainFile = domainFile && domainFile.size > 0;
+    if (!agentId && !hasDomainFile) {
+        showAlert('error', 'Domain file is required for new agents (.md or .txt)');
         return;
     }
     
@@ -1684,9 +1703,6 @@ async function saveAgent(agentType) {
         let response;
         const url = agentId ? `/api/admin/agents/${agentId}` : '/api/admin/agents';
         const method = agentId ? 'PUT' : 'POST';
-        
-        // Check if files are being uploaded
-        const hasDomainFile = domainFile && domainFile.size > 0;
         const hasDataFiles = agentType === 'structured' && formData.getAll('data_files').some(f => f.size > 0);
         const dataFolderMode = agentType === 'structured' ? formData.get('data_folder_mode') : null;
         const dataFolderExisting = agentType === 'structured' ? formData.get('data_folder_existing') : null;
@@ -1698,7 +1714,8 @@ async function saveAgent(agentType) {
             const finalFormData = new FormData();
             finalFormData.append('name', name);
             finalFormData.append('description', description || '');
-            finalFormData.append('agent_type', agentType);
+            // Use set() to ensure agent_type is set correctly (overwrites if exists)
+            finalFormData.set('agent_type', agentType);
             finalFormData.append('model', model);
             
             if (hasDomainFile) {
@@ -1706,11 +1723,22 @@ async function saveAgent(agentType) {
             }
             
             if (agentType === 'structured') {
-                if (dataFolderMode === 'create' && dataFolderName) {
-                    finalFormData.append('data_folder', dataFolderName);
-                    finalFormData.append('data_folder_mode', 'create');
-                } else if (dataFolderMode === 'select' && dataFolderExisting) {
-                    finalFormData.append('data_folder', dataFolderExisting);
+                // Always send data_folder_mode for structured agents
+                finalFormData.append('data_folder_mode', dataFolderMode || 'select');
+                
+                if (dataFolderMode === 'create') {
+                    if (!dataFolderName) {
+                        showAlert('error', 'Please enter a folder name for the new data folder');
+                        return;
+                    }
+                    finalFormData.append('data_folder_name', dataFolderName);
+                } else {
+                    // mode is 'select' (default)
+                    if (!dataFolderExisting) {
+                        showAlert('error', 'Please select an existing data folder');
+                        return;
+                    }
+                    finalFormData.append('data_folder_existing', dataFolderExisting);
                 }
                 
                 const fileInput = document.getElementById('agent-data-files');
@@ -1750,7 +1778,8 @@ async function saveAgent(agentType) {
                 body: JSON.stringify({
                     name: name,
                     description: description,
-                    model: model
+                    model: model,
+                    agent_type: agentType  // Include agent_type in JSON updates
                 }),
                 credentials: 'same-origin'
             });

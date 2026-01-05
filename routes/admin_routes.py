@@ -443,6 +443,8 @@ class AdminRoutes(BaseRoutes):
                 data_folder_name = (request.form.get("data_folder_name") or "").strip()
                 data_folder_existing = (request.form.get("data_folder_existing") or "").strip()
 
+                if not agent_type:
+                    return jsonify({"error": "agent_type is required"}), 400
                 validate_agent_type(agent_type)
                 
                 # Handle structured vs external agents

@@ -1511,9 +1511,9 @@
                                 if (markdownBody) {
                                     if (response && response.trim()) {
                                         if (typeof marked !== 'undefined') {
-                                            markdownBody.innerHTML = marked.parse(response);
+                                    markdownBody.innerHTML = marked.parse(response);
                                         } else {
-                                            markdownBody.innerHTML = '<div>' + escapeHtml(response) + '</div>';
+                                    markdownBody.innerHTML = '<div>' + escapeHtml(response) + '</div>';
                                         }
                                     } else {
                                         // Empty response - show helpful message
@@ -1673,8 +1673,8 @@
                                         markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Connection closed. Unable to fetch results.';
                                     });
                             } else {
-                                markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Connection closed.';
-                            }
+                            markdownBody.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Connection closed.';
+                        }
                         }
                         currentResponseId = null;
                     }
