@@ -427,30 +427,30 @@ class IngestionService:
                     }]
                     
                     # Make API call for this page
-            response = llm_client.client.messages.create(
+                    response = llm_client.client.messages.create(
                         model=model,
-                messages=[{"role": "user", "content": messages}],
+                        messages=[{"role": "user", "content": messages}],
                         max_tokens=max_tokens,
                         temperature=temperature
-            )
-            
-            # Extract text from response
+                    )
+                    
+                    # Extract text from response
                     page_content = ""
-            for block in getattr(response, "content", []) or []:
-                block_type = getattr(block, "type", None)
-                if block_type == "text":
-                    block_text = getattr(block, "text", None)
-                    if isinstance(block_text, str):
+                    for block in getattr(response, "content", []) or []:
+                        block_type = getattr(block, "type", None)
+                        if block_type == "text":
+                            block_text = getattr(block, "text", None)
+                            if isinstance(block_text, str):
                                 page_content += block_text
-            
+                    
                     # Add page marker and content
                     r0_parts.append(f"## Page {page_num}\n\n")
                     r0_parts.append(page_content)
                     r0_parts.append("\n\n")
                     
                     # Track tokens
-            usage = getattr(response, "usage", None)
-            if usage:
+                    usage = getattr(response, "usage", None)
+                    if usage:
                         page_input_tokens = getattr(usage, "input_tokens", 0) or 0
                         page_output_tokens = getattr(usage, "output_tokens", 0) or 0
                         total_input_tokens += page_input_tokens
