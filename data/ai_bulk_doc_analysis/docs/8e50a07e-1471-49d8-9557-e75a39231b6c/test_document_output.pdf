@@ -1,0 +1,39 @@
+```json
+{
+  "final_document": {
+    "summary": {
+      "title": "Document Summary",
+      "content": "This test document demonstrates a sample PDF designed for AI bulk document analysis. It contains multiple paragraphs of text intended to be converted to Markdown format and analyzed using prompt chains, showcasing the system's capability to process multi-paragraph content."
+    },
+    "table_of_contents": {
+      "title": "Table of Contents",
+      "entries": [
+        {
+          "number": 1,
+          "section": "Test Document for AI Bulk Doc Analysis",
+          "page": 1
+        },
+        {
+          "number": 2,
+          "section": "Sample PDF Content Overview",
+          "page": 1
+        },
+        {
+          "number": 3,
+          "section": "Multi-paragraph Text Processing",
+          "page": 1
+        }
+      ],
+      "document_structure": {
+        "pages": "Single page document",
+        "paragraphs": "2 main content paragraphs",
+        "focus": "PDF-to-Markdown conversion & prompt chain analysis"
+      }
+    },
+    "document_type": {
+      "classification": "Test/Sample Document",
+      "rationale": "This is a generic test document created for system validation purposes, not an operational business document. It lacks policy directives, procedural steps, or compliance requirements—instead serving as a proof-of-concept for PDF conversion and AI analysis workflows."
+    }
+  }
+}
+```
