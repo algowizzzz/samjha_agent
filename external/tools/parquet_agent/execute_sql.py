@@ -89,14 +89,14 @@ class ExecuteSQLTool(BaseMCPTool):
                             created_views.add(alias)
             else:
                 # Fallback: register all folders (legacy behavior)
-            for domain_dir in self.base_path.iterdir():
-                if domain_dir.is_dir():
-                    for file in domain_dir.glob("*.csv"):
-                        view_name = file.stem
-                        conn.execute(f"CREATE OR REPLACE VIEW {view_name} AS SELECT * FROM read_csv_auto('{str(file)}')")
-                    for file in domain_dir.glob("*.parquet"):
-                        view_name = file.stem
-                        conn.execute(f"CREATE OR REPLACE VIEW {view_name} AS SELECT * FROM read_parquet('{str(file)}')")
+                for domain_dir in self.base_path.iterdir():
+                    if domain_dir.is_dir():
+                        for file in domain_dir.glob("*.csv"):
+                            view_name = file.stem
+                            conn.execute(f"CREATE OR REPLACE VIEW {view_name} AS SELECT * FROM read_csv_auto('{str(file)}')")
+                        for file in domain_dir.glob("*.parquet"):
+                            view_name = file.stem
+                            conn.execute(f"CREATE OR REPLACE VIEW {view_name} AS SELECT * FROM read_parquet('{str(file)}')")
             
             # Execute query
             result = conn.execute(sql)
