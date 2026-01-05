@@ -6,7 +6,7 @@ Admin Routes for SAJHA MCP Server
 from flask import render_template, jsonify, request
 from pathlib import Path
 import logging
-from routes.base_routes import BaseRoutes
+from external.routes.base_routes import BaseRoutes
 from werkzeug.utils import secure_filename
 
 from external.agent.agent_registry import (
@@ -14,7 +14,7 @@ from external.agent.agent_registry import (
     validate_safe_name,
     slugify_name,
 )
-from core.db.session import get_db_session
+from external.core.db.session import get_db_session
 from external.agent.persistence import (
     list_prompts,
     get_prompt_content,

@@ -23,7 +23,7 @@ def setup_with_app_context():
     app, socketio = create_app()
     
     with app.app_context():
-        from core.db.session import get_db_session
+        from external.core.db.session import get_db_session
         from external.agent.persistence import (
             ensure_schema,
             import_prompts_from_files,

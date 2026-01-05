@@ -143,7 +143,7 @@ def claim_extraction_node(state: ResearchExecutorState, tools_registry, domain_m
             agent_id = state.get("agent_id")  # Get from research_spec if available
             if agent_id:
                 try:
-                    from core.db.session import get_db_session
+                    from external.core.db.session import get_db_session
                     from external.agent.persistence import get_prompt_content
                     with get_db_session() as db:
                         prompt_template = get_prompt_content(db, "web_research_claim_extraction", category="web_search")
@@ -223,7 +223,7 @@ def conflict_detection_node(state: ResearchExecutorState, tools_registry, domain
             agent_id = state.get("agent_id")  # Get from research_spec if available
             if agent_id:
                 try:
-                    from core.db.session import get_db_session
+                    from external.core.db.session import get_db_session
                     from external.agent.persistence import get_prompt_content
                     with get_db_session() as db:
                         prompt_template = get_prompt_content(db, "web_research_conflict_detection", category="web_search")

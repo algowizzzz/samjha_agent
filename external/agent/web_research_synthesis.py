@@ -18,7 +18,7 @@ def load_web_research_synthesis_prompt(agent_id: Optional[str] = None) -> str:
     """Load Web Research Synthesis prompt from DB or file."""
     if agent_id:
         try:
-            from core.db.session import get_db_session
+            from external.core.db.session import get_db_session
             from external.agent.persistence import get_prompt_content
             with get_db_session() as db:
                 prompt_content = get_prompt_content(db, "web_research_synthesis", category="web_search")

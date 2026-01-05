@@ -12,7 +12,7 @@ os.environ['DATABASE_URL'] = 'postgresql+psycopg2://saadahmed@localhost:5432/sam
 
 def test_conversation_id_handling():
     """Test conversation_id handling with session IDs"""
-    from core.db.session import get_db_session
+    from external.core.db.session import get_db_session
     from external.agent.persistence import get_or_create_conversation
     
     print("=" * 70)
@@ -41,7 +41,7 @@ def test_conversation_id_handling():
         
         # Verify in DB
         with get_db_session() as db:
-            from core.db.models import Conversation
+            from external.core.db.models import Conversation
             conv = db.get(Conversation, result_id)
             assert conv is not None, "Conversation should exist in DB"
             print(f"  ✓ Conversation exists in DB")
@@ -53,9 +53,9 @@ def test_conversation_id_handling():
 
 def test_message_foreign_key():
     """Test message creation doesn't violate foreign key constraint"""
-    from core.db.session import get_db_session
+    from external.core.db.session import get_db_session
     from external.agent.persistence import get_or_create_conversation, append_message
-    from core.db.models import Message
+    from external.core.db.models import Message
     
     print("\n" + "=" * 70)
     print("TEST: Message foreign key constraint")

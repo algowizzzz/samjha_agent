@@ -8,8 +8,8 @@ import json
 from datetime import datetime
 
 from web.app import create_app
-from core.db.session import get_db_session, get_engine
-from core.db.models import Base, Conversation, Message, Run
+from external.core.db.session import get_db_session, get_engine
+from external.core.db.models import Base, Conversation, Message, Run
 from external.agent.persistence import ensure_schema, create_agent_db
 
 

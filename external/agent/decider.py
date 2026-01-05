@@ -34,7 +34,7 @@ def load_decider_prompt(agent_id: Optional[str] = None) -> str:
     # Try to load from DB first (with agent override if provided)
     if agent_id:
         try:
-            from core.db.session import get_db_session
+            from external.core.db.session import get_db_session
             from external.agent.persistence import get_prompt_content
             with get_db_session() as db:
                 prompt_content = get_prompt_content(db, "decider", category="structured", agent_id=agent_id)
@@ -45,7 +45,7 @@ def load_decider_prompt(agent_id: Optional[str] = None) -> str:
     
     # Try global DB prompt
     try:
-        from core.db.session import get_db_session
+        from external.core.db.session import get_db_session
         from external.agent.persistence import get_prompt_content
         with get_db_session() as db:
             prompt_content = get_prompt_content(db, "decider", category="structured")

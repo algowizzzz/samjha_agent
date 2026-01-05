@@ -13,7 +13,7 @@ load_dotenv()
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from core.db.session import get_db_session
+from external.core.db.session import get_db_session
 from external.agent.persistence import get_agent_db
 from external.agent.web_research_agent import handle_web_research_query
 

@@ -4,8 +4,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from sqlalchemy import select, update, delete, func
 
-from core.db.session import get_engine, get_session_factory
-from core.db.models import (
+from external.core.db.session import get_engine, get_session_factory
+from external.core.db.models import (
     Base,
     Agent,
     AgentPrompt,

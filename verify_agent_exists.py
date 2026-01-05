@@ -9,7 +9,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 try:
-    from core.db.session import get_db_session
+    from external.core.db.session import get_db_session
     from external.agent.persistence import list_agents_db
     from external.agent.agent_registry import slugify_name
     

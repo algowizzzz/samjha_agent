@@ -4,7 +4,7 @@ Dashboard Routes for SAJHA MCP Server
 """
 
 from flask import render_template, redirect, url_for
-from routes.base_routes import BaseRoutes
+from external.routes.base_routes import BaseRoutes
 
 
 class DashboardRoutes(BaseRoutes):

@@ -9,6 +9,7 @@ from flask import Flask, render_template, jsonify, redirect, url_for, session
 from flask_socketio import SocketIO
 from flask_cors import CORS
 from datetime import timedelta, datetime
+from jinja2 import ChoiceLoader, FileSystemLoader
 
 # Import core modules
 from core.auth_manager import AuthManager
@@ -16,7 +17,7 @@ from core.mcp_handler import MCPHandler
 from tools.tools_registry import ToolsRegistry
 
 # Import route modules
-from routes import (
+from external.routes import (
     AuthRoutes,
     DashboardRoutes,
     ToolsRoutes,
@@ -61,6 +62,13 @@ def create_app():
     app.config['SESSION_TYPE'] = 'filesystem'
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)
     
+    # Configure multiple template folders: base templates + external custom templates
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    app.jinja_loader = ChoiceLoader([
+        FileSystemLoader(os.path.join(base_dir, 'external', 'web', 'templates')),  # Custom templates first
+        FileSystemLoader(os.path.join(base_dir, 'web', 'templates')),  # Base templates
+    ])
+    
     # Enable CORS with credentials support
     CORS(app, 
          supports_credentials=True,
@@ -82,7 +90,7 @@ def create_app():
     # Initialize DB schema and import existing data
     try:
         from external.agent.persistence import ensure_schema, import_prompts_from_files, import_agents_from_files
-        from core.db.session import get_db_session
+        from external.core.db.session import get_db_session
         ensure_schema()
         with get_db_session() as db:
             prompts_imported = import_prompts_from_files(db)

@@ -2,7 +2,7 @@
 Migration: Add domain_content column to agents table
 Run this once to add the domain_content column to existing databases.
 """
-from core.db.session import get_engine
+from external.core.db.session import get_engine
 from sqlalchemy import text
 
 

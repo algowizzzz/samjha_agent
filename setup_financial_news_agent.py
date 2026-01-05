@@ -11,7 +11,7 @@ from pathlib import Path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-from core.db.session import get_db_session
+from external.core.db.session import get_db_session
 from external.agent.persistence import create_agent_db, get_agent_db
 from external.config.prompts import import_prompts_from_files
 

@@ -11,7 +11,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.absolute()
 sys.path.insert(0, str(project_root))
 
-from core.db.session import get_engine
+from external.core.db.session import get_engine
 from sqlalchemy import text
 
 def add_columns():

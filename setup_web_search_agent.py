@@ -18,7 +18,7 @@ sys.path.insert(0, str(project_root))
 from dotenv import load_dotenv
 load_dotenv()
 
-from core.db.session import get_db_session
+from external.core.db.session import get_db_session
 from external.agent.persistence import (
     ensure_schema,
     import_prompts_from_files,
@@ -51,14 +51,14 @@ def import_web_search_prompts():
                 content = prompt_path.read_text(encoding="utf-8", errors="replace")
                 
                 # Check if prompt exists
-                from core.db.models import Prompt
+                from external.core.db.models import Prompt
                 existing = db.get(Prompt, name)
                 if existing:
                     print(f"  Prompt {name} already exists, updating...")
                     existing.current_content = content
                     existing.category = "web_search"
                 else:
-                    from core.db.models import Prompt
+                    from external.core.db.models import Prompt
                     prompt = Prompt(name=name, category="web_search", current_content=content)
                     db.add(prompt)
                     print(f"  Imported {name}")

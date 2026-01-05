@@ -5,7 +5,7 @@ Tools Routes for SAJHA MCP Server
 
 import logging
 from flask import render_template
-from routes.base_routes import BaseRoutes
+from external.routes.base_routes import BaseRoutes
 
 
 class ToolsRoutes(BaseRoutes):

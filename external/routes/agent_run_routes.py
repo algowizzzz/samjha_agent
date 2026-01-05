@@ -15,8 +15,8 @@ import queue
 from typing import Dict, Any, Optional
 from flask import request, jsonify, Response, stream_with_context
 
-from routes.base_routes import BaseRoutes
-from core.db.session import get_db_session
+from external.routes.base_routes import BaseRoutes
+from external.core.db.session import get_db_session
 from external.agent.persistence import (
     create_conversation,
     get_or_create_conversation,
@@ -203,7 +203,7 @@ class AgentRunRoutes(BaseRoutes):
         def get_run(run_id):
             """Get final run state (for replay)"""
             try:
-                from core.db.models import Run, RunResult
+                from external.core.db.models import Run, RunResult
                 with get_db_session() as db:
                     run = db.get(Run, run_id)
                     if not run:
@@ -238,7 +238,7 @@ class AgentRunRoutes(BaseRoutes):
             # TODO: Implement cancellation flag checking in agent loop
             # For now, just mark as cancelled in DB
             try:
-                from core.db.models import Run
+                from external.core.db.models import Run
                 with get_db_session() as db:
                     run = db.get(Run, run_id)
                     if not run:
@@ -279,7 +279,7 @@ class AgentRunRoutes(BaseRoutes):
                 user_id = user_session.get('user_id')
                 
                 from sqlalchemy import select
-                from core.db.models import Message, Conversation
+                from external.core.db.models import Message, Conversation
                 
                 with get_db_session() as db:
                     # Verify conversation exists and belongs to user
@@ -319,7 +319,7 @@ class AgentRunRoutes(BaseRoutes):
 def _is_run_cancelled(run_id: str) -> bool:
     """Check if run is cancelled"""
     try:
-        from core.db.models import Run
+        from external.core.db.models import Run
         with get_db_session() as db:
             run = db.get(Run, run_id)
             return run and run.status == "cancelled"
@@ -361,7 +361,7 @@ def _run_agent_async(
             agent_type = agent.get("agent_type", "structured")
         
         # Load conversation history
-        from core.db.models import Message, Run, RunResult
+        from external.core.db.models import Message, Run, RunResult
         from sqlalchemy import select
         with get_db_session() as db:
             stmt = (

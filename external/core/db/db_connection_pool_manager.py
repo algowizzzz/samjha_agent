@@ -11,7 +11,7 @@ from contextlib import contextmanager
 import pickle
 
 # Import the DatabaseConnectionPool and related classes from previous implementation
-from core.db.db_connection_pool import (
+from external.core.db.db_connection_pool import (
     DatabaseConnectionPool,
     DatabaseType,
     PoolConfig,

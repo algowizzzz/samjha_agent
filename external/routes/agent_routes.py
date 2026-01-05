@@ -10,7 +10,7 @@ import os
 import time
 import hashlib
 
-from routes.base_routes import BaseRoutes
+from external.routes.base_routes import BaseRoutes
 
 
 class AgentRoutes(BaseRoutes):
@@ -44,7 +44,7 @@ class AgentRoutes(BaseRoutes):
             
             # Validate agent exists
             try:
-                from core.db.session import get_db_session
+                from external.core.db.session import get_db_session
                 from external.agent.persistence import get_agent_db
                 
                 with get_db_session() as db:

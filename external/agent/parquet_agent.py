@@ -22,7 +22,7 @@ def load_domain_md(user_query: str, conversation_history: list, agent_id: Option
     # If agent_id provided, load from database
     if agent_id:
         try:
-            from core.db.session import get_db_session
+            from external.core.db.session import get_db_session
             from external.agent.persistence import get_agent_db
             
             with get_db_session() as db:
@@ -202,7 +202,7 @@ def initialize_controller_state(
     agent_model = None
     if agent_id:
         try:
-            from core.db.session import get_db_session
+            from external.core.db.session import get_db_session
             from external.agent.persistence import get_agent_db
             with get_db_session() as db:
                 agent = get_agent_db(db, agent_id)

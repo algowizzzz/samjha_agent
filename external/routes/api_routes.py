@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 from flask import request, jsonify, make_response
 from datetime import datetime
-from routes.base_routes import BaseRoutes
+from external.routes.base_routes import BaseRoutes
 
 
 class ApiRoutes(BaseRoutes):

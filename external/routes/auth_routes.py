@@ -5,7 +5,7 @@ Authentication Routes for SAJHA MCP Server
 
 from flask import render_template, request, redirect, url_for, session
 from datetime import timedelta
-from routes.base_routes import BaseRoutes
+from external.routes.base_routes import BaseRoutes
 
 
 class AuthRoutes(BaseRoutes):
