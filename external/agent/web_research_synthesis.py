@@ -16,13 +16,14 @@ except ImportError:
 
 def load_web_research_synthesis_prompt(agent_id: Optional[str] = None) -> str:
     """Load Web Research Synthesis prompt from DB or file."""
-    if agent_id:
         try:
             from external.core.db.session import get_db_session
             from external.agent.persistence import get_prompt_content
             with get_db_session() as db:
-                prompt_content = get_prompt_content(db, "web_research_synthesis", category="web_search")
+            # Pass agent_id to get agent-specific override if it exists
+            prompt_content = get_prompt_content(db, "web_research_synthesis", category="web_search", agent_id=agent_id)
                 if prompt_content:
+                logger.info(f"Loaded web_research_synthesis prompt for agent_id={agent_id}")
                     return prompt_content
         except Exception as e:
             logger.warning(f"Failed to load synthesis prompt from DB for agent {agent_id}: {e}")

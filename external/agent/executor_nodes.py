@@ -34,7 +34,8 @@ def generate_response_commentary(
     sql: str,
     results_summary: Dict[str, Any],
     conversation_history: Optional[list] = None,
-    evaluation_notes: Optional[str] = None
+    evaluation_notes: Optional[str] = None,
+    agent_id: Optional[str] = None
 ) -> str:
     """
     Generate natural language response commentary using LLM.
@@ -80,9 +81,9 @@ def generate_response_commentary(
     conv_history_section = f"Recent Conversation History:\n{conv_history_text}" if conv_history_text else ""
     eval_notes_section = f"Evaluation Notes: {evaluation_notes}" if evaluation_notes else ""
     
-    # Load prompt template and format it
+    # Load prompt template and format it (with agent override support)
     from external.platform.prompt_loader import load_prompt
-    prompt_template = load_prompt("response_commentary")
+    prompt_template = load_prompt("response_commentary", agent_id=agent_id)
     prompt = prompt_template.format(
         user_query=user_query,
         business_question=business_question,
@@ -860,7 +861,8 @@ def outcome_node(state: ExecutorState) -> Dict[str, Any]:
                 "sample_rows": results.get("rows_preview", [])
             },
             conversation_history=conversation_history,
-            evaluation_notes=evaluation.get("notes", "")
+            evaluation_notes=evaluation.get("notes", ""),
+            agent_id=state.get("agent_id")
         )
         
         executor_report = {

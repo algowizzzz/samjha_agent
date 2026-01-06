@@ -307,7 +307,7 @@ Output your decision as JSON only (no markdown, no prose):
                             from external.platform.prompt_loader import load_prompt
                             llm_client_for_ask = get_llm_client()
                             if llm_client_for_ask and llm_client_for_ask.is_available():
-                                tmpl = load_prompt("ask_user_clarification")
+                                tmpl = load_prompt("ask_user_clarification", agent_id=agent_id)
                                 dataset_path = (output.get("query_spec", {}) or {}).get("start_table", {}).get("path", "") or ""
                                 prompt2 = tmpl.format(
                                     user_query=state.get("user_query", ""),
@@ -588,7 +588,7 @@ Output your decision as JSON only (no markdown, no prose):
                         from external.platform.prompt_loader import load_prompt
                         llm_client_for_ask = get_llm_client()
                         if llm_client_for_ask and llm_client_for_ask.is_available():
-                            tmpl = load_prompt("ask_user_clarification")
+                            tmpl = load_prompt("ask_user_clarification", agent_id=agent_id)
                             dataset_path = qs.get("start_table", {}).get("path", "") or ""
                             domain_md = state.get("domain_md", "") or ""
                             prompt2 = tmpl.format(

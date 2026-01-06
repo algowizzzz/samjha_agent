@@ -141,12 +141,11 @@ def claim_extraction_node(state: ResearchExecutorState, tools_registry, domain_m
             # Load claim extraction prompt from DB or file
             prompt_template = None
             agent_id = state.get("agent_id")  # Get from research_spec if available
-            if agent_id:
                 try:
                     from external.core.db.session import get_db_session
                     from external.agent.persistence import get_prompt_content
                     with get_db_session() as db:
-                        prompt_template = get_prompt_content(db, "web_research_claim_extraction", category="web_search")
+                    prompt_template = get_prompt_content(db, "web_research_claim_extraction", category="web_search", agent_id=agent_id)
                 except Exception as e:
                     logger.warning(f"Failed to load claim extraction prompt from DB: {e}")
             
@@ -221,12 +220,11 @@ def conflict_detection_node(state: ResearchExecutorState, tools_registry, domain
             # Load conflict detection prompt from DB or file
             prompt_template = None
             agent_id = state.get("agent_id")  # Get from research_spec if available
-            if agent_id:
                 try:
                     from external.core.db.session import get_db_session
                     from external.agent.persistence import get_prompt_content
                     with get_db_session() as db:
-                        prompt_template = get_prompt_content(db, "web_research_conflict_detection", category="web_search")
+                    prompt_template = get_prompt_content(db, "web_research_conflict_detection", category="web_search", agent_id=agent_id)
                 except Exception as e:
                     logger.warning(f"Failed to load conflict detection prompt from DB: {e}")
             

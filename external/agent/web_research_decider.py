@@ -28,14 +28,15 @@ THINKING_TRACE_MAX_CHARS: int = int(os.getenv("THINKING_TRACE_MAX_CHARS", "20000
 
 def load_web_research_decider_prompt(agent_id: Optional[str] = None) -> str:
     """Load Web Research Decider prompt from DB or file."""
-    # Try to load from DB first (if agent_id provided)
-    if agent_id:
+    # Try to load from DB first (checks agent override first, then global)
         try:
             from external.core.db.session import get_db_session
             from external.agent.persistence import get_prompt_content
             with get_db_session() as db:
-                prompt_content = get_prompt_content(db, "web_research_decider", category="web_search")
+            # Pass agent_id to get agent-specific override if it exists
+            prompt_content = get_prompt_content(db, "web_research_decider", category="web_search", agent_id=agent_id)
                 if prompt_content:
+                logger.info(f"Loaded web_research_decider prompt for agent_id={agent_id}")
                     return prompt_content
         except Exception as e:
             logger.warning(f"Failed to load prompt from DB for agent {agent_id}: {e}")

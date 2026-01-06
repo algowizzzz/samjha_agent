@@ -99,10 +99,24 @@ class AdminRoutes(BaseRoutes):
                 if '..' in prompt_name or '/' in prompt_name or '\\' in prompt_name:
                     return jsonify({"error": "Invalid prompt name"}), 400
                 
-                category = data.get('category', 'structured')
                 user_id = self.get_user_session().get('user_id')
                 
                 with get_db_session() as db:
+                    # Determine category - ALWAYS infer from prompt name to ensure correctness
+                    # web_research_* prompts MUST be web_search category
+                    category = data.get('category')
+                    if prompt_name.startswith('web_research_'):  # Force web_search category for these prompts
+                        category = 'web_search'
+                    elif category is None:
+                        # Fallback to existing category or infer for new prompts
+                        existing = get_prompt_content(db, prompt_name)
+                        if existing is not None:
+                            from external.core.db.models import Prompt
+                            p = db.get(Prompt, prompt_name)
+                            category = p.category if p else 'structured'
+                        else:
+                            category = 'structured'  # Default for new non-web_research prompts
+                    
                     upsert_prompt(db, prompt_name, category, data['content'], editor_user_id=user_id)
                     db.commit()
                     logger.info(f"Prompt '{prompt_name}' updated by user {user_id}")
