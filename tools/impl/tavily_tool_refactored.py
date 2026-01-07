@@ -374,6 +374,16 @@ class TavilyWebSearchTool(TavilyBaseTool):
         include_answer = arguments.get('include_answer', True)
         include_images = arguments.get('include_images', False)
         
+        # Extract domain filters if provided
+        include_domains = arguments.get('include_domains')
+        exclude_domains = arguments.get('exclude_domains')
+        
+        # Convert to list if string (for backward compatibility)
+        if isinstance(include_domains, str):
+            include_domains = [d.strip() for d in include_domains.split(',') if d.strip()]
+        if isinstance(exclude_domains, str):
+            exclude_domains = [d.strip() for d in exclude_domains.split(',') if d.strip()]
+        
         return self._search(
             query=query,
             search_depth=search_depth,
@@ -381,7 +391,9 @@ class TavilyWebSearchTool(TavilyBaseTool):
             max_results=max_results,
             include_answer=include_answer,
             include_raw_content=False,
-            include_images=include_images
+            include_images=include_images,
+            include_domains=include_domains if include_domains else None,
+            exclude_domains=exclude_domains if exclude_domains else None
         )
 
 

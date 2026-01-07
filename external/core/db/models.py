@@ -45,6 +45,9 @@ class Agent(Base):
     # Deep research specific fields (for agent_type="deep_research")
     deep_research_config: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)  # Configuration: models, search_api, mcp_config, etc.
 
+    # Quick search specific fields (for agent_type="quick_search")
+    quick_search_config: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)  # Configuration: max_results, search_depth, include_domains, exclude_domains
+
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow, nullable=False)
 

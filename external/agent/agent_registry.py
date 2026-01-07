@@ -69,7 +69,7 @@ def validate_safe_name(value: str, field: str) -> None:
 
 
 def validate_agent_type(agent_type: str) -> None:
-    if agent_type not in ("structured", "unstructured", "external", "excel"):
+    if agent_type not in ("structured", "unstructured", "external", "excel", "deep_research", "quick_search"):
         raise ValueError("Invalid agent_type")
 
 

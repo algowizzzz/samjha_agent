@@ -43,6 +43,6 @@ def load_prompt(prompt_name: str, agent_id: Optional[str] = None, category: str 
         return prompt_path.read_text()
     
     error_msg = f"Prompt '{prompt_name}' not found in DB or file ({prompt_path})"
-    logger.error(error_msg)
-    raise FileNotFoundError(error_msg)
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
 

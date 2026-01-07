@@ -585,6 +585,9 @@
                 <div class="sidebar-item" data-section="manage-agents-external" onclick="showContent('manage-agents-external')">
                     Manage Agents → External
                 </div>
+                <div class="sidebar-item" data-section="manage-agents-quick-search" onclick="showContent('manage-agents-quick-search')">
+                    Manage Agents → Quick Search
+                </div>
             </div>
     </div>
 
@@ -867,6 +870,99 @@
             <!-- Agents List -->
             <div class="loading" id="external-agents-loading">Loading agents...</div>
             <ul class="prompt-list" id="external-agents-list" style="display: none;"></ul>
+        </div>
+        
+        <!-- Manage Agents - Quick Search -->
+        <div class="content-section" id="content-manage-agents-quick-search">
+            <div class="content-header">
+                <div>
+                    <h2 style="margin: 0;">⚡ Manage Agents - Quick Search</h2>
+                    <p style="margin: 8px 0 0 0;">Create and manage quick search agent instances. Fast, direct searches with configurable trusted sources (e.g., Bloomberg only) and blocked domains.</p>
+                </div>
+                <div style="margin-top: 16px;">
+                    <button class="btn btn-primary" onclick="showCreateAgentForm('quick_search')">+ Create New Agent</button>
+                </div>
+            </div>
+            
+            <!-- Create/Edit Agent Form (Inline) - Quick Search -->
+            <div class="inline-editor" id="agent-form-container-quick-search" style="display: none;">
+                <div class="inline-editor-header">
+                    <h3 id="agent-form-title-quick-search">Create New Agent</h3>
+                    <button class="btn btn-secondary btn-sm" onclick="hideAgentForm('quick_search')">Cancel</button>
+                </div>
+                <div class="inline-editor-body">
+                    <!-- Tabs for agent form -->
+                    <div class="form-tabs">
+                        <button type="button" class="tab-btn active" onclick="switchAgentTab('quick_search', 'config')">Configuration</button>
+                    </div>
+                    
+                    <form id="create-agent-form-quick-search">
+                        <input type="hidden" name="agent_type" value="quick_search">
+                        <input type="hidden" name="agent_id" id="agent-form-id-quick-search">
+                        
+                        <div class="form-group">
+                            <label>Agent Name *</label>
+                            <input type="text" name="name" required placeholder="e.g., Bloomberg Quick Search">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea name="description" placeholder="Brief description of what this agent does (e.g., Quick search for Bloomberg financial news only)"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Tavily API Key *</label>
+                            <input type="password" name="tavily_api_key" placeholder="tvly-xxxxx" required>
+                            <small>Tavily API key for web search. Required for quick search agents.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Trusted Sources (Allowed Domains)</label>
+                            <textarea name="allowed_domains" placeholder="e.g., bloomberg.com&#10;Or leave empty to use default financial news domains (Bloomberg, Reuters, WSJ, SEC, etc.)" rows="4"></textarea>
+                            <small>One domain per line, or comma-separated. If specified, ONLY these domains will be searched. Example: bloomberg.com (for Bloomberg-only search). Leave empty to use default financial news sources.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Blocked Domains (Untrusted Sources)</label>
+                            <textarea name="blocked_domains" placeholder="e.g., reddit.com, twitter.com, x.com" rows="3"></textarea>
+                            <small>Comma-separated list of domains to block. Default: social media sites (reddit, twitter, facebook, etc.)</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Max Results</label>
+                            <input type="number" name="max_results" value="5" min="1" max="20">
+                            <small>Maximum number of search results to return (1-20). Default: 5</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Search Depth</label>
+                            <select name="search_depth">
+                                <option value="basic" selected>Basic (Fast, recommended for quick searches)</option>
+                                <option value="advanced">Advanced (More comprehensive, slower)</option>
+                            </select>
+                            <small>Basic is faster and recommended for quick searches. Advanced provides more comprehensive results but takes longer.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Include AI Summary</label>
+                            <select name="include_answer">
+                                <option value="true" selected>Yes (Include Tavily's AI-generated summary)</option>
+                                <option value="false">No (Show only sources)</option>
+                            </select>
+                            <small>Tavily can generate an AI summary synthesizing all search results. Recommended: Yes.</small>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                            <button type="button" class="btn btn-secondary" onclick="hideAgentForm('quick_search')">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="saveAgent('quick_search')" id="agent-form-submit-quick-search">Create Agent</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Agents List -->
+            <div class="loading" id="quick-search-agents-loading">Loading agents...</div>
+            <ul class="prompt-list" id="quick-search-agents-list" style="display: none;"></ul>
         </div>
         
         <!-- Workflows -->
@@ -1246,6 +1342,8 @@ function loadSectionData(sectionId) {
             loadAgents('structured');
     } else if (sectionId === 'manage-agents-external') {
         loadAgents('external');
+    } else if (sectionId === 'manage-agents-quick-search') {
+        loadAgents('quick_search');
     } else if (sectionId === 'workflows') {
         loadWorkflowTemplates();
     }
@@ -1373,7 +1471,8 @@ async function savePrompt() {
 async function loadAgents(category) {
     const categoryMap = {
         'structured': { loading: 'structured-agents-loading', list: 'structured-agents-list' },
-        'external': { loading: 'external-agents-loading', list: 'external-agents-list' }
+        'external': { loading: 'external-agents-loading', list: 'external-agents-list' },
+        'quick_search': { loading: 'quick-search-agents-loading', list: 'quick-search-agents-list' }
     };
     
     const mapping = categoryMap[category];
@@ -1403,7 +1502,7 @@ async function loadAgents(category) {
                     <div class="prompt-item-info">
                         <div class="prompt-item-name">${escapeHtml(agent.name)}</div>
                         <div class="prompt-item-description">${escapeHtml(agent.description || 'No description')}</div>
-                        <div class="prompt-item-filename">${category === 'external' ? (escapeHtml(agent.domain_file || 'Web Research') + ' • ' + (agent.model || 'N/A')) : escapeHtml(agent.data_folder || 'N/A')} • Created: ${new Date(agent.created_at).toLocaleDateString()}</div>
+                        <div class="prompt-item-filename">${category === 'external' ? (escapeHtml(agent.domain_file || 'Web Research') + ' • ' + (agent.model || 'N/A')) : category === 'quick_search' ? ('Quick Search • ' + (agent.model || 'N/A')) : escapeHtml(agent.data_folder || 'N/A')} • Created: ${new Date(agent.created_at).toLocaleDateString()}</div>
                     </div>
                     <div class="prompt-item-actions">
                         <button class="btn btn-primary btn-sm" onclick="editAgent('${escapeHtml(agent.id)}', '${category}')">Edit</button>
@@ -1423,10 +1522,26 @@ async function loadAgents(category) {
 // Show create agent form
 function showCreateAgentForm(agentType) {
     editingAgentId = null;
-    const containerId = agentType === 'external' ? 'agent-form-container-external' : 'agent-form-container';
-    const formId = agentType === 'external' ? 'create-agent-form-external' : 'create-agent-form';
-    const titleId = agentType === 'external' ? 'agent-form-title-external' : 'agent-form-title';
-    const submitId = agentType === 'external' ? 'agent-form-submit-external' : 'agent-form-submit';
+    let containerId, formId, titleId, submitId, idFieldId;
+    if (agentType === 'external') {
+        containerId = 'agent-form-container-external';
+        formId = 'create-agent-form-external';
+        titleId = 'agent-form-title-external';
+        submitId = 'agent-form-submit-external';
+        idFieldId = 'agent-form-id-external';
+    } else if (agentType === 'quick_search') {
+        containerId = 'agent-form-container-quick-search';
+        formId = 'create-agent-form-quick-search';
+        titleId = 'agent-form-title-quick-search';
+        submitId = 'agent-form-submit-quick-search';
+        idFieldId = 'agent-form-id-quick-search';
+    } else {
+        containerId = 'agent-form-container';
+        formId = 'create-agent-form';
+        titleId = 'agent-form-title';
+        submitId = 'agent-form-submit';
+        idFieldId = 'agent-form-id';
+    }
     
     const container = document.getElementById(containerId);
     const form = document.getElementById(formId);
@@ -1435,7 +1550,7 @@ function showCreateAgentForm(agentType) {
     
     // Reset form
     form.reset();
-    document.getElementById(agentType === 'external' ? 'agent-form-id-external' : 'agent-form-id').value = '';
+    document.getElementById(idFieldId).value = '';
     
     // Set agent type
     form.querySelector('[name="agent_type"]').value = agentType;
@@ -1448,7 +1563,7 @@ function showCreateAgentForm(agentType) {
     container.style.display = 'block';
     
     // Load data folders for structured agents
-        if (agentType === 'structured') {
+    if (agentType === 'structured') {
         loadDataFolders();
     }
     
@@ -1589,7 +1704,14 @@ let currentAgentId = null;
 let currentAgentType = null;
 
 function hideAgentForm(agentType) {
-    const containerId = agentType === 'external' ? 'agent-form-container-external' : 'agent-form-container';
+    let containerId;
+    if (agentType === 'external') {
+        containerId = 'agent-form-container-external';
+    } else if (agentType === 'quick_search') {
+        containerId = 'agent-form-container-quick-search';
+    } else {
+        containerId = 'agent-form-container';
+    }
     const container = document.getElementById(containerId);
     container.style.display = 'none';
     editingAgentId = null;
@@ -1683,7 +1805,14 @@ async function editAgent(agentId, agentType) {
 
 // Save agent (create or update)
 async function saveAgent(agentType) {
-    const formId = agentType === 'external' ? 'create-agent-form-external' : 'create-agent-form';
+    let formId;
+    if (agentType === 'external') {
+        formId = 'create-agent-form-external';
+    } else if (agentType === 'quick_search') {
+        formId = 'create-agent-form-quick-search';
+    } else {
+        formId = 'create-agent-form';
+    }
     const form = document.getElementById(formId);
     const formData = new FormData(form);
     
@@ -1699,8 +1828,8 @@ async function saveAgent(agentType) {
     const domainFile = formData.get('domain_file');
     
     // Validate agentType before proceeding
-    if (!agentType || !['structured', 'external', 'unstructured'].includes(agentType)) {
-        showAlert('error', `Invalid agent type: ${agentType}. Must be 'structured', 'external', or 'unstructured'.`);
+    if (!agentType || !['structured', 'external', 'unstructured', 'quick_search', 'deep_research'].includes(agentType)) {
+        showAlert('error', `Invalid agent type: ${agentType}. Must be 'structured', 'external', 'unstructured', 'quick_search', or 'deep_research'.`);
         console.error('Invalid agentType:', agentType);
         return;
     }
@@ -1710,9 +1839,9 @@ async function saveAgent(agentType) {
         return;
     }
     
-    // Domain file is required for new agents
+    // Domain file is required for new agents (except quick_search and deep_research)
     const hasDomainFile = domainFile && domainFile.size > 0;
-    if (!agentId && !hasDomainFile) {
+    if (!agentId && !hasDomainFile && agentType !== 'quick_search' && agentType !== 'deep_research') {
         showAlert('error', 'Domain file is required for new agents (.md or .txt)');
         return;
     }
@@ -1779,6 +1908,43 @@ async function saveAgent(agentType) {
                 
                 const researchDepth = formData.get('default_research_depth');
                 if (researchDepth) finalFormData.append('default_research_depth', researchDepth);
+            }
+            
+            if (agentType === 'quick_search') {
+                const tavilyApiKey = formData.get('tavily_api_key');
+                if (tavilyApiKey) finalFormData.append('tavily_api_key', tavilyApiKey);
+                
+                // Parse allowed domains (can be newline or comma separated)
+                let allowedDomains = formData.get('allowed_domains');
+                if (allowedDomains) {
+                    // Split by newline or comma, trim, filter empty
+                    allowedDomains = allowedDomains.split(/[\n,]/).map(d => d.trim()).filter(d => d);
+                    if (allowedDomains.length > 0) {
+                        finalFormData.append('allowed_domains', allowedDomains.join(','));
+                    }
+                }
+                
+                // Parse blocked domains (comma separated)
+                let blockedDomains = formData.get('blocked_domains');
+                if (blockedDomains) {
+                    blockedDomains = blockedDomains.split(',').map(d => d.trim()).filter(d => d);
+                    if (blockedDomains.length > 0) {
+                        finalFormData.append('blocked_domains', blockedDomains.join(','));
+                    }
+                }
+                
+                // Quick search config
+                const maxResults = formData.get('max_results') || '5';
+                const searchDepth = formData.get('search_depth') || 'basic';
+                const includeAnswer = formData.get('include_answer') || 'true';
+                
+                // Build quick_search_config JSON
+                const quickSearchConfig = {
+                    max_results: parseInt(maxResults) || 5,
+                    search_depth: searchDepth,
+                    include_answer: includeAnswer === 'true'
+                };
+                finalFormData.append('quick_search_config', JSON.stringify(quickSearchConfig));
             }
             
             response = await fetch(url, {

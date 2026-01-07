@@ -464,7 +464,7 @@ class AdminRoutes(BaseRoutes):
                     return jsonify({"error": "agent_type is required"}), 400
                 validate_agent_type(agent_type)
                 
-                # Handle structured vs external agents
+                # Handle different agent types
                 data_folder = None
                 if agent_type == "structured":
                     if data_folder_mode not in ("create", "select"):
@@ -474,23 +474,27 @@ class AdminRoutes(BaseRoutes):
                     if data_folder_mode == "create":
                         data_folder = slugify_name(data_folder)
                     validate_safe_name(data_folder, "data_folder")
-                elif agent_type == "external":
-                    # External agents don't need data_folder
+                elif agent_type in ("external", "quick_search", "deep_research"):
+                    # These agent types don't need data_folder
                     pass
                 else:
                     return jsonify({"error": f"Agent type '{agent_type}' not yet supported"}), 400
 
-                # Domain file required
+                # Domain file handling - required for structured/external, optional for quick_search/deep_research
                 domain_file = request.files.get("domain_file")
-                if not domain_file or not getattr(domain_file, "filename", ""):
-                    return jsonify({"error": "domain_file is required (.md or .txt)"}), 400
-                domain_filename = secure_filename(domain_file.filename)
-                if not (domain_filename.lower().endswith(".md") or domain_filename.lower().endswith(".txt")):
-                    return jsonify({"error": "domain_file must be .md or .txt"}), 400
-                domain_bytes = domain_file.read()
-                if len(domain_bytes) > MAX_FILE_BYTES:
-                    return jsonify({"error": "domain_file exceeds 10MB limit"}), 400
-                domain_text = domain_bytes.decode("utf-8", errors="replace")
+                domain_filename = None
+                domain_text = None
+                if domain_file and getattr(domain_file, "filename", ""):
+                    domain_filename = secure_filename(domain_file.filename)
+                    if not (domain_filename.lower().endswith(".md") or domain_filename.lower().endswith(".txt")):
+                        return jsonify({"error": "domain_file must be .md or .txt"}), 400
+                    domain_bytes = domain_file.read()
+                    if len(domain_bytes) > MAX_FILE_BYTES:
+                        return jsonify({"error": "domain_file exceeds 10MB limit"}), 400
+                    domain_text = domain_bytes.decode("utf-8", errors="replace")
+                elif agent_type in ("structured", "external"):
+                    # Domain file required for structured and external agents
+                    return jsonify({"error": "domain_file is required (.md or .txt) for structured and external agents"}), 400
 
                 # If selecting existing folder, ensure it exists (structured agents only)
                 if agent_type == "structured" and data_folder_mode == "select":
@@ -505,7 +509,7 @@ class AdminRoutes(BaseRoutes):
                 # Get model from form (default to Sonnet for thinking support)
                 model = (request.form.get("model") or "").strip() or "claude-3-sonnet-20240229"
                 
-                # Get web search specific fields (for external agents)
+                # Get web search specific fields (for external and quick_search agents)
                 tavily_api_key = (request.form.get("tavily_api_key") or "").strip()
                 allowed_domains_str = (request.form.get("allowed_domains") or "").strip()
                 blocked_domains_str = (request.form.get("blocked_domains") or "").strip()
@@ -515,6 +519,43 @@ class AdminRoutes(BaseRoutes):
                 import json
                 allowed_domains = [d.strip() for d in allowed_domains_str.split(",") if d.strip()] if allowed_domains_str else None
                 blocked_domains = [d.strip() for d in blocked_domains_str.split(",") if d.strip()] if blocked_domains_str else None
+                
+                # Get quick_search_config for quick_search agents
+                quick_search_config = None
+                if agent_type == "quick_search":
+                    max_results = request.form.get("max_results", "5")
+                    search_depth = request.form.get("search_depth", "basic")
+                    include_answer = request.form.get("include_answer", "true").lower() == "true"
+                    
+                    # Parse allowed/blocked domains for quick_search (can override defaults)
+                    quick_allowed_domains = None
+                    quick_blocked_domains = None
+                    if allowed_domains:
+                        quick_allowed_domains = allowed_domains
+                    if blocked_domains:
+                        quick_blocked_domains = blocked_domains
+                    
+                    quick_search_config = {
+                        "max_results": int(max_results) if max_results.isdigit() else 5,
+                        "search_depth": search_depth if search_depth in ("basic", "advanced") else "basic",
+                        "include_answer": include_answer,
+                    }
+                    # Only include domain overrides if specified (otherwise use defaults from code)
+                    if quick_allowed_domains:
+                        quick_search_config["include_domains"] = quick_allowed_domains
+                    if quick_blocked_domains:
+                        quick_search_config["exclude_domains"] = quick_blocked_domains
+                
+                # Get deep_research_config for deep_research agents
+                deep_research_config = None
+                if agent_type == "deep_research":
+                    # Deep research config can be provided as JSON string
+                    deep_research_config_str = (request.form.get("deep_research_config") or "").strip()
+                    if deep_research_config_str:
+                        try:
+                            deep_research_config = json.loads(deep_research_config_str)
+                        except:
+                            deep_research_config = None
                 
                 # Store domain file content in DB (not on disk)
                 # Only store filename for reference, content goes in domain_content column
@@ -540,6 +581,8 @@ class AdminRoutes(BaseRoutes):
                         search_scope_allowed_domains=allowed_domains,
                         search_scope_blocked_domains=blocked_domains,
                         default_research_depth=default_research_depth if agent_type == "external" else None,
+                        deep_research_config=deep_research_config,
+                        quick_search_config=quick_search_config,
                     )
                     db.commit()
                     # Get the created agent to return it

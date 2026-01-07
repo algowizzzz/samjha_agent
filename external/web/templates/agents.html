@@ -160,6 +160,17 @@
                 <!-- Agents loaded here -->
             </div>
         </div>
+
+        <!-- Quick Search Agents -->
+        <div class="category-section">
+            <div class="category-title">
+                <span class="category-icon">⚡</span>
+                <span>Quick Search Agents</span>
+            </div>
+            <div class="agents-grid" id="quick-search-agents">
+                <!-- Agents loaded here -->
+            </div>
+        </div>
     </div>
 </div>
 
@@ -179,6 +190,7 @@ async function loadAgents() {
         const unstructured = data.agents.filter(a => a.agent_type === 'unstructured');
         const external = data.agents.filter(a => a.agent_type === 'external');
         const deepResearch = data.agents.filter(a => a.agent_type === 'deep_research');
+        const quickSearch = data.agents.filter(a => a.agent_type === 'quick_search');
         
         // Render structured agents
         const structuredGrid = document.getElementById('structured-agents');
@@ -235,6 +247,25 @@ async function loadAgents() {
             });
         } else {
             deepResearchGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #6c757d;">No deep research agents available. Create one in Admin Panel.</div>';
+        }
+        
+        // Render quick search agents
+        const quickSearchGrid = document.getElementById('quick-search-agents');
+        quickSearchGrid.innerHTML = '';
+        if (quickSearch.length > 0) {
+            quickSearch.forEach(agent => {
+                const box = document.createElement('a');
+                box.href = `/agent/chat/${agent.id}`;
+                box.className = 'agent-box';
+                box.innerHTML = `
+                    <div class="agent-name">${agent.name}</div>
+                    <div class="agent-description">${agent.description || 'No description'}</div>
+                    <div class="agent-meta">Quick Search • ${agent.agent_type}</div>
+                `;
+                quickSearchGrid.appendChild(box);
+            });
+        } else {
+            quickSearchGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #6c757d;">No quick search agents available. Create one in Admin Panel.</div>';
         }
     } catch (error) {
         document.getElementById('agents-loading').innerHTML = `<div style="color: #dc3545;">Error loading agents: ${error.message}</div>`;

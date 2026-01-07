@@ -483,6 +483,9 @@ def get_agent_db(db, agent_id: str) -> Optional[Dict[str, Any]]:
     # Add deep research specific fields
     if hasattr(a, 'deep_research_config'):
         result["deep_research_config"] = a.deep_research_config
+    # Add quick search specific fields
+    if hasattr(a, 'quick_search_config'):
+        result["quick_search_config"] = a.quick_search_config
     return result
 
 
@@ -501,6 +504,7 @@ def create_agent_db(
     search_scope_blocked_domains: Optional[list] = None,
     default_research_depth: Optional[str] = None,
     deep_research_config: Optional[dict] = None,
+    quick_search_config: Optional[dict] = None,
 ) -> Agent:
     # Default to Sonnet if not specified (enables thinking/reasoning)
     if model is None:
@@ -529,6 +533,9 @@ def create_agent_db(
     # Add deep research specific fields
     if hasattr(a, 'deep_research_config') and deep_research_config is not None:
         a.deep_research_config = deep_research_config
+    # Add quick search specific fields
+    if hasattr(a, 'quick_search_config') and quick_search_config is not None:
+        a.quick_search_config = quick_search_config
     db.add(a)
     return a
 

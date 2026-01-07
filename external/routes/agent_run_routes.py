@@ -616,6 +616,20 @@ def _run_agent_async(
                 on_decider_output=None,  # Deep research doesn't use decider output callback
                 continuity_packet=None,  # Not used for deep research
             )
+        elif agent_type == "quick_search":
+            # Quick search agent (Direct Tavily search)
+            from external.agent.quick_search_agent import handle_quick_search_query
+            result = handle_quick_search_query(
+                user_query=user_query,
+                conversation_history=conversation_history,
+                prior_state=None,  # Quick search doesn't use prior state
+                tools_registry=None,  # Will use default
+                policy_limits=None,
+                show_thinking=show_thinking,
+                agent_id=agent_id,
+                on_decider_output=None,  # Quick search doesn't use decider
+                continuity_packet=None,  # Not used for quick search
+            )
         else:
             # Structured agent (default)
             from external.agent.parquet_agent import handle_query
@@ -693,6 +707,30 @@ def _run_agent_async(
                     db.commit()
                 
                 _emit_event(run_id, "final_response", {"response": final_report})
+                _emit_event(run_id, "run_completed", {"status": "success"})
+            elif agent_type == "quick_search":
+                # Quick search agent - formatted response with sources
+                final_answer = result.get("final_answer") or result.get("result_summary", "")
+                sources = result.get("sources", [])
+                
+                # Save to DB
+                import json
+                with get_db_session() as db:
+                    search_summary = {
+                        "final_answer": final_answer,
+                        "sources_count": len(sources),
+                        "sources": sources[:5]  # Store top 5 sources
+                    }
+                    finish_run_success(db, run_id, None, json.dumps(search_summary))  # No SQL for quick search
+                    db.commit()
+                
+                # Append agent message
+                with get_db_session() as db:
+                    append_message(db, conversation_id, "agent", final_answer)
+                    db.commit()
+                
+                _emit_event(run_id, "sources_collected", {"count": len(sources)})
+                _emit_event(run_id, "final_response", {"response": final_answer, "sources": sources})
                 _emit_event(run_id, "run_completed", {"status": "success"})
             else:
                 # Structured agent - SQL results
