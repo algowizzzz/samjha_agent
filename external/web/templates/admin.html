@@ -573,6 +573,9 @@
                 <div class="sidebar-item" data-section="system-prompts-external" onclick="showContent('system-prompts-external')">
                     System Prompts → External
                 </div>
+                <div class="sidebar-item" data-section="system-prompts-deep-research" onclick="showContent('system-prompts-deep-research')">
+                    System Prompts → Deep Research
+                </div>
                 <div class="sidebar-item" data-section="manage-agents-structured" onclick="showContent('manage-agents-structured')">
                     Manage Agents → Structured
                 </div>
@@ -628,6 +631,16 @@
             </div>
             <div class="loading" id="web-search-prompts-loading">Loading prompts...</div>
             <ul class="prompt-list" id="web-search-prompts-list" style="display: none;"></ul>
+        </div>
+        
+        <!-- System Prompts - Deep Research -->
+        <div class="content-section" id="content-system-prompts-deep-research">
+            <div class="content-header">
+                <h2>🔬 System Prompts - Deep Research Agents</h2>
+                <p>Edit system prompts for deep research agents</p>
+            </div>
+            <div class="loading" id="deep-research-prompts-loading">Loading prompts...</div>
+            <ul class="prompt-list" id="deep-research-prompts-list" style="display: none;"></ul>
         </div>
         
         <!-- Manage Agents - Structured -->
@@ -1227,6 +1240,8 @@ function loadSectionData(sectionId) {
             loadPrompts('structured');
     } else if (sectionId === 'system-prompts-external') {
         loadPrompts('web_search');
+    } else if (sectionId === 'system-prompts-deep-research') {
+        loadPrompts('deep_research');
     } else if (sectionId === 'manage-agents-structured') {
             loadAgents('structured');
     } else if (sectionId === 'manage-agents-external') {
@@ -1240,7 +1255,8 @@ function loadSectionData(sectionId) {
 async function loadPrompts(category) {
     const categoryMap = {
         'structured': { loading: 'structured-prompts-loading', list: 'structured-prompts-list' },
-        'web_search': { loading: 'web-search-prompts-loading', list: 'web-search-prompts-list' }
+        'web_search': { loading: 'web-search-prompts-loading', list: 'web-search-prompts-list' },
+        'deep_research': { loading: 'deep-research-prompts-loading', list: 'deep-research-prompts-list' }
     };
     
     const mapping = categoryMap[category];
@@ -1345,6 +1361,8 @@ async function savePrompt() {
                 loadPrompts('structured');
         } else if (currentSection === 'system-prompts-external') {
             loadPrompts('web_search');
+        } else if (currentSection === 'system-prompts-deep-research') {
+            loadPrompts('deep_research');
         }
     } catch (error) {
         showAlert('error', `Error saving prompt: ${error.message}`);

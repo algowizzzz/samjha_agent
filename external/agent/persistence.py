@@ -103,6 +103,35 @@ def list_prompts(db, category: Optional[str] = None) -> List[Dict[str, Any]]:
         "web_research_response_commentary": {
             "display_name": "Web Research Response Commentary",
             "description": "Generates natural language explanations of research findings for the user. Used in the final response generation step for web research agents."
+        },
+        # Deep Research Prompts
+        "deep_research_clarify_user": {
+            "display_name": "Deep Research User Clarification",
+            "description": "Generates clarification questions when the deep research agent needs more information from the user to proceed with research."
+        },
+        "deep_research_research_brief": {
+            "display_name": "Research Brief Transformation",
+            "description": "Transforms user messages into structured research topics and briefs for the deep research pipeline."
+        },
+        "deep_research_supervisor": {
+            "display_name": "Lead Researcher Supervisor",
+            "description": "Main supervisor prompt that coordinates the deep research process, manages research units, and oversees the research workflow."
+        },
+        "deep_research_researcher": {
+            "display_name": "Researcher System Prompt",
+            "description": "System prompt for individual researchers in the deep research pipeline. Guides how researchers conduct research and extract information."
+        },
+        "deep_research_compression": {
+            "display_name": "Research Compression",
+            "description": "Compresses and summarizes research findings to reduce redundancy while preserving key information."
+        },
+        "deep_research_final_report": {
+            "display_name": "Final Report Generation",
+            "description": "Generates the final comprehensive research report from compressed research findings."
+        },
+        "deep_research_summarize_webpage": {
+            "display_name": "Webpage Summarization",
+            "description": "Summarizes individual webpages and sources during the research process."
         }
     }
     
@@ -451,6 +480,9 @@ def get_agent_db(db, agent_id: str) -> Optional[Dict[str, Any]]:
         result["search_scope_blocked_domains"] = a.search_scope_blocked_domains
     if hasattr(a, 'default_research_depth'):
         result["default_research_depth"] = a.default_research_depth
+    # Add deep research specific fields
+    if hasattr(a, 'deep_research_config'):
+        result["deep_research_config"] = a.deep_research_config
     return result
 
 
@@ -468,6 +500,7 @@ def create_agent_db(
     search_scope_allowed_domains: Optional[list] = None,
     search_scope_blocked_domains: Optional[list] = None,
     default_research_depth: Optional[str] = None,
+    deep_research_config: Optional[dict] = None,
 ) -> Agent:
     # Default to Sonnet if not specified (enables thinking/reasoning)
     if model is None:
@@ -493,6 +526,9 @@ def create_agent_db(
         a.search_scope_blocked_domains = json.dumps(search_scope_blocked_domains) if isinstance(search_scope_blocked_domains, list) else search_scope_blocked_domains
     if hasattr(a, 'default_research_depth') and default_research_depth:
         a.default_research_depth = default_research_depth
+    # Add deep research specific fields
+    if hasattr(a, 'deep_research_config') and deep_research_config is not None:
+        a.deep_research_config = deep_research_config
     db.add(a)
     return a
 

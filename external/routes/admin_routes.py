@@ -104,9 +104,12 @@ class AdminRoutes(BaseRoutes):
                 with get_db_session() as db:
                     # Determine category - ALWAYS infer from prompt name to ensure correctness
                     # web_research_* prompts MUST be web_search category
+                    # deep_research_* prompts MUST be deep_research category
                     category = data.get('category')
                     if prompt_name.startswith('web_research_'):  # Force web_search category for these prompts
                         category = 'web_search'
+                    elif prompt_name.startswith('deep_research_'):  # Force deep_research category for these prompts
+                        category = 'deep_research'
                     elif category is None:
                         # Fallback to existing category or infer for new prompts
                         existing = get_prompt_content(db, prompt_name)

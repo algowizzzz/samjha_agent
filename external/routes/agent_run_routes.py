@@ -537,6 +537,9 @@ def _run_agent_async(
             # Web research agent - different state structure
             # Web research will initialize its own state, but we can pass continuity_packet
             prior_state = None
+        elif agent_type == "deep_research":
+            # Deep research agent - will initialize its own state
+            prior_state = None
         else:
             # Structured agent - load agent model and data folder
             agent_model = None
@@ -544,10 +547,10 @@ def _run_agent_async(
             with get_db_session() as db:
                 if agent_id:
                     try:
-                        agent = get_agent_db(db, agent_id)
-                        if agent:
-                            agent_model = agent.get("model") or "claude-3-sonnet-20240229"
-                            agent_data_folder = agent.get("data_folder")
+                        agent_config = get_agent_db(db, agent_id)
+                        if agent_config:
+                            agent_model = agent_config.get("model") or "claude-3-sonnet-20240229"
+                            agent_data_folder = agent_config.get("data_folder")
                     except Exception as e:
                         logger.warning(f"Error loading agent config for {agent_id}: {e}")
             
@@ -574,8 +577,8 @@ def _run_agent_async(
                 "continuity_packet": continuity_packet,
             }
         
-        # Route to appropriate handler based on agent_type
-        agent_type = agent.get("agent_type") if agent else "structured"
+        # Route to appropriate handler based on agent_type (use agent_type from line 361, not re-check)
+        logger.info(f"[ROUTING] Agent ID: {agent_id}, Agent Type: {agent_type}")
         
         if agent_type == "external":
             # Web research agent
@@ -598,6 +601,20 @@ def _run_agent_async(
                 agent_id=agent_id,
                 on_decider_output=lambda decider_output, _state: _persist_decider_output(run_id, decider_output),
                 continuity_packet=web_continuity_packet,
+            )
+        elif agent_type == "deep_research":
+            # Deep research agent (Open Deep Research)
+            from external.agent.deep_research_agent import handle_deep_research_query
+            result = handle_deep_research_query(
+                user_query=user_query,
+                conversation_history=conversation_history,
+                prior_state=None,  # Deep research will initialize its own state
+                tools_registry=None,  # Will use default
+                policy_limits=None,
+                show_thinking=show_thinking,
+                agent_id=agent_id,
+                on_decider_output=None,  # Deep research doesn't use decider output callback
+                continuity_packet=None,  # Not used for deep research
             )
         else:
             # Structured agent (default)
@@ -655,6 +672,27 @@ def _run_agent_async(
                 if conflicts:
                     _emit_event(run_id, "conflicts_detected", {"count": len(conflicts)})
                 _emit_event(run_id, "final_response", {"response": final_answer, "evidence_pack": evidence_pack})
+                _emit_event(run_id, "run_completed", {"status": "success"})
+            elif agent_type == "deep_research":
+                # Deep research agent - final report format
+                final_report = result.get("final_report") or result.get("result_summary", "")
+                
+                # Save to DB
+                import json
+                with get_db_session() as db:
+                    report_summary = {
+                        "final_report": final_report,
+                        "report_length": len(final_report)
+                    }
+                    finish_run_success(db, run_id, None, json.dumps(report_summary))  # No SQL for deep research
+                    db.commit()
+                
+                # Append agent message
+                with get_db_session() as db:
+                    append_message(db, conversation_id, "agent", final_report)
+                    db.commit()
+                
+                _emit_event(run_id, "final_response", {"response": final_report})
                 _emit_event(run_id, "run_completed", {"status": "success"})
             else:
                 # Structured agent - SQL results

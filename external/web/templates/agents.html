@@ -149,6 +149,17 @@
                 <!-- Agents loaded here -->
             </div>
         </div>
+
+        <!-- Deep Research Agents -->
+        <div class="category-section">
+            <div class="category-title">
+                <span class="category-icon">🔬</span>
+                <span>Deep Research Agents</span>
+            </div>
+            <div class="agents-grid" id="deep-research-agents">
+                <!-- Agents loaded here -->
+            </div>
+        </div>
     </div>
 </div>
 
@@ -167,6 +178,7 @@ async function loadAgents() {
         const structured = data.agents.filter(a => a.agent_type === 'structured');
         const unstructured = data.agents.filter(a => a.agent_type === 'unstructured');
         const external = data.agents.filter(a => a.agent_type === 'external');
+        const deepResearch = data.agents.filter(a => a.agent_type === 'deep_research');
         
         // Render structured agents
         const structuredGrid = document.getElementById('structured-agents');
@@ -204,6 +216,25 @@ async function loadAgents() {
             });
         } else {
             externalGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #6c757d;">No web-based agents available. Create one in Admin Panel.</div>';
+        }
+        
+        // Render deep research agents
+        const deepResearchGrid = document.getElementById('deep-research-agents');
+        deepResearchGrid.innerHTML = '';
+        if (deepResearch.length > 0) {
+            deepResearch.forEach(agent => {
+                const box = document.createElement('a');
+                box.href = `/agent/chat/${agent.id}`;
+                box.className = 'agent-box';
+                box.innerHTML = `
+                    <div class="agent-name">${agent.name}</div>
+                    <div class="agent-description">${agent.description || 'No description'}</div>
+                    <div class="agent-meta">Deep Research • ${agent.agent_type}</div>
+                `;
+                deepResearchGrid.appendChild(box);
+            });
+        } else {
+            deepResearchGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #6c757d;">No deep research agents available. Create one in Admin Panel.</div>';
         }
     } catch (error) {
         document.getElementById('agents-loading').innerHTML = `<div style="color: #dc3545;">Error loading agents: ${error.message}</div>`;

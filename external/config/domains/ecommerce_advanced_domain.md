@@ -251,7 +251,7 @@ When extracting file paths for investigation_plan steps (inspect_table, preview_
     grain: one row per report_date (month)
     aggregation: sum(quantity * price) group by report_date order by report_date
     query_strategy: **Must UNION all *_sales_* views first**, then group by report_date.
-    example_sql:
+    sql:
       ```sql
       SELECT report_date, SUM(quantity * price) as revenue
       FROM (

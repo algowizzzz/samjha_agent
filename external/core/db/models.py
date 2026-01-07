@@ -42,6 +42,9 @@ class Agent(Base):
     search_scope_blocked_domains: Mapped[Optional[list]] = mapped_column(JSON, nullable=True)  # Blocked domains override
     default_research_depth: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)  # quick|standard|deep
 
+    # Deep research specific fields (for agent_type="deep_research")
+    deep_research_config: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)  # Configuration: models, search_api, mcp_config, etc.
+
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow, nullable=False)
 

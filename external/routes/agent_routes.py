@@ -28,7 +28,13 @@ class AgentRoutes(BaseRoutes):
         def agents_selection():
             """Agent selection page showing all available agents grouped by type."""
             user_session = self.get_user_session()
-            return render_template('agents.html', user=user_session)
+            cache_bust_value = int(time.time())
+            response = make_response(render_template('agents.html', user=user_session, cache_bust=cache_bust_value))
+            # Add aggressive cache-busting headers to prevent browser caching
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0, private'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            return response
 
         @app.route('/agent/chat')
         @app.route('/agent/chat/<agent_id>')
