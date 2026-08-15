@@ -1,0 +1,216 @@
+diff --git a/agent_clean_repo/public/admin.html b/agent_clean_repo/public/admin.html
+index d579a93..fd83077 100644
+--- a/agent_clean_repo/public/admin.html
++++ b/agent_clean_repo/public/admin.html
+@@ -173,6 +173,15 @@
+     }
+     .status-badge.enabled { background: rgba(255,255,255,0.08); color: #cccccc; }
+     .status-badge.disabled { background: rgba(255,255,255,0.05); color: #888888; }
++    .status-badge.harness { background: rgba(99,102,241,0.15); color: #a5b4fc; }
++    /* DSH-UI: harness runtime config card */
++    .harness-card { background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.25); border-radius: 10px; padding: 16px 18px; margin-top: 12px; max-width: 900px; }
++    .harness-card .form-label { color: #c7cbf5; }
++    .harness-note { font-size: 12px; color: var(--text-m); margin-top: 6px; }
++    .harness-health { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; padding: 3px 10px; border-radius: 99px; background: rgba(255,255,255,0.06); }
++    .harness-health .dot { width: 8px; height: 8px; border-radius: 50%; background: #888888; }
++    .harness-health.up .dot { background: #4ade80; }
++    .harness-health.down .dot { background: #f08080; }
+     .worker-card-desc { font-size: 13px; color: var(--text-m); margin-bottom: 14px; }
+     .worker-card-meta { display: flex; gap: 16px; font-size: 12px; color: var(--text-m); }
+ 
+@@ -775,6 +784,51 @@
+             <span id="wc-max-subagents-val" style="font-weight:600;font-size:14px">3</span>
+           </div>
+         </div>
++        <!-- DSH-UI: Agent Runtime -->
++        <div class="form-row" style="max-width:900px;margin-top:20px">
++          <label class="form-label">Runtime <span style="font-weight:400;color:var(--text-m)">(engine that executes this worker's turns)</span></label>
++          <select class="form-input" id="wc-agent-runtime" style="max-width:280px" onchange="toggleHarnessConfig()">
++            <option value="langchain">LangChain (default)</option>
++            <option value="dsh">DeepSeek Harness (beta)</option>
++          </select>
++        </div>
++        <div id="wc-harness-config" class="harness-card" style="display:none">
++          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px">
++            <strong style="color:#c7cbf5;font-size:13px">DeepSeek Harness settings</strong>
++            <span class="harness-health" id="wc-dsh-health"><span class="dot"></span><span id="wc-dsh-health-text">Not provisioned</span></span>
++          </div>
++          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
++            <div>
++              <label class="form-label">Tool Presentation</label>
++              <select class="form-input" id="wc-dsh-tools-mode">
++                <option value="native">Native tool calls (default)</option>
++                <option value="code">Programmatic (PTC) — one program chains tools</option>
++              </select>
++              <div class="harness-note">PTC lets the model write a single program that chains many MCP tool calls — fewer round-trips on long workflows.</div>
++            </div>
++            <div>
++              <label class="form-label">Sandbox</label>
++              <select class="form-input" id="wc-dsh-sandbox">
++                <option value="read-only">Read-only (recommended)</option>
++                <option value="workspace-write">Workspace write (worker my-data only)</option>
++              </select>
++              <div class="harness-note">Limits filesystem effects of anything the harness executes.</div>
++            </div>
++          </div>
++          <div style="margin-top:14px">
++            <label class="form-label">Built-in harness tools <span style="font-weight:400;color:var(--text-m)">(off by default — MCP tools from the Tools tab are always available)</span></label>
++            <div style="display:flex;gap:22px;flex-wrap:wrap;margin-top:6px;font-size:13px">
++              <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="wc-dsh-tool-shell" style="width:14px;height:14px"> Shell</label>
++              <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="wc-dsh-tool-web" style="width:14px;height:14px"> Web search</label>
++              <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="wc-dsh-tool-fs" style="width:14px;height:14px"> File editing</label>
++            </div>
++            <div class="harness-note">Leave all off for regulated workers: the agent then sees only this worker's enabled MCP tools.</div>
++          </div>
++          <div style="margin-top:14px">
++            <label class="form-label">Worker API key <span style="font-weight:400;color:var(--text-m)">(scoped to this worker's enabled tools, enforced server-side)</span></label>
++            <input class="form-input" id="wc-dsh-key" readonly value="minted on save" style="max-width:420px;font-family:ui-monospace,monospace;font-size:12px;color:var(--text-m)">
++          </div>
++        </div>
+         <!-- REQ-14: Token Budget -->
+         <div class="form-row" style="max-width:900px;margin-top:20px">
+           <label class="form-label">Max Tokens Per Query <span style="font-weight:400;color:var(--text-m)">(leave blank = no limit)</span></label>
+@@ -1510,7 +1564,10 @@ function renderWorkersGrid(workers, containerId) {
+     <div class="worker-card" onclick="selectWorkerCard('${w.worker_id}')">
+       <div class="worker-card-header">
+         <div class="worker-card-name">${w.name}</div>
+-        <div class="status-badge ${w.enabled ? 'enabled' : 'disabled'}">${w.enabled ? 'Online' : 'Offline'}</div>
++        <div style="display:flex;gap:6px">
++          ${w.agent_runtime === 'dsh' ? '<div class="status-badge harness">Harness</div>' : ''}
++          <div class="status-badge ${w.enabled ? 'enabled' : 'disabled'}">${w.enabled ? 'Online' : 'Offline'}</div>
++        </div>
+       </div>
+       <div class="worker-card-desc">${w.description || 'No description'}</div>
+       <div class="worker-card-meta">
+@@ -1556,6 +1613,31 @@ async function loadWorkerConfig() {
+   document.getElementById('wc-memory-ttl').value = _currentWorker.memory_ttl_days || 90;
+   document.getElementById('wc-max-memories').value = _currentWorker.max_memories_per_query || 5;
+   document.getElementById('wc-min-similarity').value = _currentWorker.min_memory_similarity || 0.75;
++  // DSH-UI: runtime + harness settings
++  var runtime = _currentWorker.agent_runtime || 'langchain';
++  var dshCfg = _currentWorker.dsh || {};
++  document.getElementById('wc-agent-runtime').value = runtime;
++  document.getElementById('wc-dsh-tools-mode').value = dshCfg.tools_mode || 'native';
++  document.getElementById('wc-dsh-sandbox').value = dshCfg.sandbox_mode || 'read-only';
++  document.getElementById('wc-dsh-tool-shell').checked = !!dshCfg.enable_shell;
++  document.getElementById('wc-dsh-tool-web').checked = !!dshCfg.enable_web;
++  document.getElementById('wc-dsh-tool-fs').checked = !!dshCfg.enable_fs;
++  document.getElementById('wc-dsh-key').value = _currentWorker.sajha_api_key_masked || 'minted on save';
++  var health = document.getElementById('wc-dsh-health');
++  var healthText = document.getElementById('wc-dsh-health-text');
++  health.className = 'harness-health';
++  if (runtime === 'dsh') {
++    var st = _currentWorker.dsh_status || 'unprovisioned';
++    if (st === 'running') { health.classList.add('up'); healthText.textContent = 'Runtime up'; }
++    else if (st === 'error') { health.classList.add('down'); healthText.textContent = 'Runtime error'; }
++    else { healthText.textContent = 'Provisions on save'; }
++  } else { healthText.textContent = 'Not provisioned'; }
++  toggleHarnessConfig();
++}
++
++function toggleHarnessConfig() {
++  var runtime = document.getElementById('wc-agent-runtime').value;
++  document.getElementById('wc-harness-config').style.display = runtime === 'dsh' ? '' : 'none';
+ }
+ 
+ function toggleSubagentConcurrency() {
+@@ -1590,6 +1672,15 @@ async function saveWorkerConfig() {
+     memory_ttl_days: parseInt(document.getElementById('wc-memory-ttl').value) || 90,
+     max_memories_per_query: parseInt(document.getElementById('wc-max-memories').value) || 5,
+     min_memory_similarity: parseFloat(document.getElementById('wc-min-similarity').value) || 0.75,
++    // DSH-UI: runtime selection + harness settings
++    agent_runtime: document.getElementById('wc-agent-runtime').value,
++    dsh: {
++      tools_mode: document.getElementById('wc-dsh-tools-mode').value,
++      sandbox_mode: document.getElementById('wc-dsh-sandbox').value,
++      enable_shell: document.getElementById('wc-dsh-tool-shell').checked,
++      enable_web: document.getElementById('wc-dsh-tool-web').checked,
++      enable_fs: document.getElementById('wc-dsh-tool-fs').checked,
++    },
+   };
+   try {
+     var url = _user.role === 'super_admin'
+@@ -2414,6 +2505,7 @@ function openCreateWorkerModal() {
+     '<div class="form-row"><label class="form-label">Worker Name</label><input class="form-input" id="cwnew-name" placeholder="e.g. Credit Risk Agent"></div>' +
+     '<div class="form-row"><label class="form-label">Description</label><input class="form-input" id="cwnew-desc" placeholder="Brief description"></div>' +
+     '<div class="form-row"><label class="form-label">System Prompt (optional)</label><textarea class="form-textarea" id="cwnew-prompt" rows="5" placeholder="Enter system prompt…"></textarea></div>' +
++    '<div class="form-row"><label class="form-label">Runtime</label><select class="form-select" id="cwnew-runtime"><option value="langchain">LangChain (default)</option><option value="dsh">DeepSeek Harness (beta)</option></select></div>' +
+     '<div class="form-row"><label class="form-label">Clone from (optional)</label><select class="form-select" id="cwnew-clone"><option value="">— start blank —</option>' +
+     _allWorkers.map(function(w) { return '<option value="' + e(w.worker_id) + '">' + e(w.name) + '</option>'; }).join('') +
+     '</select></div>',
+@@ -2429,6 +2521,7 @@ async function submitCreateWorker() {
+     name:          name,
+     description:   document.getElementById('cwnew-desc').value.trim(),
+     system_prompt: document.getElementById('cwnew-prompt').value,
++    agent_runtime: document.getElementById('cwnew-runtime').value,
+     clone_from:    document.getElementById('cwnew-clone').value || null,
+     enabled_tools: ['*'],
+   };
+diff --git a/agent_clean_repo/public/mcp-agent.html b/agent_clean_repo/public/mcp-agent.html
+index 49fbdd5..acca9f2 100644
+--- a/agent_clean_repo/public/mcp-agent.html
++++ b/agent_clean_repo/public/mcp-agent.html
+@@ -3120,6 +3120,10 @@
+             </svg>
+           </button>
+           <span class="header-title" id="header-worker-name">Market Risk Digital Worker</span>
++          <!-- DSH-UI: harness runtime badge + workbench entry (hidden unless worker runs on DeepSeek Harness) -->
++          <span id="harness-badge" style="display:none;margin-left:10px;font-size:11px;font-weight:600;letter-spacing:.04em;padding:3px 9px;border-radius:99px;background:rgba(99,102,241,0.15);color:#a5b4fc;vertical-align:middle">Harness</span>
++          <button id="workbench-btn" onclick="openWorkbench()" title="Inspect this worker's sessions: full trajectory, forks, live token stats"
++                  style="display:none;margin-left:8px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.35);border-radius:8px;color:#a5b4fc;font-size:12px;padding:4px 12px;cursor:pointer">Open Workbench</button>
+           <!-- Super-admin worker switcher (hidden until workers loaded) -->
+           <select id="worker-switcher-chat" style="display:none;margin-left:12px;background:#1e1e1e;border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#e0e0e0;font-size:12px;padding:4px 10px;cursor:pointer" onchange="switchChatWorker(this.value)"></select>
+         </div>
+@@ -7092,6 +7096,9 @@
+           var wt = document.querySelector('.welcome-title');
+           if (wt) wt.textContent = u.worker_name;
+         }
++        // DSH-UI: show harness badge + workbench entry when the mapped worker runs on DeepSeek Harness.
++        // Backend contract: login/session payload carries agent_runtime for the user's worker.
++        _updateHarnessUI(u.agent_runtime || 'langchain');
+         // Super admin: load all workers and show switcher
+         if (u.role === 'super_admin') {
+           _loadChatWorkers(token, u.worker_id);
+@@ -7099,6 +7106,23 @@
+       } catch(e) {}
+     }
+ 
++    // DSH-UI: toggle the harness badge and Workbench button for the active worker
++    function _updateHarnessUI(runtime) {
++      var isDsh = runtime === 'dsh';
++      var badge = document.getElementById('harness-badge');
++      var btn = document.getElementById('workbench-btn');
++      if (badge) badge.style.display = isDsh ? 'inline-block' : 'none';
++      if (btn) btn.style.display = isDsh ? 'inline-block' : 'none';
++    }
++
++    // DSH-UI: Workbench = the DeepSeek Harness UI served behind our JWT gateway
++    // (Phase 2 route: agent_server proxies /workbench/{worker_id} to a per-user harness process).
++    function openWorkbench() {
++      var agentBase = window.AGENT_BASE_URL || _BASE;
++      var wid = _activeWorkerId || ((_authUser || {}).worker_id) || '';
++      window.open(agentBase + '/workbench/' + encodeURIComponent(wid), '_blank');
++    }
++
+     function _loadChatWorkers(token, currentWorkerId) {
+       var agentBase = window.AGENT_BASE_URL || _BASE;
+       fetch(agentBase + '/api/super/workers', {
+@@ -7111,7 +7135,8 @@
+           data.workers.forEach(function(w) {
+             var opt = document.createElement('option');
+             opt.value = w.worker_id;
+-            opt.textContent = w.name;
++            // DSH-UI: mark harness workers in the switcher
++            opt.textContent = w.name + (w.agent_runtime === 'dsh' ? ' · Harness' : '');
+             if (w.worker_id === currentWorkerId) opt.selected = true;
+             sel.appendChild(opt);
+           });
+@@ -7128,6 +7153,8 @@
+         .then(function(w) {
+           if (!w) return;
+           _activeWorkerId = workerId;
++          // DSH-UI: refresh harness badge/workbench for the newly selected worker
++          _updateHarnessUI(w.agent_runtime || 'langchain');
+           // Update header name and page title
+           var wn = document.getElementById('header-worker-name');
+           if (wn) wn.textContent = w.name;

@@ -1,0 +1,3003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RiskGPT Admin Console</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- SheetJS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- Mammoth.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <script>
+  // Inline markdown renderer — no CDN dependency
+  function renderMarkdown(md) {
+    var h = md
+      // Fenced code blocks
+      .replace(/```(\w*)\n([\s\S]*?)```/g, function(_,lang,code){ return '<pre><code>' + escMd(code.trim()) + '</code></pre>'; })
+      // Inline code
+      .replace(/`([^`]+)`/g, function(_,c){ return '<code>' + escMd(c) + '</code>'; })
+      // GFM tables: header row | --- row | data rows
+      .replace(/^(\|.+\|\n)\|[-| :]+\|\n((?:\|.+\|\n?)*)/gm, function(_, header, body) {
+        var cols = header.trim().split('|').slice(1,-1).map(function(c){ return '<th>' + c.trim() + '</th>'; }).join('');
+        var rows = body.trim().split('\n').map(function(row){
+          var cells = row.trim().split('|').slice(1,-1).map(function(c){ return '<td>' + c.trim() + '</td>'; }).join('');
+          return '<tr>' + cells + '</tr>';
+        }).join('');
+        return '<table><thead><tr>' + cols + '</tr></thead><tbody>' + rows + '</tbody></table>';
+      })
+      // Headings
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^## (.+)$/gm,  '<h2>$1</h2>')
+      .replace(/^# (.+)$/gm,   '<h1>$1</h1>')
+      // Bold / italic
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+      // Horizontal rule
+      .replace(/^---+$/gm, '<hr>')
+      // Unordered lists
+      .replace(/^[ \t]*[-*] (.+)$/gm, '<li>$1</li>')
+      // Ordered lists
+      .replace(/^[ \t]*\d+\. (.+)$/gm, '<li>$1</li>')
+      // Wrap consecutive <li> in <ul>
+      .replace(/(<li>[\s\S]*?<\/li>)(\n<li>[\s\S]*?<\/li>)*/g, function(m){ return '<ul>' + m + '</ul>'; })
+      // Blockquote
+      .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
+    // Paragraphs: split by blank lines, wrap non-block lines
+    var blocks = h.split(/\n{2,}/);
+    h = blocks.map(function(b) {
+      b = b.trim();
+      if (!b) return '';
+      if (/^<(h[1-6]|ul|ol|li|pre|blockquote|hr)/.test(b)) return b;
+      return '<p>' + b.replace(/\n/g, '<br>') + '</p>';
+    }).join('\n');
+    return h;
+  }
+  function escMd(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0a0a0a; --navy-l: #111111; --navy-ll: #181818;
+      --accent: #d0d0d0; --accent-h: #aaaaaa;
+      --text: #e0e0e0; --text-m: #888888; --text-d: #666666;
+      --border: rgba(255,255,255,0.08); --border-m: rgba(255,255,255,0.12);
+      --bg-input: rgba(255,255,255,0.05);
+      --success: #888888; --amber: #888888; --red: #888888;
+      --sidebar-w: 220px; --topbar-h: 56px;
+      --radius: 10px;
+    }
+    html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--navy); color: var(--text); overflow: hidden; }
+
+    /* ── Layout ── */
+    .layout { display: flex; height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w); min-width: var(--sidebar-w);
+      background: var(--navy-l); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+    }
+    .sidebar-brand {
+      padding: 18px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .brand-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, #2a2a2a, #111111);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .brand-icon svg { width: 16px; height: 16px; fill: #fff; }
+    .brand-text { font-size: 15px; font-weight: 700; }
+    .brand-text span { color: #e0e0e0; }
+    .brand-sub { font-size: 10px; color: var(--text-m); margin-top: 1px; }
+
+    .sidebar-nav { flex: 1; padding: 12px 8px; overflow-y: auto; }
+    .nav-section-label { font-size: 10px; font-weight: 600; color: var(--text-d); letter-spacing: 0.08em; text-transform: uppercase; padding: 8px 12px 4px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 8px;
+      font-size: 13px; font-weight: 500; color: var(--text-m);
+      cursor: pointer; transition: all 0.15s;
+      margin-bottom: 2px;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+    .nav-item.active { background: rgba(255,255,255,0.10); color: #ffffff; }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .sidebar-footer {
+      border-top: 1px solid var(--border); padding: 12px 8px;
+    }
+    .user-chip {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; border-radius: 8px;
+      font-size: 13px; cursor: pointer;
+    }
+    .user-chip:hover { background: rgba(255,255,255,0.06); }
+    .avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: #2a2a2a; display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; flex-shrink: 0;
+    }
+    .user-name { font-size: 13px; font-weight: 500; }
+    .user-role { font-size: 11px; color: var(--text-m); }
+
+    /* ── Main ── */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .topbar {
+      height: var(--topbar-h); min-height: var(--topbar-h);
+      background: var(--navy-l); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 24px; gap: 16px;
+    }
+    .topbar-title { font-size: 16px; font-weight: 600; }
+    .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+    /* Worker switcher */
+    .worker-switcher {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border);
+      font-size: 13px; cursor: pointer; background: var(--bg-input);
+    }
+    .worker-dot { width: 8px; height: 8px; border-radius: 50%; background: #888888; }
+
+    .content { flex: 1; overflow-y: auto; padding: 24px; }
+
+    /* ── Section panels ── */
+    .section-panel { display: none; }
+    .section-panel.active { display: block; }
+
+    /* ── Cards / Stats ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--navy-l); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .stat-label { font-size: 12px; color: var(--text-m); font-weight: 500; }
+    .stat-value { font-size: 28px; font-weight: 700; }
+    .stat-sub { font-size: 12px; color: var(--text-m); }
+
+    /* ── Workers grid ── */
+    .workers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .worker-card {
+      background: var(--navy-l); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; cursor: pointer; transition: border-color 0.15s;
+    }
+    .worker-card:hover { border-color: rgba(255,255,255,0.18); }
+    .worker-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+    .worker-card-name { font-size: 15px; font-weight: 600; }
+    .status-badge {
+      font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px;
+    }
+    .status-badge.enabled { background: rgba(255,255,255,0.08); color: #cccccc; }
+    .status-badge.disabled { background: rgba(255,255,255,0.05); color: #888888; }
+    .status-badge.harness { background: rgba(99,102,241,0.15); color: #a5b4fc; }
+    /* DSH-UI: harness runtime config card */
+    .harness-card { background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.25); border-radius: 10px; padding: 16px 18px; margin-top: 12px; max-width: 900px; }
+    .harness-card .form-label { color: #c7cbf5; }
+    .harness-note { font-size: 12px; color: var(--text-m); margin-top: 6px; }
+    .harness-health { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; padding: 3px 10px; border-radius: 99px; background: rgba(255,255,255,0.06); }
+    .harness-health .dot { width: 8px; height: 8px; border-radius: 50%; background: #888888; }
+    .harness-health.up .dot { background: #4ade80; }
+    .harness-health.down .dot { background: #f08080; }
+    .worker-card-desc { font-size: 13px; color: var(--text-m); margin-bottom: 14px; }
+    .worker-card-meta { display: flex; gap: 16px; font-size: 12px; color: var(--text-m); }
+
+    /* ── Form elements ── */
+    .form-row { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-m); margin-bottom: 8px; }
+    .form-input, .form-textarea, .form-select {
+      width: 100%; padding: 10px 14px;
+      background: var(--bg-input); border: 1px solid var(--border);
+      border-radius: var(--radius); color: var(--text);
+      font-family: inherit; font-size: 13px; outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--accent); }
+    .form-textarea { resize: vertical; min-height: 120px; font-family: 'Courier New', monospace; font-size: 12px; }
+    .form-select option { background: var(--navy-l); }
+    .char-count { font-size: 11px; color: var(--text-m); margin-top: 4px; text-align: right; }
+
+    .btn { padding: 8px 16px; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-primary { background: #2a2a2a; color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+    .btn-primary:hover { background: #333333; }
+    .btn-secondary { background: var(--bg-input); border: 1px solid var(--border); color: var(--text); }
+    .btn-secondary:hover { background: rgba(255,255,255,0.08); }
+    .btn-danger { background: rgba(220,38,38,0.10); border: 1px solid rgba(220,38,38,0.30); color: #f87171; }
+    .btn-danger:hover { background: rgba(220,38,38,0.18); }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Tools grid ── */
+    .tools-toolbar { display: flex; gap: 8px; margin-bottom: 16px; align-items: center; }
+    .search-input { flex: 1; max-width: 280px; }
+    .tools-by-category { display: flex; flex-direction: column; gap: 16px; }
+    .tool-category-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 0; border-bottom: 1px solid var(--border); margin-bottom: 10px;
+    }
+    .tool-category-name { font-size: 13px; font-weight: 600; color: var(--text-m); }
+    .tool-category-actions { display: flex; gap: 8px; }
+    .tool-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+    .tool-card {
+      background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px;
+      padding: 12px 14px; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+    }
+    .tool-card.disabled-tool { opacity: 0.4; }
+    .tool-info .tool-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; font-family: monospace; }
+    .tool-info .tool-desc { font-size: 11px; color: var(--text-m); line-height: 1.4; }
+    .toggle-switch { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; cursor: pointer; inset: 0;
+      background: var(--border); border-radius: 11px; transition: background 0.2s;
+    }
+    .toggle-track::before {
+      content: ''; position: absolute; width: 16px; height: 16px;
+      left: 3px; bottom: 3px; background: #fff; border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    input:checked + .toggle-track { background: #555555; }
+    input:checked + .toggle-track::before { transform: translateX(16px); }
+
+    /* ── File tree ── */
+    .filetree-layout { display: flex; gap: 16px; height: calc(100vh - 140px); }
+    .filetree-sidebar { width: 320px; min-width: 280px; background: var(--navy-l); border: 1px solid var(--border); border-radius: var(--radius); display: flex; flex-direction: column; overflow: hidden; }
+    .filetree-toolbar { padding: 10px 12px; border-bottom: 1px solid var(--border); display: flex; gap: 6px; flex-wrap: wrap; }
+    .filetree-body { flex: 1; overflow-y: auto; padding: 8px; }
+    .tree-item {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 8px; border-radius: 6px; cursor: pointer; font-size: 13px;
+      user-select: none; position: relative;
+    }
+    .tree-item:hover { background: var(--bg-input); }
+    .tree-item.selected { background: rgba(255,255,255,0.10); color: #ffffff; }
+    .tree-item svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .tree-item .item-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tree-item .item-actions { display: none; gap: 4px; }
+    .tree-item:hover .item-actions { display: flex; }
+    .tree-item .item-actions button {
+      background: none; border: none; cursor: pointer; color: var(--text-m);
+      padding: 2px 4px; border-radius: 4px; font-size: 11px;
+    }
+    .tree-item .item-actions button:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+    .tree-indent { margin-left: 18px; }
+    .tree-rename-input {
+      background: var(--bg-input); border: 1px solid var(--accent); border-radius: 4px;
+      color: var(--text); font-size: 13px; padding: 1px 6px;
+      font-family: inherit; outline: none; width: 140px;
+    }
+
+    /* ── Context menu ── */
+    .context-menu {
+      position: fixed; z-index: 3000;
+      background: var(--navy-ll); border: 1px solid var(--border-m);
+      border-radius: 8px; padding: 4px 0; min-width: 148px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    .context-menu-item {
+      padding: 8px 14px; font-size: 13px; cursor: pointer;
+      display: flex; align-items: center; gap: 8px; color: var(--text);
+    }
+    .context-menu-item:hover { background: rgba(255,255,255,0.06); }
+    .context-menu-sep { border-top: 1px solid var(--border); margin: 3px 0; }
+    .context-menu-item.danger { color: #f08080; }
+
+    /* ── Drop zone overlay ── */
+    .filetree-body.drop-active::after {
+      content: 'Drop files to upload';
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,0.06);
+      border: 2px dashed rgba(255,255,255,0.3);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-m); font-size: 13px; pointer-events: none;
+      z-index: 10;
+    }
+    .filetree-body { position: relative; }
+
+    /* ── Audit pagination ── */
+    .audit-pagination {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0 2px; font-size: 12px; color: var(--text-m);
+    }
+    .audit-pagination button { min-width: 60px; }
+
+    /* ── GFM table support in markdown preview ── */
+    .preview-md table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 12px; }
+    .preview-md th, .preview-md td { border: 1px solid var(--border-m); padding: 6px 10px; text-align: left; }
+    .preview-md th { background: rgba(255,255,255,0.04); font-weight: 600; }
+
+    /* ── Preview panel ── */
+    .preview-panel {
+      flex: 1; background: var(--navy-l); border: 1px solid var(--border); border-radius: var(--radius);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .preview-header {
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .preview-file-name { font-size: 13px; font-weight: 600; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .preview-meta { font-size: 11px; color: var(--text-m); }
+    .preview-body { flex: 1; overflow: auto; padding: 16px; }
+    .preview-empty {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100%; color: var(--text-m); gap: 8px;
+    }
+    .preview-empty svg { width: 40px; height: 40px; opacity: 0.3; }
+    .preview-empty p { font-size: 13px; }
+
+    /* Preview content */
+    .preview-text { font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.6; white-space: pre-wrap; }
+    .preview-md { font-size: 13px; line-height: 1.7; }
+    .preview-md h1, .preview-md h2, .preview-md h3 { margin: 16px 0 8px; }
+    .preview-md p { margin-bottom: 10px; }
+    .preview-md code { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 11px; }
+    .preview-md pre { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; overflow-x: auto; margin-bottom: 12px; }
+    .preview-md pre code { background: none; padding: 0; }
+    .preview-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .preview-table th, .preview-table td { padding: 6px 10px; border: 1px solid var(--border); text-align: left; }
+    .preview-table th { background: var(--bg-input); font-weight: 600; }
+    .sheet-tabs { display: flex; gap: 4px; padding: 8px 16px; border-bottom: 1px solid var(--border); }
+    .sheet-tab { padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; background: var(--bg-input); }
+    .sheet-tab.active { background: #2a2a2a; color: #fff; }
+
+    /* ── Users table ── */
+    .users-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .users-table th { padding: 10px 14px; text-align: left; font-size: 12px; color: var(--text-m); border-bottom: 1px solid var(--border); }
+    .users-table td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+    .users-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .user-row-name { font-weight: 500; }
+    .user-row-sub { font-size: 11px; color: var(--text-m); }
+    .pill {
+      display: inline-block; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    }
+    .pill-green { background: rgba(255,255,255,0.08); color: #cccccc; }
+    .pill-amber { background: rgba(255,255,255,0.06); color: #aaaaaa; }
+    .pill-grey { background: rgba(255,255,255,0.06); color: var(--text-m); }
+    .pill-blue { background: rgba(255,255,255,0.08); color: #cccccc; }
+    .pill-red { background: rgba(220,50,50,0.18); color: #f08080; }
+
+    /* ── LLM Provider Cards ── */
+    .llm-prov-card {
+      padding: 14px 12px; border: 1px solid var(--border); border-radius: 10px;
+      cursor: pointer; text-align: center; transition: border-color .15s, background .15s;
+      background: rgba(255,255,255,0.03);
+    }
+    .llm-prov-card:hover { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.06); }
+    .llm-prov-card.selected { border-color: var(--accent); background: rgba(99,102,241,0.10); }
+    .llm-prov-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .llm-prov-sub  { font-size: 11px; color: var(--text-m); }
+    .form-hint { font-size: 11px; color: var(--text-m); margin-top: 4px; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center; z-index: 1000;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal {
+      background: var(--navy-l); border: 1px solid var(--border); border-radius: 16px;
+      padding: 28px; width: 480px; max-width: 90vw;
+    }
+    .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .modal-sub { font-size: 13px; color: var(--text-m); margin-bottom: 20px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--navy-ll); border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px 18px; font-size: 13px; z-index: 2000;
+      transform: translateY(80px); opacity: 0; transition: all 0.3s;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-color: rgba(255,255,255,0.18); color: #cccccc; }
+    .toast.error { border-color: rgba(255,255,255,0.12); color: #aaaaaa; }
+
+    /* Bulk select */
+    .select-mode .tree-item { padding-left: 32px; cursor: pointer; }
+    .select-mode .tree-item::before {
+      content: ''; position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; border: 2px solid var(--border); border-radius: 4px;
+      background: var(--bg-input); cursor: pointer;
+    }
+    .select-mode .tree-item.selected::before { background: #333333; border-color: #aaaaaa; }
+    .tree-item[draggable="true"] { cursor: grab; }
+    .tree-item[draggable="true"]:active { cursor: grabbing; }
+
+    /* Prompt editor */
+    .prompt-editor-wrap { position: relative; }
+    .prompt-save-btn { position: absolute; bottom: 12px; right: 12px; }
+
+    /* Section headers */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .section-title { font-size: 20px; font-weight: 700; }
+    .section-sub { font-size: 13px; color: var(--text-m); margin-top: 2px; }
+
+    /* ================================================================
+       FILE TREE ROWS — shared with mcp-agent.html (BUG-FIX: was missing)
+       ================================================================ */
+    .ft-row {
+      display: flex;
+      align-items: center;
+      padding: 3px 4px 3px 0;
+      cursor: pointer;
+      border-radius: 4px;
+      margin: 0 4px;
+      gap: 0;
+      position: relative;
+      user-select: none;
+    }
+    .ft-row:hover { background: var(--bg-h); }
+    .ft-row.selected { background: rgba(255,255,255,0.08); }
+    .ft-row.admin-drop-target { background: rgba(255,255,255,0.10); outline: 1px solid rgba(255,255,255,0.20); border-radius: 4px; }
+    .ft-row.wf-active { background: rgba(255,255,255,0.08); }
+    .ft-row.drag-over { outline: 1px solid rgba(255,255,255,0.18); border-radius: 4px; }
+    .ft-row--upload-target { background: rgba(59,130,246,0.12) !important; border-left: 2px solid rgba(59,130,246,0.55); }
+    .ft-upload-target-indicator { font-size: 11px; color: #60a5fa; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; display: inline-block; vertical-align: middle; opacity: 0.85; }
+
+    .ft-indent { flex-shrink: 0; }
+
+    .ft-row-chevron {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--text-m);
+      transition: transform 150ms ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ft-row-chevron.open svg { transform: rotate(90deg); }
+    .ft-row-chevron svg { transition: transform 150ms ease; }
+
+    .ft-icon {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      margin-right: 5px;
+      margin-left: 2px;
+    }
+
+    .ft-row-name {
+      font-size: 12px;
+      color: var(--text-m);
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ft-row:hover .ft-row-name { color: var(--text); }
+
+    /* UI-ADMIN-009: push size badge to right */
+    .ft-row-meta { margin-left: auto; padding-left: 6px; flex-shrink: 0; font-size: 11px; color: var(--text-d); white-space: nowrap; }
+
+    .ft-row-actions {
+      display: none;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .ft-row:hover .ft-row-actions { display: flex; }
+
+    .ft-action-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--text-d);
+      padding: 2px;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      transition: color var(--transition), background var(--transition);
+    }
+    .ft-action-btn:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+    .ft-action-btn.danger:hover { color: var(--red); }
+
+    /* ── VS Code-style indent guides ── */
+    .ft-indent-guide {
+      width: 14px;
+      flex-shrink: 0;
+      position: relative;
+      align-self: stretch;
+    }
+    .ft-indent-guide::after {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(255,255,255,0.07);
+    }
+    .ft-row:hover .ft-indent-guide::after { background: rgba(255,255,255,0.13); }
+
+    /* file chevron spacer (no icon, just width) */
+    .ft-row-chevron--file { cursor: default; }
+
+    /* search match highlight */
+    mark.ft-match {
+      background: rgba(255, 210, 80, 0.28);
+      color: inherit;
+      border-radius: 2px;
+      padding: 0 1px;
+    }
+
+    /* ── File tree search bar ── */
+    .ft-search-wrap {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 8px 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ft-search-input {
+      flex: 1;
+      background: var(--bg-input);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 5px;
+      color: var(--text);
+      font-size: 12px;
+      padding: 4px 8px;
+      outline: none;
+      min-width: 0;
+    }
+    .ft-search-input:focus { border-color: rgba(255,255,255,0.28); }
+    .ft-search-input::placeholder { color: var(--text-d); }
+    .ft-tree-ctrl-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--text-d);
+      padding: 3px 4px;
+      border-radius: 4px;
+      font-size: 13px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      transition: color 0.15s, background 0.15s;
+      flex-shrink: 0;
+    }
+    .ft-tree-ctrl-btn:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+
+    /* Inline rename/create input */
+    .ft-inline-input {
+      display: flex;
+      align-items: center;
+      padding: 3px 8px;
+      margin: 2px 4px;
+      gap: 6px;
+    }
+    .ft-inline-input input {
+      flex: 1;
+      background: var(--bg-input);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 4px;
+      color: var(--text);
+      font-size: 12px;
+      padding: 3px 6px;
+      outline: none;
+    }
+
+    /* Upload drop-zone highlight */
+    .ft-body.drag-target {
+      outline: 1px dashed rgba(255,255,255,0.18);
+      outline-offset: -2px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2" fill="none"/></svg>
+      </div>
+      <div>
+        <div class="brand-text">Risk<span>GPT</span></div>
+        <div class="brand-sub">Admin Console</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <div class="nav-item active" onclick="showSection('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px">Configuration</div>
+      <div class="nav-item" onclick="showSection('worker-config')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a9 9 0 0 1 0 14.14M4.93 4.93a9 9 0 0 0 0 14.14"/></svg>
+        Worker Config
+      </div>
+      <div class="nav-item" onclick="showSection('tools')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Tools
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px">Data & Workflows</div>
+      <div class="nav-item" onclick="showSection('domain-data')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        Domain Data
+      </div>
+      <div class="nav-item" onclick="showSection('common-data')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>
+        Shared Library
+      </div>
+      <div class="nav-item" onclick="showSection('workflows')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Workflows
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px">People</div>
+      <div class="nav-item" onclick="showSection('users')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Users
+      </div>
+
+      <!-- Super Admin only -->
+      <div id="super-nav" style="display:none">
+        <div class="nav-section-label" style="margin-top:8px">Super Admin</div>
+        <div class="nav-item" onclick="showSection('workers')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          Manage Workers
+        </div>
+        <div class="nav-item" onclick="showSection('connectors')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Connectors
+        </div>
+        <div class="nav-item" onclick="showSection('audit')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Audit Log
+        </div>
+        <div class="nav-item" onclick="showSection('llm-config')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
+          LLM Provider
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip" onclick="goToChat()">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div>
+          <div class="user-name" id="sidebar-name">Loading…</div>
+          <div class="user-role" id="sidebar-role">—</div>
+        </div>
+      </div>
+      <div class="nav-item" onclick="logout()" style="margin-top:4px; color:var(--text-m)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-actions">
+        <!-- Worker switcher for super admin -->
+        <div id="worker-switcher-wrap" style="display:none">
+          <select class="form-select" style="width:200px;padding:6px 10px" id="worker-switcher" onchange="switchWorker(this.value)">
+          </select>
+        </div>
+        <div id="topbar-worker-badge" class="worker-switcher" style="cursor:default">
+          <div class="worker-dot"></div>
+          <span id="topbar-worker-name">Market Risk Worker</span>
+        </div>
+        <a href="mcp-agent.html" style="font-size:12px;color:var(--text-m);text-decoration:none;padding:5px 12px;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;gap:6px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Open Chat
+        </a>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ── Dashboard ── -->
+      <div class="section-panel active" id="section-dashboard">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Dashboard</div>
+            <div class="section-sub" id="dash-sub">Overview of your digital worker</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="showSection('workers')" id="create-worker-btn" style="display:none">+ New Worker</button>
+        </div>
+        <div class="stats-grid" id="dash-stats">
+          <div class="stat-card"><div class="stat-label">Assigned Users</div><div class="stat-value" id="stat-users">—</div></div>
+          <div class="stat-card"><div class="stat-label">Enabled Tools</div><div class="stat-value" id="stat-tools">—</div></div>
+          <div class="stat-card"><div class="stat-label">Workflows</div><div class="stat-value" id="stat-workflows">—</div></div>
+          <div class="stat-card"><div class="stat-label">Domain Files</div><div class="stat-value" id="stat-files">—</div></div>
+        </div>
+        <!-- Super admin: workers grid -->
+        <div id="dash-workers-section" style="display:none">
+          <div class="section-header" style="margin-top:16px">
+            <div class="section-title" style="font-size:16px">All Workers</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="text" id="dash-workers-search" class="form-input" style="width:200px;height:32px;font-size:13px" placeholder="Search workers…" oninput="filterWorkersGrid(this.value)">
+              <button class="btn btn-primary btn-sm" onclick="openCreateWorkerModal()">+ New Worker</button>
+            </div>
+          </div>
+          <div class="workers-grid" id="dash-workers-grid"></div>
+        </div>
+      </div>
+
+      <!-- ── Worker Config ── -->
+      <div class="section-panel" id="section-worker-config">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Worker Configuration</div>
+            <div class="section-sub">Edit prompt, description, and worker settings</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary btn-sm" id="worker-enable-toggle" onclick="toggleWorkerEnabled()">Disable Worker</button>
+            <button class="btn btn-danger btn-sm" id="worker-delete-btn" onclick="openDeleteWorkerModal()" style="display:none">Delete Worker</button>
+            <button class="btn btn-primary btn-sm" onclick="saveWorkerConfig()">Save Changes</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px">
+          <div>
+            <div class="form-row">
+              <label class="form-label">Worker Name</label>
+              <input class="form-input" id="wc-name" placeholder="e.g. CCR Risk Agent">
+            </div>
+            <div class="form-row">
+              <label class="form-label">Description</label>
+              <input class="form-input" id="wc-desc" placeholder="Short description of this worker's purpose">
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:10px;padding:16px;font-size:12px;color:var(--text-m)">
+            <strong style="color:var(--text);font-size:13px">Available tokens in prompt:</strong><br><br>
+            <code style="color:#cccccc">{worker_name}</code> — this worker's name<br>
+            <code style="color:#cccccc">{today_date}</code> — today's date<br>
+            <code style="color:#cccccc">{user_name}</code> — logged-in user's name<br><br>
+            Prompt is injected at the start of every agent run. Max recommended: 8,000 characters.
+          </div>
+        </div>
+        <div class="form-row" style="max-width:900px">
+          <label class="form-label">System Prompt</label>
+          <div class="prompt-editor-wrap">
+            <textarea class="form-textarea" id="wc-prompt" rows="20" oninput="updateCharCount()" placeholder="Enter the system prompt for this digital worker…"></textarea>
+          </div>
+          <div class="char-count"><span id="prompt-chars">0</span> characters</div>
+        </div>
+        <!-- REQ-13: Agent Mode -->
+        <div class="form-row" style="max-width:900px;margin-top:20px">
+          <label class="form-label">Agent Mode</label>
+          <select class="form-input" id="wc-agent-mode" style="max-width:280px" onchange="toggleSubagentConcurrency()">
+            <option value="single">Single Agent (default)</option>
+            <option value="multi">Multi Agent (workflow-capable)</option>
+          </select>
+        </div>
+        <div id="wc-subagent-concurrency" style="display:none;max-width:900px;margin-top:12px">
+          <label class="form-label">Max Concurrent Sub-Agents</label>
+          <div style="display:flex;align-items:center;gap:12px">
+            <input type="range" id="wc-max-subagents" min="2" max="4" value="3"
+                   oninput="document.getElementById('wc-max-subagents-val').textContent=this.value" style="max-width:200px">
+            <span id="wc-max-subagents-val" style="font-weight:600;font-size:14px">3</span>
+          </div>
+        </div>
+        <!-- DSH-UI: Agent Runtime -->
+        <div class="form-row" style="max-width:900px;margin-top:20px">
+          <label class="form-label">Runtime <span style="font-weight:400;color:var(--text-m)">(engine that executes this worker's turns)</span></label>
+          <select class="form-input" id="wc-agent-runtime" style="max-width:280px" onchange="toggleHarnessConfig()">
+            <option value="langchain">LangChain (default)</option>
+            <option value="dsh">DeepSeek Harness (beta)</option>
+          </select>
+        </div>
+        <div id="wc-harness-config" class="harness-card" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px">
+            <strong style="color:#c7cbf5;font-size:13px">DeepSeek Harness settings</strong>
+            <span class="harness-health" id="wc-dsh-health"><span class="dot"></span><span id="wc-dsh-health-text">Not provisioned</span></span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div>
+              <label class="form-label">Tool Presentation</label>
+              <select class="form-input" id="wc-dsh-tools-mode">
+                <option value="native">Native tool calls (default)</option>
+                <option value="code">Programmatic (PTC) — one program chains tools</option>
+              </select>
+              <div class="harness-note">PTC lets the model write a single program that chains many MCP tool calls — fewer round-trips on long workflows.</div>
+            </div>
+            <div>
+              <label class="form-label">Sandbox</label>
+              <select class="form-input" id="wc-dsh-sandbox">
+                <option value="read-only">Read-only (recommended)</option>
+                <option value="workspace-write">Workspace write (worker my-data only)</option>
+              </select>
+              <div class="harness-note">Limits filesystem effects of anything the harness executes.</div>
+            </div>
+          </div>
+          <div style="margin-top:14px">
+            <label class="form-label">Built-in harness tools <span style="font-weight:400;color:var(--text-m)">(off by default — MCP tools from the Tools tab are always available)</span></label>
+            <div style="display:flex;gap:22px;flex-wrap:wrap;margin-top:6px;font-size:13px">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="wc-dsh-tool-shell" style="width:14px;height:14px"> Shell</label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="wc-dsh-tool-web" style="width:14px;height:14px"> Web search</label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="wc-dsh-tool-fs" style="width:14px;height:14px"> File editing</label>
+            </div>
+            <div class="harness-note">Leave all off for regulated workers: the agent then sees only this worker's enabled MCP tools.</div>
+          </div>
+          <div style="margin-top:14px">
+            <label class="form-label">Worker API key <span style="font-weight:400;color:var(--text-m)">(scoped to this worker's enabled tools, enforced server-side)</span></label>
+            <input class="form-input" id="wc-dsh-key" readonly value="minted on save" style="max-width:420px;font-family:ui-monospace,monospace;font-size:12px;color:var(--text-m)">
+          </div>
+        </div>
+        <!-- REQ-14: Token Budget -->
+        <div class="form-row" style="max-width:900px;margin-top:20px">
+          <label class="form-label">Max Tokens Per Query <span style="font-weight:400;color:var(--text-m)">(leave blank = no limit)</span></label>
+          <input class="form-input" id="wc-max-tokens" type="number" placeholder="e.g. 50000" style="max-width:200px">
+        </div>
+        <!-- REQ-14: HITL Triggers -->
+        <div class="form-row" style="max-width:900px;margin-top:20px">
+          <label class="form-label">HITL Trigger Patterns <span style="font-weight:400;color:var(--text-m)">(comma-separated glob patterns, e.g. delete_*, send_email_*)</span></label>
+          <input class="form-input" id="wc-hitl-triggers" placeholder="leave blank to disable HITL">
+        </div>
+        <!-- REQ-14: Memory -->
+        <div class="form-row" style="max-width:900px;margin-top:20px;display:flex;align-items:center;gap:12px">
+          <label class="form-label" style="margin-bottom:0">Enable Persistent Memory</label>
+          <input type="checkbox" id="wc-enable-memory" onchange="toggleMemoryConfig()" style="width:16px;height:16px">
+        </div>
+        <div id="wc-memory-config" style="display:none;max-width:900px;margin-top:8px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+          <div>
+            <label class="form-label">Memory TTL (days)</label>
+            <input class="form-input" id="wc-memory-ttl" type="number" value="90">
+          </div>
+          <div>
+            <label class="form-label">Max Memories Per Query</label>
+            <input class="form-input" id="wc-max-memories" type="number" value="5" min="1" max="10">
+          </div>
+          <div>
+            <label class="form-label">Min Similarity (0–1)</label>
+            <input class="form-input" id="wc-min-similarity" type="number" value="0.75" min="0" max="1" step="0.05">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Tools ── -->
+      <div class="section-panel" id="section-tools">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Tools</div>
+            <div class="section-sub">Enable or disable tools for this worker</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <input class="form-input search-input" placeholder="Search tools…" oninput="filterTools(this.value)">
+            <button class="btn btn-primary btn-sm" onclick="saveTools()">Save Tools</button>
+          </div>
+        </div>
+        <div class="tools-by-category" id="tools-container">
+          <div style="color:var(--text-m);font-size:13px">Loading tools…</div>
+        </div>
+      </div>
+
+      <!-- ── Domain Data ── -->
+      <div class="section-panel" id="section-domain-data">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Domain Data</div>
+            <div class="section-sub">Reference data files for the worker's domain</div>
+          </div>
+        </div>
+        <div class="filetree-layout">
+          <div class="filetree-sidebar">
+            <div class="filetree-toolbar">
+              <button class="btn btn-secondary btn-sm" onclick="document.getElementById('bpft-upload-input-dd').click()" title="Upload files">↑ Upload</button>
+              <button class="btn btn-secondary btn-sm" onclick="document.getElementById('bpft-folder-input-dd').click()" title="Upload entire folder with subfolders">↑ Folder</button>
+              <button class="btn btn-secondary btn-sm" onclick="window._bpft_dd && window._bpft_dd.mkdir(window._bpft_dd.getSelectedFolder())" title="New folder inside selected folder">+ Folder</button>
+              <button class="btn btn-secondary btn-sm" id="dd-select-btn" onclick="window._bpft_dd && (window._bpft_dd.toggleBulkMode(),this.textContent=window._bpft_dd._bulkMode?'Cancel':'Select')">Select</button>
+              <button class="btn btn-danger btn-sm" id="dd-bulk-delete-btn" onclick="window._bpft_dd && window._bpft_dd.bulkDelete()" disabled>Delete</button>
+              <span class="ft-upload-target-indicator" id="dd-upload-target" title="Files will upload here"></span>
+            </div>
+            <div class="ft-search-wrap">
+              <input class="ft-search-input" type="text" placeholder="Search files…" oninput="window._bpft_dd && window._bpft_dd.search(this.value)" id="ft-search-dd">
+              <button class="ft-tree-ctrl-btn" title="Expand all" onclick="window._bpft_dd && window._bpft_dd.expandAll()">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <button class="ft-tree-ctrl-btn" title="Collapse all" onclick="window._bpft_dd && window._bpft_dd.collapseAll()">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              </button>
+            </div>
+            <input type="file" id="bpft-upload-input-dd" multiple style="display:none">
+            <input type="file" id="bpft-folder-input-dd" webkitdirectory multiple style="display:none">
+            <div class="filetree-body" id="tree-domain_data"></div>
+          </div>
+          <div class="preview-panel" id="preview-panel">
+            <div class="preview-header">
+              <div class="preview-file-name" id="preview-file-name">No file selected</div>
+              <div class="preview-meta" id="preview-file-meta"></div>
+              <button class="btn btn-secondary btn-sm" onclick="closePreview()">×</button>
+            </div>
+            <div id="preview-sheet-tabs" class="sheet-tabs" style="display:none"></div>
+            <div class="preview-body" id="preview-body">
+              <div class="preview-empty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <p>Click a file to preview</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Common Data (Shared Library) — REQ-10 ── -->
+      <div class="section-panel" id="section-common-data">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Shared Library</div>
+            <div class="section-sub">Cross-worker reference data: regulatory docs, policies, templates</div>
+          </div>
+        </div>
+        <div class="filetree-layout">
+          <div class="filetree-sidebar">
+            <div class="filetree-toolbar">
+              <button class="btn btn-secondary btn-sm" onclick="document.getElementById('bpft-upload-input-common').click()" title="Upload files">↑ Upload</button>
+              <button class="btn btn-secondary btn-sm" onclick="document.getElementById('bpft-folder-input-common').click()" title="Upload entire folder with subfolders">↑ Folder</button>
+              <button class="btn btn-secondary btn-sm" onclick="window._bpft_common && window._bpft_common.mkdir(window._bpft_common.getSelectedFolder())" title="New folder inside selected folder">+ Folder</button>
+              <button class="btn btn-secondary btn-sm" id="common-select-btn" onclick="window._bpft_common && (window._bpft_common.toggleBulkMode(),this.textContent=window._bpft_common._bulkMode?'Cancel':'Select')">Select</button>
+              <button class="btn btn-danger btn-sm" id="common-bulk-delete-btn" onclick="window._bpft_common && window._bpft_common.bulkDelete()" disabled>Delete</button>
+              <span class="ft-upload-target-indicator" id="common-upload-target" title="Files will upload here"></span>
+            </div>
+            <div class="ft-search-wrap">
+              <input class="ft-search-input" type="text" placeholder="Search files…" oninput="window._bpft_common && window._bpft_common.search(this.value)" id="ft-search-common">
+              <button class="ft-tree-ctrl-btn" title="Expand all" onclick="window._bpft_common && window._bpft_common.expandAll()">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <button class="ft-tree-ctrl-btn" title="Collapse all" onclick="window._bpft_common && window._bpft_common.collapseAll()">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              </button>
+            </div>
+            <input type="file" id="bpft-upload-input-common" multiple style="display:none">
+            <input type="file" id="bpft-folder-input-common" webkitdirectory multiple style="display:none">
+            <div class="filetree-body" id="tree-common"></div>
+          </div>
+          <div class="preview-panel" id="preview-panel-common">
+            <div class="preview-header">
+              <div class="preview-file-name" id="preview-file-name-common">No file selected</div>
+              <div class="preview-meta" id="preview-file-meta-common"></div>
+              <button class="btn btn-secondary btn-sm" onclick="closePreview('common')">×</button>
+            </div>
+            <div class="preview-body" id="preview-body-common">
+              <div class="preview-empty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <p>Click a file to preview</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Workflows ── -->
+      <div class="section-panel" id="section-workflows">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Verified Workflows</div>
+            <div class="section-sub">Curated workflow library for this worker</div>
+          </div>
+        </div>
+        <div class="filetree-layout">
+          <div class="filetree-sidebar">
+            <div class="filetree-toolbar">
+              <button class="btn btn-secondary btn-sm" onclick="document.getElementById('bpft-upload-input-wf').click()">↑ Upload .md</button>
+              <button class="btn btn-secondary btn-sm" onclick="window._bpft_wf && window._bpft_wf.createMd(window._bpft_wf.getSelectedFolder())">+ New</button>
+              <span class="ft-upload-target-indicator" id="wf-upload-target" title="Files will upload here"></span>
+              <button class="btn btn-secondary btn-sm" id="wf-select-btn" onclick="window._bpft_wf && (window._bpft_wf.toggleBulkMode(),this.textContent=window._bpft_wf._bulkMode?'Cancel':'Select')">Select</button>
+              <button class="btn btn-danger btn-sm" id="wf-bulk-delete-btn" onclick="window._bpft_wf && window._bpft_wf.bulkDelete()" disabled>Delete</button>
+            </div>
+            <div class="ft-search-wrap">
+              <input class="ft-search-input" type="text" placeholder="Search workflows…" oninput="window._bpft_wf && window._bpft_wf.search(this.value)" id="ft-search-wf">
+              <button class="ft-tree-ctrl-btn" title="Expand all" onclick="window._bpft_wf && window._bpft_wf.expandAll()">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <button class="ft-tree-ctrl-btn" title="Collapse all" onclick="window._bpft_wf && window._bpft_wf.collapseAll()">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              </button>
+            </div>
+            <input type="file" id="bpft-upload-input-wf" accept=".md" multiple style="display:none">
+            <div class="filetree-body" id="tree-verified_workflows"></div>
+          </div>
+          <div class="preview-panel" id="preview-panel-wf">
+            <div class="preview-header">
+              <div class="preview-file-name" id="preview-file-name-wf">No file selected</div>
+              <div class="preview-meta" id="preview-file-meta-wf"></div>
+              <button class="btn btn-secondary btn-sm" onclick="closePreview('wf')">×</button>
+            </div>
+            <div class="preview-body" id="preview-body-wf">
+              <div class="preview-empty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <p>Click a workflow to preview</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Users ── -->
+      <div class="section-panel" id="section-users">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Users</div>
+            <div class="section-sub" id="users-sub">Users assigned to this worker</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary btn-sm" onclick="openCreateUserModal()">+ Create User</button>
+          </div>
+        </div>
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Role</th>
+              <th>Worker</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- ── Manage Workers (Super Admin) ── -->
+      <div class="section-panel" id="section-workers">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Manage Workers</div>
+            <div class="section-sub">Create and configure digital workers</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" id="workers-search" class="form-input" style="width:200px;height:32px;font-size:13px" placeholder="Search workers…" oninput="filterWorkersGrid(this.value)">
+            <button class="btn btn-primary btn-sm" onclick="openCreateWorkerModal()">+ New Worker</button>
+          </div>
+        </div>
+        <div class="workers-grid" id="workers-grid"></div>
+      </div>
+
+      <!-- ── Audit Log (Super Admin) ── -->
+      <div class="section-panel" id="section-audit">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Audit Log</div>
+            <div class="section-sub">Tool call history across all workers</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input class="form-input" id="audit-filter-worker" placeholder="Filter by worker…" style="width:160px" oninput="filterAuditTable()">
+            <input class="form-input" id="audit-filter-user" placeholder="Filter by user…" style="width:140px" oninput="filterAuditTable()">
+            <button class="btn btn-secondary btn-sm" onclick="loadAudit(0)">Refresh</button>
+          </div>
+        </div>
+        <div class="audit-pagination" id="audit-pagination" style="display:none">
+          <button class="btn btn-secondary btn-sm" id="audit-prev-btn" onclick="auditPagePrev()">← Prev</button>
+          <span id="audit-page-info">—</span>
+          <button class="btn btn-secondary btn-sm" id="audit-next-btn" onclick="auditPageNext()">Next →</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="users-table" id="audit-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Worker</th>
+                <th>User</th>
+                <th>Tool</th>
+                <th>Status</th>
+                <th>Duration (ms)</th>
+              </tr>
+            </thead>
+            <tbody id="audit-tbody">
+              <tr><td colspan="6" style="color:var(--text-m);text-align:center;padding:24px">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Connectors (Super Admin) ── -->
+      <div class="section-panel" id="section-connectors">
+        <!-- Sub-tabs -->
+        <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:24px">
+          <div class="connector-tab active" id="ctab-overview" onclick="switchConnectorTab('overview')" style="padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid var(--accent);color:var(--text);margin-bottom:-1px">Overview</div>
+          <div class="connector-tab" id="ctab-tools" onclick="switchConnectorTab('tools')" style="padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-m);margin-bottom:-1px">Tool Library</div>
+          <div class="connector-tab" id="ctab-workers" onclick="switchConnectorTab('workers')" style="padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-m);margin-bottom:-1px">Worker Mapping</div>
+        </div>
+
+        <!-- Overview tab -->
+        <div id="ctab-panel-overview">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Connectors</div>
+              <div class="section-sub">Configure external integrations for your digital workers</div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="loadConnectors()">Refresh</button>
+          </div>
+          <div id="connectors-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
+            <div style="color:var(--text-m);font-size:13px">Loading connectors…</div>
+          </div>
+        </div>
+
+        <!-- Tool Library tab -->
+        <div id="ctab-panel-tools" style="display:none">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Connector Tool Library</div>
+              <div class="section-sub">All tools provided by external connectors</div>
+            </div>
+            <input class="form-input search-input" placeholder="Search tools…" oninput="filterConnectorTools(this.value)" style="max-width:240px">
+          </div>
+          <div id="connector-tools-container">
+            <div style="color:var(--text-m);font-size:13px">Loading tools…</div>
+          </div>
+        </div>
+
+        <!-- Worker Mapping tab -->
+        <div id="ctab-panel-workers" style="display:none">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Worker Connector Scope</div>
+              <div class="section-sub">Restrict each worker to specific teams, sites, spaces, and projects</div>
+            </div>
+          </div>
+          <div class="form-row" style="max-width:400px">
+            <label class="form-label">Select Worker</label>
+            <select class="form-select" id="cw-worker-select" onchange="loadWorkerConnectorScope(this.value)">
+              <option value="">— choose a worker —</option>
+            </select>
+          </div>
+          <div id="cw-scope-hint" style="font-size:13px;color:var(--text-m);padding:8px 0 16px">Select a worker above to configure its connector scope.</div>
+          <div id="cw-scope-form" style="display:none;max-width:700px">
+            <!-- Microsoft 365 scope -->
+            <div style="margin-bottom:24px">
+              <div style="font-size:14px;font-weight:700;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+                Microsoft 365 Scope
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div class="form-row">
+                  <label class="form-label">Teams — Team ID</label>
+                  <input class="form-input" id="cw-teams-id" placeholder="e.g. 19:abc123…@thread.tacv2">
+                  <div style="font-size:11px;color:var(--text-d);margin-top:4px">The Teams team this worker operates in</div>
+                </div>
+                <div class="form-row">
+                  <label class="form-label">SharePoint — Site URL</label>
+                  <input class="form-input" id="cw-sp-url" placeholder="e.g. https://company.sharepoint.com/sites/Risk">
+                </div>
+                <div class="form-row">
+                  <label class="form-label">SharePoint — Site ID</label>
+                  <input class="form-input" id="cw-sp-siteid" placeholder="Auto-resolved or enter manually">
+                </div>
+                <div class="form-row">
+                  <label class="form-label">Power BI — Workspace ID</label>
+                  <input class="form-input" id="cw-pbi-workspace" placeholder="e.g. a1b2c3d4-…">
+                </div>
+                <div class="form-row">
+                  <label class="form-label">Outlook — User Email</label>
+                  <input class="form-input" id="cw-outlook-email" placeholder="e.g. SaadAhmed@company.com">
+                </div>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="saveConnectorScope('microsoft_azure')">Save Microsoft 365 Scope</button>
+            </div>
+
+            <!-- Atlassian scope -->
+            <div>
+              <div style="font-size:14px;font-weight:700;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+                Atlassian Scope
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div class="form-row">
+                  <label class="form-label">Confluence — Space Key</label>
+                  <input class="form-input" id="cw-conf-space" placeholder="e.g. RG, RISK">
+                </div>
+                <div class="form-row">
+                  <label class="form-label">Jira — Project Key</label>
+                  <input class="form-input" id="cw-jira-project" placeholder="e.g. RISK, CCR">
+                </div>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="saveConnectorScope('atlassian')">Save Atlassian Scope</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── LLM Provider (Super Admin) ── -->
+      <div class="section-panel" id="section-llm-config">
+        <div class="section-header">
+          <div>
+            <div class="section-title">LLM Provider</div>
+            <div class="section-sub">Configure the AI model powering all digital workers</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="saveLlmConfig()">Apply &amp; Reload</button>
+        </div>
+
+        <div style="max-width:640px">
+          <!-- Active provider badge -->
+          <div id="llm-active-badge" style="display:none;margin-bottom:20px;padding:10px 14px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);border-radius:8px;font-size:13px;color:#a5b4fc">
+            Active: <strong id="llm-active-label">—</strong>
+          </div>
+
+          <!-- Provider selector -->
+          <div class="form-row">
+            <label class="form-label">Provider</label>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:600px" id="llm-provider-cards">
+              <div class="llm-prov-card" id="llmprov-anthropic" onclick="selectLlmProvider('anthropic')">
+                <div class="llm-prov-name">Anthropic</div>
+                <div class="llm-prov-sub">Claude models</div>
+              </div>
+              <div class="llm-prov-card" id="llmprov-xai" onclick="selectLlmProvider('xai')">
+                <div class="llm-prov-name">xAI</div>
+                <div class="llm-prov-sub">Grok models</div>
+              </div>
+              <div class="llm-prov-card" id="llmprov-huggingface" onclick="selectLlmProvider('huggingface')">
+                <div class="llm-prov-name">HuggingFace</div>
+                <div class="llm-prov-sub">Open-source</div>
+              </div>
+              <div class="llm-prov-card" id="llmprov-bedrock" onclick="selectLlmProvider('bedrock')">
+                <div class="llm-prov-name">AWS Bedrock</div>
+                <div class="llm-prov-sub">Claude on AWS</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Anthropic fields -->
+          <div id="llm-fields-anthropic" class="llm-prov-fields" style="display:none">
+            <div class="form-row" style="margin-top:20px">
+              <label class="form-label">API Key</label>
+              <input class="form-input" id="llm-ant-key" type="password" placeholder="sk-ant-…  (leave blank to keep existing)" autocomplete="off">
+              <div class="form-hint" id="llm-ant-key-hint"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px">
+              <div class="form-row">
+                <label class="form-label">Model</label>
+                <input class="form-input" id="llm-ant-model" placeholder="claude-sonnet-4-20250514">
+              </div>
+              <div class="form-row">
+                <label class="form-label">Max Tokens</label>
+                <input class="form-input" id="llm-ant-maxtok" type="number" placeholder="8192">
+              </div>
+            </div>
+          </div>
+
+          <!-- xAI fields -->
+          <div id="llm-fields-xai" class="llm-prov-fields" style="display:none">
+            <div class="form-row" style="margin-top:20px">
+              <label class="form-label">API Key</label>
+              <input class="form-input" id="llm-xai-key" type="password" placeholder="xai-…  (leave blank to keep existing)" autocomplete="off">
+              <div class="form-hint" id="llm-xai-key-hint"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px">
+              <div class="form-row">
+                <label class="form-label">Model</label>
+                <input class="form-input" id="llm-xai-model" placeholder="grok-3">
+              </div>
+              <div class="form-row">
+                <label class="form-label">Max Tokens</label>
+                <input class="form-input" id="llm-xai-maxtok" type="number" placeholder="8192">
+              </div>
+            </div>
+          </div>
+
+          <!-- HuggingFace fields -->
+          <div id="llm-fields-huggingface" class="llm-prov-fields" style="display:none">
+            <div class="form-row" style="margin-top:20px">
+              <label class="form-label">API Key</label>
+              <input class="form-input" id="llm-hf-key" type="password" placeholder="hf_…  (leave blank to keep existing)" autocomplete="off">
+              <div class="form-hint" id="llm-hf-key-hint"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px">
+              <div class="form-row">
+                <label class="form-label">Model</label>
+                <input class="form-input" id="llm-hf-model" placeholder="meta-llama/Llama-3.3-70B-Instruct">
+              </div>
+              <div class="form-row">
+                <label class="form-label">Max Tokens</label>
+                <input class="form-input" id="llm-hf-maxtok" type="number" placeholder="4096">
+              </div>
+            </div>
+          </div>
+
+          <!-- Bedrock fields -->
+          <div id="llm-fields-bedrock" class="llm-prov-fields" style="display:none">
+            <div style="margin-top:16px;padding:10px 14px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:8px;font-size:12px;color:#fbbf24">
+              Requires: <code>pip install langchain-aws boto3</code> and AWS credentials configured in the environment.
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+              <div class="form-row">
+                <label class="form-label">Model ID</label>
+                <input class="form-input" id="llm-bdr-modelid" placeholder="us.anthropic.claude-sonnet-4-20250514-v1:0">
+              </div>
+              <div class="form-row">
+                <label class="form-label">AWS Region</label>
+                <input class="form-input" id="llm-bdr-region" placeholder="us-east-1">
+              </div>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Max Tokens</label>
+              <input class="form-input" id="llm-bdr-maxtok" type="number" placeholder="8192" style="max-width:160px">
+            </div>
+          </div>
+
+          <div id="llm-save-msg" style="display:none;margin-top:20px;padding:10px 14px;border-radius:8px;font-size:13px"></div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div>
+
+<!-- ── Configure Connector Modal ── -->
+<div class="modal-overlay hidden" id="conn-modal-overlay" onclick="closeConnModal(event)">
+  <div class="modal" id="conn-modal-box" style="width:520px">
+    <div class="modal-title" id="conn-modal-title">Configure Connector</div>
+    <div class="modal-sub" id="conn-modal-sub"></div>
+    <div id="conn-modal-body"></div>
+    <div id="conn-modal-result" style="margin-top:12px;font-size:13px;display:none"></div>
+    <div class="modal-actions" id="conn-modal-actions"></div>
+  </div>
+</div>
+
+<!-- ── Modals ── -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal-box">
+    <div class="modal-title" id="modal-title">Modal</div>
+    <div class="modal-sub" id="modal-sub"></div>
+    <div id="modal-body"></div>
+    <div class="modal-actions" id="modal-actions"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+
+<script>
+// file:// hostname is '' — always use localhost:8000 for local dev
+const API = (window.location.hostname === '' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:8000'
+  : '';
+
+// ── Auth ─────────────────────────────────────────────────────────────────────
+var _token = sessionStorage.getItem('rg_token');
+var _user = null;
+try { _user = JSON.parse(sessionStorage.getItem('rg_user')); } catch(e) {}
+
+if (!_token || !_user) {
+  window.location.href = 'login.html';
+}
+
+// Guard all init code — window.location.href does NOT stop JS execution synchronously
+if (_user) {
+  // Role gate: users shouldn't be here
+  if (_user.role === 'user') {
+    window.location.href = 'mcp-agent.html';
+  }
+
+  // Set up sidebar
+  document.getElementById('sidebar-avatar').textContent = _user.avatar_initials || '?';
+  document.getElementById('sidebar-name').textContent = _user.display_name || _user.user_id || '';
+  var roleLabel = _user.role === 'super_admin' ? 'Super Admin' : 'Admin';
+  document.getElementById('sidebar-role').textContent = roleLabel;
+  if (_user.role === 'super_admin') {
+    document.getElementById('super-nav').style.display = 'block';
+  } else {
+    // Hide worker-creation controls from non-super-admin users (BUG-ADMIN-001)
+    document.querySelectorAll('[onclick="openCreateWorkerModal()"]').forEach(function(el) {
+      el.style.display = 'none';
+    });
+  }
+}
+
+function authHeaders() { return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _token }; }
+
+function _handleUnauth(res) {
+  if (res && (res.status === 401 || res.status === 403)) {
+    // Clear from both sessionStorage and localStorage
+    sessionStorage.removeItem('rg_token');
+    sessionStorage.removeItem('rg_user');
+    localStorage.removeItem('rg_token');
+    localStorage.removeItem('rg_user');
+    window.location.replace('login.html');
+    return true;
+  }
+  return false;
+}
+
+function logout() {
+  // Clear from both sessionStorage and localStorage
+  sessionStorage.removeItem('rg_token');
+  sessionStorage.removeItem('rg_user');
+  localStorage.removeItem('rg_token');
+  localStorage.removeItem('rg_user');
+  window.location.href = 'login.html';
+}
+
+function goToChat() {
+  window.location.href = 'mcp-agent.html';
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+var _toastTimer = null;
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show ' + (type||'');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { t.classList.remove('show'); }, 3000);
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+var _currentSection = 'dashboard';
+var _currentWorker = null;
+var _allWorkers = [];
+
+function showSection(name) {
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('section-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(i => {
+    if (i.getAttribute('onclick') && i.getAttribute('onclick').includes("'" + name + "'")) {
+      i.classList.add('active');
+    }
+  });
+  _currentSection = name;
+  var titles = {
+    dashboard: 'Dashboard', 'worker-config': 'Worker Configuration',
+    tools: 'Tools', 'domain-data': 'Domain Data', 'common-data': 'Shared Library', workflows: 'Workflows',
+    users: 'Users', workers: 'Manage Workers', connectors: 'Connectors', audit: 'Audit Log',
+    'llm-config': 'LLM Provider'
+  };
+  document.getElementById('topbar-title').textContent = titles[name] || name;
+
+  if (name === 'dashboard') loadDashboard();
+  else if (name === 'worker-config') loadWorkerConfig();
+  else if (name === 'tools') loadTools();
+  else if (name === 'domain-data') loadFileTree('domain_data');
+  else if (name === 'common-data') loadFileTree('common');
+  else if (name === 'workflows') loadFileTree('verified_workflows');
+  else if (name === 'users') loadUsers();
+  else if (name === 'workers') loadWorkers();
+  else if (name === 'connectors') { _currentConnTab = 'overview'; switchConnectorTab('overview'); }
+  else if (name === 'audit') loadAudit();
+  else if (name === 'llm-config') loadLlmConfig();
+}
+
+// ── Worker switcher ───────────────────────────────────────────────────────────
+async function initWorkerContext() {
+  if (_user.role === 'super_admin') {
+    document.getElementById('worker-switcher-wrap').style.display = 'flex';
+    document.getElementById('topbar-worker-badge').style.display = 'none';
+    await loadSuperAdminWorkers();
+  } else {
+    // Load current worker info
+    try {
+      var r = await fetch(API + '/api/admin/worker', { headers: authHeaders() });
+      if (r.ok) {
+        _currentWorker = await r.json();
+        document.getElementById('topbar-worker-name').textContent = _currentWorker.name;
+      }
+    } catch(e) {}
+  }
+  loadDashboard();
+}
+
+async function loadSuperAdminWorkers() {
+  try {
+    var r = await fetch(API + '/api/super/workers', { headers: authHeaders() });
+    if (_handleUnauth(r)) return;
+    if (!r.ok) return;
+    var data = await r.json();
+    _allWorkers = data.workers;
+    var sel = document.getElementById('worker-switcher');
+    sel.innerHTML = _allWorkers.map(w =>
+      `<option value="${w.worker_id}">${w.name}</option>`
+    ).join('');
+    if (_allWorkers.length > 0) {
+      _currentWorker = _allWorkers[0];
+    }
+  } catch(e) {}
+}
+
+function switchWorker(wid) {
+  _currentWorker = _allWorkers.find(w => w.worker_id === wid);
+  // Update topbar badge to reflect newly selected worker
+  var badge = document.getElementById('topbar-worker-name');
+  if (badge && _currentWorker) badge.textContent = _currentWorker.name;
+  // Reload current section for new worker context
+  showSection(_currentSection);
+}
+
+// ── Dashboard ──────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  if (_user.role === 'super_admin') {
+    document.getElementById('dash-workers-section').style.display = 'block';
+    renderWorkersGrid(_allWorkers, 'dash-workers-grid');
+  }
+  if (_currentWorker) {
+    document.getElementById('dash-sub').textContent = `Worker: ${_currentWorker.name}`;
+    // User count
+    var users = await fetchUsers();
+    var wid = _currentWorker.worker_id;
+    var wUsers = users.filter(u => u.worker_id === wid && u.role !== 'admin');
+    document.getElementById('stat-users').textContent = wUsers.length;
+    // Tools
+    var et = _currentWorker.enabled_tools;
+    document.getElementById('stat-tools').textContent = (et && et[0] === '*') ? 'All' : (et ? et.length : 0);
+    // Workflow and domain file counts — fetch from file tree endpoints
+    try {
+      var wfUrl = _user.role === 'super_admin' && _currentWorker
+        ? API + '/api/super/workers/' + _currentWorker.worker_id + '/files/verified_workflows'
+        : API + '/api/admin/worker/files/verified_workflows';
+      var ddUrl = _user.role === 'super_admin' && _currentWorker
+        ? API + '/api/super/workers/' + _currentWorker.worker_id + '/files/domain_data'
+        : API + '/api/admin/worker/files/domain_data';
+      function countFiles(nodes) {
+        if (!nodes) return 0;
+        var n = 0;
+        nodes.forEach(function(node) {
+          if (node.type === 'file') { n++; }
+          else if (node.type === 'folder') { n += countFiles(node.children); }
+        });
+        return n;
+      }
+      var wfResp = await fetch(wfUrl, { headers: authHeaders() }).catch(() => null);
+      if (wfResp && wfResp.ok) {
+        var wfData = await wfResp.json();
+        document.getElementById('stat-workflows').textContent = countFiles(wfData.tree || wfData.children || []);
+      } else {
+        document.getElementById('stat-workflows').textContent = '—';
+      }
+      var ddResp = await fetch(ddUrl, { headers: authHeaders() }).catch(() => null);
+      if (ddResp && ddResp.ok) {
+        var ddData = await ddResp.json();
+        document.getElementById('stat-files').textContent = countFiles(ddData.tree || ddData.children || []);
+      } else {
+        document.getElementById('stat-files').textContent = '—';
+      }
+    } catch(e) {
+      document.getElementById('stat-workflows').textContent = '—';
+      document.getElementById('stat-files').textContent = '—';
+    }
+  }
+}
+
+function renderWorkersGrid(workers, containerId) {
+  var html = workers.map(w => `
+    <div class="worker-card" onclick="selectWorkerCard('${w.worker_id}')">
+      <div class="worker-card-header">
+        <div class="worker-card-name">${w.name}</div>
+        <div style="display:flex;gap:6px">
+          ${w.agent_runtime === 'dsh' ? '<div class="status-badge harness">Harness</div>' : ''}
+          <div class="status-badge ${w.enabled ? 'enabled' : 'disabled'}">${w.enabled ? 'Online' : 'Offline'}</div>
+        </div>
+      </div>
+      <div class="worker-card-desc">${w.description || 'No description'}</div>
+      <div class="worker-card-meta">
+        <span>${w.user_count || 0} ${(w.user_count || 0) === 1 ? 'user' : 'users'}</span>
+        <span>${w.admin_count || 0} ${(w.admin_count || 0) === 1 ? 'admin' : 'admins'}</span>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById(containerId).innerHTML = html || '<div style="color:var(--text-m);font-size:13px">No workers yet.</div>';
+}
+
+function selectWorkerCard(wid) {
+  if (_user.role === 'super_admin') {
+    _currentWorker = _allWorkers.find(w => w.worker_id === wid);
+    document.getElementById('worker-switcher').value = wid;
+  }
+  showSection('worker-config');
+}
+
+// ── Worker Config ──────────────────────────────────────────────────────────────
+async function loadWorkerConfig() {
+  if (!_currentWorker) return;
+  document.getElementById('wc-name').value = _currentWorker.name || '';
+  document.getElementById('wc-desc').value = _currentWorker.description || '';
+  document.getElementById('wc-prompt').value = _currentWorker.system_prompt || '';
+  updateCharCount();
+  var enableBtn = document.getElementById('worker-enable-toggle');
+  enableBtn.textContent = _currentWorker.enabled ? 'Disable Worker' : 'Enable Worker';
+  enableBtn.className = 'btn btn-sm ' + (_currentWorker.enabled ? 'btn-danger' : 'btn-primary');
+  var deleteBtn = document.getElementById('worker-delete-btn');
+  if (deleteBtn) deleteBtn.style.display = (typeof _user !== 'undefined' && _user && _user.role === 'super_admin') ? '' : 'none';
+  // REQ-13 / REQ-14 fields
+  var mode = _currentWorker.agent_mode || 'single';
+  document.getElementById('wc-agent-mode').value = mode;
+  document.getElementById('wc-max-subagents').value = _currentWorker.max_concurrent_subagents || 3;
+  document.getElementById('wc-max-subagents-val').textContent = _currentWorker.max_concurrent_subagents || 3;
+  document.getElementById('wc-subagent-concurrency').style.display = mode === 'multi' ? '' : 'none';
+  document.getElementById('wc-max-tokens').value = _currentWorker.max_tokens_per_query || '';
+  document.getElementById('wc-hitl-triggers').value = (_currentWorker.hitl_triggers || []).join(', ');
+  var memEnabled = !!_currentWorker.enable_memory;
+  document.getElementById('wc-enable-memory').checked = memEnabled;
+  document.getElementById('wc-memory-config').style.display = memEnabled ? 'grid' : 'none';
+  document.getElementById('wc-memory-ttl').value = _currentWorker.memory_ttl_days || 90;
+  document.getElementById('wc-max-memories').value = _currentWorker.max_memories_per_query || 5;
+  document.getElementById('wc-min-similarity').value = _currentWorker.min_memory_similarity || 0.75;
+  // DSH-UI: runtime + harness settings
+  var runtime = _currentWorker.agent_runtime || 'langchain';
+  var dshCfg = _currentWorker.dsh || {};
+  document.getElementById('wc-agent-runtime').value = runtime;
+  document.getElementById('wc-dsh-tools-mode').value = dshCfg.tools_mode || 'native';
+  document.getElementById('wc-dsh-sandbox').value = dshCfg.sandbox_mode || 'read-only';
+  document.getElementById('wc-dsh-tool-shell').checked = !!dshCfg.enable_shell;
+  document.getElementById('wc-dsh-tool-web').checked = !!dshCfg.enable_web;
+  document.getElementById('wc-dsh-tool-fs').checked = !!dshCfg.enable_fs;
+  document.getElementById('wc-dsh-key').value = _currentWorker.sajha_api_key_masked || 'minted on save';
+  var health = document.getElementById('wc-dsh-health');
+  var healthText = document.getElementById('wc-dsh-health-text');
+  health.className = 'harness-health';
+  if (runtime === 'dsh') {
+    var st = _currentWorker.dsh_status || 'unprovisioned';
+    if (st === 'running') { health.classList.add('up'); healthText.textContent = 'Runtime up'; }
+    else if (st === 'error') { health.classList.add('down'); healthText.textContent = 'Runtime error'; }
+    else { healthText.textContent = 'Provisions on save'; }
+  } else { healthText.textContent = 'Not provisioned'; }
+  toggleHarnessConfig();
+}
+
+function toggleHarnessConfig() {
+  var runtime = document.getElementById('wc-agent-runtime').value;
+  document.getElementById('wc-harness-config').style.display = runtime === 'dsh' ? '' : 'none';
+}
+
+function toggleSubagentConcurrency() {
+  var mode = document.getElementById('wc-agent-mode').value;
+  document.getElementById('wc-subagent-concurrency').style.display = mode === 'multi' ? '' : 'none';
+}
+
+function toggleMemoryConfig() {
+  var enabled = document.getElementById('wc-enable-memory').checked;
+  document.getElementById('wc-memory-config').style.display = enabled ? 'grid' : 'none';
+}
+
+function updateCharCount() {
+  var len = document.getElementById('wc-prompt').value.length;
+  document.getElementById('prompt-chars').textContent = len.toLocaleString();
+}
+
+async function saveWorkerConfig() {
+  if (!_currentWorker) return;
+  var hitlRaw = document.getElementById('wc-hitl-triggers').value.trim();
+  var hitlTriggers = hitlRaw ? hitlRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+  var maxTokensRaw = document.getElementById('wc-max-tokens').value.trim();
+  var body = {
+    name: document.getElementById('wc-name').value.trim(),
+    description: document.getElementById('wc-desc').value.trim(),
+    system_prompt: document.getElementById('wc-prompt').value,
+    agent_mode: document.getElementById('wc-agent-mode').value,
+    max_concurrent_subagents: parseInt(document.getElementById('wc-max-subagents').value) || 3,
+    max_tokens_per_query: maxTokensRaw ? parseInt(maxTokensRaw) : null,
+    hitl_triggers: hitlTriggers,
+    enable_memory: document.getElementById('wc-enable-memory').checked,
+    memory_ttl_days: parseInt(document.getElementById('wc-memory-ttl').value) || 90,
+    max_memories_per_query: parseInt(document.getElementById('wc-max-memories').value) || 5,
+    min_memory_similarity: parseFloat(document.getElementById('wc-min-similarity').value) || 0.75,
+    // DSH-UI: runtime selection + harness settings
+    agent_runtime: document.getElementById('wc-agent-runtime').value,
+    dsh: {
+      tools_mode: document.getElementById('wc-dsh-tools-mode').value,
+      sandbox_mode: document.getElementById('wc-dsh-sandbox').value,
+      enable_shell: document.getElementById('wc-dsh-tool-shell').checked,
+      enable_web: document.getElementById('wc-dsh-tool-web').checked,
+      enable_fs: document.getElementById('wc-dsh-tool-fs').checked,
+    },
+  };
+  try {
+    var url = _user.role === 'super_admin'
+      ? API + '/api/super/workers/' + _currentWorker.worker_id
+      : API + '/api/admin/worker';
+    var r = await fetch(url, {
+      method: 'PUT', headers: authHeaders(), body: JSON.stringify(body)
+    });
+    if (r.ok) {
+      var updated = await r.json();
+      _currentWorker = updated;
+      // Update in allWorkers
+      _allWorkers = _allWorkers.map(w => w.worker_id === updated.worker_id ? updated : w);
+      showToast('Worker configuration saved', 'success');
+    } else {
+      var d = await r.json().catch(() => ({}));
+      showToast('Error: ' + (d.detail || 'Save failed'), 'error');
+    }
+  } catch(e) { showToast('Network error', 'error'); }
+}
+
+async function toggleWorkerEnabled() {
+  if (!_currentWorker) return;
+  var newEnabled = !_currentWorker.enabled;
+  if (newEnabled === false && !confirm(`Disable "${_currentWorker.name}"? Users will see "Worker offline".`)) return;
+  try {
+    var r = await fetch(API + '/api/super/workers/' + _currentWorker.worker_id, {
+      method: 'PUT', headers: authHeaders(), body: JSON.stringify({ enabled: newEnabled })
+    });
+    if (r.ok) {
+      _currentWorker.enabled = newEnabled;
+      loadWorkerConfig();
+      showToast(newEnabled ? 'Worker enabled' : 'Worker disabled', 'success');
+    }
+  } catch(e) { showToast('Error', 'error'); }
+}
+
+// ── Tools ──────────────────────────────────────────────────────────────────────
+var _allTools = [];
+var _enabledTools = [];
+
+async function loadTools() {
+  if (!_currentWorker) return;
+  _enabledTools = _currentWorker.enabled_tools || ['*'];
+  var allEnabled = _enabledTools[0] === '*';
+
+  // Fetch tool list from SAJHA via agent server proxy or direct
+  try {
+    // Load tools from SAJHA MCP tools endpoint
+    var resp = await fetch(API + '/api/mcp/tools', { headers: authHeaders() }).catch(() => null);
+    if (!resp || !resp.ok) {
+      // Fallback: show placeholder
+      document.getElementById('tools-container').innerHTML = '<div style="color:var(--text-m);font-size:13px">Tool list not available. SAJHA server must be running.</div>';
+      return;
+    }
+    var data = await resp.json();
+    _allTools = data.tools || [];
+  } catch(e) {
+    document.getElementById('tools-container').innerHTML = '<div style="color:var(--text-m);font-size:13px">Tool list not available.</div>';
+    return;
+  }
+
+  renderTools('');
+}
+
+function renderTools(filter) {
+  // Group by category
+  var byCategory = {};
+  _allTools.forEach(t => {
+    if (filter && !t.name.toLowerCase().includes(filter) && !(t.description||'').toLowerCase().includes(filter)) return;
+    var cat = t.category || 'General';
+    if (!byCategory[cat]) byCategory[cat] = [];
+    byCategory[cat].push(t);
+  });
+
+  var allEnabled = _enabledTools[0] === '*';
+  var html = Object.entries(byCategory).map(([cat, tools]) => `
+    <div>
+      <div class="tool-category-header">
+        <div class="tool-category-name">${cat}</div>
+        <div class="tool-category-actions">
+          <button class="btn btn-secondary btn-sm" onclick="toggleCategory('${cat}', true)">All on</button>
+          <button class="btn btn-secondary btn-sm" onclick="toggleCategory('${cat}', false)">All off</button>
+        </div>
+      </div>
+      <div class="tool-cards">
+        ${tools.map(t => {
+          var isEnabled = allEnabled || _enabledTools.includes(t.name);
+          var isAvail = t.enabled !== false;
+          return `
+          <div class="tool-card ${!isAvail ? 'disabled-tool' : ''}">
+            <div class="tool-info">
+              <div class="tool-name">${t.name}</div>
+              <div class="tool-desc">${(t.description||'').substring(0,100)}</div>
+              ${!isAvail ? '<span class="pill pill-grey" style="margin-top:4px;font-size:10px">Unavailable</span>' : ''}
+            </div>
+            ${isAvail ? `<label class="toggle-switch">
+              <input type="checkbox" ${isEnabled ? 'checked' : ''} data-tool="${t.name}" ${!isAvail ? 'disabled' : ''}>
+              <div class="toggle-track"></div>
+            </label>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('tools-container').innerHTML = html || '<div style="color:var(--text-m);font-size:13px">No tools match your search.</div>';
+}
+
+function filterTools(val) { renderTools(val.toLowerCase()); }
+
+function toggleCategory(cat, state) {
+  document.querySelectorAll('[data-tool]').forEach(cb => {
+    var toolCards = cb.closest('.tool-cards');
+    var nameEl = toolCards && toolCards.previousElementSibling &&
+                 toolCards.previousElementSibling.querySelector('.tool-category-name');
+    if (nameEl && nameEl.textContent === cat) cb.checked = state;
+  });
+}
+
+async function saveTools() {
+  var checkboxes = document.querySelectorAll('[data-tool]:checked');
+  var allCheckboxes = document.querySelectorAll('[data-tool]');
+  var enabled = Array.from(checkboxes).map(cb => cb.dataset.tool);
+  // Check if all are enabled
+  if (enabled.length === allCheckboxes.length) enabled = ['*'];
+  _enabledTools = enabled;
+
+  try {
+    var url = _user.role === 'super_admin'
+      ? API + '/api/super/workers/' + _currentWorker.worker_id
+      : API + '/api/admin/worker/tools';
+    var body = _user.role === 'super_admin'
+      ? JSON.stringify({ enabled_tools: enabled })
+      : JSON.stringify({ enabled_tools: enabled });
+    var method = _user.role === 'super_admin' ? 'PUT' : 'PUT';
+    var r = await fetch(url, { method, headers: authHeaders(), body });
+    if (r.ok) {
+      _currentWorker.enabled_tools = enabled;
+      showToast('Tools saved', 'success');
+    } else { showToast('Error saving tools', 'error'); }
+  } catch(e) { showToast('Network error', 'error'); }
+}
+
+// ── File tree ─────────────────────────────────────────────────────────────────
+var _treesData = {};
+var _selectedItems = {};
+var _selectModes = {};
+
+function _workerFileTreeUrl(section) {
+  // Use worker-scoped endpoints (G-03 / G-04)
+  if (_user.role === 'super_admin' && _currentWorker) {
+    return API + '/api/super/workers/' + _currentWorker.worker_id + '/files/' + section;
+  }
+  return API + '/api/admin/worker/files/' + section;
+}
+
+function _bpftApiPrefix() {
+  if (typeof _user !== 'undefined' && _user && _user.role === 'super_admin' && typeof _currentWorker !== 'undefined' && _currentWorker) {
+    return (typeof API !== 'undefined' ? API : '') + '/api/super/workers/' + _currentWorker.worker_id + '/files';
+  }
+  return (typeof API !== 'undefined' ? API : '') + '/api/admin/worker/files';
+}
+
+function loadFileTree(section) {
+  if (section === 'domain_data' && window._bpft_dd) { window._bpft_dd.load(); return; }
+  if (section === 'verified_workflows' && window._bpft_wf) { window._bpft_wf.load(); return; }
+}
+
+
+// ── Preview ───────────────────────────────────────────────────────────────────
+var _currentPanelSuffix = '';
+
+function closePreview(suffix) {
+  var sfx = suffix || '';
+  var pb = document.getElementById('preview-body' + (sfx ? '-' + sfx : ''));
+  var pfn = document.getElementById('preview-file-name' + (sfx ? '-' + sfx : ''));
+  var pfm = document.getElementById('preview-file-meta' + (sfx ? '-' + sfx : ''));
+  if (pb) pb.innerHTML = '<div class="preview-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><p>Click a file to preview</p></div>';
+  if (pfn) pfn.textContent = 'No file selected';
+  if (pfm) pfm.textContent = '';
+}
+
+async function previewFile(e, section, path, name) {
+  e.stopPropagation();
+  var suffixMap = { 'verified_workflows': 'wf', 'common': 'common' };
+  var suffix = suffixMap[section] || '';
+  var pbId   = 'preview-body'      + (suffix ? '-' + suffix : '');
+  var pfnId  = 'preview-file-name' + (suffix ? '-' + suffix : '');
+  var pfmId  = 'preview-file-meta' + (suffix ? '-' + suffix : '');
+  var tabsId = suffix ? null : 'preview-sheet-tabs';
+
+  var pb = document.getElementById(pbId);
+  var pfn = document.getElementById(pfnId);
+  var pfm = document.getElementById(pfmId);
+  if (!pb) return;
+
+  pfn.textContent = name;
+  pfm.textContent = 'Loading…';
+  pb.innerHTML = '<div style="color:var(--text-m);font-size:13px;padding:8px">Loading preview…</div>';
+
+  try {
+    var r = await fetch(_workerFileOpUrl(section, 'file') + '?path=' + encodeURIComponent(path), {
+      headers: authHeaders()
+    });
+    if (!r.ok) { pb.innerHTML = '<div style="color:#aaaaaa;font-size:13px">Error loading file</div>'; return; }
+
+    var data = await r.json();
+    var ext = name.split('.').pop().toLowerCase();
+    var sz = data.size_bytes || 0;
+    pfm.textContent = sz ? (sz > 1048576 ? (sz/1048576).toFixed(1)+' MB' : Math.round(sz/1024)+' KB') : '';
+
+    function b64ToAb(b64) {
+      var bin = atob(b64);
+      var ab = new ArrayBuffer(bin.length);
+      var u8 = new Uint8Array(ab);
+      for (var i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+      return ab;
+    }
+
+    if (['txt','csv','tsv','json','html','xml','yaml','yml','md'].includes(ext)) {
+      var text = data.content || '';
+      if (ext === 'csv' || ext === 'tsv') {
+        var sep = ext === 'tsv' ? '\t' : ',';
+        var lines = text.split('\n').slice(0, 51).filter(Boolean);
+        var rows = lines.map(l => l.split(sep));
+        var thead = rows[0].map(c => `<th>${c}</th>`).join('');
+        var tbody = rows.slice(1).map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('');
+        pb.innerHTML = `<div style="overflow:auto"><table class="preview-table"><thead><tr>${thead}</tr></thead><tbody>${tbody}</tbody></table></div>`;
+      } else if (ext === 'md') {
+        pb.innerHTML = `<div class="preview-md">${renderMarkdown(text)}</div>`;
+      } else {
+        pb.innerHTML = `<pre class="preview-text">${escHtml(text)}</pre>`;
+      }
+    } else if (['parquet','pq'].includes(ext)) {
+      pb.innerHTML = `<div class="preview-empty"><p style="font-size:13px;color:var(--text-m)">Parquet binary file</p><p style="font-size:12px;color:var(--text-d);margin-top:8px">${name}</p><p style="font-size:11px;color:var(--text-d);margin-top:12px">Use the agent to query this file with <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px">parquet_read</code> or <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px">sqlselect_execute_query</code></p></div>`;
+    } else if (ext === 'pdf') {
+      var ab = b64ToAb(data.content || '');
+      var blob = new Blob([ab], {type:'application/pdf'});
+      var url = URL.createObjectURL(blob);
+      pb.innerHTML = `<iframe src="${url}" style="width:100%;height:100%;border:none;min-height:500px"></iframe>`;
+    } else if (['docx','doc'].includes(ext)) {
+      var ab = b64ToAb(data.content || '');
+      try {
+        var result = await mammoth.convertToHtml({arrayBuffer: ab});
+        pb.innerHTML = `<div class="preview-md">${result.value}</div>`;
+      } catch(e) { pb.innerHTML = '<div style="color:var(--text-m)">Word preview not available</div>'; }
+    } else if (['xlsx','xls'].includes(ext)) {
+      var ab = b64ToAb(data.content || '');
+      var wb = XLSX.read(ab, {type: 'array'});
+      var sheetNames = wb.SheetNames;
+      if (tabsId) {
+        var tabsEl = document.getElementById(tabsId);
+        tabsEl.style.display = sheetNames.length > 1 ? 'flex' : 'none';
+        tabsEl.innerHTML = sheetNames.map((s,i) =>
+          `<div class="sheet-tab ${i===0?'active':''}" onclick="switchSheet(this,'${s}',${JSON.stringify(wb).replace(/"/g,"'")})">${s}</div>`
+        ).join('');
+      }
+      renderSheet(wb, sheetNames[0], pb);
+    } else {
+      pb.innerHTML = `<div class="preview-empty"><p>Binary file — preview not available</p><p style="font-size:11px;color:var(--text-d);margin-top:4px">${name}</p></div>`;
+    }
+  } catch(e) {
+    pb.innerHTML = `<div style="color:#aaaaaa;font-size:13px">Preview error: ${e.message}</div>`;
+  }
+}
+
+function renderSheet(wb, sheetName, container) {
+  var ws = wb.Sheets[sheetName];
+  var html = XLSX.utils.sheet_to_html(ws, {editable: false});
+  container.innerHTML = `<div style="overflow:auto"><style>.preview-table-xl td,th{border:1px solid var(--border);padding:4px 8px;font-size:12px}</style><div class="preview-table-xl">${html}</div></div>`;
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── File operations ───────────────────────────────────────────────────────────
+function _workerUploadUrl(section) {
+  if (_user.role === 'super_admin' && _currentWorker) {
+    return API + '/api/super/workers/' + _currentWorker.worker_id + '/files/' + section + '/upload';
+  }
+  return API + '/api/admin/worker/files/' + section + '/upload';
+}
+
+function _workerFileOpUrl(section, op) {
+  if (_user.role === 'super_admin' && _currentWorker) {
+    return API + '/api/super/workers/' + _currentWorker.worker_id + '/files/' + section + '/' + op;
+  }
+  return API + '/api/admin/worker/files/' + section + '/' + op;
+}
+
+
+async function downloadFile(section, path, name) {
+  var r = await fetch(_workerFileOpUrl(section, 'file') + '?path=' + encodeURIComponent(path), { headers: authHeaders() });
+  if (!r.ok) { showToast('Download failed', 'error'); return; }
+  var data = await r.json();
+  var content = data.encoding === 'base64' ? atob(data.content || '') : (data.content || '');
+  var blob = new Blob([content]);
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+}
+
+// ── Connectors ───────────────────────────────────────────────────────────────
+
+var _connectorToolsAll = [];
+var _currentConnTab = 'overview';
+
+function switchConnectorTab(tab) {
+  _currentConnTab = tab;
+  ['overview', 'tools', 'workers'].forEach(function(t) {
+    var btn = document.getElementById('ctab-' + t);
+    var panel = document.getElementById('ctab-panel-' + t);
+    if (btn) {
+      btn.style.borderBottomColor = t === tab ? 'var(--accent)' : 'transparent';
+      btn.style.color = t === tab ? 'var(--text)' : 'var(--text-m)';
+    }
+    if (panel) panel.style.display = t === tab ? 'block' : 'none';
+  });
+  if (tab === 'overview') loadConnectors();
+  else if (tab === 'tools') loadConnectorTools();
+  else if (tab === 'workers') loadWorkerMappingTab();
+}
+
+var _connectorIcons = {
+  microsoft_azure: '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+  atlassian: '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>',
+};
+
+var _connectorStatusColors = {
+  connected:      { bg: 'rgba(255,255,255,0.08)', color: '#cccccc', label: 'Connected' },
+  disconnected:   { bg: 'rgba(255,200,100,0.10)', color: '#ccaa66', label: 'Disconnected' },
+  not_configured: { bg: 'rgba(255,255,255,0.05)', color: 'var(--text-d)', label: 'Not Configured' },
+};
+
+async function loadConnectors() {
+  var grid = document.getElementById('connectors-grid');
+  if (!grid) return;
+  grid.innerHTML = '<div style="color:var(--text-m);font-size:13px">Loading…</div>';
+  try {
+    var r = await fetch(API + '/api/super/connectors', { headers: authHeaders() });
+    if (!r.ok) { grid.innerHTML = '<div style="color:#aaaaaa;font-size:13px">Error loading connectors.</div>'; return; }
+    var data = await r.json();
+    renderConnectorsGrid(data.connectors || []);
+  } catch(e) {
+    grid.innerHTML = '<div style="color:#aaaaaa;font-size:13px">Failed to load connectors.</div>';
+  }
+}
+
+function renderConnectorsGrid(connectors) {
+  var grid = document.getElementById('connectors-grid');
+  if (!connectors.length) { grid.innerHTML = '<div style="color:var(--text-m);font-size:13px">No connectors defined.</div>'; return; }
+  grid.innerHTML = connectors.map(function(c) {
+    var st = _connectorStatusColors[c.status] || _connectorStatusColors.not_configured;
+    var icon = _connectorIcons[c.connector_type] || '';
+    return [
+      '<div style="background:var(--navy-l);border:1px solid var(--border);border-radius:var(--radius);padding:20px">',
+        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">',
+          '<div style="color:var(--text-m)">' + icon + '</div>',
+          '<div style="flex:1">',
+            '<div style="font-size:15px;font-weight:600">' + (c.display_name || c.connector_type) + '</div>',
+            '<div style="font-size:11px;color:var(--text-m);margin-top:2px">' + (c.tool_count || 0) + ' tools</div>',
+          '</div>',
+          '<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:' + st.bg + ';color:' + st.color + '">' + st.label + '</span>',
+        '</div>',
+        '<div style="display:flex;gap:8px">',
+          '<button class="btn btn-secondary btn-sm" style="flex:1" onclick="openConnectorModal(\'' + c.connector_type + '\')">Configure</button>',
+          '<button class="btn btn-secondary btn-sm" onclick="testConnector(\'' + c.connector_type + '\', this)">Test</button>',
+        '</div>',
+      '</div>'
+    ].join('');
+  }).join('');
+}
+
+function openConnectorModal(connectorType) {
+  var title, sub, bodyHtml;
+  document.getElementById('conn-modal-result').style.display = 'none';
+  if (connectorType === 'microsoft_azure') {
+    title = 'Configure Microsoft 365';
+    sub = 'Enter your Azure AD app registration credentials';
+    bodyHtml = [
+      '<div class="form-row"><label class="form-label">Display Name</label><input class="form-input" id="cm-display-name" value="Microsoft 365" placeholder="Microsoft 365"></div>',
+      '<div class="form-row"><label class="form-label">Tenant ID</label><input class="form-input" id="cm-tenant-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>',
+      '<div class="form-row"><label class="form-label">Client ID</label><input class="form-input" id="cm-client-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>',
+      '<div class="form-row"><label class="form-label">Client Secret</label><input class="form-input" id="cm-client-secret" type="password" placeholder="Your app secret"></div>',
+    ].join('');
+  } else if (connectorType === 'atlassian') {
+    title = 'Configure Atlassian';
+    sub = 'Enter your Atlassian API credentials';
+    bodyHtml = [
+      '<div class="form-row"><label class="form-label">Display Name</label><input class="form-input" id="cm-display-name" value="Atlassian" placeholder="Atlassian"></div>',
+      '<div class="form-row"><label class="form-label">Email</label><input class="form-input" id="cm-atlassian-email" placeholder="user@company.com" type="email"></div>',
+      '<div class="form-row"><label class="form-label">API Token</label><input class="form-input" id="cm-api-token" type="password" placeholder="Your Atlassian API token"></div>',
+      '<div class="form-row"><label class="form-label">Confluence URL</label><input class="form-input" id="cm-confluence-url" placeholder="https://company.atlassian.net/wiki"></div>',
+      '<div class="form-row"><label class="form-label">Jira URL</label><input class="form-input" id="cm-jira-url" placeholder="https://company.atlassian.net"></div>',
+    ].join('');
+  } else {
+    return;
+  }
+  document.getElementById('conn-modal-title').textContent = title;
+  document.getElementById('conn-modal-sub').textContent = sub;
+  document.getElementById('conn-modal-body').innerHTML = bodyHtml;
+  document.getElementById('conn-modal-actions').innerHTML = [
+    '<button class="btn btn-secondary" onclick="closeConnModalFn()">Cancel</button>',
+    '<button class="btn btn-secondary" onclick="testConnectorFromModal(\'' + connectorType + '\')">Test Connection</button>',
+    '<button class="btn btn-primary" onclick="saveConnector(\'' + connectorType + '\')">Save</button>',
+  ].join('');
+  document.getElementById('conn-modal-overlay').classList.remove('hidden');
+}
+
+function closeConnModal(e) {
+  if (e && e.target !== document.getElementById('conn-modal-overlay')) return;
+  closeConnModalFn();
+}
+function closeConnModalFn() { document.getElementById('conn-modal-overlay').classList.add('hidden'); }
+
+async function saveConnector(connectorType) {
+  var body = { display_name: (document.getElementById('cm-display-name') || {}).value || '' };
+  if (connectorType === 'microsoft_azure') {
+    body.tenant_id     = (document.getElementById('cm-tenant-id')     || {}).value || '';
+    body.client_id     = (document.getElementById('cm-client-id')     || {}).value || '';
+    body.client_secret = (document.getElementById('cm-client-secret') || {}).value || '';
+  } else if (connectorType === 'atlassian') {
+    body.email         = (document.getElementById('cm-atlassian-email') || {}).value || '';
+    body.api_token     = (document.getElementById('cm-api-token')       || {}).value || '';
+    body.confluence_url = (document.getElementById('cm-confluence-url') || {}).value || '';
+    body.jira_url      = (document.getElementById('cm-jira-url')        || {}).value || '';
+  }
+  try {
+    var r = await fetch(API + '/api/super/connectors/' + connectorType, {
+      method: 'PUT', headers: authHeaders(), body: JSON.stringify(body)
+    });
+    if (r.ok) {
+      closeConnModalFn();
+      showToast('Connector saved', 'success');
+      loadConnectors();
+    } else {
+      var d = await r.json().catch(() => ({}));
+      showToast('Error: ' + (d.detail || 'Save failed'), 'error');
+    }
+  } catch(e) { showToast('Network error', 'error'); }
+}
+
+async function testConnector(connectorType, btn) {
+  var orig = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = 'Testing…'; btn.disabled = true; }
+  try {
+    var r = await fetch(API + '/api/super/connectors/' + connectorType + '/test', {
+      method: 'POST', headers: authHeaders()
+    });
+    var d = await r.json().catch(() => ({}));
+    showToast((d.ok ? 'OK: ' : 'Failed: ') + (d.message || ''), d.ok ? 'success' : 'error');
+  } catch(e) { showToast('Network error', 'error'); }
+  finally { if (btn) { btn.textContent = orig; btn.disabled = false; } }
+}
+
+async function testConnectorFromModal(connectorType) {
+  var resEl = document.getElementById('conn-modal-result');
+  resEl.style.display = 'block';
+  resEl.textContent = 'Testing…';
+  resEl.style.color = 'var(--text-m)';
+  try {
+    var r = await fetch(API + '/api/super/connectors/' + connectorType + '/test', {
+      method: 'POST', headers: authHeaders()
+    });
+    var d = await r.json().catch(() => ({}));
+    resEl.textContent = (d.ok ? 'OK: ' : 'Failed: ') + (d.message || '');
+    resEl.style.color = d.ok ? '#cccccc' : '#f08080';
+  } catch(e) {
+    resEl.textContent = 'Network error: ' + e.message;
+    resEl.style.color = '#f08080';
+  }
+}
+
+// ── Connector Tool Library ──────────────────────────────────────────────────
+var _connToolGroups = {
+  microsoft_azure: [
+    { name: 'teams_list_channels', desc: 'List channels in the configured Teams team', write: false },
+    { name: 'teams_send_message', desc: 'Post a message to a Teams channel', write: true },
+    { name: 'teams_read_messages', desc: 'Read recent messages from a Teams channel', write: false },
+    { name: 'teams_create_meeting', desc: 'Create a Teams meeting', write: true },
+    { name: 'teams_list_members', desc: 'List members of a Teams team or channel', write: false },
+    { name: 'teams_get_files', desc: 'Get files shared in a Teams channel', write: false },
+    { name: 'sharepoint_list_sites', desc: 'List SharePoint sites accessible to the connector', write: false },
+    { name: 'sharepoint_get_files', desc: 'Browse files in a SharePoint document library', write: false },
+    { name: 'sharepoint_read_file', desc: 'Download and read a SharePoint file', write: false },
+    { name: 'sharepoint_upload_file', desc: 'Upload a file to SharePoint', write: true },
+    { name: 'sharepoint_search', desc: 'Full-text search across SharePoint content', write: false },
+    { name: 'sharepoint_list_items', desc: 'Read rows from a SharePoint list', write: false },
+    { name: 'powerbi_list_reports', desc: 'List Power BI reports in the configured workspace', write: false },
+    { name: 'powerbi_get_report', desc: 'Get metadata and embed URL for a Power BI report', write: false },
+    { name: 'powerbi_run_query', desc: 'Execute a DAX query against a Power BI dataset', write: false },
+    { name: 'powerbi_list_datasets', desc: 'List datasets in the Power BI workspace', write: false },
+    { name: 'powerbi_refresh_dataset', desc: 'Trigger a dataset refresh in Power BI', write: true },
+    { name: 'powerbi_export_report', desc: 'Export a Power BI report to PDF or PPTX', write: true },
+    { name: 'outlook_read_emails', desc: 'Read emails from the configured mailbox', write: false },
+    { name: 'outlook_send_email', desc: 'Send an email via Outlook', write: true },
+    { name: 'outlook_list_calendar', desc: 'List calendar events', write: false },
+    { name: 'outlook_create_event', desc: 'Create a calendar event', write: true },
+    { name: 'outlook_search_emails', desc: 'Search emails by subject, sender, or body', write: false },
+    { name: 'outlook_get_attachments', desc: 'Download email attachments', write: false },
+  ],
+  atlassian: [
+    { name: 'confluence_get_page', desc: 'Get content of a Confluence page by ID or title', write: false },
+    { name: 'confluence_search', desc: 'Full-text search across Confluence spaces', write: false },
+    { name: 'confluence_list_pages', desc: 'List pages in a Confluence space', write: false },
+    { name: 'confluence_create_page', desc: 'Create a new Confluence page', write: true },
+    { name: 'confluence_update_page', desc: 'Update an existing Confluence page', write: true },
+    { name: 'jira_get_issue', desc: 'Get details of a Jira issue', write: false },
+    { name: 'jira_list_issues', desc: 'List issues in a Jira project with JQL filter', write: false },
+    { name: 'jira_create_issue', desc: 'Create a new Jira issue', write: true },
+    { name: 'jira_update_issue', desc: 'Update fields or status of a Jira issue', write: true },
+    { name: 'jira_add_comment', desc: 'Add a comment to a Jira issue', write: true },
+    { name: 'jira_search_issues', desc: 'Search Jira issues with JQL', write: false },
+    { name: 'jira_list_projects', desc: 'List Jira projects accessible to the connector', write: false },
+  ],
+};
+
+var _connGroupLabels = {
+  microsoft_azure: 'Microsoft 365 (Teams, SharePoint, Power BI, Outlook)',
+  atlassian: 'Atlassian (Confluence, Jira)',
+};
+
+async function loadConnectorTools() {
+  var container = document.getElementById('connector-tools-container');
+  if (!container) return;
+  renderConnectorTools('');
+}
+
+function renderConnectorTools(filter) {
+  var container = document.getElementById('connector-tools-container');
+  if (!container) return;
+  var fl = filter.toLowerCase();
+  var html = Object.entries(_connToolGroups).map(function([groupKey, tools]) {
+    var visible = tools.filter(function(t) {
+      return !fl || t.name.toLowerCase().includes(fl) || t.desc.toLowerCase().includes(fl);
+    });
+    if (!visible.length) return '';
+    return [
+      '<div style="margin-bottom:24px">',
+        '<div class="tool-category-header">',
+          '<div class="tool-category-name">' + (_connGroupLabels[groupKey] || groupKey) + '</div>',
+        '</div>',
+        '<div style="display:flex;flex-direction:column;gap:4px">',
+        visible.map(function(t) {
+          return [
+            '<div style="display:flex;align-items:center;padding:10px 14px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;gap:12px">',
+              '<div style="flex:1">',
+                '<div style="font-size:13px;font-weight:600;font-family:monospace">' + t.name + '</div>',
+                '<div style="font-size:11px;color:var(--text-m);margin-top:2px">' + t.desc + '</div>',
+              '</div>',
+              t.write ? '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;background:rgba(200,160,60,0.15);color:#ccaa66">Write</span>' : '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;background:rgba(255,255,255,0.06);color:var(--text-d)">Read</span>',
+            '</div>'
+          ].join('');
+        }).join(''),
+        '</div>',
+      '</div>'
+    ].join('');
+  }).join('');
+  container.innerHTML = html || '<div style="color:var(--text-m);font-size:13px">No tools match search.</div>';
+}
+
+function filterConnectorTools(val) { renderConnectorTools(val); }
+
+// ── Worker Mapping Tab ────────────────────────────────────────────────────────
+async function loadWorkerMappingTab() {
+  var sel = document.getElementById('cw-worker-select');
+  if (!sel) return;
+  if (sel.options.length <= 1) {
+    // Populate from cached workers
+    await loadSuperAdminWorkers();
+    sel.innerHTML = '<option value="">— choose a worker —</option>' +
+      _allWorkers.map(function(w) { return '<option value="' + w.worker_id + '">' + w.name + '</option>'; }).join('');
+  }
+}
+
+async function loadWorkerConnectorScope(workerId) {
+  var form = document.getElementById('cw-scope-form');
+  var hint = document.getElementById('cw-scope-hint');
+  if (!workerId) {
+    if (form) form.style.display = 'none';
+    if (hint) hint.style.display = 'block';
+    return;
+  }
+  if (form) form.style.display = 'block';
+  if (hint) hint.style.display = 'none';
+  try {
+    var r = await fetch(API + '/api/super/workers/' + workerId + '/connector-scope', { headers: authHeaders() });
+    if (!r.ok) return;
+    var data = await r.json();
+    var scope = data.connector_scope || {};
+    var ms = scope.microsoft_azure || {};
+    var at = scope.atlassian || {};
+    var setVal = function(id, val) { var el = document.getElementById(id); if (el) el.value = val || ''; };
+    setVal('cw-teams-id', ms.teams_team_id);
+    setVal('cw-sp-url', ms.sharepoint_site_url);
+    setVal('cw-sp-siteid', ms.sharepoint_site_id);
+    setVal('cw-pbi-workspace', ms.powerbi_workspace_id);
+    setVal('cw-outlook-email', ms.outlook_user_email);
+    setVal('cw-conf-space', at.confluence_space_key);
+    setVal('cw-jira-project', at.jira_project_key);
+  } catch(e) {}
+}
+
+async function saveConnectorScope(connectorType) {
+  var workerId = document.getElementById('cw-worker-select').value;
+  if (!workerId) { showToast('Select a worker first', 'error'); return; }
+  var body = {};
+  if (connectorType === 'microsoft_azure') {
+    body = {
+      teams_team_id:         document.getElementById('cw-teams-id').value.trim(),
+      sharepoint_site_url:   document.getElementById('cw-sp-url').value.trim(),
+      sharepoint_site_id:    document.getElementById('cw-sp-siteid').value.trim(),
+      powerbi_workspace_id:  document.getElementById('cw-pbi-workspace').value.trim(),
+      outlook_user_email:    document.getElementById('cw-outlook-email').value.trim(),
+    };
+  } else if (connectorType === 'atlassian') {
+    body = {
+      confluence_space_key: document.getElementById('cw-conf-space').value.trim(),
+      jira_project_key:     document.getElementById('cw-jira-project').value.trim(),
+    };
+  }
+  try {
+    var r = await fetch(API + '/api/super/workers/' + workerId + '/connector-scope/' + connectorType, {
+      method: 'PUT', headers: authHeaders(), body: JSON.stringify(body)
+    });
+    if (r.ok) { showToast('Connector scope saved', 'success'); }
+    else { var d = await r.json().catch(() => ({})); showToast('Error: ' + (d.detail || 'Save failed'), 'error'); }
+  } catch(e) { showToast('Network error', 'error'); }
+}
+
+// ── fetchUsers ────────────────────────────────────────────────────────────────
+// UI-ADMIN-001: was called but never defined
+async function fetchUsers() {
+  try {
+    var url = _user.role === 'super_admin'
+      ? API + '/api/super/users'
+      : API + '/api/admin/worker/users';
+    var r = await fetch(url, { headers: authHeaders() });
+    if (!r.ok) return [];
+    var data = await r.json();
+    return data.users || [];
+  } catch(e) { return []; }
+}
+
+// ── loadUsers ─────────────────────────────────────────────────────────────────
+// UI-ADMIN-003: was called but never defined
+async function loadUsers() {
+  var tbody = document.getElementById('users-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" style="color:var(--text-m);text-align:center;padding:24px">Loading…</td></tr>';
+  var users = await fetchUsers();
+  if (_user.role !== 'super_admin' && _currentWorker) {
+    users = users.filter(function(u) { return u.worker_id === _currentWorker.worker_id; });
+  }
+  if (!users.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="color:var(--text-m);text-align:center;padding:24px">No users found.</td></tr>';
+    return;
+  }
+  var workerMap = {};
+  _allWorkers.forEach(function(w) { workerMap[w.worker_id] = w.name; });
+  tbody.innerHTML = users.map(function(u) {
+    var rolePill   = u.role === 'super_admin' ? 'pill-blue' : u.role === 'admin' ? 'pill-amber' : 'pill-green';
+    var statusPill = u.enabled !== false ? 'pill-green' : 'pill-red';
+    var statusLabel = u.enabled !== false ? 'Active' : 'Disabled';
+    var workerName = (u.worker_id && workerMap[u.worker_id]) ? workerMap[u.worker_id] : (u.worker_id || '—');
+    function e(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    return '<tr>' +
+      '<td><div class="user-row-name">' + e(u.display_name || u.user_id) + '</div><div class="user-row-sub">' + e(u.email || u.user_id) + '</div></td>' +
+      '<td><span class="pill ' + rolePill + '">' + e(u.role) + '</span></td>' +
+      '<td>' + e(workerName) + '</td>' +
+      '<td><span class="pill ' + statusPill + '">' + statusLabel + '</span></td>' +
+      '<td style="display:flex;gap:6px">' +
+        '<button class="btn btn-secondary btn-sm" onclick="openEditUserModal(\'' + e(u.user_id) + '\')">Edit</button>' +
+        '<button class="btn btn-secondary btn-sm" onclick="resetUserPassword(\'' + e(u.user_id) + '\')">Reset PW</button>' +
+        (_user.role === 'super_admin' ? '<button class="btn btn-danger btn-sm" onclick="deleteUser(\'' + e(u.user_id) + '\',\'' + e(u.display_name || u.user_id) + '\')">Delete</button>' : '') +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+// ── Modal helpers (UI-ADMIN-004, UI-ADMIN-016) ────────────────────────────────
+function openModal(title, sub, bodyHtml, actionsHtml) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-sub').textContent = sub || '';
+  document.getElementById('modal-body').innerHTML = bodyHtml;
+  document.getElementById('modal-actions').innerHTML = actionsHtml;
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal-overlay')) return;
+  closeModalFn();
+}
+
+function closeModalFn() {
+  document.getElementById('modal-overlay').classList.add('hidden');
+}
+
+// ── openCreateUserModal (UI-ADMIN-004) ────────────────────────────────────────
+function openCreateUserModal() {
+  function e(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  var workerOptions = '<option value="">— no worker —</option>' +
+    _allWorkers.map(function(w) {
+      var sel = _currentWorker && w.worker_id === _currentWorker.worker_id ? ' selected' : '';
+      return '<option value="' + e(w.worker_id) + '"' + sel + '>' + e(w.name) + '</option>';
+    }).join('');
+  openModal(
+    'Create User', 'Add a new user to this system',
+    '<div class="form-row"><label class="form-label">User ID</label><input class="form-input" id="cu-user-id" placeholder="e.g. jsmith"></div>' +
+    '<div class="form-row"><label class="form-label">Display Name</label><input class="form-input" id="cu-display-name" placeholder="e.g. John Smith"></div>' +
+    '<div class="form-row"><label class="form-label">Email</label><input class="form-input" id="cu-email" type="email" placeholder="john@company.com"></div>' +
+    '<div class="form-row"><label class="form-label">Password</label><input class="form-input" id="cu-password" type="password" placeholder="Minimum 8 characters"></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">' +
+      '<div class="form-row"><label class="form-label">Role</label><select class="form-select" id="cu-role"><option value="user">User</option><option value="admin">Admin</option></select></div>' +
+      '<div class="form-row"><label class="form-label">Assign to Worker</label><select class="form-select" id="cu-worker">' + workerOptions + '</select></div>' +
+    '</div>',
+    '<button class="btn btn-secondary" onclick="closeModalFn()">Cancel</button>' +
+    '<button class="btn btn-primary" onclick="submitCreateUser()">Create User</button>'
+  );
+}
+
+async function submitCreateUser() {
+  var body = {
+    user_id:      document.getElementById('cu-user-id').value.trim(),
+    display_name: document.getElementById('cu-display-name').value.trim(),
+    email:        document.getElementById('cu-email').value.trim(),
+    password:     document.getElementById('cu-password').value,
+    role:         document.getElementById('cu-role').value,
+    worker_id:    document.getElementById('cu-worker').value || null,
+  };
+  if (!body.user_id || !body.display_name || !body.password) {
+    showToast('User ID, display name and password are required', 'error'); return;
+  }
+  try {
+    var r = await fetch(API + '/api/super/users', {
+      method: 'POST', headers: authHeaders(), body: JSON.stringify(body)
+    });
+    var d = await r.json().catch(function() { return {}; });
+    if (r.ok) {
+      closeModalFn(); showToast('User created: ' + body.display_name, 'success');
+      loadUsers(); loadDashboard();
+    } else { showToast('Error: ' + (d.detail || 'Create failed'), 'error'); }
+  } catch(err) { showToast('Network error', 'error'); }
+}
+
+async function openEditUserModal(userId) {
+  var users = await fetchUsers();
+  var u = users.find(function(x) { return x.user_id === userId; });
+  if (!u) { showToast('User not found', 'error'); return; }
+  function e(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  var workerOptions = '<option value="">— no worker —</option>' +
+    _allWorkers.map(function(w) {
+      return '<option value="' + e(w.worker_id) + '"' + (w.worker_id === u.worker_id ? ' selected' : '') + '>' + e(w.name) + '</option>';
+    }).join('');
+  openModal(
+    'Edit User', e(u.display_name || u.user_id),
+    '<div class="form-row"><label class="form-label">Display Name</label><input class="form-input" id="eu-display-name" value="' + e(u.display_name || '') + '"></div>' +
+    '<div class="form-row"><label class="form-label">Email</label><input class="form-input" id="eu-email" type="email" value="' + e(u.email || '') + '"></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">' +
+      '<div class="form-row"><label class="form-label">Role</label><select class="form-select" id="eu-role"><option value="user"' + (u.role==='user'?' selected':'') + '>User</option><option value="admin"' + (u.role==='admin'?' selected':'') + '>Admin</option></select></div>' +
+      '<div class="form-row"><label class="form-label">Worker</label><select class="form-select" id="eu-worker">' + workerOptions + '</select></div>' +
+    '</div>' +
+    '<div class="form-row"><label class="form-label">Status</label><select class="form-select" id="eu-enabled"><option value="true"' + (u.enabled!==false?' selected':'') + '>Active</option><option value="false"' + (u.enabled===false?' selected':'') + '>Disabled</option></select></div>',
+    '<button class="btn btn-secondary" onclick="closeModalFn()">Cancel</button>' +
+    '<button class="btn btn-primary" onclick="submitEditUser(\'' + e(userId) + '\')">Save Changes</button>'
+  );
+}
+
+async function submitEditUser(userId) {
+  var body = {
+    display_name: document.getElementById('eu-display-name').value.trim(),
+    email:        document.getElementById('eu-email').value.trim(),
+    role:         document.getElementById('eu-role').value,
+    worker_id:    document.getElementById('eu-worker').value || null,
+    enabled:      document.getElementById('eu-enabled').value === 'true',
+  };
+  try {
+    var r = await fetch(API + '/api/super/users/' + encodeURIComponent(userId), {
+      method: 'PUT', headers: authHeaders(), body: JSON.stringify(body)
+    });
+    var d = await r.json().catch(function() { return {}; });
+    if (r.ok) { closeModalFn(); showToast('User updated', 'success'); loadUsers(); }
+    else { showToast('Error: ' + (d.detail || 'Update failed'), 'error'); }
+  } catch(err) { showToast('Network error', 'error'); }
+}
+
+async function deleteUser(userId, displayName) {
+  if (!confirm('Delete user "' + displayName + '"? This cannot be undone.')) return;
+  try {
+    var r = await fetch(API + '/api/super/users/' + encodeURIComponent(userId), {
+      method: 'DELETE', headers: authHeaders()
+    });
+    if (r.ok) { showToast('User deleted', 'success'); loadUsers(); loadDashboard(); }
+    else { var d = await r.json().catch(function() { return {}; }); showToast('Error: ' + (d.detail || 'Delete failed'), 'error'); }
+  } catch(err) { showToast('Network error', 'error'); }
+}
+
+async function resetUserPassword(userId) {
+  if (!confirm('Reset password for "' + userId + '"?')) return;
+  try {
+    var r = await fetch(API + '/api/super/users/' + encodeURIComponent(userId) + '/reset-password', {
+      method: 'POST', headers: authHeaders()
+    });
+    var d = await r.json().catch(function() { return {}; });
+    if (r.ok) { showToast('Password reset', 'success'); }
+    else { showToast('Error: ' + (d.detail || 'Reset failed'), 'error'); }
+  } catch(err) { showToast('Network error', 'error'); }
+}
+
+// ── loadWorkers (UI-ADMIN-005) ────────────────────────────────────────────────
+function loadWorkers() {
+  renderWorkersGrid(_allWorkers, 'workers-grid');
+  if (_user.role === 'super_admin') {
+    loadSuperAdminWorkers().then(function() {
+      renderWorkersGrid(_allWorkers, 'workers-grid');
+    });
+  }
+}
+
+// ── openCreateWorkerModal (UI-ADMIN-006) ──────────────────────────────────────
+function openCreateWorkerModal() {
+  function e(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  openModal(
+    'Create Worker', 'Set up a new digital worker',
+    '<div class="form-row"><label class="form-label">Worker Name</label><input class="form-input" id="cwnew-name" placeholder="e.g. Credit Risk Agent"></div>' +
+    '<div class="form-row"><label class="form-label">Description</label><input class="form-input" id="cwnew-desc" placeholder="Brief description"></div>' +
+    '<div class="form-row"><label class="form-label">System Prompt (optional)</label><textarea class="form-textarea" id="cwnew-prompt" rows="5" placeholder="Enter system prompt…"></textarea></div>' +
+    '<div class="form-row"><label class="form-label">Runtime</label><select class="form-select" id="cwnew-runtime"><option value="langchain">LangChain (default)</option><option value="dsh">DeepSeek Harness (beta)</option></select></div>' +
+    '<div class="form-row"><label class="form-label">Clone from (optional)</label><select class="form-select" id="cwnew-clone"><option value="">— start blank —</option>' +
+    _allWorkers.map(function(w) { return '<option value="' + e(w.worker_id) + '">' + e(w.name) + '</option>'; }).join('') +
+    '</select></div>',
+    '<button class="btn btn-secondary" onclick="closeModalFn()">Cancel</button>' +
+    '<button class="btn btn-primary" onclick="submitCreateWorker()">Create Worker</button>'
+  );
+}
+
+async function submitCreateWorker() {
+  var name = document.getElementById('cwnew-name').value.trim();
+  if (!name) { showToast('Worker name is required', 'error'); return; }
+  var body = {
+    name:          name,
+    description:   document.getElementById('cwnew-desc').value.trim(),
+    system_prompt: document.getElementById('cwnew-prompt').value,
+    agent_runtime: document.getElementById('cwnew-runtime').value,
+    clone_from:    document.getElementById('cwnew-clone').value || null,
+    enabled_tools: ['*'],
+  };
+  try {
+    var r = await fetch(API + '/api/super/workers', {
+      method: 'POST', headers: authHeaders(), body: JSON.stringify(body)
+    });
+    var d = await r.json().catch(function() { return {}; });
+    if (r.ok) {
+      closeModalFn(); showToast('Worker created: ' + name, 'success');
+      await loadSuperAdminWorkers();
+      var si = document.getElementById('workers-search'); if (si) si.value = '';
+      var si2 = document.getElementById('dash-workers-search'); if (si2) si2.value = '';
+      renderWorkersGrid(_allWorkers, 'workers-grid');
+      renderWorkersGrid(_allWorkers, 'dash-workers-grid');
+    } else { showToast('Error: ' + (d.detail || 'Create failed'), 'error'); }
+  } catch(err) { showToast('Network error', 'error'); }
+}
+
+// ── Delete Worker ─────────────────────────────────────────────────────────────
+function openDeleteWorkerModal() {
+  if (!_currentWorker) return;
+  function e(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  openModal(
+    'Delete Worker',
+    'This action is permanent. All worker data will be erased.',
+    '<div class="form-row" style="margin-bottom:0">' +
+    '<label class="form-label">Type <strong>' + e(_currentWorker.name) + '</strong> to confirm deletion</label>' +
+    '<input class="form-input" id="del-worker-confirm" placeholder="' + e(_currentWorker.name) + '" autocomplete="off">' +
+    '</div>',
+    '<button class="btn btn-secondary" onclick="closeModalFn()">Cancel</button>' +
+    '<button class="btn btn-danger" onclick="submitDeleteWorker()">Delete Worker</button>'
+  );
+}
+
+async function submitDeleteWorker() {
+  if (!_currentWorker) return;
+  var confirmVal = (document.getElementById('del-worker-confirm') || {}).value || '';
+  if (confirmVal !== _currentWorker.name) {
+    showToast('Name does not match — deletion cancelled', 'error');
+    return;
+  }
+  try {
+    var r = await fetch(API + '/api/super/workers/' + _currentWorker.worker_id, {
+      method: 'DELETE',
+      headers: authHeaders(),
+      body: JSON.stringify({ confirm_name: _currentWorker.name }),
+    });
+    var d = await r.json().catch(function() { return {}; });
+    if (r.ok) {
+      closeModalFn();
+      showToast('Worker "' + _currentWorker.name + '" deleted', 'success');
+      _currentWorker = null;
+      await loadSuperAdminWorkers();
+      renderWorkersGrid(_allWorkers, 'workers-grid');
+      renderWorkersGrid(_allWorkers, 'dash-workers-grid');
+      showSection('workers');
+    } else {
+      showToast('Error: ' + (d.detail || 'Delete failed'), 'error');
+    }
+  } catch(err) { showToast('Network error', 'error'); }
+}
+
+// ── Filter Workers Grid ────────────────────────────────────────────────────────
+function filterWorkersGrid(query) {
+  var q = (query || '').toLowerCase().trim();
+  var filtered = q ? _allWorkers.filter(function(w) {
+    return (w.name || '').toLowerCase().includes(q) || (w.description || '').toLowerCase().includes(q);
+  }) : _allWorkers;
+  renderWorkersGrid(filtered, 'workers-grid');
+  renderWorkersGrid(filtered, 'dash-workers-grid');
+}
+
+// ── Audit Log (UI-ADMIN-013) ──────────────────────────────────────────────────
+var _auditOffset = 0;
+var _auditLimit  = 50;
+var _auditTotal  = 0;
+
+async function loadAudit(offset) {
+  if (offset === undefined) offset = _auditOffset;
+  _auditOffset = offset;
+  var tbody      = document.getElementById('audit-tbody');
+  var pagination = document.getElementById('audit-pagination');
+  var pageInfo   = document.getElementById('audit-page-info');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text-m);text-align:center;padding:24px">Loading…</td></tr>';
+  var workerFilter = (document.getElementById('audit-filter-worker') || {}).value || '';
+  var userFilter   = (document.getElementById('audit-filter-user')   || {}).value || '';
+  var qs = '?limit=' + _auditLimit + '&offset=' + offset;
+  if (workerFilter) qs += '&worker_id=' + encodeURIComponent(workerFilter);
+  if (userFilter)   qs += '&user_id='   + encodeURIComponent(userFilter);
+  try {
+    var r = await fetch(API + '/api/super/audit' + qs, { headers: authHeaders() });
+    if (!r.ok) {
+      tbody.innerHTML = '<tr><td colspan="6" style="color:#aaa;text-align:center;padding:24px">Error loading audit log.</td></tr>';
+      return;
+    }
+    var data = await r.json();
+    var entries = data.entries || [];
+    _auditTotal = data.total_matched || 0;
+    if (!entries.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text-m);text-align:center;padding:24px">No audit entries found.</td></tr>';
+      if (pagination) pagination.style.display = 'none';
+      return;
+    }
+    function e(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    tbody.innerHTML = entries.map(function(entry) {
+      var ts = entry.timestamp ? new Date(entry.timestamp).toLocaleString() : '—';
+      var statusCls = entry.status === 'success' ? 'pill-green' : 'pill-red';
+      return '<tr>' +
+        '<td style="font-size:12px;white-space:nowrap">' + e(ts) + '</td>' +
+        '<td>' + e(entry.worker_id || '—') + '</td>' +
+        '<td>' + e(entry.user_id || '—') + '</td>' +
+        '<td style="font-family:monospace;font-size:12px">' + e(entry.tool_name || '—') + '</td>' +
+        '<td><span class="pill ' + statusCls + '">' + e(entry.status || '—') + '</span></td>' +
+        '<td style="font-size:12px">' + (entry.duration_ms != null ? Math.round(entry.duration_ms) : '—') + '</td>' +
+      '</tr>';
+    }).join('');
+    if (pagination && _auditTotal > _auditLimit) {
+      pagination.style.display = 'flex';
+      if (pageInfo) {
+        var from = offset + 1;
+        var to   = Math.min(offset + entries.length, _auditTotal);
+        pageInfo.textContent = from + '–' + to + ' of ' + _auditTotal;
+      }
+      var prevBtn = document.getElementById('audit-prev-btn');
+      var nextBtn = document.getElementById('audit-next-btn');
+      if (prevBtn) prevBtn.disabled = offset === 0;
+      if (nextBtn) nextBtn.disabled = offset + _auditLimit >= _auditTotal;
+    } else {
+      if (pagination) pagination.style.display = 'none';
+    }
+  } catch(err) {
+    tbody.innerHTML = '<tr><td colspan="6" style="color:#aaa;text-align:center;padding:24px">Failed to load audit log.</td></tr>';
+  }
+}
+
+var _auditFilterTimer = null;
+function filterAuditTable() {
+  clearTimeout(_auditFilterTimer);
+  _auditFilterTimer = setTimeout(function() { loadAudit(0); }, 350);
+}
+
+function auditPagePrev() {
+  if (_auditOffset >= _auditLimit) loadAudit(_auditOffset - _auditLimit);
+}
+
+function auditPageNext() {
+  if (_auditOffset + _auditLimit < _auditTotal) loadAudit(_auditOffset + _auditLimit);
+}
+
+// ── switchSheet (UI-ADMIN-015) ────────────────────────────────────────────────
+function switchSheet(tabEl, sheetName, wb) {
+  var tabs = tabEl.parentElement.querySelectorAll('.sheet-tab');
+  tabs.forEach(function(t) { t.classList.remove('active'); });
+  tabEl.classList.add('active');
+  var pb = document.getElementById('preview-body');
+  if (pb && typeof renderSheet === 'function') renderSheet(wb, sheetName, pb);
+}
+
+// ── LLM Provider Config ───────────────────────────────────────────────────────
+var _llmCfg = {};
+var _llmSelectedProvider = 'xai';
+
+function selectLlmProvider(prov) {
+  _llmSelectedProvider = prov;
+  document.querySelectorAll('.llm-prov-card').forEach(function(c) { c.classList.remove('selected'); });
+  var card = document.getElementById('llmprov-' + prov);
+  if (card) card.classList.add('selected');
+  document.querySelectorAll('.llm-prov-fields').forEach(function(f) { f.style.display = 'none'; });
+  var fields = document.getElementById('llm-fields-' + prov);
+  if (fields) fields.style.display = '';
+}
+
+function _llmFieldVal(id, fallback) {
+  var el = document.getElementById(id);
+  return el ? (el.value.trim() || fallback || '') : (fallback || '');
+}
+
+async function loadLlmConfig() {
+  try {
+    var resp = await fetch(API + '/api/super/llm-config', { headers: authHeaders() });
+    if (!resp.ok) throw new Error(await resp.text());
+    var r = await resp.json();
+    _llmCfg = r;
+    var prov = r.provider || 'xai';
+    selectLlmProvider(prov);
+
+    // Active badge
+    var badge = document.getElementById('llm-active-badge');
+    var label = document.getElementById('llm-active-label');
+    if (badge && label) {
+      label.textContent = prov.charAt(0).toUpperCase() + prov.slice(1);
+      badge.style.display = '';
+    }
+
+    // Anthropic
+    var ant = r.anthropic || {};
+    _setVal('llm-ant-model', ant.model || 'claude-sonnet-4-20250514');
+    _setVal('llm-ant-maxtok', ant.max_tokens || 8192);
+    var antHint = document.getElementById('llm-ant-key-hint');
+    if (antHint) antHint.textContent = ant.api_key_masked ? 'Current key: ' + ant.api_key_masked : 'No key saved';
+
+    // xAI
+    var xai = r.xai || {};
+    _setVal('llm-xai-model', xai.model || 'grok-3');
+    _setVal('llm-xai-maxtok', xai.max_tokens || 8192);
+    var xaiHint = document.getElementById('llm-xai-key-hint');
+    if (xaiHint) xaiHint.textContent = xai.api_key_masked ? 'Current key: ' + xai.api_key_masked : 'No key saved';
+
+    // HuggingFace
+    var hf = r.huggingface || {};
+    _setVal('llm-hf-model', hf.model || 'meta-llama/Llama-3.3-70B-Instruct');
+    _setVal('llm-hf-maxtok', hf.max_tokens || 4096);
+    var hfHint = document.getElementById('llm-hf-key-hint');
+    if (hfHint) hfHint.textContent = hf.api_key_masked ? 'Current key: ' + hf.api_key_masked : 'No key saved';
+
+    // Bedrock
+    var bdr = r.bedrock || {};
+    _setVal('llm-bdr-modelid', bdr.model_id || 'us.anthropic.claude-sonnet-4-20250514-v1:0');
+    _setVal('llm-bdr-region',  bdr.region   || 'us-east-1');
+    _setVal('llm-bdr-maxtok',  bdr.max_tokens || 8192);
+  } catch(e) {
+    console.error('loadLlmConfig error', e);
+  }
+}
+
+function _setVal(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.value = val;
+}
+
+async function saveLlmConfig() {
+  var msg = document.getElementById('llm-save-msg');
+  if (msg) { msg.style.display = ''; msg.style.background = 'rgba(255,255,255,0.05)'; msg.style.color = 'var(--text-m)'; msg.textContent = 'Applying…'; }
+
+  var body = {
+    provider: _llmSelectedProvider,
+    anthropic: {
+      api_key:    _llmFieldVal('llm-ant-key'),
+      model:      _llmFieldVal('llm-ant-model', 'claude-sonnet-4-20250514'),
+      max_tokens: parseInt(_llmFieldVal('llm-ant-maxtok', '8192')) || 8192,
+    },
+    xai: {
+      api_key:    _llmFieldVal('llm-xai-key'),
+      model:      _llmFieldVal('llm-xai-model', 'grok-3'),
+      max_tokens: parseInt(_llmFieldVal('llm-xai-maxtok', '8192')) || 8192,
+    },
+    huggingface: {
+      api_key:    _llmFieldVal('llm-hf-key'),
+      model:      _llmFieldVal('llm-hf-model', 'meta-llama/Llama-3.3-70B-Instruct'),
+      max_tokens: parseInt(_llmFieldVal('llm-hf-maxtok', '4096')) || 4096,
+    },
+    bedrock: {
+      model_id:   _llmFieldVal('llm-bdr-modelid', 'us.anthropic.claude-sonnet-4-20250514-v1:0'),
+      region:     _llmFieldVal('llm-bdr-region',  'us-east-1'),
+      max_tokens: parseInt(_llmFieldVal('llm-bdr-maxtok', '8192')) || 8192,
+    },
+  };
+
+  try {
+    var resp2 = await fetch(API + '/api/super/llm-config', {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify(body),
+    });
+    if (!resp2.ok) { var errTxt = await resp2.text(); throw new Error(errTxt); }
+    var r = await resp2.json();
+    if (msg) {
+      msg.style.background = 'rgba(34,197,94,0.12)';
+      msg.style.color = '#86efac';
+      msg.style.border = '1px solid rgba(34,197,94,0.3)';
+      msg.textContent = 'Active provider: ' + (r.active_provider || _llmSelectedProvider) + ' — LLM reloaded successfully.';
+    }
+    // Update badge
+    var label = document.getElementById('llm-active-label');
+    if (label) label.textContent = (r.active_provider || _llmSelectedProvider).charAt(0).toUpperCase() + (r.active_provider || _llmSelectedProvider).slice(1);
+    // Reload to refresh masked key hints
+    await loadLlmConfig();
+    // Clear key fields after save
+    ['llm-ant-key','llm-xai-key','llm-hf-key'].forEach(function(id) { var el = document.getElementById(id); if(el) el.value=''; });
+    if (typeof showToast === 'function') showToast('LLM provider updated', 'success');
+  } catch(e) {
+    if (msg) {
+      msg.style.background = 'rgba(220,50,50,0.12)';
+      msg.style.color = '#f08080';
+      msg.style.border = '1px solid rgba(220,50,50,0.3)';
+      msg.textContent = 'Error: ' + (e.message || e);
+    }
+  }
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+// Guard: window.location.href doesn't stop JS execution — only init when authenticated
+if (_user) initWorkerContext();
+</script>
+<script src="/js/file-tree.js?v=2"></script>
+<script>
+// BUG-009: shared confirm helper for BPulseFileTree — uses openModal instead of window.confirm
+function _bpftConfirm(msg, cb) {
+  window._bpftConfirmCb = cb;
+  openModal(
+    'Confirm Delete', msg, '',
+    '<button class="btn btn-danger" onclick="closeModalFn(); window._bpftConfirmCb && window._bpftConfirmCb()">Delete</button>' +
+    '<button class="btn btn-secondary" onclick="closeModalFn()">Cancel</button>'
+  );
+}
+
+// Initialize BPulseFileTree instances for admin.html (runs after file-tree.js loads)
+(function() {
+  function _getToken() { return (typeof _token !== 'undefined' ? _token : '') || sessionStorage.getItem('rg_token') || ''; }
+  function _toast(msg, type) { if (typeof showToast === 'function') showToast(msg, type === 'error' ? 'error' : 'success'); }
+  function _apiPrefix() {
+    if (typeof _user !== 'undefined' && _user && _user.role === 'super_admin' && typeof _currentWorker !== 'undefined' && _currentWorker) {
+      return (typeof API !== 'undefined' ? API : '') + '/api/super/workers/' + _currentWorker.worker_id + '/files';
+    }
+    return (typeof API !== 'undefined' ? API : '') + '/api/admin/worker/files';
+  }
+
+  window._bpft_dd = new BPulseFileTree({
+    containerId: 'tree-domain_data',
+    section: 'domain_data',
+    apiPrefix: _apiPrefix,
+    writable: true,
+    workflowSection: false,
+    token: _getToken,
+    onToast: _toast,
+    onConfirm: _bpftConfirm,
+    onFileClick: function(section, path, name) {
+      if (typeof previewFile === 'function') previewFile({ stopPropagation: function(){} }, section, path, name);
+    },
+    onFolderSelect: function(path, name) {
+      var el = document.getElementById('dd-upload-target');
+      if (el) { el.textContent = path ? '\u2192 ' + name : ''; el.title = path ? 'Uploading into: ' + path : 'Files will upload here'; }
+    },
+  });
+
+  window._bpft_wf = new BPulseFileTree({
+    containerId: 'tree-verified_workflows',
+    section: 'verified_workflows',
+    apiPrefix: _apiPrefix,
+    writable: true,
+    workflowSection: false,
+    token: _getToken,
+    onToast: _toast,
+    onConfirm: _bpftConfirm,
+    onFileClick: function(section, path, name) {
+      if (typeof previewFile === 'function') previewFile({ stopPropagation: function(){} }, section, path, name);
+    },
+    onFolderSelect: function(path, name) {
+      var el = document.getElementById('wf-upload-target');
+      if (el) { el.textContent = path ? '\u2192 ' + name : ''; el.title = path ? 'Uploading into: ' + path : 'Files will upload here'; }
+    },
+  });
+
+  // Common Data (Shared Library) — REQ-10
+  // Upload goes to /api/admin/common/upload (or super via /api/super/workers/{id}/files/common/upload)
+  function _commonApiPrefix() {
+    if (typeof _user !== 'undefined' && _user && _user.role === 'super_admin' && typeof _currentWorker !== 'undefined' && _currentWorker) {
+      return (typeof API !== 'undefined' ? API : '') + '/api/super/workers/' + _currentWorker.worker_id + '/files';
+    }
+    return (typeof API !== 'undefined' ? API : '') + '/api/admin/worker/files';
+  }
+  window._bpft_common = new BPulseFileTree({
+    containerId: 'tree-common',
+    section: 'common',
+    apiPrefix: _commonApiPrefix,
+    writable: true,
+    workflowSection: false,
+    token: _getToken,
+    onToast: _toast,
+    onConfirm: _bpftConfirm,
+    onFileClick: function(section, path, name) {
+      if (typeof previewFile === 'function') previewFile({ stopPropagation: function(){} }, section, path, name);
+    },
+    onFolderSelect: function(path, name) {
+      var el = document.getElementById('common-upload-target');
+      if (el) { el.textContent = path ? '\u2192 ' + name : ''; el.title = path ? 'Uploading into: ' + path : 'Files will upload here'; }
+    },
+  });
+  // Hide Delete/Select for non-super_admin (REQ-10 access model)
+  if (typeof _user !== 'undefined' && _user && _user.role !== 'super_admin') {
+    var _cs = document.getElementById('common-select-btn');
+    var _cd = document.getElementById('common-bulk-delete-btn');
+    if (_cs) _cs.style.display = 'none';
+    if (_cd) _cd.style.display = 'none';
+  }
+
+  // Wire upload inputs (individual files)
+  var ddInput = document.getElementById('bpft-upload-input-dd');
+  if (ddInput) ddInput.onchange = function() { window._bpft_dd && window._bpft_dd.upload(Array.from(this.files), window._bpft_dd.getSelectedFolder()); this.value = ''; };
+  var wfInput = document.getElementById('bpft-upload-input-wf');
+  if (wfInput) wfInput.onchange = function() { window._bpft_wf && window._bpft_wf.upload(Array.from(this.files), window._bpft_wf.getSelectedFolder()); this.value = ''; };
+  var commonInput = document.getElementById('bpft-upload-input-common');
+  if (commonInput) commonInput.onchange = function() { window._bpft_common && window._bpft_common.upload(Array.from(this.files), window._bpft_common.getSelectedFolder()); this.value = ''; };
+
+  // Wire folder upload inputs (preserves subfolder structure via webkitRelativePath)
+  var ddFolderInput = document.getElementById('bpft-folder-input-dd');
+  if (ddFolderInput) ddFolderInput.onchange = function() {
+    var files = Array.from(this.files).filter(function(f) { return !f.name.startsWith('.'); });
+    if (files.length && window._bpft_dd) {
+      var count = files.length;
+      var topFolder = (files[0].webkitRelativePath || '').split('/')[0] || 'folder';
+      if (confirm('Upload ' + count + ' files from "' + topFolder + '/" preserving folder structure?')) {
+        window._bpft_dd.uploadFolder(files, window._bpft_dd.getSelectedFolder());
+      }
+    }
+    this.value = '';
+  };
+  var commonFolderInput = document.getElementById('bpft-folder-input-common');
+  if (commonFolderInput) commonFolderInput.onchange = function() {
+    var files = Array.from(this.files).filter(function(f) { return !f.name.startsWith('.'); });
+    if (files.length && window._bpft_common) {
+      var count = files.length;
+      var topFolder = (files[0].webkitRelativePath || '').split('/')[0] || 'folder';
+      if (confirm('Upload ' + count + ' files from "' + topFolder + '/" preserving folder structure?')) {
+        window._bpft_common.uploadFolder(files, window._bpft_common.getSelectedFolder());
+      }
+    }
+    this.value = '';
+  };
+
+  // UI-ADMIN-008: wire Select buttons to enable/disable Delete button based on bulk mode
+  var ddSelectBtn = document.getElementById('dd-select-btn');
+  var ddDeleteBtn = document.getElementById('dd-bulk-delete-btn');
+  if (ddSelectBtn && ddDeleteBtn) {
+    var _origDdClick = ddSelectBtn.onclick;
+    ddSelectBtn.onclick = function() {
+      window._bpft_dd && window._bpft_dd.toggleBulkMode();
+      var inBulk = window._bpft_dd && window._bpft_dd._bulkMode;
+      this.textContent = inBulk ? 'Cancel' : 'Select';
+      ddDeleteBtn.disabled = !inBulk;
+    };
+  }
+  var wfSelectBtn = document.getElementById('wf-select-btn');
+  var wfDeleteBtn = document.getElementById('wf-bulk-delete-btn');
+  if (wfSelectBtn && wfDeleteBtn) {
+    wfSelectBtn.onclick = function() {
+      window._bpft_wf && window._bpft_wf.toggleBulkMode();
+      var inBulk = window._bpft_wf && window._bpft_wf._bulkMode;
+      this.textContent = inBulk ? 'Cancel' : 'Select';
+      wfDeleteBtn.disabled = !inBulk;
+    };
+  }
+  var commonSelectBtn = document.getElementById('common-select-btn');
+  var commonDeleteBtn = document.getElementById('common-bulk-delete-btn');
+  if (commonSelectBtn && commonDeleteBtn) {
+    commonSelectBtn.onclick = function() {
+      window._bpft_common && window._bpft_common.toggleBulkMode();
+      var inBulk = window._bpft_common && window._bpft_common._bulkMode;
+      this.textContent = inBulk ? 'Cancel' : 'Select';
+      commonDeleteBtn.disabled = !inBulk;
+    };
+  }
+
+  // Patch loadFileTree to use BPulseFileTree instances
+  var _origLoadFileTree = window.loadFileTree;
+  window.loadFileTree = function(section) {
+    if (section === 'domain_data' && window._bpft_dd) {
+      window._bpft_dd.clearSearch();
+      var _si = document.getElementById('ft-search-dd'); if (_si) _si.value = '';
+      window._bpft_dd.load(); return;
+    }
+    if (section === 'verified_workflows' && window._bpft_wf) {
+      window._bpft_wf.clearSearch();
+      var _si = document.getElementById('ft-search-wf'); if (_si) _si.value = '';
+      window._bpft_wf.load(); return;
+    }
+    if (section === 'common' && window._bpft_common) {
+      window._bpft_common.clearSearch();
+      var _si = document.getElementById('ft-search-common'); if (_si) _si.value = '';
+      window._bpft_common.load(); return;
+    }
+    if (_origLoadFileTree) _origLoadFileTree(section);
+  };
+})();
+</script>
+</body>
+</html>
